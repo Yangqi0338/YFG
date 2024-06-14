@@ -29,4 +29,5 @@ public class PlanningProjectMaxCategory {
     /** 数量 */
     @ApiModelProperty(value = "数量"  )
     private String number;
+    private String companyCode;
 }

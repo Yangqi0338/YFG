@@ -7,6 +7,9 @@
 package ${javapackage}.${project}.service;
 import com.base.sbc.module.common.service.BaseService;
 import ${javapackage}.${project}.entity.${className};
+import ${javapackage}.${project}.dto.${className}QueryDto;
+import ${javapackage}.${project}.vo.${className}Vo;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：${title} service类
@@ -20,7 +23,7 @@ public interface ${className}Service extends BaseService<${className}>{
 
 // 自定义方法区 不替换的区域【other_start】
 
-
+    PageInfo<${className}Vo> findPage(${className}QueryDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

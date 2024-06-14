@@ -1,47 +1,35 @@
 package com.base.sbc.module.orderbook.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
-import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
+import com.base.sbc.config.enums.business.PutInProductionType;
+import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
-import com.base.sbc.module.orderbook.dto.OrderBookFollowUpSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
-import com.base.sbc.module.orderbook.entity.OrderBookFollowUp;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
-import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
-import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pricing.service.StylePricingService;
-import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -51,6 +39,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -66,6 +55,7 @@ import java.util.stream.Collectors;
 @Api(tags = "订货本")
 @RequestMapping(value = BaseController.SAAS_URL + "/orderBookDetail", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 public class OrderBookDetailController extends BaseController {
 
     private final OrderBookDetailService orderBookDetailService;
@@ -76,16 +66,26 @@ public class OrderBookDetailController extends BaseController {
     private final OrderBookService orderBookService;
     private final StylePricingService stylePricingService;
     private final AmcFeignService amcFeignService;
+    private final RedisUtils redisUtils;
+
+    private final String BUSINESS_KEY = "business_modify_%s_%s";
 
     @ApiOperation(value = "订货本详情-分页条件查询")
     @GetMapping("/queryPage")
     public ApiResult queryPage(OrderBookDetailQueryDto dto) {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        PageInfo<OrderBookDetailVo> pageInfo = orderBookDetailService.queryPage(dto);
-        OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(pageInfo,OrderBookDetailPageVo.class);
-        pageVo.setTotalMap(orderBookDetailService.queryCount(dto));
-        return selectSuccess(pageVo);
+        return selectSuccess(orderBookDetailService.queryPage(dto));
+    }
+
+    /**
+     * 订货本批量编辑
+     */
+    @ApiOperation(value = "订货本批量编辑")
+    @PostMapping("/updateBatchOrderBookDetail")
+    public ApiResult<String> updateBatchOrderBookDetail(@RequestBody List<OrderBookDetail> orderBookDetailList) {
+        orderBookDetailService.updateBatchOrderBookDetail(orderBookDetailList);
+        return ApiResult.success();
     }
 
     /**
@@ -139,10 +139,21 @@ public class OrderBookDetailController extends BaseController {
     @ApiModelProperty(value = "订货本详情-下单")
     @PostMapping("/placeAnOrder")
     public ApiResult placeAnOrder(@RequestBody OrderBookDetailQueryDto dto) {
-        String ids = dto.getIds();
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return updateSuccess(orderBookDetailService.placeAnOrder(dto, ids));
+        dto.setUserName(super.getUser().getUsername());
+        return updateSuccess(orderBookDetailService.placeAnOrder(dto));
+    }
+
+    /**
+     * 订货本投产
+     */
+    @ApiModelProperty(value = "订货本详情-投产")
+    @PostMapping("/placeAnProduction")
+    public ApiResult placeAnProduction(@RequestBody @Valid OrderBookDetailQueryDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
+        return ApiResult.success(String.format("%s的大货款正发起投产, 结果会以消息方式通知, 请留意站内消息",orderBookDetailService.placeAnProduction(dto)));
     }
 
     /**
@@ -161,10 +172,10 @@ public class OrderBookDetailController extends BaseController {
     @PostMapping("/placeAnOrderAll")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult placeAnOrderAll(@RequestBody OrderBookDetailQueryDto dto) {
-        String orderBookId = dto.getOrderBookId();
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return updateSuccess(orderBookDetailService.placeAnOrder(dto, orderBookId));
+        dto.setUserName(super.getUser().getUsername());
+        return updateSuccess(orderBookDetailService.placeAnOrder(dto));
     }
 
     /**
@@ -173,8 +184,13 @@ public class OrderBookDetailController extends BaseController {
     @ApiModelProperty(value = "订货本详情-驳回")
     @PostMapping("/placeAnOrderReject")
     public ApiResult placeAnOrderReject(@RequestBody OrderBookDetailQueryDto dto) {
-        orderBookDetailService.placeAnOrderReject(dto);
-        return updateSuccess("驳回成功");
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
+        String bulkStyleNoMsg = orderBookDetailService.placeAnOrderReject(dto);
+        if (StrUtil.isNotBlank(bulkStyleNoMsg)) {
+            bulkStyleNoMsg = String.format(", %s的大货款已投产, 现进行取消投产, 结果会以消息方式通知, 请留意站内消息", bulkStyleNoMsg);
+        }
+        return ApiResult.success("驳回成功" + bulkStyleNoMsg);
     }
 
     /**
@@ -187,7 +203,7 @@ public class OrderBookDetailController extends BaseController {
             return updateSuccess("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
+        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, 1, 1);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             orderBookDetail.setIsLock(YesOrNoEnum.NO);
         }
@@ -206,7 +222,20 @@ public class OrderBookDetailController extends BaseController {
         return orderBookDetailService.designConfirm(dto);
     }
 
-
+    /**
+     * 投产填写资料
+     */
+    @ApiOperation(value = "订货本详情-投产填写资料")
+    @PostMapping("/productionConfirm")
+    @DuplicationCheck(time = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult productionConfirm(@RequestBody OrderBookDetailSaveDto dto) {
+        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+        if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)) {
+            throw new OtherException("不允许修改已发起投产的数据");
+        }
+        return insertSuccess(orderBookDetailService.updateById(dto));
+    }
 
     /**
      * 商企填写资料
@@ -214,27 +243,44 @@ public class OrderBookDetailController extends BaseController {
     @ApiOperation(value = "订货本详情-商企填写资料")
     @PostMapping("/businessConfirm")
     @DuplicationCheck(time = 10)
-    @Transactional(rollbackFor = Exception.class)
     public ApiResult businessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
-        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
-//        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
-        if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
-            throw new OtherException("不允许修改已发起审批的数据");
-        }
-        dto.setBusinessConfirm("1");
-        //修改吊牌价
-        styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
-
-        //修改倍率和系数
-        StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
-        stylePricingSaveDTO.setId(dto.getStylePricingId());
-        stylePricingSaveDTO.setPackId(dto.getPackInfoId());
-        stylePricingSaveDTO.setPlanningRate(dto.getRate());
-        stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
-        stylePricingService.updateById(stylePricingSaveDTO);
-
-        return insertSuccess(orderBookDetailService.updateById(dto));
+        return insertSuccess(orderBookDetailService.businessConfirm(dto));
     }
+
+
+    /**
+     * 商企填写资料
+     */
+
+//    @ApiOperation(value = "订货本详情-线下商企填写资料")
+//    @PostMapping("/onlineBusinessConfirm")
+//    @DuplicationCheck(time = 10)
+//    @Transactional(rollbackFor = Exception.class)
+//    public ApiResult onlineBusinessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
+//        String key = String.format(BUSINESS_KEY, dto.getId(), OrderBookChannelType.ONLINE.name());
+//        boolean aBoolean = redisUtils.setNx(key, 10);
+//        if (!aBoolean) {
+//            return ApiResult.error("有别的同事正在操作，请稍后重试",10302);
+//        }
+//        try{
+//            OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+//            if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
+//                throw new OtherException("不允许修改已发起审批的数据");
+//            }
+//            UpdateWrapper<OrderBookDetail> uw = new UpdateWrapper<>();
+//            uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
+//            uw.lambda().eq(OrderBookDetail::getTotalProduction, orderBookDetail.getTotalProduction());
+//            uw.lambda().eq(OrderBookDetail::getTotalCommissioningSize, orderBookDetail.getTotalProduction());
+//            uw.lambda().eq(OrderBookDetail::getOfflineCommissioningSize, orderBookDetail.getOfflineCommissioningSize());
+//            uw.lambda().eq(OrderBookDetail::getOnlineMaterial, orderBookDetail.getOnlineMaterial());
+//            uw.lambda().eq(OrderBookDetail::getOnlineCommissioningSize, orderBookDetail.getOnlineCommissioningSize());
+//            uw.lambda().eq(OrderBookDetail::getOnlineProduction, orderBookDetail.getOnlineProduction());
+//            return insertSuccess(orderBookDetailService.update(uw));
+//        }finally{
+//            redisUtils.del(key);
+//        }
+//
+//    }
 
     /**
      * 添加大货款
@@ -290,9 +336,15 @@ public class OrderBookDetailController extends BaseController {
             orderBookDetail.setOrderBookId(orderBookDetailSaveDto.getOrderBookId());
             String brand = styles.stream().filter(it-> it.getId().equals(styleColor.getStyleId())).findFirst().map(Style::getBrand).orElse("");
             orderBookDetail.setBrand(brand);
+            orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_COMMIT);
+            orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
+            orderBookDetail.setDevtType(PutInProductionType.findByProductionType(styleColor.getDevtType()));
             list.add(orderBookDetail);
         }
         boolean b = orderBookDetailService.saveBatch(list);
+        if (!b){
+            log.error("addByStyleColorIds error orderBookDetailSaveDto = {}", JSON.toJSONString(orderBookDetailSaveDto));
+        }
         return insertSuccess(b);
     }
 
@@ -372,7 +424,7 @@ public class OrderBookDetailController extends BaseController {
             OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
             orderBookDetailQueryDto.setBulkStyleNo(dto.getSuitNo());
             BaseQueryWrapper<OrderBookDetail> queryWrapper1 = orderBookDetailService.buildQueryWrapper(orderBookDetailQueryDto);
-            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1,null);
+            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1, 1, 1);
             for (OrderBookDetailVo bookDetailVo : orderBookDetailVos) {
                 String suitNo = bookDetailVo.getSuitNo();
                 if (StringUtils.isNotBlank(suitNo)){
@@ -390,4 +442,25 @@ public class OrderBookDetailController extends BaseController {
         boolean b = orderBookDetailService.updateById(dto);
         return updateSuccess(b);
     }
+
+
+    /**
+     * 订货本-更新面料信息
+     */
+    @ApiOperation(value = "订货本详情-更新物料信息")
+    @PostMapping("/updateMaterial")
+    @DuplicationCheck(time = 10)
+    public List<MaterialSupplierInfo> updateMaterial(@RequestBody @Valid MaterialUpdateDto dto) {
+        return orderBookDetailService.updateMaterial(dto);
+    }
+
+    /**
+     * 暂存参考款
+     */
+    @ApiModelProperty(value = "暂存参考款")
+    @PostMapping("/similarStyleBinding")
+    public boolean similarStyleBinding(@RequestBody OrderBookDetailSaveDto dto) {
+        return orderBookDetailService.similarStyleBinding(dto);
+    }
+
 }

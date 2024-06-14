@@ -1,19 +1,21 @@
 package com.base.sbc.config.resttemplate;
 
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.client.ccm.service.CcmService;
-import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.SEND_FLAG;
 
 /**
@@ -29,14 +31,9 @@ public class RestTemplateService {
     private final RestTemplate restTemplate;
     private final CcmFeignService ccmFeignService;
 
-    /**
-     * smp系统对接post请求
-     *
-     * @param url 请求地址
-     * @param jsonStr   请求对象
-     * @return 返回的结果
-     */
-    public HttpResp spmPost(String url, String jsonStr) {
+
+    @SafeVarargs
+    public final HttpResp spmPost(String url, String jsonStr, Pair<String, String>... headers) {
         HttpHeaders requestHeaders = new HttpHeaders();
         HttpResp httpResp = new HttpResp();
         try {
@@ -46,37 +43,31 @@ public class RestTemplateService {
                 return httpResp;
             }
             requestHeaders.add("Content-Type", "application/json");
+            for (Pair<String, String> header : headers) {
+                requestHeaders.add(header.getKey(), header.getValue());
+            }
 
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
-            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
-
-            httpResp.setUrl(url);
-            httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
-
-            String body = stringResponseEntity.getBody();
-
-            JSONObject jsonObject = JSONObject.parseObject(body);
-
-
-            if (jsonObject != null) {
-                httpResp.setMessage(jsonObject.getString("message"));
-                httpResp.setCode(jsonObject.getString("code"));
-                httpResp.setSuccess(true);
-
-                if ("0000000".equals(httpResp.getCode())) {
-                    httpResp.setSuccess(true);
-                } else {
-                    httpResp.setSuccess(jsonObject.getBoolean("success"));
-                }
-
-                //);
-            }
+            restTemplate.postForEntity(url, fromEntity, String.class);
+            return RequestLoggingInterceptor.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
             httpResp.setSuccess(false);
+            httpResp.setMessage(e.getMessage());
         }
         return httpResp;
     }
 
+    public static HttpResp buildHttpResp(String responseStrData) {
+        HttpResp httpResp = JSONUtil.toBean(responseStrData, HttpResp.class);
+        JSONObject jsonObject = JSONObject.parseObject(responseStrData);
+        if (!jsonObject.containsKey("success") && (!StrUtil.startWithAny(httpResp.getCode(),"4","5"))) {
+            httpResp.setSuccess(true);
+        }
+        if ("0000000".equals(httpResp.getCode())) {
+            httpResp.setSuccess(true);
+        }
+        return httpResp;
+    }
 
 }

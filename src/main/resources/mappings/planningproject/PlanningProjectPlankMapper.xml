@@ -3,7 +3,8 @@
 <mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper">
     <select id="queryPage" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo">
         select
-        tpp.*,
+        tsc.style_color_pic as pic,
+        tppp.*,
         tppd.prod_category1st_code,
         tppd.prod_category1st_name,
         tppd.prod_category2nd_code,
@@ -14,9 +15,10 @@
         tppd.dimension_name,
         tppd.dimension_code,
         tppd.dimension_value
-        from t_planning_project_plank as tpp
-        left join t_planning_project_dimension as tppd on tppd.id = tpp.planning_project_dimension_id
-        where tpp.del_flag = '0'
+        from t_planning_project_plank as tppp
+        left join t_planning_project_dimension as tppd on tppd.id = tppp.planning_project_dimension_id
+        left join t_style_color as tsc on tsc.id = tppp.style_color_id
+        where tppp.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

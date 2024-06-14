@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.dto;
 
 import com.base.sbc.config.common.base.Page;
 
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("物料列表查询")
-public class BasicsdatumMaterialQueryDto extends Page {
+public class BasicsdatumMaterialQueryDto  extends QueryFieldDto {
 	private static final long serialVersionUID = 1L;
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
@@ -97,4 +98,12 @@ public class BasicsdatumMaterialQueryDto extends Page {
 
 	@ApiModelProperty(value = "品牌")
 	private List<String> brandList;
+
+	/** 物料编号 */
+	@ApiModelProperty(value = "物料编号--非模糊查询")
+	private String materialCodeNoLike;
+
+
+	@ApiModelProperty(value = "合并物料颜色 : 1：合并，0：不合并, 默认不合并")
+	private String mergeMaterialColor = "0";
 }

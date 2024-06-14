@@ -1,22 +1,29 @@
 package com.base.sbc.module.orderbook.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class OrderBookDetailQueryDto extends Page {
+public class OrderBookDetailQueryDto extends QueryFieldDto {
 
     /**
      * 当前用户登录id
      */
     private String userId;
+    private String userName;
 
     private String id;
+
+    private String prodCategory1st;
 
     /**
      * 序号
@@ -45,9 +52,18 @@ public class OrderBookDetailQueryDto extends Page {
     private String devtTypeName;
 
     /**
+     * 设计款号
+     */
+    private String designNo;
+
+    /**
      * 大货款号
      */
     private String bulkStyleNo;
+    /**
+     * 大货款号 非模糊
+     */
+    private String bulkStyleNoFull;
     @ApiModelProperty(value = "品类")
     private String categoryCode;
     /**
@@ -62,15 +78,22 @@ public class OrderBookDetailQueryDto extends Page {
     private String designerName;
 
     /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String band;
+    /**
      * 波段编码
      */
     @ApiModelProperty(value = "波段编码")
-    private String band;
+    private String bandCode;
     /**
      * 状态
      */
     private String status;
     private OrderBookDetailAuditStatusEnum auditStatus;
+
+    private OrderBookDetailOrderStatusEnum orderStatus;
 
     /**
      * 生产紧急程度
@@ -122,6 +145,7 @@ public class OrderBookDetailQueryDto extends Page {
     private String fabricDrop;
     private String style;
     private String prodCategory2ndName;
+    private String prodCategory2ndCode;
     private String oldDesignNo;
     private String registeringNo;
     private String suitNo;
@@ -133,6 +157,16 @@ public class OrderBookDetailQueryDto extends Page {
     private String braiding;
     private String dimensionInfo;
     private String gramWeight;
+    private PutInProductionType styleDevtType;
+
+    /**
+     * 参考款款号 eq
+     */
+    @ApiModelProperty(value = "参考款款号")
+    private String similarBulkStyleNo;
+
+    @ApiModelProperty(value = "参考款款号")
+    private List<String>  similarBulkStyleNos;
 
     private List<OrderBookChannelType> channel;
 }

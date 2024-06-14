@@ -28,6 +28,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.annotation.EditPermission;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -37,16 +38,15 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
@@ -54,7 +54,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
-import com.base.sbc.module.basicsdatum.service.impl.BasicsdatumModelTypeServiceImpl;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -84,7 +83,6 @@ import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
-import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
@@ -124,10 +122,10 @@ import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,18 +135,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -159,6 +156,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
@@ -205,7 +204,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final StyleService styleService;
 	private final BasicsdatumSizeService basicsdatumSizeService;
 
-	private final PackBomService packBomService;
+	@Autowired
+	@Lazy
+	private PackBomService packBomService;
 	@Autowired
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
@@ -257,15 +258,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Value("${hang-tag.packingDefaultType:P1}")
 	private String packingDefaultType;
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
 	@Override
+	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
-		if (hangTagDTO.getPageNum() != 0 && hangTagDTO.getPageSize() != 0) {
-			PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
-		}
-		String authSql = dataPermissionsService
-				.getDataPermissionsSql(DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
+		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
+		QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,hangTagDTO);
+		hangTagDTO.startPage();
+		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
@@ -284,7 +287,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
+		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
+		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
+		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
+		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
+		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
+
+		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");
@@ -412,6 +421,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
 		}
 
+		hangTagVO.setIngredientDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_INGREDIENT_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
+		if (hangTagVO.getWarmTipsDefaultWrap() == null) {
+			hangTagVO.setWarmTipsDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_WARM_TIPS_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
+		}
+
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (pack != null) {
@@ -427,20 +441,28 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			if (StrUtil.isNotBlank(hangTagVO.getId()) && CollUtil.isNotEmpty(packBomList)) {
 				// 查询检测报告
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-				List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
-				if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
-					if (CollUtil.isNotEmpty(codes)) {
-						List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
-						for (EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto : list) {
-							if (StrUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getRemark())) {
-								escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
-							}
+				if (CollUtil.isNotEmpty(codes)) {
+					List<String> inspectCompanyIdList = hangTagInspectCompanyService.listOneField(
+							new LambdaQueryWrapper<HangTagInspectCompany>().eq(HangTagInspectCompany::getHangTagId,hangTagVO.getId()), HangTagInspectCompany::getInspectCompanyId);
+					List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(
+							new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes),
+							inspectCompanyIdList
+					);
+					for (EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto : list) {
+						if (StrUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getRemark())) {
+							escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
 						}
-						hangTagVO.setCompnentInspectCompanyDtoList(list);
-						return hangTagVO;
 					}
+					hangTagVO.setCompnentInspectCompanyDtoList(list);
+					return hangTagVO;
 				}
+
 			}
+		}
+		String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
+		if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
+			hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
+					.findFirst().map(BasicBaseDict::getName).orElse(""));
 		}
 
 		return hangTagVO;
@@ -468,7 +490,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 				if (CollUtil.isNotEmpty(codes)) {
 					/*查询物料*/
-					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes), false);
+					List<String> inspectCompanyIdList = hangTagInspectCompanyService.listOneField(
+							new LambdaQueryWrapper<HangTagInspectCompany>().eq(HangTagInspectCompany::getHangTagId,hangTagVO.getId()), HangTagInspectCompany::getInspectCompanyId);
+					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(
+							new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes),inspectCompanyIdList
+							);
 					hangTagVO.setCompnentInspectCompanyDtoList(list);
 				}
 			}
@@ -493,6 +519,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
 						}
 					}
+				}
+				String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
+				if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
+					hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
+							.findFirst().map(BasicBaseDict::getName).orElse(""));
 				}
 				return hangTagVO;
 			}
@@ -610,6 +641,41 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
 			this.updateById(hangTag);
 		}
+
+		// 修正工艺单说明的包装袋标准
+		// 获取大货标准资料包
+		String packagingFormCode = hangTagDTO.getPackagingFormCode();
+		String packagingBagStandardCode = hangTagDTO.getPackagingBagStandardCode();
+
+		if (StrUtil.isNotBlank(packagingFormCode) && StrUtil.isNotBlank(packagingBagStandardCode)) {
+			boolean isDefaultPackingType = packagingFormCode.equals(packingDefaultType);
+			Opt.ofNullable(
+					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
+			).ifPresent(packInfo-> {
+				LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
+						.eq(PackTechPackaging::getForeignId, packInfo.getId())
+						.set(PackTechPackaging::getPackagingForm, packagingFormCode)
+						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
+						.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
+						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
+				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
+						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
+						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
+					boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
+					boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
+					boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
+					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
+							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
+							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
+							.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
+							.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
+							.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
+					;
+				});
+				packTechPackagingService.update(qw);
+			});
+		}
+
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
@@ -617,40 +683,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
 			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM, 1);
 			//endregion
-
-			// 修正工艺单说明的包装袋标准
-			// 获取大货标准资料包
-			String packagingFormCode = hangTagDTO.getPackagingFormCode();
-			String packagingBagStandardCode = hangTagDTO.getPackagingBagStandardCode();
-
-			if (StrUtil.isNotBlank(packagingFormCode) && StrUtil.isNotBlank(packagingBagStandardCode)) {
-				boolean isDefaultPackingType = packagingFormCode.equals(packingDefaultType);
-				Opt.ofNullable(
-						packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
-				).ifPresent(packInfo-> {
-					LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
-							.eq(PackTechPackaging::getForeignId, packInfo.getId())
-							.set(PackTechPackaging::getPackagingForm, packagingFormCode)
-							.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
-							.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
-							.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
-					Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
-							.eq(PackingDictionary::getPackagingForm, packagingFormCode)
-							.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-						boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
-						boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
-						boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
-						qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
-								.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
-								.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
-								.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
-								.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
-								.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
-						;
-					});
-					packTechPackagingService.update(qw);
-				});
-			}
 		}catch (Exception ignored){
 		}
         return id;
@@ -1538,17 +1570,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PRINT:
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
-				tagPrinting.setC8_APPBOM_StorageReq(null);
+//				tagPrinting.setC8_APPBOM_StorageReq(null);
 				String bulkStyleNo = tagPrinting.getStyleCode();
+				MoreLanguageTagPrinting sourcePrinting = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+				MoreLanguageTagPrinting zhPrinting = HANG_TAG_CV.copyMyself(sourcePrinting);
+				zhPrinting.setLanguageCode("ZH");
+				zhPrinting.setLanguageName("中文");
+				zhPrinting.setTranslateApproved(true);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
-					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
+					LinkedList<MoreLanguageTagPrinting> tagPrintingList = new LinkedList<>();
 					sameCodeList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getPropertiesNameLength).reversed());
 					// 获取所有的语言
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
-						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+						MoreLanguageTagPrinting printing = HANG_TAG_CV.copyMyself(sourcePrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
 
 						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
@@ -1561,6 +1598,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
+							zhPrinting.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
 							if (!MoreLanguageProperties.checkInternal(languageCode)) {
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
@@ -1584,6 +1622,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}
 							}
 							printing.setLanguageName(languageVO.getLanguageName());
+							printing.setLanguageCode(languageVO.getLanguageCode());
 						}
 
 						// 全部审核完才为true，所以直接判断吊牌状态即可
@@ -1592,11 +1631,41 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						));
 						tagPrintingList.add(printing);
 					});
+					// 检查cnCheck
+					if (MoreLanguageProperties.chineseComparison && tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
+                        tagPrintingList.addFirst(zhPrinting);
+					}
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
 				});
 				return tagPrintingResultList;
 			default: throw new IllegalStateException("Unexpected value: " + source);
 		}
+	}
+
+
+	/**
+	 * 通过物料编码获取检查报告
+	 * @param dto
+	 * @return
+	 */
+	@Override
+	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
+		if(StrUtil.isEmpty(dto.getMaterialsNo())){
+			throw new OtherException("物料编码不能为空");
+		}
+		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getMaterialsName()),"materials_name", dto.getMaterialsName());
+		/*查询基础资料-品类测量组数据*/
+		List<String> inspectCompanyIdList = new ArrayList<>();
+		String hangTagId = dto.getHangTagId();
+		if (StrUtil.isNotBlank(hangTagId)) {
+			inspectCompanyIdList.addAll(hangTagInspectCompanyService.listOneField(
+					new LambdaQueryWrapper<HangTagInspectCompany>().eq(HangTagInspectCompany::getHangTagId, hangTagId), HangTagInspectCompany::getInspectCompanyId));
+		}
+
+        return escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(queryWrapper, inspectCompanyIdList);
 	}
 
 	@Override
@@ -1624,27 +1693,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
 		);
 		return update;
-	}
-
-
-	/**
-	 * 通过物料编码获取检查报告
-	 * @param dto
-	 * @return
-	 */
-	@Override
-	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
-		if(StrUtil.isEmpty(dto.getMaterialsNo())){
-			throw new OtherException("物料编码不能为空");
-		}
-		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
-		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
-		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
-		queryWrapper.eq(StrUtil.isNotBlank(dto.getMaterialsName()),"materials_name", dto.getMaterialsName());
-		/*查询基础资料-品类测量组数据*/
-
-		List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(queryWrapper);
-		return list;
 	}
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){

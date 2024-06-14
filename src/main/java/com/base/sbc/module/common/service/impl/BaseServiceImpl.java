@@ -5,11 +5,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -20,15 +20,15 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.base.sbc.config.annotation.QueryField;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicProcessGallery;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author 卞康
@@ -82,6 +83,12 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return userUtils.getUserCompany().getUserId();
     }
 
+    public String getVirtualDeptIds() {
+        List<String> virtualDeptIds = userUtils.getUserCompany().getVirtualDeptIds();
+        if (virtualDeptIds.size() > 1) throw new OtherException("!当前操作人非法存在于两个及以上的虚拟部门!");
+        return virtualDeptIds.get(0);
+    }
+
     public String getUserName() {
         return userUtils.getUserCompany().getAliasUserName();
     }
@@ -114,6 +121,19 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         fieldName = StringUtils.toUnderScoreCase(fieldName);
         queryWrapper.in(fieldName, list);
         return this.list(queryWrapper);
+    }
+
+    /**
+     * 跟据字段名称和字段集合查询列表
+     *
+     * @param fieldName 字段名称
+     * @param list      数据集合
+     * @return 查询结果
+     */
+
+    @Override
+    public List<T> listByField(String fieldName, String list) {
+        return this.listByField(fieldName, StrUtil.split(list, CharUtil.COMMA));
     }
 
     /**
@@ -695,6 +715,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     @Override
+    public boolean exists(String id) {
+        return this.count(new QueryWrapper<T>().eq("id",id)) > 0;
+    }
+
+    @Override
     public T findOne(QueryWrapper<T> wrapper) {
         return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
     }
@@ -706,12 +731,12 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
-        return this.list(wrapper.select(function)).stream().map(function).collect(Collectors.toList());
+        return this.list(wrapper.select(function)).stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
     }
 
     @Override
     public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
-        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().map(function).collect(Collectors.toList());
+        return listOneField(new LambdaQueryWrapper<T>().in(T::getId, ids), function);
     }
 
 
@@ -751,6 +776,16 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         // https://blog.csdn.net/qq_42696265/article/details/131944397
         SqlUtil.clearLocalPage();
         return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
+    }
+
+    @Override
+    public <R> R findByIds2OneField(String id, SFunction<T, R> function) {
+        return findOneField(new LambdaQueryWrapper<T>().eq(T::getId, id), function);
+    }
+
+    @Override
+    public <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return this.list(wrapper.groupBy(function).select(function)).stream().map(function).collect(Collectors.toList());
     }
 
     @Override

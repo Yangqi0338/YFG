@@ -210,6 +210,9 @@ public class StylePricingVO {
      */
     @ApiModelProperty(value = "计控实际成本")
     private BigDecimal controlPlanCost;
+    /** 工时部确认工价 0.否、1.是 */
+    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
+    private String wagesConfirm;
     /**
      * 是否计控成本确认
      */

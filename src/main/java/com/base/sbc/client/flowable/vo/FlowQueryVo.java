@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * <p>流程任务<p>
  *
@@ -40,6 +42,8 @@ public class FlowQueryVo {
     private String contentApproval;
 
     private String isAdmin;
+
+    private List<String> businessKeyList;
 
     /**
      * 移动端审批查询使用 汇聚「审批内容、审批名称」

@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
         <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectMapper">
-    <select id="getplanningProjectList" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectVo">
+    <select id="listByQueryWrapper" resultType="com.base.sbc.module.planningproject.entity.PlanningProject">
+        select tpp.* from t_planning_project tpp, t_planning_season tps
+        where tpp.del_flag = 0 and tps.del_flag = 0 and tps.id = tpp.season_id
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="historyList" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
         SELECT
-            planning_project_name,
-            planning_channel,
-            create_date,
-            prod_category1st_name,
-            prod_category_name,
-            prod_category2nd_name,
-            status
+        c.*
         FROM
-        t_planning_project
-        <where>
-            <if test="dto.planningProjectName != null and dto.planningProjectName != ''">
-                AND planning_project_name LIKE concat( '%',#{dto.planningProjectName},'%' )
-            </if>
-            <if test="dto.planningChannel != null and dto.planningChannel != ''">
-                AND planning_channel =#{planningChannel}
-            </if>
-            <if test="dto.prodCategoryName != null and dto.prodCategoryName != ''">
-                AND prod_gategory_name =#{prodCategoryName}
-            </if>
-        </where>
-        order by create_date desc
+        t_planning_category_item c
+
+        WHERE
+        c.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
     </select>
 </mapper>

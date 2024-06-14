@@ -49,6 +49,8 @@ public class UserCompany extends BaseDataEntity<String> {
      */
     private String deptId;
 
+	private List<String> virtualDeptIds;
+
     private HttpLog httpLog;
 
     private List<Job> jobList;
@@ -261,6 +263,14 @@ public class UserCompany extends BaseDataEntity<String> {
 
 	public void setIsDimission(String isDimission) {
 		this.isDimission = isDimission;
+	}
+
+	public List<String> getVirtualDeptIds() {
+		return virtualDeptIds;
+	}
+
+	public void setVirtualDeptIds(List<String> virtualDeptIds) {
+		this.virtualDeptIds = virtualDeptIds;
 	}
 }
 

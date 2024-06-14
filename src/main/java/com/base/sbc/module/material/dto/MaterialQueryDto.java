@@ -63,4 +63,40 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "季节")
     private String season;
+
+    @ApiModelProperty(value = "场合搭配code")
+    private String occasionCode;
+
+    @ApiModelProperty(value = "颜色搭配code")
+    private String colorMatchCode;
+
+    @ApiModelProperty(value = "图案种类")
+    private String patternTypes;
+
+    @ApiModelProperty(value = "图案种类列表")
+    private List<String>  patternTypeList;
+
+    @ApiModelProperty(value = "运用手法")
+    private String useSkill;
+
+    @ApiModelProperty(value = "素材名称集合")
+    private String materialNames;
+
+    @ApiModelProperty(value = "标签名称集合")
+    private List<String> materialNameList;
+
+    @ApiModelProperty(value = "标签名称")
+    private String labelNames;
+
+    @ApiModelProperty(value = "公司标识：0：个人素材上传，1：公司素材上传")
+    private String companyFlag;
+
+    @ApiModelProperty(value = "素材描述")
+    private String materialRemarks;
+
+    @ApiModelProperty(value = "1启用，0停用")
+    private String enableFlag;
+
+    @ApiModelProperty(value = "模糊搜索内容")
+    private String content;
 }

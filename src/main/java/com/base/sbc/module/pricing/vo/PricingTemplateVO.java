@@ -65,4 +65,17 @@ public class PricingTemplateVO extends BaseDataEntity<String> {
      * 核价模板明细
      */
     private List<PricingTemplateItemVO> pricingTemplateItems;
+
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名"  )
+    private String brandName;
+
+    /**
+     * 编辑权限
+     */
+    private Integer isEdit = 0;
 }

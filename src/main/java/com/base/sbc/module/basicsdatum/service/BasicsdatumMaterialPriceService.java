@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 
 import java.math.BigDecimal;
@@ -41,7 +42,7 @@ public interface BasicsdatumMaterialPriceService extends BaseService<Basicsdatum
      */
     void copyByMaterialCode(String materialCode, String newMaterialCode);
 
-
+    List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
 
 
 // 自定义方法区 不替换的区域【other_end】

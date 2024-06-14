@@ -3,6 +3,8 @@ package com.base.sbc.module.style.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -38,6 +40,8 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
     private StylePicUtils stylePicUtils;
     @Autowired
     private FieldValService fieldValService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public PageInfo<StyleAnalyseVo> findDesignPage(StyleAnalyseQueryDto dto) {
@@ -50,6 +54,8 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
             if (StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())) {
                 qw.like("tfv.val_name", dto.getFieldQueryMap().get(dto.getQueryFieldColumn()));
             }
+            // 数据权限
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleAnalyseDesign.getK());
             List<StyleAnalyseVo> list = styleAnalyseMapper.findPageField(qw, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, s);
 
             for (StyleAnalyseVo styleAnalyseVo : list) {
@@ -81,8 +87,7 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         fieldValQueryWrapper.in(FieldVal::getForeignId, styleIdList);
         fieldValQueryWrapper.eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
-        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? o.getVal() : o.getValName(), (v1, v2) -> v1)));
-
+        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? StrUtil.isEmpty(o.getVal()) ? "" : o.getVal() : o.getValName(), (v1, v2) -> v1)));
         for (StyleAnalyseVo styleAnalyseVo : list) {
             if (fieldValMap.containsKey(styleAnalyseVo.getId())) {
                 Map<String, String> map = fieldValMap.get(styleAnalyseVo.getId());
@@ -110,7 +115,8 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         qw.notEmptyEq("t.year", yearParam);
         qw.notEmptyEq("t.season", seasonParam);
         QueryGenerator.reportParamBulkStyleNosCheck(designNos, yearParam, seasonParam);
-
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleAnalyseStyle.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
             String s = dto.getQueryFieldColumn().split("\\.")[1];
@@ -141,10 +147,10 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         fieldValQueryWrapper.in(FieldVal::getForeignId, styleColorIdList);
         fieldValQueryWrapper.eq(FieldVal::getDataGroup, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
-        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? o.getVal() : o.getValName(), (v1, v2) -> v1)));
+        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? StrUtil.isEmpty(o.getVal()) ? "" : o.getVal() : o.getValName(), (v1, v2) -> v1)));
         for (StyleAnalyseVo styleAnalyseVo : list) {
-            if (fieldValMap.containsKey(styleAnalyseVo.getId())) {
-                Map<String, String> map = fieldValMap.get(styleAnalyseVo.getId());
+            if (fieldValMap.containsKey(styleAnalyseVo.getStyleColorId())) {
+                Map<String, String> map = fieldValMap.get(styleAnalyseVo.getStyleColorId());
                 styleAnalyseVo.setDynamicColumn(map);
             }
         }

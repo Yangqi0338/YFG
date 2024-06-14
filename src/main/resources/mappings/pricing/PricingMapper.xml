@@ -69,6 +69,9 @@
         <if test="dto.season != null and dto.season != ''">
             AND tp.season = #{dto.season}
         </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
     </sql>
 
     <select id="getItemDimension" resultType="com.base.sbc.module.pricing.vo.PricingListVO">

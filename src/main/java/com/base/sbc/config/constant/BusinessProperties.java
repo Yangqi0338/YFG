@@ -21,10 +21,15 @@ import java.util.Map;
 public class BusinessProperties {
 
     public static String tablePrefix = "t_";
+    public static Integer orderBookProductionInThreadLimit = 2;
 
 
     public void setTablePrefix(String tablePrefix) {
         BusinessProperties.tablePrefix = tablePrefix;
+    }
+
+    public void setOrderBookProductionInThreadLimit(Integer orderBookProductionInThreadLimit) {
+        BusinessProperties.orderBookProductionInThreadLimit = orderBookProductionInThreadLimit;
     }
 
 }

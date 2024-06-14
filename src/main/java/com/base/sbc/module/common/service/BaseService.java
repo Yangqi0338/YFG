@@ -33,6 +33,15 @@ public interface BaseService<T> extends IService<T> {
      */
     List<T> listByField(String fieldName, Collection<?> list);
 
+    /**
+     * 跟据字段名称和字段集合查询列表
+     * @param fieldName 字段名称
+     * @param list     数据集合
+     * @return 查询结果
+     */
+    List<T> listByField(String fieldName, String list);
+
+
 
     /**
      * 跟据字段名称和字段查询一条数据
@@ -170,6 +179,9 @@ public interface BaseService<T> extends IService<T> {
      * 根据queryWrapper检查是否存在
      */
     boolean exists(Wrapper<T> wrapper);
+
+    boolean exists(String id);
+
     T findOne(QueryWrapper<T> wrapper);
     T findOne(LambdaQueryWrapper<T> wrapper);
     <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
@@ -182,4 +194,6 @@ public interface BaseService<T> extends IService<T> {
         return null;
     }
     <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <R> R findByIds2OneField(String id, SFunction<T,R> function);
+    <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

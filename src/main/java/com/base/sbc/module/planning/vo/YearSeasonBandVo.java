@@ -60,4 +60,7 @@ public class YearSeasonBandVo {
 
     @ApiModelProperty(value = "产品季")
     Object children;
+
+    @ApiModelProperty(value = "补充其他的信息")
+    private Object supplementInfo;
 }

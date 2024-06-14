@@ -6,6 +6,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -257,6 +258,15 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         }else {
             return this;
         }
+    }
+
+    public static <T> BaseLambdaQueryWrapper<T> wrap(LambdaQueryWrapper<T> queryWrapper) {
+        return (BaseLambdaQueryWrapper<T>) queryWrapper;
+    }
+
+    public BaseQueryWrapper<T> unwrap() {
+        return new BaseQueryWrapper<>(getEntity(), getEntityClass(), paramNameSeq, paramNameValuePairs,
+                expression, paramAlias, lastSql, sqlComment, sqlFirst);
     }
 
 }

@@ -62,4 +62,12 @@ public class BiJob {
 
     }
 
+    /**
+     * 投产数据
+     */
+    //@Scheduled(cron = "0 0 1 * * ?")
+    public void putInProduction(){
+        biSampleService.sample();
+    }
+
 }

@@ -1,15 +1,12 @@
 package com.base.sbc.module.orderbook.vo;
 
-import com.base.sbc.config.enums.business.StylePutIntoType;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
-import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Functions;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 @Data
@@ -55,6 +52,12 @@ public class StyleSaleIntoDto {
      */
     @ApiModelProperty(value = "款式投产类型")
     private StylePutIntoType type;
+
+    /**
+     * 年份
+     */
+    @ApiModelProperty(value = "年份")
+    private String year;
 
     /**
      * 尺码的投产和销售详细数据

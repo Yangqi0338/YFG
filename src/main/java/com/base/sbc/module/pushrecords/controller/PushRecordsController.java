@@ -1,6 +1,7 @@
 package com.base.sbc.module.pushrecords.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -10,16 +11,12 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.pushrecords.dto.PushRecordsDto;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
-import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,16 +39,29 @@ public class PushRecordsController extends BaseController {
     @GetMapping("/queryPage")
     public ApiResult queryPage(PushRecordsDto pushRecordsDto) {
         BaseQueryWrapper<PushRecords> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("push_status",pushRecordsDto.getPushStatus());
         queryWrapper.notEmptyIn("module_name",pushRecordsDto.getModuleName());
         queryWrapper.notEmptyIn("function_name",pushRecordsDto.getFunctionName());
         queryWrapper.notEmptyIn("related_id",pushRecordsDto.getRelatedId());
         queryWrapper.notEmptyIn("related_name",pushRecordsDto.getRelatedName());
-        queryWrapper.notEmptyIn("create_name",pushRecordsDto.getCreateName());
+        queryWrapper.notEmptyLike("create_name",pushRecordsDto.getCreateName());
+        queryWrapper.notEmptyLike("create_id",pushRecordsDto.getCreateId());
+        queryWrapper.notEmptyLike("business_code",pushRecordsDto.getBusinessCode());
+        if(StrUtil.isNotEmpty(pushRecordsDto.getType())){
+            queryWrapper.isNotNullStr("business_code");
+        }
+        queryWrapper.notEmptyLike("business_code",pushRecordsDto.getBusinessCode());
         queryWrapper.between("create_date",pushRecordsDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         PageHelper.startPage(pushRecordsDto);
         List<PushRecords> list = pushRecordsService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
+    }
+
+    @PostMapping("/closeStatus")
+    public ApiResult closeStatus(@RequestBody List<String> ids) throws Exception {
+        pushRecordsService.closeStatus(ids);
+        return ApiResult.success("操作成功");
     }
 
 
@@ -60,21 +70,26 @@ public class PushRecordsController extends BaseController {
      */
     @PostMapping("/rePush")
     public ApiResult rePush(String id){
-        PushRecords pushRecords = pushRecordsService.getById(id);
-        HttpResp httpResp = restTemplateService.spmPost(pushRecords.getPushAddress(), pushRecords.getPushContent());
-        pushRecords.setPushStatus(httpResp.isSuccess() ? "成功" : "失败");
-        pushRecords.setResponseMessage(httpResp.getMessage());
-        pushRecords.setResponseStatusCode(httpResp.getCode());
-        pushRecordsService.updateById(pushRecords);
-        ApiResult apiResult = new ApiResult();
-        if (httpResp.isSuccess()){
-            apiResult.setMessage("重推成功");
-            apiResult.setSuccess(true);
-        }else {
-            apiResult.setMessage("重推失败");
-            apiResult.setSuccess(false);
+        boolean rePush = pushRecordsService.rePush(id);
+        ApiResult<Object> result = ApiResult.success("重推成功");
+        result.setSuccess(rePush);
+        if (!rePush){
+            result.setMessage("重推失败");
         }
-        return apiResult;
+        return result;
+    }
+
+    /**
+     * 重推
+     */
+    @PostMapping("/batchRePushNewLog")
+    public ApiResult batchRePushNewLog(@RequestBody List<String> ids){
+        int i = pushRecordsService.batchRePushNewLog(ids);
+        if (ids.size() == i) {
+            return ApiResult.success("重推：" + ids.size() + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("重推：" + ids.size() + "条，成功：" + i + "条,失败：" + (ids.size() - i) + "条", 200);
+        }
     }
 
     /**

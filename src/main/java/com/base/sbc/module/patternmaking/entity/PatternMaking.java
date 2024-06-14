@@ -410,6 +410,12 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "挂起时间记录"  )
     private String suspendDateRecord;
 
+
+    @ApiModelProperty(value = "是否齐套原因"  )
+    private String kittingReason;
+
+    @ApiModelProperty(value = "是否齐套原因名称"  )
+    private String kittingReasonName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

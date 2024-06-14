@@ -452,6 +452,7 @@ public class ReportServiceImpl implements ReportService {
         BaseQueryWrapper<SeasonPlanPercentageQueryDto> qw = new BaseQueryWrapper<>();
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.seasonPlanPercentage.getK());
         List<SeasonPlanPercentageVo> list = reportMapper.seasonPlanPercentage(qw);
         return new PageInfo<>(list);
     }
