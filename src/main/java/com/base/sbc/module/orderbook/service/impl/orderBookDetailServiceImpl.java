@@ -205,7 +205,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         // ExcelUtils.executorExportExcel();
 //        ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
 //        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
-        dto.setImgFlag("1");
 
         orderBookDetailVos.forEach(OrderBookDetailVo::setReplenishInfo);
 

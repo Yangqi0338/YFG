@@ -361,7 +361,9 @@ public class OrderBookDetailVo extends OrderBookDetail {
         //线上，线下数据
         JSONObject jsonObject = getCommissioningSizeTotalJsonObject();
         //四倍价
-        jsonObject.put("multiplePrice",cost.multiply(BigDecimal.valueOf(4)));
+        if (null != cost){
+            jsonObject.put("multiplePrice",cost.multiply(BigDecimal.valueOf(4)));
+        }
         if (this.similarStyle == null ){
             this.replenish = jsonObject;
             return;
