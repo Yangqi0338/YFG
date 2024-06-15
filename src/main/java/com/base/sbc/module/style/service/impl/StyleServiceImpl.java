@@ -314,6 +314,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if(StrUtil.isEmpty(dto.getMarkingType())){
             // 保存工艺信息
             fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
+            // 款式设计打的标签，如果修改了默认同步到大货款
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_id", style.getId());
+            queryWrapper.eq("del_flag", "0");
+            queryWrapper.isNotNull("style_no");
+            List<StyleColorVo> styleColorVos = styleColorMapper.colorList(queryWrapper);
+            if (CollUtil.isNotEmpty(styleColorVos)) {
+                List<String> styleColorIds = styleColorVos.stream().map(StyleColorVo :: getId).collect(Collectors.toList());
+                // 保存下单阶段工艺信息
+                fieldValService.saveBatch(styleColorIds, FieldValDataGroupConstant.STYLE_MARKING_ORDER, dto.getTechnologyInfo());
+            }
         } else {
             // 保存下单阶段 打标状态
             LambdaUpdateWrapper<StyleColor> styleColorUpdateWrapper = new LambdaUpdateWrapper<>();
