@@ -85,7 +85,7 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
         fvQw.eq("data_group", dataGroup);
         this.remove(fvQw);
 
-        this.saveBatch(fieldVals);
+        this.saveBatch(saveFieldVal);
         return true;
     }
 /** 自定义方法区 不替换的区域【other_end】 **/

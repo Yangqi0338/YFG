@@ -319,9 +319,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             queryWrapper.eq("style_id", style.getId());
             queryWrapper.eq("del_flag", "0");
             queryWrapper.isNotNull("style_no");
-            List<StyleColorVo> styleColorVos = styleColorMapper.colorList(queryWrapper);
+            List<StyleColor> styleColorVos = styleColorMapper.selectList(queryWrapper);
             if (CollUtil.isNotEmpty(styleColorVos)) {
-                List<String> styleColorIds = styleColorVos.stream().map(StyleColorVo :: getId).collect(Collectors.toList());
+                List<String> styleColorIds = styleColorVos.stream().map(StyleColor :: getId).collect(Collectors.toList());
                 // 保存下单阶段工艺信息
                 fieldValService.saveBatch(styleColorIds, FieldValDataGroupConstant.STYLE_MARKING_ORDER, dto.getTechnologyInfo());
             }
