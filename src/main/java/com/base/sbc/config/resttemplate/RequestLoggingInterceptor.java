@@ -59,6 +59,8 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
             httpReq.setCode(code);
             String name = headers.getFirst("name");
             httpReq.setName(name);
+            httpReq.setBusinessId(headers.getFirst("businessId"));
+            httpReq.setBusinessCode(headers.getFirst("businessCode"));
             httpReq.setData(s);
             httpReq.setUserId(companyUserInfo.get().getUserId());
             pushRecordsService.prePushRecordSave(httpReq);

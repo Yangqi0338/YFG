@@ -294,6 +294,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
 
+
+    private PatternMakingScoreVo sampleBoardScore(BaseQueryWrapper<SampleBoardVo> qw ) {
+        return getBaseMapper().sampleBoardScore(qw);
+
+    }
+
     @Override
     public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
 
@@ -1337,7 +1343,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+    public PatternMakingCommonPageSearchVo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
 
@@ -1416,14 +1422,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     throw new OtherException("带图片最多只能导出3000条");
                 }
             }
-
-            return objects.toPageInfo();
+            return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
 
         //region 列头漏斗过滤
         if (isColumnHeard) {
-            return objects.toPageInfo();
+            return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
         //endregion
 
@@ -1438,7 +1443,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
-        return objects.toPageInfo();
+        PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
+        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+        return pageVo;
     }
 
     /**
@@ -1652,6 +1659,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setSglKittingDate(new Date());
         byId.setStitcherRemark(dto.getStitcherRemark());
         byId.setKittingReason(dto.getKittingReason());
+        byId.setKittingReasonName(dto.getKittingReasonName());
         // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);

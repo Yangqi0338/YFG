@@ -93,4 +93,7 @@ public class PackInfoListVo extends PackInfoStatusVo {
         }
         return stylePic;
     }
+
+    @ApiModelProperty(value = "品牌")
+    private String brand;
 }

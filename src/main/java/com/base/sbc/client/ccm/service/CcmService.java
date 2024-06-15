@@ -1,7 +1,6 @@
 package com.base.sbc.client.ccm.service;
 
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
-import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
@@ -15,8 +14,8 @@ import java.util.List;
  * @author Youkehai
  * @data 创建时间:2021/1/4
  */
-// @FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+ @FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
@@ -47,6 +46,15 @@ public interface CcmService {
      */
     @GetMapping("/ccm/api/saas/basicBaseDicts/selectDictByTypes")
     public String getDictInfo(@RequestParam("type") String type, @RequestParam("status") String status);
+
+    /**
+     * 获取字典信息
+     *
+     * @param type 类型
+     * @return
+     */
+    @GetMapping("/ccm/api/open/dict/selectDictByTypes")
+    public String getDictInfoOpen(@RequestParam("initCompany") String initCompany,@RequestParam("type") String type);
 
     /**
      * 开放接口获取字典信息

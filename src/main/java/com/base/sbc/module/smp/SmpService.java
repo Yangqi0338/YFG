@@ -47,14 +47,20 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.dto.FieldBusinessSystemQueryDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldBusinessSystemService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldBusinessSystemVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.GoodsDynamicFieldDto;
+import com.base.sbc.module.hangtag.dto.SmpHangTagIngredientDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
@@ -67,6 +73,7 @@ import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -81,6 +88,7 @@ import com.base.sbc.module.style.service.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -187,6 +195,8 @@ public class SmpService {
     private final FieldValService fieldValService;
     private final SaleProductIntoService saleProductIntoService;
     private final DataPermissionsService dataPermissionsService;
+    @Lazy
+    private final HangTagIngredientService hangTagIngredientService;
 
     @Resource
     @Lazy
@@ -202,10 +212,17 @@ public class SmpService {
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
 
+    @Autowired
+    private FieldBusinessSystemService fieldBusinessSystemService;
+
+    public Integer goods(String[] ids) {
+        return goods(ids,null,null);
+    }
+
     /**
      * 商品主数据下发
      */
-    public Integer goods(String[] ids) {
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
         int i = 0;
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
@@ -220,7 +237,6 @@ public class SmpService {
         }
 
         for (StyleColor styleColor : styleColors) {
-
             List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(), null);
             if (CollUtil.isNotEmpty(mainAccessoriesList)) {
                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
@@ -233,6 +249,8 @@ public class SmpService {
                     styleColor.setPrincipalStyleNo(styleNos);
                 }
             }
+
+
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
             //吊牌价为空或者等于0
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
@@ -254,6 +272,7 @@ public class SmpService {
                 }
             }
 
+            smpGoodsDto.setSendMainFabricDate(styleColor.getSendMainFabricDate());
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
@@ -325,7 +344,38 @@ public class SmpService {
 
             //动态字段
 
-            List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+            //目标系统
+            smpGoodsDto.setTargetBusinessSystem(targetBusinessSystem);
+            //目标系统
+            smpGoodsDto.setYshBusinessSystem(yshBusinessSystem);
+            //这里读取各个系统的动态字段配置
+            List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
+            Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
+
+            DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+            BeanUtil.copyProperties(style, dto);
+            dto.setId(style.getId());
+            dto.setForeignId(style.getId());
+            dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabels(dto);
+            //List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+            Map<String, FieldManagementVo> collect1 = fieldManagementVoList.stream().collect(Collectors.toMap(FieldManagementVo::getFieldName, o -> o, (v1, v2) -> v1));
+
+            Map<String,List<GoodsDynamicFieldDto>>  goodsDynamicFieldMap = new HashMap<>();
+            for (Map.Entry<String, List<FieldBusinessSystemVo>> entry : collect.entrySet()) {
+                List<FieldBusinessSystemVo> value = entry.getValue();
+                List<GoodsDynamicFieldDto> goodsDynamicFieldDtos1 = new ArrayList<>();
+                for (FieldBusinessSystemVo fieldBusinessSystemVo : value) {
+                    if(collect1.containsKey(fieldBusinessSystemVo.getFieldName())){
+                        FieldManagementVo fieldManagementVo = collect1.get(fieldBusinessSystemVo.getFieldName());
+                        GoodsDynamicFieldDto goodsDynamicFieldDto = BeanUtil.copyProperties(fieldManagementVo, GoodsDynamicFieldDto.class);
+                        goodsDynamicFieldDtos1.add(goodsDynamicFieldDto);
+                    }
+                }
+                goodsDynamicFieldMap.put(entry.getKey(),goodsDynamicFieldDtos1);
+            }
+            smpGoodsDto.setGoodsDynamicFieldMap(goodsDynamicFieldMap);
+
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName())
@@ -511,8 +561,6 @@ public class SmpService {
                     smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()) && b);
                     smpGoodsDto.setIntegritySample(b);
                 }
-
-
             }
 
             //废弃
@@ -564,6 +612,23 @@ public class SmpService {
 
                 smpGoodsDto.setPackageType(hangTag.getPackagingFormCode());
                 smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandardCode());
+
+                //增加吊牌成分明细数据，用于易尚货
+                String hangTagId = hangTag.getId();
+                QueryWrapper<HangTagIngredient> hangTagIngredientQueryWrapper = new QueryWrapper<>();
+                hangTagIngredientQueryWrapper.eq("hang_tag_id",hangTagId);
+                hangTagIngredientQueryWrapper.eq("del_flag","0");
+                hangTagIngredientQueryWrapper.select("type, ingredient_second_name, percentage_str, ingredient_name, ingredient_description");
+                List<HangTagIngredient> hangTagIngredients = hangTagIngredientService.list(hangTagIngredientQueryWrapper);
+                List<SmpHangTagIngredientDTO> smpHangTagIngredientDTOList = new ArrayList();
+                if (CollUtil.isNotEmpty(hangTagIngredients)) {
+                    for (HangTagIngredient hangTagIngredient : hangTagIngredients) {
+                        SmpHangTagIngredientDTO hangTagIngredientDTO = BeanUtil.copyProperties(hangTagIngredient, SmpHangTagIngredientDTO.class);
+                        smpHangTagIngredientDTOList.add(hangTagIngredientDTO);
+                    }
+                }
+                smpGoodsDto.setHangTagIngredientList(smpHangTagIngredientDTOList);
+
             }
             //endregion
 
@@ -573,7 +638,11 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","商品主数据下发")
+                    Pair.of("functionName","商品主数据下发"),
+                    Pair.of("code",smpGoodsDto.getCode()),
+                    Pair.of("name",smpGoodsDto.getColorName()),
+                    Pair.of("businessId",smpGoodsDto.getId()),
+                    Pair.of("businessCode",smpGoodsDto.getTargetBusinessSystem())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1832,7 +1901,7 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","商品主数据下发")
+                    Pair.of("functionName","商品主数据下发-MANGO")
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1889,6 +1958,7 @@ public class SmpService {
         qw.notEmptyIn("tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.notEmptyIn("tobl.YEARS", saleProductIntoDto.getYear());
         qw.in("tobl.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+        qw.notEmptyIn("tobl.RESULTTYPE", saleProductIntoDto.getResultTypeList());
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.", new String[]{"brand"}, true);
         List<Map<String, Object>> detailMaps = this.querySaleIntoPage(qw, 0);
         // 封装数据并转化Bean

@@ -475,7 +475,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         List<String> sizeIds = StringUtils.isBlank(styleVo.getSizeIds())?  new ArrayList<>() : Arrays.asList(styleVo.getSizeIds().substring(1).split(","));
         for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
             List<String> materialCodes = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
-            if (CollectionUtils.isEmpty(materialCodes)){
+            if (CollUtil.isEmpty(materialCodes)){
                 throw new OtherException("此供应商未有物料关联："+materialSupplierInfo.getSupplierAbbreviation());
             }
             if (materialCodes.size() > 1){
@@ -491,7 +491,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             BasicsdatumMaterialQueryDto basicsdatumMaterialQueryDto = new BasicsdatumMaterialQueryDto();
             basicsdatumMaterialQueryDto.setMaterialCodeNoLike(materialCode);
             List<BomSelMaterialVo> list = basicsdatumMaterialService.getBomSelMaterialList(basicsdatumMaterialQueryDto).getList();
-            if (CollectionUtils.isEmpty(list)){
+            if (CollUtil.isEmpty(list)){
                 log.error("updateMaterial 物料不存在："+ JSON.toJSONString(basicsdatumMaterialQueryDto));
                 throw new OtherException("物料不存在");
             }
@@ -534,7 +534,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     throw new OtherException("需要替换的:"+materialSupplierInfo.getMaterialCode()+"物料编号在bom中未有关联！");
                 }
                 List<PackBom> packBoms = packBoms1.stream().filter(item -> !"1".equals(item.getScmSendFlag())).collect(Collectors.toList());
-                if (CollectionUtils.isEmpty(packBoms)){
+                if (CollUtil.isEmpty(packBoms)){
                     throw new OtherException("物料："+materialSupplierInfo.getMaterialCode()+"已发送，暂不允许替换");
                 }
                 map.put(materialSupplierInfo.getMaterialCode(),packBoms);
@@ -547,7 +547,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
 
     private void fullPackBomDto(PackBomDto dto, List<String> sizeRangeSizeIds, List<String> sizeRangeSizes, BomSelMaterialVo bomSelMaterialVo) {
-        if (CollectionUtils.isEmpty(sizeRangeSizeIds) || CollectionUtils.isEmpty(sizeRangeSizes)){
+        if (CollUtil.isEmpty(sizeRangeSizeIds) || CollUtil.isEmpty(sizeRangeSizes)){
             return;
         }
         if (sizeRangeSizeIds.size() != sizeRangeSizes.size()){
@@ -575,7 +575,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
         long l2 = System.currentTimeMillis();
         System.out.println("==========l2-l1=================="+(l2-l1));
-        if (CollectionUtils.isEmpty(page.getResult())){
+        if (CollUtil.isEmpty(page.getResult())){
             return new PageInfo();
         }
 
@@ -600,7 +600,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean saveFabricSummary(FabricSummarySaveDTO feedSummarySaveDTO) {
 
         List<FabricSummarySaveDTO.FabricInfo> fabricInfos = feedSummarySaveDTO.getFabricInfos();
-        if (CollectionUtils.isEmpty(fabricInfos)){
+        if (CollUtil.isEmpty(fabricInfos)){
             return true;
         }
         BomFabricDto bomFabricDto = new BomFabricDto();
@@ -608,7 +608,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         bomFabricDto.setMaterialCodes(fabricInfos.stream().map(FabricSummarySaveDTO.FabricInfo::getMaterialCode).collect(Collectors.toList()));
 
         List<BomFabricVo> bomFabricVos = this.bomFabricList(bomFabricDto,false).getList();
-        if (CollectionUtils.isEmpty(bomFabricVos)){
+        if (CollUtil.isEmpty(bomFabricVos)){
             return true;
         }
 
@@ -621,7 +621,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             BeanUtil.copyProperties(bomFabricVo,fabricSummary);
             //获取物料颜色
             List<BasicsdatumMaterialColorSelectVo> materialCodes = basicsdatumMaterialService.getMaterialCodes(bomFabricVo.getMaterialCode());
-            if (CollectionUtils.isNotEmpty(materialCodes)){
+            if (CollUtil.isNotEmpty(materialCodes)){
 
                 StringBuilder materialColor = new StringBuilder();
                 materialCodes.forEach(item ->{
@@ -633,7 +633,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
             if (StringUtils.isNotBlank(bomFabricVo.getSupplierId())){
                 List<BasicsdatumSupplier> basicsdatumSuppliers = basicsdatumSupplierService.getBySupplierId(bomFabricVo.getSupplierId());
-                fabricSummary.setSupplierAbbreviation(CollectionUtils.isEmpty(basicsdatumSuppliers) ? "" : basicsdatumSuppliers.get(0).getSupplierAbbreviation());
+                fabricSummary.setSupplierAbbreviation(CollUtil.isEmpty(basicsdatumSuppliers) ? "" : basicsdatumSuppliers.get(0).getSupplierAbbreviation());
             }
             fabricSummary.setGroupId(feedSummarySaveDTO.getGroupId());
             fabricSummary.setWidthName(fabricInfoMap.get(bomFabricVo.getMaterialCode()));
@@ -727,7 +727,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean saveFabricSummaryStyle(FabricSummaryStyleSaveDto dto) {
-        if (CollectionUtils.isEmpty(dto.getStyleNos())){
+        if (CollUtil.isEmpty(dto.getStyleNos())){
             return true;
         }
         FabricSummary fabricSummary = fabricSummaryService.getById(dto.getFabricSummaryId());
@@ -741,7 +741,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         qw.in("sc.style_no", dto.getStyleNos());
         List<FabricStyleVo> fabricStyleVos = baseMapper.fabricStyleList(fabricStyleDto, qw);
         List<FabricStyleVo> voList = fabricStyleVos.stream().filter(item -> Constants.ONE_STR.equals(item.getChoiceFlag())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(voList)){
+        if (CollUtil.isNotEmpty(voList)){
             throw new OtherException(voList.get(0).getStyleNo()+"的款式已经添加，请勿重复添加！");
         }
         List<FabricSummaryStyle> list = Lists.newArrayList();
@@ -761,7 +761,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
             orderBookDetailQueryDto.setBulkStyleNoFull(fabricSummaryStyle.getStyleNo());
             PageInfo<OrderBookDetailVo> orderBookDetailVoPageInfo = orderBookDetailService.queryPage(orderBookDetailQueryDto);
-            if(CollectionUtils.isNotEmpty(orderBookDetailVoPageInfo.getList())){
+            if(CollUtil.isNotEmpty(orderBookDetailVoPageInfo.getList())){
                 List<String> totalProductions = orderBookDetailVoPageInfo.getList().stream().map(OrderBookDetailVo::getTotalProduction).collect(Collectors.toList());
                 fabricSummaryStyle.setTotalProduction(String.valueOf(totalProductions.stream().filter(StringUtils::isNotBlank).mapToDouble(Double::parseDouble).sum()));
             }
@@ -832,7 +832,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         PageInfo<FabricSummaryInfoVo> pageInfo = this.fabricSummaryListV2(dto);
 
-        if (CollectionUtils.isEmpty(pageInfo.getList())){
+        if (CollUtil.isEmpty(pageInfo.getList())){
             throw new OtherException("没有数据");
         }
         //物料信息
@@ -862,7 +862,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     excelWriter.fill(new FillWrapper("data"+i1, getStyleMap(fabricSummaryStyle)),writeSheet);
                     //填充图片信息
                     List<Map<String, Object>> imgMap = getImgMap(fabricSummaryStyle);
-                    if (CollectionUtils.isNotEmpty(imgMap)){
+                    if (CollUtil.isNotEmpty(imgMap)){
                         excelWriter.fill(new FillWrapper("img"+i1, imgMap),writeSheet);
                     }
 
@@ -888,7 +888,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             return true;
         }
         List<String> ids = Arrays.asList(idList.split(","));
-        if (CollectionUtils.isEmpty(ids)){
+        if (CollUtil.isEmpty(ids)){
             return true;
         }
         UpdateWrapper<FabricSummary> updateWrapper = new UpdateWrapper<>();
@@ -968,7 +968,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(CollectionUtils.isEmpty(list) ? 0 :list.size()))
+                .setWorkQueue(new LinkedBlockingQueue<>(CollUtil.isEmpty(list) ? 0 :list.size()))
                 .build();
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
@@ -1048,7 +1048,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         queryWrapper.eq("select_flag","1");
         queryWrapper.eq("del_flag","0");
         List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.list(queryWrapper);
-        if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)){
+        if (CollUtil.isNotEmpty(basicsdatumMaterialPrices)){
             BasicsdatumMaterialPrice basicsdatumMaterialPrice = basicsdatumMaterialPrices.get(0);
             if (!fabricSummary.getSupplierId().equals(basicsdatumMaterialPrice.getSupplierId()) || !fabricSummary.getSupplierFabricCode().equals(basicsdatumMaterialPrice.getSupplierMaterialCode())){
                 //面料供应商改变
@@ -1087,7 +1087,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         objectQueryWrapper.eq("fabric_summary_id",fabricSummary.getId());
         objectQueryWrapper.eq("del_flag","0");
         List<FabricSummaryStyle> fabricSummaryStyles = fabricSummaryStyleService.list(objectQueryWrapper);
-        if (CollectionUtils.isEmpty(fabricSummaryStyles)){
+        if (CollUtil.isEmpty(fabricSummaryStyles)){
             return true;
         }
         for (FabricSummaryStyle fabricSummaryStyle : fabricSummaryStyles) {
@@ -1889,7 +1889,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             return;
         }
         List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummary.getMaterialCode(), fabricStyleVo.getMaterialColorCode());
-        if (CollectionUtils.isNotEmpty(list)){
+        if (CollUtil.isNotEmpty(list)){
             fabricStyleVo.setSupplierColorNo(list.get(0).getSupplierColorCode());
         }
 
@@ -1905,11 +1905,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         qc.eq("pb.material_code",fabricSummary.getMaterialCode());
         List<PackBom> packBomList = baseMapper.selectByForeignId(qc);
         PackBom packBom ;
-        if (CollectionUtils.isNotEmpty(packBomList) && packBomList.size() > 1){
+        if (CollUtil.isNotEmpty(packBomList) && packBomList.size() > 1){
             List<PackBom> packBoms = packBomList.stream().filter(item -> Constants.ONE_STR.equals(item.getMainFlag())).collect(Collectors.toList());
-            packBom = CollectionUtils.isEmpty(packBoms) ? new PackBom() : packBoms.get(0);
+            packBom = CollUtil.isEmpty(packBoms) ? new PackBom() : packBoms.get(0);
         }else {
-            packBom = CollectionUtils.isEmpty(packBomList) ? new PackBom() : packBomList.get(0);
+            packBom = CollUtil.isEmpty(packBomList) ? new PackBom() : packBomList.get(0);
         }
         fabricSummaryStyle.setUnitUse(packBom.getUnitUse());
         fabricSummaryStyle.setPartCode(packBom.getPartCode());

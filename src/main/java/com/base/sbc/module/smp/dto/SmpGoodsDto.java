@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.formtype.vo.GoodsDynamicFieldDto;
+import com.base.sbc.module.hangtag.dto.SmpHangTagIngredientDTO;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
@@ -12,6 +13,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -300,6 +302,12 @@ public class SmpGoodsDto extends SmpBaseDto {
      * 颜色停用标识
      */
     private String goodsColorFlag;
+    /**
+     * 下主面料单 时间
+     */
+    @ApiModelProperty(value = "下主面料单")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendMainFabricDate;
 
     /**
      * 指定面料集合
@@ -329,9 +337,24 @@ public class SmpGoodsDto extends SmpBaseDto {
     @ApiModelProperty(value = "外部颜色名称")
     private String outsideColorName;
 
+    @ApiModelProperty(value = "目标业务系统")
+    private String targetBusinessSystem;
+
+    private String yshBusinessSystem;
+
     /**
      * 款式设计动态管理字段 特定字段固定下发给BCS
      */
     private List<GoodsDynamicFieldDto> goodsDynamicFieldList;
+
+    /**
+     * 款式设计动态管理字段 key = 目标业务系统
+     */
+    private Map<String,List<GoodsDynamicFieldDto>>  goodsDynamicFieldMap;
+
+    /**
+     * 用于易尚货成分信息拆分
+     */
+    private List<SmpHangTagIngredientDTO> hangTagIngredientList;
 
 }

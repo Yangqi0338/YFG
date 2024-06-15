@@ -9,13 +9,13 @@ package com.base.sbc.module.patternmaking.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -106,6 +106,13 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
     List<NodeListVo> getProgressSteps(NodestatusPageSearchDto dto);
 
     List<StyleResearchProcessVo> getResearchProcessList(@Param("dto") ResearchProgressPageDto dto,@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    /**
+     *  样衣评分
+     * @param qw
+     * @return
+     */
+    PatternMakingScoreVo sampleBoardScore(@Param(Constants.WRAPPER)BaseQueryWrapper<SampleBoardVo> qw);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 

@@ -23,11 +23,10 @@ public enum StyleSaleIntoResultType {
     APPEND_INTO("线上/线下追单投产"),
     ;
     /** 编码 */
-    @EnumValue
     private final String code;
     /** 文本 */
+    @EnumValue
     private final String text;
-
 
     @JsonValue
     public String getCode() {

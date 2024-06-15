@@ -389,12 +389,19 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             List<String> styleColorIds = scmSendStyleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(styleColorIds)) {
-                String[] stringArray = styleColorIds.toArray(new String[0]);
-                try {
-                    smpService.goods(stringArray);
-                } catch (Exception e) {
-                    log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
-                    throw new OtherException("同步SCM失败：" + e.getMessage());
+                for (String styleColorId : styleColorIds) {
+                    String[] stringArray = new String[]{styleColorId};
+                    PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
+                    publicStyleColorDto.setId(style.getId());
+                    publicStyleColorDto.setSizeRange(style.getSizeRange());
+                    //检查配色数据是否投产，投产了就报错
+                    checkColorSize(publicStyleColorDto);
+                    try {
+                        smpService.goods(stringArray);
+                    } catch (Exception e) {
+                        log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
+                        throw new OtherException("同步SCM失败：" + e.getMessage());
+                    }
                 }
             }
 
@@ -752,6 +759,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
+        // 获取当前人所在的虚拟部门
+        String virtualDeptIds = super.getVirtualDeptIds();
+        if (StrUtil.isNotBlank(virtualDeptIds)) {
+            variables.put("sendDeptId", virtualDeptIds);
+        }
         // 查询附件
         // List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
         // String url = "";
@@ -1719,6 +1731,91 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      * @param vo
      */
     @Override
+    public List<ProductCategoryTreeVo> getProductCategoryTreeNew(ProductCategoryTreeVo vo) {
+        // 第一级年份
+        if (vo.getLevel() == null) {
+            QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
+            qc.eq("company_code", getCompanyCode());
+            qc.eq("del_flag", BasicNumber.ZERO.getNumber());
+            qc.select("id", "name", "season", "year_name");
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
+            /*查询到的产品季*/
+            List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                Map<String, List<PlanningSeason>> groupCounts = planningSeasonList.stream()
+                        .collect(Collectors.groupingBy(
+                                PlanningSeason::getYearName
+                        ));
+                List<ProductCategoryTreeVo> result = new ArrayList<>();
+                for (String key : groupCounts.keySet()) {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setChildren(true);
+                    tree.setLevel(0);
+                    tree.setYear(key);
+                    tree.setChildCount(String.valueOf(groupCounts.get(key).size()));
+                    tree.setChildrens(groupCounts.get(key));
+                    result.add(tree);
+                }
+                result.sort((s1, s2) -> s2.getYear().compareTo(s1.getYear()));
+                return result;
+            }
+        }
+        // 第二级 大类
+        else if (vo.getLevel() == 0) {
+            BaseQueryWrapper qw = new BaseQueryWrapper();
+            getProductCategoryTreeQw(vo, qw);
+            qw.select("prod_category1st_name,prod_category1st");
+            qw.groupBy("prod_category1st_name,prod_category1st");
+            qw.notNull("prod_category1st_name");
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+            List result = null;
+            if (StrUtil.equals(vo.getDataForm(), "seat")) {
+                result = planningCategoryItemService.listMaps(qw);
+            } else {
+                result = listMaps(qw);
+            }
+            List<ProdCategoryVo> list = BeanUtil.copyToList(result, ProdCategoryVo.class);
+            if (CollUtil.isNotEmpty(list)) {
+                return list.stream().map(item -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setProdCategory1stName(item.getProdCategory1stName());
+                    tree.setProdCategory1st(item.getProdCategory1st());
+                    tree.setLevel(1);
+                    tree.setChildren(true);
+                    return tree;
+                }).collect(Collectors.toList());
+            }
+        }
+        // 第3级 品类
+        else if (vo.getLevel() == 1) {
+            BaseQueryWrapper qw = new BaseQueryWrapper<>();
+            getProductCategoryTreeQw(vo, qw);
+            qw.select("prod_category_name,prod_category");
+            qw.groupBy("prod_category_name,prod_category");
+            qw.notNull("prod_category_name");
+            List result = null;
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+            if (StrUtil.equals(vo.getDataForm(), "seat")) {
+                result = planningCategoryItemService.listMaps(qw);
+            } else {
+                result = listMaps(qw);
+            }
+            List<ProdCategoryVo> list = BeanUtil.copyToList(result, ProdCategoryVo.class);
+            if (CollUtil.isNotEmpty(list)) {
+                return list.stream().map(item -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setProdCategoryName(item.getProdCategoryName());
+                    tree.setProdCategory(item.getProdCategory());
+                    tree.setLevel(2);
+                    tree.setChildren(false);
+                    return tree;
+                }).collect(Collectors.toList());
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
         // 第一级产品季
         if (vo.getLevel() == null) {
@@ -1797,6 +1894,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         return null;
     }
+
 
     /**
      * 获取产品季全品类

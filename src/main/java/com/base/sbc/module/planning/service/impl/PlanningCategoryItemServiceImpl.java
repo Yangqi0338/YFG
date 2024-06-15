@@ -1191,9 +1191,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class )
     public boolean del(String ids) {
         // 查询款式设计数据
-        QueryWrapper<Style> sdQw = new QueryWrapper();
+        QueryWrapper sdQw = new QueryWrapper();
         List<String> seatIds = StrUtil.split(ids, CharUtil.COMMA);
         sdQw.in("planning_category_item_id", seatIds);
         List<Style> sdList = styleService.list(sdQw);
@@ -1207,6 +1208,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             }
         }
         removeBatchByIds(seatIds);
+        //删除关联的素材库
+        planningCategoryItemMaterialService.remove(sdQw);
         styleService.remove(sdQw);
         return true;
     }

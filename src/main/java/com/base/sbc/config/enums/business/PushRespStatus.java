@@ -20,6 +20,7 @@ public enum PushRespStatus {
     PROCESS("处理中"),
     FAILURE("失败"),
     SUCCESS("成功"),
+    CLOSE("关闭"),
     ;
 
     /** 编码 */

@@ -143,7 +143,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
             //fabricBasicInformation.setCompanyCode(baseController.getUserCompany());
             saveUpdateFabricBasicDto.setId(null);
             saveUpdateFabricBasicDto.setRegisterDate(new Date());
-            saveUpdateFabricBasicDto.setCreateDeptId(getVirtualDetpIds());
+            saveUpdateFabricBasicDto.setCreateDeptId(getVirtualDeptIds());
             this.save(saveUpdateFabricBasicDto);
             FabricBasicInformation f = this.getById(saveUpdateFabricBasicDto.getId());
             this.saveOperaLog("新增","面料调样单",null,f.getCodeName(),saveUpdateFabricBasicDto,null);

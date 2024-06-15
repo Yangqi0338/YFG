@@ -98,5 +98,6 @@ public class ColumnGroupDefineItem extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "字段颜色")
 	private String columnColor;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
