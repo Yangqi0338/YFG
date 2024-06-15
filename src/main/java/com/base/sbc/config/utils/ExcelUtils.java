@@ -608,6 +608,7 @@ public class ExcelUtils {
                     excelEntity.setDatabaseFormat(columnDefine.getDataFormat());
                 } else if ("num".equals(columnDefine.getColumnType())) {
                     excelEntity.setType(10);
+                    excelEntity.setNumFormat("0.000");
                 }
             }
 
