@@ -123,8 +123,8 @@ public class MaterialController extends BaseController {
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
             //从公司素材管理提交审批，静默审批，不用走审批流
-            if (("1".equals(materialSaveDto.getCompanyFlag()) && "1".equals(materialSaveDto.getStatus())) || "2".equals(materialSaveDto.getStatus())){
-                if ("2".equals(materialSaveDto.getStatus()) && !"4".equals(material.getStatus())){
+            if ( "2".equals(materialSaveDto.getStatus())){
+                if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus())){
                     throw new OtherException("未审核过的素材，不允许提交！");
                 }
                 String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getMaterialBrandName()).split(",");
