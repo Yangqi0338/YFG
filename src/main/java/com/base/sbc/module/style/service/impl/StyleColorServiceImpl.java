@@ -126,12 +126,7 @@ import com.base.sbc.module.style.service.StyleColorAgentService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorAgentVo;
-import com.base.sbc.module.style.vo.StyleColorExcel;
-import com.base.sbc.module.style.vo.StyleColorListExcel;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -352,6 +347,92 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
 
         return new PageInfo<>(sampleStyleColorList);
+    }
+
+    @Override
+    public PageInfo<CompleteStyleVo> getCompleteStyleVoList(Principal user, QueryStyleColorDto queryDto) {
+        /*分页*/
+        BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+        //添加数据权限，根据前端传值
+        //打版进度	patternMakingSteps
+        //款式配色	styleColor
+        //款式列表	stylePage
+        //款式库	    styleLibrary
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "ts.");
+
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
+        Page<Object> objects = PageHelper.startPage(queryDto);
+
+        if(StrUtil.equals("colorBatch",queryDto.getBusinessType())){
+            //只查询已发送的
+            queryWrapper.ne("tsc.scm_send_flag","0");
+            //只查询已经有关联Bom的
+            queryWrapper.isNotNullStr("tsc.bom");
+        }
+
+
+        /*获取配色数据*/
+        List<CompleteStyleVo> completeStyleVoList = new ArrayList<>();
+        if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
+            queryWrapper.eq("tsc.del_flag", "0");
+            // bug 3325
+            objects.setOrderBy("CASE tsc.scm_send_flag " +
+                    " WHEN 0 THEN 0 " +
+                    " WHEN 3 THEN 1 " +
+                    " WHEN 2 THEN 2 " +
+                    " WHEN 1 THEN 3 " +
+                    " ELSE 99 " +
+                    "END " +
+                    ",tsc.create_date asc");
+            //queryWrapper.orderByAsc("tsc.scm_send_flag asc ");
+//            查询配色列表
+            completeStyleVoList = baseMapper.pageCompleteStyle(queryWrapper);
+            if( StrUtil.equals(queryDto.getExcelFlag(),BaseGlobal.YES) ){
+                return new PageInfo<>(completeStyleVoList);
+            }
+        } else {
+            queryWrapper.eq("ts.del_flag", "0");
+            // 2474
+            queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
+            queryWrapper.orderByDesc("ts.create_date");
+//            queryWrapper.orderByDesc("ts.id");
+//            查询款式配色
+            completeStyleVoList = baseMapper.pageCompleteStyle(queryWrapper);
+            if( StrUtil.equals(queryDto.getExcelFlag(),BaseGlobal.YES) ){
+                return new PageInfo<>(completeStyleVoList);
+            }
+            List<String> stringList = IdGen.getIds(completeStyleVoList.size());
+            int index = 0;
+            for (CompleteStyleVo styleColorVo : completeStyleVoList) {
+                if (stringList != null) {
+                    styleColorVo.setIssuerId(stringList.get(index));
+                }
+                index++;
+            }
+        }
+        /*查询款式图*/
+        stylePicUtils.setStylePic(completeStyleVoList, "stylePic");
+
+        if (user != null) {
+            /*查询款式配色图*/
+            GroupUser userBy = userUtils.getUserBy(user);
+            stylePicUtils.setStyleColorPic2(completeStyleVoList, "styleColorPic");
+        }
+
+        return new PageInfo<>(completeStyleVoList);
+    }
+
+    @Override
+    public ApiResult getStyleColorBystyleNo(String styleNo) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.eq("tsc.style_no", styleNo);
+        queryWrapper.eq("tsc.del_flag", "0");
+        List<CompleteStyleVo> completeStyleVos = baseMapper.pageCompleteStyle(queryWrapper);
+
+        /*查询款式图*/
+        stylePicUtils.setStylePic(completeStyleVos, "stylePic");
+        stylePicUtils.setStyleColorPic2(completeStyleVos, "styleColorPic");
+        return ApiResult.success("查询成功", completeStyleVos.get(0));
     }
 
     @NotNull

@@ -181,6 +181,9 @@
 
     <select id="colorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
             tsc.*,
             CASE WHEN tsc.is_trim = '0' THEN tsma.style_no ELSE '' END as accessoryNo,
             CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
@@ -235,9 +238,68 @@
             left join 	(SELECT style_color_id ,GROUP_CONCAT(style_no) style_no  ,GROUP_CONCAT(color_name) color_name ,is_trim FROM t_style_main_accessories WHERE del_flag='0' GROUP BY style_color_id)  tsma on (tsma.style_color_id = tsc.id )
             left join t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
             ${ew.customSqlSegment}
-
     </select>
 
+    <select id="pageCompleteStyle" resultType="com.base.sbc.module.style.vo.CompleteStyleVo">
+        select
+        tsc.*,
+        CASE WHEN tsc.is_trim = '0' THEN tsma.style_no ELSE '' END as accessoryNo,
+        CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
+        CASE WHEN tsc.is_trim  = '0' THEN ''ELSE tsma.style_no  END as principalStyleNo,
+        CASE WHEN tsc.is_trim = '0' THEN ''ELSE tsma.color_name END as principalStyle,
+        if(tsc.color_crash is null or tsc.color_crash = '', ts.color_crash, tsc.color_crash) as colorCrash,
+        tpi.id packInfoId,
+        tpi.name infoName,
+        ts.task_level,
+        ts.task_level_name,
+        ts.style_type,
+        ts.style_type_name,
+        ts.size_range,
+        ts.size_range_name,
+        ts.merch_design_name,
+        ts.pattern_design_name,
+        ts.id  styleId,
+        ts.style_pic,
+        ts.design_no designNo,
+        ts.prod_category1st,
+        ts.prod_category1st_name,
+        ts.prod_category,
+        ts.prod_category_name,
+        ts.his_design_no,
+        ts.style_name,
+        ts.designer_id,
+        ts.designer,
+        ts.technician_id,
+        ts.technician_name,
+        ts.brand,
+        ts.brand_name,
+        ts.year,
+        ts.year_name,
+        ts.season,
+        ts.season_name,
+        ts.prod_category2nd_name,
+        ts.prod_category2nd,
+        ts.prod_category3rd,
+        ts.prod_category3rd_name,
+        tsp.control_confirm,
+        tsp.product_hangtag_confirm,
+        tsp.control_hangtag_confirm,
+        ts.devt_type as devtType,
+        ts.devt_type_name as devtTypeName,
+        concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode,
+        tpp.calc_item_val as calcItemVal
+        FROM
+        t_style_color tsc
+        LEFT JOIN t_style ts ON ts.id = tsc.style_id
+        LEFT JOIN t_pack_info tpi on tpi.style_color_id = tsc.id
+        LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id
+        LEFT JOIN t_pack_info_status ps ON (tpi.id = ps.foreign_id and ps.del_flag = '0')
+        left join t_pack_pricing as tpp on (tpp.foreign_id = tpi.id and tpp.del_flag = '0' and tpp.pack_type =
+        ps.pack_type)
+        left join 	(SELECT style_color_id ,GROUP_CONCAT(style_no) style_no  ,GROUP_CONCAT(color_name) color_name ,is_trim FROM t_style_main_accessories WHERE del_flag='0' GROUP BY style_color_id)  tsma on (tsma.style_color_id = tsc.id )
+        left join t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
+        ${ew.customSqlSegment}
+    </select>
 
     <select id="getStyleMainAccessories" resultType="com.base.sbc.module.style.entity.StyleColor">
         SELECT distinct tsc.*
