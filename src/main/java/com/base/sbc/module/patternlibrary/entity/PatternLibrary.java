@@ -40,6 +40,18 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String code;
 
     /**
+     * 父级 ID
+     */
+    @ApiModelProperty("父级 ID")
+    private String parentId;
+
+    /**
+     * 所有的上层父级 ID
+     */
+    @ApiModelProperty("所有的上层父级 ID")
+    private String parentIds;
+
+    /**
      * 款式编码
      */
     @ApiModelProperty("款式编码")
@@ -136,6 +148,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      */
     @ApiModelProperty("模板名称")
     private String templateName;
+
+    /**
+     * 常青编号
+     */
+    @ApiModelProperty("常青编号")
+    private String everGreenCode;
 
     /**
      * 文件 ID

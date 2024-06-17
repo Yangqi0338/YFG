@@ -132,6 +132,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String templateName;
 
     /**
+     * 常青编号
+     */
+    @ApiModelProperty("常青编号")
+    private String everGreenCode;
+
+    /**
      * 文件 ID
      */
     @ApiModelProperty("文件 ID")

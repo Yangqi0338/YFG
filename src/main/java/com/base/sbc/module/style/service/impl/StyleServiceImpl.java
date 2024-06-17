@@ -77,6 +77,8 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.*;
@@ -246,6 +248,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
+    @Autowired
+    @Lazy
+    private PatternLibraryService patternLibraryService;
 
     /**
      * 表单字段类型名称
@@ -273,6 +278,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             style = saveNewStyle(dto);
         } else {
             style = getById(dto.getId());
+            String registeringId = style.getRegisteringId();
             String oldDesignNo = style.getDesignNo();
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
             resetDesignNo(dto, style);
@@ -295,7 +301,31 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             BeanUtil.copyProperties(dto, style);
             setMainStylePic(style, dto.getStylePicList());
 
+
+
             this.updateById(style);
+            {
+                PatternLibrary patternLibrary = patternLibraryService.getOne(
+                        new LambdaQueryWrapper<PatternLibrary>()
+                                .eq(PatternLibrary::getDelFlag, BaseGlobal.NO)
+                                .eq(PatternLibrary::getStyleId, style.getId())
+                                .isNotNull(PatternLibrary::getEverGreenCode)
+                                .ne(PatternLibrary::getEverGreenCode, "")
+                );
+                if (ObjectUtil.isNotEmpty(patternLibrary)) {
+                    if (ObjectUtil.isNotEmpty(registeringId) && !registeringId.equals(dto.getRegisteringId())) {
+                        // 如果原版型库编码不为空 且 新版型库编码和原版型库编码不相同 包括新的版型库编码是空的情况 那么先删除
+                        patternLibraryService.removeEverGreenTreeNode(patternLibrary.getId());
+                        if (ObjectUtil.isNotEmpty(dto.getRegisteringId())) {
+                            // 如果新的版型库编码不为空 那么新增
+                            patternLibraryService.newEverGreenTreeNode(patternLibrary.getId());
+                        }
+                    } else {
+                        // 如果新的版型库编码不为空 那么新增
+                        patternLibraryService.newEverGreenTreeNode(patternLibrary.getId());
+                    }
+                }
+            }
             reviseAllDesignNo(oldDesignNo, style.getDesignNo());
             planningCategoryItemService.updateBySampleDesignChange(style);
             //当修改设计款是默认修改
