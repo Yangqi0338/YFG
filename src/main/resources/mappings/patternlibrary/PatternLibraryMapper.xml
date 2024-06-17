@@ -276,26 +276,6 @@
         AND ts.serial_style_id = s.id
         AND ts.serial_style_id IS NOT NULL
         ), 0) useStyleNum,
-        ifnull(round((SELECT
-        count( 1 )
-        FROM
-        t_style ts
-        JOIN t_style_color tsc ON ts.id = tsc.style_id
-        AND tsc.del_flag = '0'
-        WHERE
-        ts.del_flag = 0
-        AND ts.serial_style_id = s.id
-        AND ts.serial_style_id IS NOT NULL
-        )/(SELECT
-        count( 1 )
-        FROM
-        t_style ts
-        JOIN t_style_color tsc ON ts.id = tsc.style_id
-        AND tsc.del_flag = '0'
-        WHERE
-        ts.del_flag = 0
-        AND ts.serial_style_id IS NOT NULL
-        ), 2),0) * 100 patternLibraryUtilization,
         tps.name planningSeasonName,
         group_concat(tsc.style_no) styleNo,
         tpl.id registeringId,
@@ -316,5 +296,16 @@
                 ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
         </where>
+    </select>
+    <select id="queryAllUseStyle" resultType="String">
+        SELECT count(1)
+        FROM t_style ts
+                 JOIN t_style_color tsc ON ts.id = tsc.style_id
+            AND tsc.del_flag = '0'
+        WHERE ts.del_flag = 0
+          AND ts.serial_style_id IS NOT NULL
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
     </select>
 </mapper>

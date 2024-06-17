@@ -87,4 +87,13 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
             @Param("patternLibraryDTO") PatternLibraryDTO patternLibraryDTO
     );
 
+    /**
+     * 查询已开款的款总的使用记录数
+     *
+     * @return 相关数据
+     */
+    String queryAllUseStyle(
+            @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper
+    );
+
 }

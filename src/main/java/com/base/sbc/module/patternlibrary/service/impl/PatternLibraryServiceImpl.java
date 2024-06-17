@@ -68,6 +68,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -271,11 +273,11 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             if (ObjectUtil.isEmpty(oldPatternLibrary.getEverGreenCode()) && ObjectUtil.isNotEmpty(patternLibraryDTO.getEverGreenCode())) {
                 // 从无到有
                 newEverGreenTreeNode(patternLibrary.getId());
-                // 查询此版型下面的所有子版型
+                // 查询此版型下面的所有直属子版型
                 List<PatternLibrary> patternLibraryList = list(
                         new LambdaQueryWrapper<PatternLibrary>()
                                 .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                                .like(PatternLibrary::getParentIds, patternLibrary.getId())
+                                .eq(PatternLibrary::getParentId, patternLibrary.getId())
                 );
                 for (PatternLibrary library : patternLibraryList) {
                     newEverGreenTreeNode(library.getId());
@@ -284,11 +286,11 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 // 从有到无
                 // 从无到有
                 removeEverGreenTreeNode(patternLibrary.getId());
-                // 查询此版型下面的所有子版型
+                // 查询此版型下面的所有直属子版型
                 List<PatternLibrary> patternLibraryList = list(
                         new LambdaQueryWrapper<PatternLibrary>()
                                 .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                                .like(PatternLibrary::getParentIds, patternLibrary.getId())
+                                .eq(PatternLibrary::getParentId, patternLibrary.getId())
                 );
                 for (PatternLibrary library : patternLibraryList) {
                     removeEverGreenTreeNode(library.getId());
@@ -1028,6 +1030,11 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "s.");
 
         List<Style> styleList = baseMapper.listStyleToPatternLibrary(queryWrapper, patternLibraryDTO);
+        // 查询总的使用记录数
+        QueryWrapper<Style> wrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(wrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "ts.");
+        String allCount = baseMapper.queryAllUseStyle(wrapper);
+
         // 初始化返回的封装数据
         List<PatternLibrary> patternLibraryList = new ArrayList<>(styleList.size());
         if (ObjectUtil.isNotEmpty(styleList)) {
@@ -1050,7 +1057,10 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 patternLibrary.setProdCategory2ndName(prodCategory2ndName);
                 patternLibrary.setProdCategory3rdName(prodCategory3rdName);
                 patternLibrary.setUseStyleNum(style.getUseStyleNum());
-                patternLibrary.setPatternLibraryUtilization(style.getPatternLibraryUtilization());
+                BigDecimal useStyleNum = new BigDecimal(style.getUseStyleNum());
+                BigDecimal count = new BigDecimal(allCount);
+                BigDecimal hundred = new BigDecimal("100");
+                patternLibrary.setPatternLibraryUtilization(String.valueOf(useStyleNum.multiply(hundred).divide(count, 2, RoundingMode.CEILING)));
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
                 patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
                 patternLibrary.setPlanningSeasonName(style.getPlanningSeasonName());
