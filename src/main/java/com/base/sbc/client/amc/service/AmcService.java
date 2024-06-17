@@ -260,4 +260,14 @@ public interface AmcService {
     @GetMapping("/amc/api/token/virtualDept/getVirtualDeptByUserId")
     ApiResult<List<VirtualDept>> getVirtualDeptByUserId(@RequestParam("userId") String userId);
 
+    /**
+     * 获取读数据权限
+     *
+     * @param businessType
+     * @return
+     */
+    @GetMapping("/amc/api/token/dataPermissions/getByUserDataPermissionsAll")
+    ApiResult<List<String>> getByUserDataPermissionsAll(@RequestParam("businessType") String businessType,@RequestParam("type") String type
+            ,@RequestParam("userId") String userId,@RequestParam("fieldName") String fieldName);
+
 }

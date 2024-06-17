@@ -87,6 +87,14 @@
         <if test="content != null and content != ''">
             and tm.material_name like concat('%',#{content},'%')
         </if>
+
+        <if test="brandList != null and brandList.size > 0">
+            and
+            <foreach collection="brandList" item="brand" separator=" or " open="(" close=")">
+                 FIND_IN_SET(#{brand},brand)
+            </foreach>
+        </if>
+
         order by create_date desc
     </select>
 
