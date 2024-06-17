@@ -266,7 +266,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-           basicsdatumSizeList = basicsdatumSizeList.stream().sorted(Comparator.comparing(BasicsdatumSize::getCode).reversed()).collect(Collectors.toList());
+           basicsdatumSizeList = basicsdatumSizeList.stream().sorted(Comparator.comparing(BasicsdatumSize::getCode)).collect(Collectors.toList());
 
 //           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
 //           List<String> name =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
