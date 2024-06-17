@@ -180,9 +180,11 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         this.addQuery(materialQueryDto);
         PageHelper.startPage(materialQueryDto);
 
-        //获取用户组的品牌权限列表
-        ApiResult<List<String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
-        materialQueryDto.setBrandList(brandList.getData());
+        if ("2".equals(materialQueryDto.getStatus())){
+            //获取用户组的品牌权限列表
+            ApiResult<List<String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
+            materialQueryDto.setBrandList(brandList.getData());
+        }
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
