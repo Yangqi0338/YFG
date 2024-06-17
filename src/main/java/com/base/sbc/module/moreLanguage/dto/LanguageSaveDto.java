@@ -44,7 +44,7 @@ public class LanguageSaveDto {
     @ApiModelProperty(value = "语言名称")
     private CountryLanguageType countryLanguageType;
 
-    @DateTimeFormat("yyyy/MM/dd hh:mm:ss")
+    @DateTimeFormat("yyyy/MM/dd HH:mm:ss")
     private Date printTime;
 
 }
