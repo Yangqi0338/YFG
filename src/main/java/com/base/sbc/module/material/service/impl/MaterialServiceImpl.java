@@ -179,8 +179,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
         PageHelper.startPage(materialQueryDto);
-
-        if ("2".equals(materialQueryDto.getStatus())){
+        if (null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
             //获取用户组的品牌权限列表
             ApiResult<List<String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
             materialQueryDto.setBrandList(brandList.getData());
