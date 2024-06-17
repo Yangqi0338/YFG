@@ -39,7 +39,7 @@ public class MoreLanguageStatusCountryDto {
     @Excel(name = "审核状态", width = 15.0)
     private String status;
 
-    @Excel(name = "审核时间", format = "yyyy/MM/dd hh:mm:ss", width = 30.0)
+    @Excel(name = "审核时间", format = "yyyy/MM/dd HH:mm:ss", width = 30.0)
     @JsonFormat(pattern = "yyyy/MM/dd hh:mm:ss", timezone = "GMT+8")
     private Date time;
 
