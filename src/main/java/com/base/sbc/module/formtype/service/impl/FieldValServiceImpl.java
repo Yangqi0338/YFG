@@ -47,6 +47,17 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
         return list(fvQw);
     }
 
+    @Override
+    public List<FieldVal> list(List<String> foreignIds, String dataGroup) {
+        if (StrUtil.isNotEmpty(dataGroup) && CollUtil.isNotEmpty(foreignIds)) {
+            return new ArrayList<>();
+        }
+        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+        fvQw.in("foreign_id", foreignIds);
+        fvQw.eq("data_group", dataGroup);
+        return list(fvQw);
+    }
+
     @Transactional(rollbackFor = {Exception.class})
     @Override
     public boolean save(String foreignId, String dataGroup, List<FieldVal> fieldVals) {

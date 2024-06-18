@@ -30,6 +30,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -50,6 +51,9 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -149,6 +153,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Resource
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private FieldValService fieldValService;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -295,6 +302,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
         }
+
+        List<String> ids = list.stream().map(BaseEntity::getId).collect(Collectors.toList());
+        //查询动态字段
+        List<FieldVal> fieldValList = fieldValService.list(ids, FieldValDataGroupConstant.MATERIAL);
+        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+        for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : list) {
+            List<FieldVal> orDefault = fieldValMap.getOrDefault(basicsdatumMaterialPageVo.getId(), new ArrayList<>());
+            basicsdatumMaterialPageVo.setFieldValList(fieldValList);
+        }
+
         if (isColumnHeard) {
             return new PageInfo<>(list);
         }
@@ -342,6 +359,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }*/
         // 保存主信息
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
+
+        //保存动态字段
+        fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());
+
         return getBasicsdatumMaterial(entity.getId());
     }
 
