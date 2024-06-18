@@ -7,12 +7,14 @@
 package com.base.sbc.module.style.vo;
 
 import com.base.sbc.config.vo.EditPermissionReturnVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -494,6 +496,11 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      * 产品季
      */
     private String planningSeason;
+
+    /**
+     * 维度系数
+     */
+    private List<FieldVal> fieldVals;
 
     /**
      * 核价信息
