@@ -267,7 +267,7 @@ public interface AmcService {
      * @return
      */
     @GetMapping("/amc/api/token/dataPermissions/getByUserDataPermissionsAll")
-    ApiResult<List<String>> getByUserDataPermissionsAll(@RequestParam("businessType") String businessType,@RequestParam("type") String type
+    ApiResult<Map<String,String>> getByUserDataPermissionsAll(@RequestParam("businessType") String businessType,@RequestParam("type") String type
             ,@RequestParam("userId") String userId,@RequestParam("fieldName") String fieldName);
 
 }
