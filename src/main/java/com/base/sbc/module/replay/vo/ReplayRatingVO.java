@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.vo;
 
-import com.base.sbc.config.common.base.BaseDataEntity;
+import cn.hutool.core.text.StrJoiner;
+import com.base.sbc.module.replay.entity.ReplayRating;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
@@ -21,30 +24,92 @@ import lombok.Data;
  * @date 创建时间：2024-6-13 15:15:25
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("基础资料-复盘评分 ReplayRatingVo")
-public class ReplayRatingVO extends BaseDataEntity<String> {
+public class ReplayRatingVO extends ReplayRating {
 
-    private static final long serialVersionUID = 1L;
-    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    /** 配色Id */
+    @ApiModelProperty(value = "配色Id")
+    private String styleColorId;
 
+    /** 款号 */
+    @ApiModelProperty(value = "款号")
+    private String designNo;
 
-    /**********************************实体存放的其他字段区 【other_end】******************************************/
+    /** 大货款号 */
+    @ApiModelProperty(value = "大货款号")
+    private String bulkStyleNo;
 
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 复盘维度类型 0销售复盘 1版型评分 2面料评分 3颜色评分 */
-    @ApiModelProperty(value = "复盘维度类型 0销售复盘 1版型评分 2面料评分 3颜色评分")
-    private String type;
-    /** 外键id */
-    @ApiModelProperty(value = "外键id")
-    private String foreignId;
-    /** 复盘状态：0未复盘 1已复盘 */
-    @ApiModelProperty(value = "复盘状态：0未复盘 1已复盘")
-    private String replayStatus;
-    /** 评分状态：0未评分 1已评分 */
-    @ApiModelProperty(value = "评分状态：0未评分 1已评分")
-    private String ratingStatus;
-    /** 扩展字段 (typeName|关联的主表的非实时数据) */
-    @ApiModelProperty(value = "扩展字段 (typeName|关联的主表的非实时数据)")
-    private String extend;
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+    /** 大货款图 */
+    @ApiModelProperty(value = "大货款图")
+    private String styleColorPic;
+
+    /** 产品季id */
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+
+    /** 产品季名称 */
+    @ApiModelProperty(value = "产品季名称")
+    @JsonIgnore
+    private String planningSeasonName;
+
+    /** 波段code */
+    @ApiModelProperty(value = "波段code")
+    private String bandCode;
+
+    /** 波段名称 */
+    @ApiModelProperty(value = "波段名称")
+    @JsonIgnore
+    private String bandName;
+
+    /** 款式id */
+    @ApiModelProperty(value = "款式id")
+    private String styleId;
+
+    /** 大类code */
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+
+    /** 大类name */
+    @ApiModelProperty(value = "大类name")
+    @JsonIgnore
+    private String prodCategory1stName;
+
+    /** 品类code */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
+
+    /** 品类name */
+    @ApiModelProperty(value = "品类name")
+    @JsonIgnore
+    private String prodCategoryName;
+
+    /** 中类code */
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+
+    /** 中类name */
+    @ApiModelProperty(value = "中类name")
+    @JsonIgnore
+    private String prodCategory2ndName;
+
+    /** 小类code */
+    @ApiModelProperty(value = "小类code")
+    private String prodCategory3rd;
+
+    /** 小类code */
+    @ApiModelProperty(value = "小类code")
+    @JsonIgnore
+    private String prodCategory3rdName;
+
+    public String getCategoryName() {
+        return StrJoiner.of("\n").append(planningSeasonName).append(bandName).append(
+                StrJoiner.of("/").append(prodCategory1stName).append(prodCategoryName).append(prodCategory2ndName).append(prodCategory3rdName)
+        ).toString();
+    }
+
+    public String getTypeName() {
+        return getType().getText();
+    }
+
 }

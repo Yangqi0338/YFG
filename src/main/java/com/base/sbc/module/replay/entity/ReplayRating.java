@@ -15,6 +15,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 类描述：基础资料-复盘评分 实体类
  *
@@ -37,17 +39,23 @@ public class ReplayRating extends BaseDataExtendEntity {
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 复盘维度类型 0销售复盘 1版型评分 2面料评分 3颜色评分 */
-    @ApiModelProperty(value = "复盘维度类型 0销售复盘 1版型复盘 2面料复盘 3颜色复盘")
+    /** 复盘维度类型 */
+    @ApiModelProperty(value = "复盘维度类型")
+    @NotNull(message = "类型不能为空")
     private ReplayRatingType type;
     /** 外键id */
     @ApiModelProperty(value = "外键id")
+    @NotNull(message = "主数据id不能为空")
     private String foreignId;
+    /** 外键唯一code */
+    @ApiModelProperty(value = "外键唯一code")
+    @NotNull(message = "主数据唯一code不能为空")
+    private String code;
     /** 复盘状态：0未复盘 1已复盘 */
     @ApiModelProperty(value = "复盘状态：0未复盘 1已复盘")
-    private YesOrNoEnum replayFlag;
+    private YesOrNoEnum replayFlag = YesOrNoEnum.NO;
     /** 评分状态：0未评分 1已评分 */
     @ApiModelProperty(value = "评分状态：0未评分 1已评分")
-    private YesOrNoEnum ratingFlag;
+    private YesOrNoEnum ratingFlag = YesOrNoEnum.NO;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

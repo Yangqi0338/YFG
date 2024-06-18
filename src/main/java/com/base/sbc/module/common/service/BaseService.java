@@ -2,13 +2,10 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -186,6 +183,10 @@ public interface BaseService<T> extends IService<T> {
     T findOne(LambdaQueryWrapper<T> wrapper);
     <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
     <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);
+
+    <K, V> Map<K, V> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, K> keyFunc, SFunction<T, V> valueFunc);
+
+    <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> function);
 
     /**
      * 用于redis回查

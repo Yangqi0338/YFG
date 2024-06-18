@@ -6,9 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.replay.entity.ReplayRating;
+import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：基础资料-复盘评分 dao类
@@ -23,6 +29,11 @@ import org.apache.ibatis.annotations.Mapper;
 public interface ReplayRatingMapper extends BaseMapper<ReplayRating> {
 // 自定义方法区 不替换的区域【other_start】
 
+    List<ReplayRatingStyleVO> queryStyleList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<ReplayRatingStyleVO> queryPatternList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<ReplayRatingStyleVO> queryFabricList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

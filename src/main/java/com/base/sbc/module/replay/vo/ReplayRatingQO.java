@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.replay.dto;
+package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -29,8 +29,8 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 public class ReplayRatingQO extends QueryFieldDto {
 
-    /** 复盘维度类型 0销售复盘 1版型评分 2面料评分 3颜色评分 */
-    @ApiModelProperty(value = "复盘维度类型 0销售复盘 1版型复盘 2面料复盘 3颜色复盘")
+    /** 复盘维度类型 */
+    @ApiModelProperty(value = "复盘维度类型")
     @NotNull(message = "查询类型不能为空")
     private ReplayRatingType type;
 
@@ -40,7 +40,7 @@ public class ReplayRatingQO extends QueryFieldDto {
 
     /** 波段 */
     @ApiModelProperty(value = "波段")
-    private String band;
+    private String bandCode;
 
     /** 大类code */
     @ApiModelProperty(value = "大类code")

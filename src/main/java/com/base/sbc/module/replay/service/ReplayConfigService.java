@@ -8,8 +8,8 @@ package com.base.sbc.module.replay.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.replay.dto.ReplayConfigDTO;
-import com.base.sbc.module.replay.dto.ReplayConfigQO;
 import com.base.sbc.module.replay.entity.ReplayConfig;
+import com.base.sbc.module.replay.vo.ReplayConfigQO;
 import com.github.pagehelper.PageInfo;
 
 /**

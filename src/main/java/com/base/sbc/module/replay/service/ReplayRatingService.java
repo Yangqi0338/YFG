@@ -7,9 +7,13 @@
 package com.base.sbc.module.replay.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.replay.dto.ReplayRatingDTO;
-import com.base.sbc.module.replay.dto.ReplayRatingQO;
+import com.base.sbc.module.replay.dto.ReplayRatingFabricDTO;
+import com.base.sbc.module.replay.dto.ReplayRatingPatternDTO;
+import com.base.sbc.module.replay.dto.ReplayRatingSaveDTO;
+import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO;
 import com.base.sbc.module.replay.entity.ReplayRating;
+import com.base.sbc.module.replay.vo.ReplayRatingQO;
+import com.base.sbc.module.replay.vo.ReplayRatingVO;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -25,7 +29,15 @@ public interface ReplayRatingService extends BaseService<ReplayRating> {
 
 // 自定义方法区 不替换的区域【other_start】
 
-    PageInfo<ReplayRatingDTO> findPage(ReplayRatingQO dto);
+    PageInfo<? extends ReplayRatingVO> queryPageInfo(ReplayRatingQO dto);
+
+    String doSave(ReplayRatingSaveDTO replayRatingSaveDTO);
+
+    ReplayRatingStyleDTO getStyleById(String id);
+
+    ReplayRatingPatternDTO getPatternById(String id);
+
+    ReplayRatingFabricDTO getFabricById(String id);
 
 // 自定义方法区 不替换的区域【other_end】
 

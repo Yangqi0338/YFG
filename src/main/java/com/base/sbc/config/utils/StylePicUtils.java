@@ -146,6 +146,10 @@ public class StylePicUtils {
         }
     }
 
+    public void setStyleColorPic2(List list) {
+        setStyleColorPic2(list, "styleColorPic");
+    }
+
 
     /**
      * 获取大货款号的url

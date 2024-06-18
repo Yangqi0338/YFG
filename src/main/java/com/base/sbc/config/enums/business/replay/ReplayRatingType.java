@@ -19,7 +19,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum ReplayRatingType {
     /**/
-    SALE("销售复盘"),
+    STYLE("单款复盘"),
     PATTERN("版型复盘"),
     FABRIC("面料复盘"),
     COLOR("颜色复盘"),

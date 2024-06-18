@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.replay.mapper.ReplayRatingMapper">
+    <!--
+        基础资料-复盘评分
+        创建人：KC
+        邮箱：kchange0915@gmail.com
+        创建时间：2024-6-13 15:15:25
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+    <sql id="queryStyleListField">
+        tsc.id as styleColorId,
+        tsc.design_no,
+        tsc.style_no as bulkStyleNo,
+        tsc.style_color_pic,
+        tsc.planning_season_id,
+        tsc.band_code,
+        tsc.band_name,
+        ts.id as styleId,
+        ts.prod_category1st,
+        ts.prod_category1st_name,
+        ts.prod_category,
+        ts.prod_category_name,
+        ts.prod_category2nd,
+        ts.prod_category2nd_name,
+        ts.prod_category3rd,
+        ts.prod_category3rd_name,
+    </sql>
+
+    <select id="queryStyleList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
+        select
+        <include refid="queryStyleListField"/>
+        trr.*
+        from t_style_color tsc
+        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = 'style'
+        left join t_style ts on ts.id = tsc.style_id
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <sql id="queryPatternListField">
+        tsc.id as styleColorId,
+        tsc.design_no,
+        tsc.style_no as bulkStyleNo,
+        tsc.style_color_pic,
+        tsc.plan_season_id,
+        tsc.band_code,
+        tsc.band_name,
+        ts.id as styleId,
+        ts.prod_category1st
+        ts.prod_category1st_name,
+        ts.prod_category,
+        ts.prod_category_name,
+        ts.prod_category2nd,
+        ts.prod_category2nd_name,
+        ts.prod_category3rd,
+        ts.prod_category3rd_name
+        trr.id as replayRatingId,
+        trr.type as replayRatingType,
+        trr.replay_status
+    </sql>
+
+    <select id="queryPatternList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
+    </select>
+
+    <sql id="queryColorListField">
+        tsc.id as styleColorId,
+        tsc.design_no,
+        tsc.style_no as bulkStyleNo,
+        tsc.style_color_pic,
+        tsc.plan_season_id,
+        tsc.band_code,
+        tsc.band_name,
+        ts.id as styleId,
+        ts.prod_category1st
+        ts.prod_category1st_name,
+        ts.prod_category,
+        ts.prod_category_name,
+        ts.prod_category2nd,
+        ts.prod_category2nd_name,
+        ts.prod_category3rd,
+        ts.prod_category3rd_name
+        trr.id as replayRatingId,
+        trr.type as replayRatingType,
+        trr.replay_status
+    </sql>
+
+    <select id="queryFabricList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

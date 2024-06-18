@@ -26,7 +26,6 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
@@ -45,9 +44,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author 卞康
@@ -736,6 +740,15 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return listOneField(new LambdaQueryWrapper<T>().in(T::getId, ids), function);
     }
 
+    @Override
+    public <K, V> Map<K, V> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, K> keyFunc, SFunction<T, V> valueFunc) {
+        return this.list(wrapper.select(keyFunc, valueFunc)).stream().filter(Objects::nonNull).collect(CommonUtils.toMap(keyFunc, valueFunc));
+    }
+
+    @Override
+    public <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> valueFunc) {
+        return this.list(new LambdaQueryWrapper<T>().in(T::getId, ids).select(T::getId, valueFunc)).stream().filter(Objects::nonNull).collect(CommonUtils.toMap(T::getId, valueFunc));
+    }
 
     /**
      * 根据字段名称获取对象的值，包括父类的字段

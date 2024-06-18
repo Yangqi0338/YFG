@@ -4,10 +4,13 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.replay.dto;
+package com.base.sbc.module.replay.vo;
 
-import com.base.sbc.module.replay.entity.ReplayRating;
+import com.base.sbc.config.annotation.ExtendField;
+import com.base.sbc.config.enums.business.replay.ReplayRatingLevelEnum;
+import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -23,7 +26,20 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("基础资料-复盘评分 ReplayRatingVo")
-public class ReplayRatingDTO extends ReplayRating {
+public class ReplayRatingStyleVO extends ReplayRatingVO {
 
+    /** 企划等级 */
+    @ApiModelProperty(value = "企划等级")
+    @ExtendField
+    private ReplayRatingLevelEnum planningLevel;
+    /** 季节等级 */
+    @ApiModelProperty(value = "季节等级")
+    @ExtendField
+    private ReplayRatingLevelEnum seasonLevel;
+
+    @Override
+    public ReplayRatingType getType() {
+        return ReplayRatingType.STYLE;
+    }
 
 }
