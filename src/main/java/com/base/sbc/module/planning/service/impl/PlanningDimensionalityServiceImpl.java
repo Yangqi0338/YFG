@@ -457,10 +457,16 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     @Override
+    @Transactional
     public List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList) {
         List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
+        for (PlanningDimensionality planningDimensionality : list) {
+            planningDimensionality.setChannel("");
+            planningDimensionality.setChannelName("");
+            planningDimensionality.setPlanningSeasonId("");
+        }
         saveOrUpdateBatch(list);
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/
