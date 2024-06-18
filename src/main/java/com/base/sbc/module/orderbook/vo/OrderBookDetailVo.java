@@ -1,7 +1,10 @@
 package com.base.sbc.module.orderbook.vo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -104,11 +107,16 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "品类编码")
     private String  categoryCode;
 
+    private String  devtTypeName;
+
     /**
      * 生产类型
      */
     @ApiModelProperty(value = "生产类型")
     public String getDevtTypeName(){
+        if (devtTypeName != null){
+            return devtTypeName;
+        }
         if (this.getDevtType() == null) return "";
         return this.getDevtType().getText();
     }
@@ -350,4 +358,32 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     @ApiModelProperty(value = "预算号查询")
     private List<ScmProductionBudgetDto> productionBudgetNoList;
+
+    //列头筛选导出补充数据
+    private JSONObject replenish;
+
+    public void setReplenishInfo(){
+        //线上，线下数据
+        JSONObject jsonObject = getCommissioningSizeTotalJsonObject();
+        //四倍价
+        if (null != cost){
+            jsonObject.put("multiplePrice",cost.multiply(BigDecimal.valueOf(4)));
+        }
+        if (this.similarStyle == null ){
+            this.replenish = jsonObject;
+            return;
+        }
+        JSONObject similarStyleJson = JSONObject.parseObject(JSON.toJSONString(similarStyle));
+
+        for (StyleSaleIntoCalculateResultType resultType : StyleSaleIntoCalculateResultType.values()) {
+            Object o = similarStyleJson.get(resultType.name());
+            if (null != o){
+                JSONObject value  = (JSONObject)o;
+                value.forEach((k,v) ->{
+                    jsonObject.put(resultType.getPrefix()+k,v);
+                });
+            }
+        }
+        this.replenish = jsonObject;
+    }
 }

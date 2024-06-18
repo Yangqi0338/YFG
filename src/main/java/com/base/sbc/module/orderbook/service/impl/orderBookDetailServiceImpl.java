@@ -1,7 +1,5 @@
 package com.base.sbc.module.orderbook.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
@@ -38,6 +36,8 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
@@ -235,15 +235,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1,0,1);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
-        List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
+//        List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
         //导出
         // ExcelUtils.executorExportExcel();
-        ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
-        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
+//        ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
+//        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
+
+        orderBookDetailVos.forEach(OrderBookDetailVo::setReplenishInfo);
+
+        ExcelUtils.exportExcelByTableCode(orderBookDetailVos, "订货本详情", response, dto);
     }
 
     @Value("${baseFrontEndAddress}")

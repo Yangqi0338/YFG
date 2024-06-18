@@ -503,5 +503,15 @@ public class OrderBookDetail extends BaseDataEntity<String> {
         return JSON.toJSONString(offlineJsonObject);
     }
 
+    public JSONObject getCommissioningSizeTotalJsonObject(){
+        //线下
+        JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(this.offlineCommissioningSize)).orElse(new JSONObject());
+        //线上
+        JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(this.onlineCommissioningSize)).orElse(new JSONObject());
+
+        offlineJsonObject.putAll(onlineJsonObject);
+        return offlineJsonObject;
+    }
+
 }
 
