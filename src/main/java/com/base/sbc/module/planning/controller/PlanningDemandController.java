@@ -207,5 +207,16 @@ public class PlanningDemandController {
 	}
 
 
+	@ApiOperation(value = "获取物料库字段数据")
+	@GetMapping("/getMaterialCoefficient")
+	public List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+		return planningDimensionalityService.getMaterialCoefficient(queryDemandDimensionalityDto);
+	}
+
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/batchSaveMaterial")
+	public List<PlanningDimensionality> batchSaveMaterial(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+		return planningDimensionalityService.batchSaveMaterial(dimensionalityDtoList);
+	}
 
 }
