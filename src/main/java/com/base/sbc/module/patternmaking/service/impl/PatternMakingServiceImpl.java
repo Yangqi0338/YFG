@@ -155,6 +155,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public PatternMaking savePatternMaking(PatternMakingDto dto) {
+        checkRequiredParam(dto);
         Style style = styleService.getById(dto.getStyleId());
         if (style == null) {
             throw new OtherException("款式设计不存在");
@@ -210,6 +211,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         save(patternMaking);
 
         return patternMaking;
+    }
+
+    private void checkRequiredParam(PatternMakingDto dto) {
+        if (!StrUtil.equals("拍照样", dto.getSampleType()) && !StrUtil.equals("产前样", dto.getSampleType())) {
+            if (StrUtil.isEmpty(dto.getIngredient())) {
+                throw new OtherException("面料成分为空");
+            }
+        }
     }
 
     @Override
