@@ -100,6 +100,7 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.report.vo.StyleAnalyseVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
@@ -353,44 +354,33 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<CompleteStyleVo> getCompleteStyleVoList(Principal user, QueryStyleColorDto queryDto) {
         /*分页*/
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
-        //添加数据权限，根据前端传值
-        //打版进度	patternMakingSteps
-        //款式配色	styleColor
-        //款式列表	stylePage
-        //款式库	    styleLibrary
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "ts.");
 
         QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
         Page<Object> objects = PageHelper.startPage(queryDto);
 
         queryWrapper.eq("tsc.del_flag", "0");
-        // bug 3325
-        objects.setOrderBy("CASE tsc.scm_send_flag " +
-                " WHEN 0 THEN 0 " +
-                " WHEN 3 THEN 1 " +
-                " WHEN 2 THEN 2 " +
-                " WHEN 1 THEN 3 " +
-                " ELSE 99 " +
-                "END " +
-                ",tsc.create_date asc");
-        //queryWrapper.orderByAsc("tsc.scm_send_flag asc ");
-//            查询配色列表
+        //查询配色列表
         List<CompleteStyleVo> completeStyleVoList = baseMapper.pageCompleteStyle(queryWrapper);
         if( StrUtil.equals(queryDto.getExcelFlag(),BaseGlobal.YES) ){
             return new PageInfo<>(completeStyleVoList);
         }
-        // TODO complete 维度系数
-        /*if (CollUtil.isNotEmpty(completeStyleVoList)) {
-            List<String> ids = completeStyleVoList.stream().map(CompleteStyleVo :: getId).collect(Collectors.toList());
-            QueryWrapper queryFieldValWrapper = new QueryWrapper<>();
-            queryFieldValWrapper.in("foreign_id", ids);
-            queryFieldValWrapper.eq("data_group", FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-            List<FieldVal> fieldVals = fieldValService.list(queryFieldValWrapper);
-            for (CompleteStyleVo completeStyleVo : completeStyleVoList) {
-                List<FieldVal> fieldValList = fieldVals.stream().filter(f -> StrUtil.equals(completeStyleVo.getStyleId(), f.getFieldId())).collect(Collectors.toList());
-                completeStyleVo.setFieldVals(fieldValList);
+
+        if (CollUtil.isNotEmpty(completeStyleVoList)) {
+            //根据查询出维度系数数据
+            LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
+            List<String> styleColorIdList = completeStyleVoList.stream().map(CompleteStyleVo::getId).distinct().collect(Collectors.toList());
+            fieldValQueryWrapper.in(FieldVal::getForeignId, styleColorIdList);
+            fieldValQueryWrapper.eq(FieldVal::getDataGroup, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
+            Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? StrUtil.isEmpty(o.getVal()) ? "" : o.getVal() : o.getValName(), (v1, v2) -> v1)));
+            for (CompleteStyleVo styleVo : completeStyleVoList) {
+                if (fieldValMap.containsKey(styleVo.getId())) {
+                    Map<String, String> map = fieldValMap.get(styleVo.getId());
+                    styleVo.setFieldValMap(map);
+                }
             }
-        }*/
+        }
 
         /*查询款式图*/
         stylePicUtils.setStylePic(completeStyleVoList, "stylePic");

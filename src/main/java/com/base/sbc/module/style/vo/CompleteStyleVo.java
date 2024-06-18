@@ -15,6 +15,7 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -498,9 +499,9 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     private String planningSeason;
 
     /**
-     * 维度系数
+     * 维度系数动态字段
      */
-    private List<FieldVal> fieldVals;
+    private Map<String, String> fieldValMap;
 
     /**
      * 核价信息
