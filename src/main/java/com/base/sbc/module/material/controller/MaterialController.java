@@ -99,24 +99,6 @@ public class MaterialController extends BaseController {
         return insertSuccess(materialList.size());
     }
 
-    @PutMapping("/submitRelease")
-    @Transactional(rollbackFor = {Exception.class})
-    @ApiOperation(value = "提交发布", notes = "提交发布")
-    public ApiResult submitRelease(@RequestBody MaterialSaveDto materialSaveDto) {
-        Material material = materialService.getById(materialSaveDto.getId());
-        if (!"4".equals(materialSaveDto.getStatus())){
-            return ApiResult.error("未审核通过的素材，不允许提交发布",500);
-        }
-        materialSaveDto.setStatus("2");
-        CommonUtils.removeQuery(materialSaveDto, "picUrl");
-        //修改关联标签
-        QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
-        labelQueryWrapper.eq("material_id", materialSaveDto.getId());
-        materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
-        return updateSuccess(   materialService.updateById(materialSaveDto,"创意素材库"));
-
-    }
-
     /**
      * 单个修改
      */
@@ -137,23 +119,24 @@ public class MaterialController extends BaseController {
         QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
-
+        Material material = materialService.getById(materialSaveDto.getId());
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
             //从公司素材管理提交审批，静默审批，不用走审批流
-            if ("1".equals(materialSaveDto.getCompanyFlag()) && "1".equals(materialSaveDto.getStatus())){
-                materialSaveDto.setStatus("2");
-                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getBrandName()).split(",");
+            if ( "2".equals(materialSaveDto.getStatus())){
+                if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus())){
+                    throw new OtherException("未审核过的素材，不允许提交！");
+                }
+                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getMaterialBrandName()).split(",");
                 String time = String.valueOf(System.currentTimeMillis());
                 String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
                 materialSaveDto.setMaterialCode(materialCode);
             }else {
                 // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
-                Material material = materialService.getById(materialSaveDto.getId());
                 MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
                 BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
                 BeanUtil.copyProperties(material,materialSaveDto1);
-                if ("4".equals(material.getStatus())) {
+                if ("2".equals(material.getStatus())) {
                     redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
                 }
                 flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
