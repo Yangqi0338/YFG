@@ -140,7 +140,16 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 switch (type) {
                     /*创意素材库图/附件 t_material.pic_url*/
                     case "sourceMaterial":
-                        objectName =  "SourceMaterial/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        StringBuilder sourceMaterialPath = new StringBuilder();
+                        sourceMaterialPath.append("SourceMaterial").append("/");
+                        if (StringUtils.isNotEmpty(code)){
+                            List<String> list = StringUtils.convertList(code);
+                            for (String s : list) {
+                                sourceMaterialPath.append(s).append("/");
+                            }
+                        }
+
+                        objectName =   sourceMaterialPath.toString()  + System.currentTimeMillis() + "." + extName;
                         break;
                     /*商品企划图 t_planning_category_item.style_pic */
                     case "planning":
