@@ -34,6 +34,8 @@ public interface FieldValService extends BaseService<FieldVal> {
      */
     List<FieldVal> list(String foreignId, String dataGroup);
 
+    List<FieldVal> list(List<String> foreignIds, String dataGroup);
+
     /**
      * 保存
      *
