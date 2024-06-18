@@ -154,11 +154,16 @@ public class HttpLog implements Serializable {
     @Override
     public String toString() {
         return "--------------------------!!HTTPLOG!!--------------------------\n" +
-                "开始时间: %s | 地址: %s | 请求名: %s | 方法类型:%s | 线程id: %s | 状态码: %s | 请求人: %s\n" +
+                String.format("开始时间: %s | 地址: %s | 请求名: %s | 方法类型:%s | 线程id: %s | 状态码: %s | 请求人: %s\n" +
                 "请求头: %s\n" +
                 "请求Body: %s\n" +
                 "返回Body: %s\n" +
-                "其他扩展信息: [ip:%s | 物理地址:%s | 请求类型:%s | 持续时间:%s | 是否异常:%s | 状态码:%s | 创建人id: %s]\n";
+                                "其他扩展信息: [ip:%s | 物理地址:%s | 请求类型:%s | 持续时间:%s | 是否异常:%s | 创建人id: %s]\n",
+                        startTime, url, reqName, method, threadId, statusCode, createName,
+                        reqHeaders,
+                        reqBody,
+                        respBody,
+                        ip, address, reqContentType, intervalNum, exceptionFlag, createId);
     }
 }
 
