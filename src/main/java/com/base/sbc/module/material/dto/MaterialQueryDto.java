@@ -99,4 +99,7 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "模糊搜索内容")
     private String content;
+
+    @ApiModelProperty(value = "公司品牌权限列表")
+    private List<String> brandList;
 }

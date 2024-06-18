@@ -5,8 +5,10 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -28,6 +30,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：素材库 service实现类
@@ -66,6 +71,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private AmcService amcService;
 
 
     /**
@@ -170,8 +178,15 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
-
         PageHelper.startPage(materialQueryDto);
+        if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
+            //获取用户组的品牌权限列表
+            ApiResult<Map<String,String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
+            if (Objects.nonNull(brandList.getData())){
+                materialQueryDto.setBrandList(Lists.newArrayList(brandList.getData().values()));
+            }
+
+        }
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
@@ -261,7 +276,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
 
             //审核通过
-            material.setStatus("2");
+            material.setStatus("4");
             String[] split = Pinyin4jUtil.converterToFirstSpell(material.getMaterialBrandName()).split(",");
             String time = String.valueOf(System.currentTimeMillis());
             String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
