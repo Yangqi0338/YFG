@@ -47,8 +47,6 @@ public class HangTag extends BaseDataEntity<String> {
     /** 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认 */
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认"  )
     private HangTagStatusEnum status;
-    @ApiModelProperty(value = "是否提交过（0-否 1-是），提交过的可以直接进行后面的确认")
-    private Integer isSubmit;
     /** 确认时间 */
     @ApiModelProperty(value = "确认时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

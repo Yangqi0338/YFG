@@ -799,11 +799,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
                     if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
                             &&
-                            e.getIsSubmit().equals(0)
-                            &&
                             HangTagStatusEnum.DESIGN_CHECK != updateStatus
                     ) {
-                        throw new OtherException("存在待提交数据，请先提交");
+						if (!(ObjectUtil.isNotEmpty(e.getProductName())&&
+								ObjectUtil.isNotEmpty(e.getQualityGrade())&&
+								ObjectUtil.isNotEmpty(e.getSaftyTitle())&&
+								ObjectUtil.isNotEmpty(e.getPackagingForm())&&
+								ObjectUtil.isNotEmpty(e.getPackagingBagStandard())&&
+								ObjectUtil.isNotEmpty(e.getIngredient())&&
+								ObjectUtil.isNotEmpty(e.getFabricDetails())&&
+								ObjectUtil.isNotEmpty(e.getWarmTips()))) {
+							throw new OtherException("存在待提交数据，请先提交");
+						}
                     }
 					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
 							&&
@@ -1678,7 +1685,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 //		if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(status)) {
 //			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
 			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
-			hangTag.setIsSubmit(1);
 //		}
 //		if (HangTagStatusEnum.TRANSLATE_CHECK == status) {
 //			hangTag.setStatus(HangTagStatusEnum.QC_CHECK);
