@@ -100,24 +100,13 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
 import com.base.sbc.module.report.vo.StyleAnalyseVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
-import com.base.sbc.module.style.dto.MangoStyleColorExeclDto;
-import com.base.sbc.module.style.dto.MangoStyleColorExeclExportDto;
-import com.base.sbc.module.style.dto.PublicStyleColorDto;
-import com.base.sbc.module.style.dto.QueryStyleColorAgentDto;
-import com.base.sbc.module.style.dto.QueryStyleColorDto;
-import com.base.sbc.module.style.dto.RelevanceBomDto;
-import com.base.sbc.module.style.dto.StyleColorOverdueReasonDto;
-import com.base.sbc.module.style.dto.StyleColorsDto;
-import com.base.sbc.module.style.dto.StyleMainAccessoriesSaveDto;
-import com.base.sbc.module.style.dto.UpdateColorDto;
-import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.style.dto.UpdateTagPriceDto;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorAgent;
@@ -351,14 +340,23 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     @Override
-    public PageInfo<CompleteStyleVo> getCompleteStyleVoList(Principal user, QueryStyleColorDto queryDto) {
+    public PageInfo<CompleteStyleVo> getCompleteStyleVoList(Principal user, QueryBulkCargoDto queryDto) {
         /*分页*/
-        BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "ts.");
+        BaseQueryWrapper<StyleAnalyseQueryDto> queryWrapper = new BaseQueryWrapper<>();
+        //dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "tsc.");
 
-        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, queryDto);
         Page<Object> objects = PageHelper.startPage(queryDto);
-
+        List<String> styleNos = new ArrayList<>();
+        if (StrUtil.isNotBlank(queryDto.getStyleNo())) {
+            styleNos = Arrays.asList(queryDto.getStyleNo().split(","));
+        }
+        String yearParam = queryDto.getYear();
+        String seasonParam = queryDto.getSeason();
+        queryWrapper.notEmptyIn("tsc.style_no", styleNos);
+        queryWrapper.notEmptyEq("ts.year", yearParam);
+        queryWrapper.notEmptyEq("ts.season", seasonParam);
+        QueryGenerator.reportParamBulkStyleNosCheck(styleNos, yearParam, seasonParam);
         queryWrapper.eq("tsc.del_flag", "0");
         //查询配色列表
         List<CompleteStyleVo> completeStyleVoList = baseMapper.pageCompleteStyle(queryWrapper);

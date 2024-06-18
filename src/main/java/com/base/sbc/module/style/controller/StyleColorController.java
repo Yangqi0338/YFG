@@ -68,8 +68,8 @@ public class StyleColorController {
 
     @ApiOperation(value = "大货款列表")
     @GetMapping("/getStyleColorList")
-    public PageInfo<CompleteStyleVo> getStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
-        return styleColorService.getCompleteStyleVoList(user, querySampleStyleColorDto);
+    public PageInfo<CompleteStyleVo> getStyleColorList(Principal user, QueryBulkCargoDto queryBulkCargoDto) {
+        return styleColorService.getCompleteStyleVoList(user, queryBulkCargoDto);
     }
 
     @ApiOperation(value = "大货款号查询大货详情")

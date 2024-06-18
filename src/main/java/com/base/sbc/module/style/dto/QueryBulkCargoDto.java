@@ -43,9 +43,9 @@ public class QueryBulkCargoDto extends QueryFieldDto {
     @ApiModelProperty(value = "小类")
     private String prodCategory3ndName;
 
-    private String seasonName;
+    private String season;
 
-    private String yearName;
+    private String year;
 
     /*是否导出图片*/
     private String imgFlag;
