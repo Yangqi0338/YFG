@@ -90,8 +90,11 @@
         <if test="sql != null and sql != ''">
             #{sql}
         </if>
-        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        <if test="folderIdList != null and folderIdList.length > 0">
+            and folder_id in
+            <foreach collection="folderIdList" open="(" separator="," item="item" close=")">
+                #{item}
+            </foreach>
         </if>
         order by create_date desc
     </select>

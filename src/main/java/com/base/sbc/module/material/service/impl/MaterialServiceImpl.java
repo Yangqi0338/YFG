@@ -156,6 +156,10 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             materialQueryDto.setMaterialNameList(StringUtils.convertList(materialQueryDto.getMaterialNames()));
         }
 
+        if (StringUtils.isNotEmpty(materialQueryDto.getFolderId())){
+            materialQueryDto.setFolderIdList(StringUtils.convertList(materialQueryDto.getFolderId()));
+        }
+
     }
 
     /**
@@ -440,9 +444,15 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (fileSize == null){
             return "0";
         }
-        if (fileSize > 1048576){
-            return Math.ceil((double) fileSize / 1048576) + "MB";
-        }
-        return Math.ceil((double) fileSize / 1024) + "KB";
+        return fileSize.toString();
+
+//        if (fileSize > 1073741824){
+//            return Math.ceil((double) fileSize / 1073741824) + "GB";
+//        }
+//
+//        if (fileSize > 1048576){
+//            return Math.ceil((double) fileSize / 1048576) + "MB";
+//        }
+//        return Math.ceil((double) fileSize / 1024) + "KB";
     }
 }

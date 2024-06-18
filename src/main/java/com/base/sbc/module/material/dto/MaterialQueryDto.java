@@ -1,6 +1,5 @@
 package com.base.sbc.module.material.dto;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -101,8 +100,11 @@ public class MaterialQueryDto extends Page {
     @ApiModelProperty(value = "模糊搜索内容")
     private String content;
 
-    private QueryWrapper ew;
+    @ApiModelProperty(value = "所属的文件夹id")
+    private String folderId;
 
+    @ApiModelProperty(value = "所属的文件夹id")
+    private List<String> folderIdList;
 
 
 }
