@@ -282,7 +282,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 for (PatternLibrary library : patternLibraryList) {
                     newEverGreenTreeNode(library.getId());
                 }
-            } else if(ObjectUtil.isNotEmpty(oldPatternLibrary.getEverGreenCode()) && ObjectUtil.isEmpty(patternLibraryDTO.getEverGreenCode())) {
+            } else if (ObjectUtil.isNotEmpty(oldPatternLibrary.getEverGreenCode()) && ObjectUtil.isEmpty(patternLibraryDTO.getEverGreenCode())) {
                 // 从有到无
                 // 从无到有
                 removeEverGreenTreeNode(patternLibrary.getId());
@@ -974,6 +974,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 picFileIdList.add(hashMap);
             }
             patternLibrary.setPicIdList(picFileIdList);
+            patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
         } else {
             // 如果没有大货信息 那就直接取款式的图片
             patternLibrary.setStylePicId(style.getStylePic());
@@ -1442,7 +1443,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             .filter(item -> item.getType().equals(1))
                             .map(item -> item.getName()
                                     + "："
-                                    + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
+                                    + (ObjectUtil.isNotEmpty(item.getStructureValue()) ? item.getStructureValue() : "暂无") + "\n")
                             .collect(Collectors.joining("")).trim()
             );
             // 长度
@@ -1451,7 +1452,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             .filter(item -> item.getType().equals(2))
                             .map(item -> item.getName()
                                     + "："
-                                    + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
+                                    + (ObjectUtil.isNotEmpty(item.getStructureValue()) ? item.getStructureValue() : "暂无") + "\n")
                             .collect(Collectors.joining("")).trim()
             );
             // 部位
@@ -1524,6 +1525,9 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 // 启用状态
                 .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getEnableFlag())
                         , "tpl.enable_flag", patternLibraryPageDTO.getEnableFlag())
+                // 大货款号
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStyleNo())
+                        , "tsc.style_no", patternLibraryPageDTO.getStyleNo())
                 .orderByDesc("tpl.serial_number")
                 .groupBy("tpl.id");
 

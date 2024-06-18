@@ -27,6 +27,12 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
     private String code;
 
     /**
+     * 大货款号
+     */
+    @ApiModelProperty("大货款号")
+    private String styleNo;
+
+    /**
      * 品牌名称 （多选逗号分隔）
      */
     @ApiModelProperty("品牌名称 （多选逗号分隔）")

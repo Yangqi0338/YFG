@@ -64,6 +64,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String styleId;
 
     /**
+     * 热销大货款（多选逗号分隔，从当前款下获取）
+     */
+    @ApiModelProperty("热销大货款（多选逗号分隔，从当前款下获取）")
+    private String styleNos;
+
+    /**
      * 大货款号
      */
     @ApiModelProperty("大货款号")
@@ -225,6 +231,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("大货图片文件 ID-URL 集合")
     @TableField(exist = false)
     private List<Map<String, String>> picIdList;
+
+    /**
+     * 大货款号集合（款下面的所有大货）
+     */
+    @ApiModelProperty("大货款号集合（款下面的所有大货）")
+    @TableField(exist = false)
+    private List<String> allStyleNoList;
 
     /**
      * 版型使用率

@@ -60,6 +60,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String styleId;
 
     /**
+     * 热销大货款（多选逗号分隔，从当前款下获取）
+     */
+    @ApiModelProperty("热销大货款（多选逗号分隔，从当前款下获取）")
+    private String styleNos;
+
+    /**
      * 大类 code
      */
     @ApiModelProperty("大类 code")
