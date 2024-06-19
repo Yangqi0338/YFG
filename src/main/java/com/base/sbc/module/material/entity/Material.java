@@ -35,6 +35,9 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "素材分类名称")
     private String materialCategoryName;
 
+    @ApiModelProperty(value = "素材分类Code")
+    private String materialCategoryCode;
+
     @ApiModelProperty(value = "素材细分类")
     private String materialSubcategory;
 
