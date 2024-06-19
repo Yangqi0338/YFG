@@ -395,11 +395,16 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     /** 版式名称 */
     @ApiModelProperty(value = "版式名称"  )
     private String patternDesignName;
+    /** 款式定位名称 */
+    @ApiModelProperty(value = "款式定位名称"  )
+    private String positioningName;
 
     /** 是否报次款0否 1是 */
     @ApiModelProperty(value = "是否报次款0否 1是"  )
     private String isDefective;
 
+    @ApiModelProperty(value = "版型定位名称"  )
+    private String platePositioningName;
 
     /** 上新时间 */
     @ApiModelProperty(value = "上新时间"  )
@@ -445,8 +450,11 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      * 工艺师
      */
     private String technologistName;
-
-
+    /**
+     * 打版难度名称
+     */
+    @ApiModelProperty(value = "打版难度名称")
+    private String patDiffName;
     /**
      * 是否是迁移历史数据 0否 1是
      */
