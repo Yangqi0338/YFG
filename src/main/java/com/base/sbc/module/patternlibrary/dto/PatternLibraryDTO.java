@@ -30,6 +30,18 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String id;
 
     /**
+     * 父级 ID
+     */
+    @ApiModelProperty("父级 ID")
+    private String parentId;
+
+    /**
+     * 所有的上层父级 ID
+     */
+    @ApiModelProperty("所有的上层父级 ID")
+    private String parentIds;
+
+    /**
      * 产品季
      */
     @ApiModelProperty("产品季")
@@ -58,6 +70,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
      */
     @ApiModelProperty("款式 ID")
     private String styleId;
+
+    /**
+     * 热销大货款（多选逗号分隔，从当前款下获取）
+     */
+    @ApiModelProperty("热销大货款（多选逗号分隔，从当前款下获取）")
+    private String styleNos;
 
     /**
      * 大类 code
@@ -130,6 +148,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
      */
     @ApiModelProperty("模板名称")
     private String templateName;
+
+    /**
+     * 常青编号
+     */
+    @ApiModelProperty("常青编号")
+    private String everGreenCode;
 
     /**
      * 文件 ID

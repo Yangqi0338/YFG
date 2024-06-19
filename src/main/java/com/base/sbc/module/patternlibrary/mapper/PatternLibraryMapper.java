@@ -36,6 +36,16 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
     );
 
     /**
+     * 常青编号列表
+     *
+     * @param queryWrapper 筛选条件
+     * @return 常青编号列表
+     */
+    List<PatternLibrary> listEverGreenCode(
+            @Param(Constants.WRAPPER) QueryWrapper<PatternLibrary> queryWrapper
+    );
+
+    /**
      * 根据版型库 id 查询使用款记录列表
      *
      * @param queryWrapper 查询条件
@@ -85,6 +95,15 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
     List<Style> listStyleToPatternLibrary(
             @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper,
             @Param("patternLibraryDTO") PatternLibraryDTO patternLibraryDTO
+    );
+
+    /**
+     * 查询已开款的款总的使用记录数
+     *
+     * @return 相关数据
+     */
+    String queryAllUseStyle(
+            @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper
     );
 
 }

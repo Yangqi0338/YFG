@@ -9,6 +9,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
+import com.aliyun.oss.internal.ResponseParsers;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -41,10 +42,7 @@ import com.base.sbc.module.patternlibrary.listener.PatterLibraryListener;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryTemplateMapper;
 import com.base.sbc.module.patternlibrary.service.*;
-import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
-import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
-import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
-import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
+import com.base.sbc.module.patternlibrary.vo.*;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
@@ -59,6 +57,7 @@ import com.base.sbc.module.task.vo.FlowTaskDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -69,6 +68,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -255,13 +256,28 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
         {
             Style style = styleService.getById(patternLibraryDTO.getStyleId());
-            if (!isBelong(patternLibraryDTO.getProdCategory1st(), Collections.singletonList(style))) {
-                throw new OtherException(ResultConstant.CATEGORY_PUT_BOTTOMS_MISMATCH);
+            if (ObjectUtil.isNotEmpty(style)) {
+                if (!isBelong(patternLibraryDTO.getProdCategory1st(), Collections.singletonList(style))) {
+                    throw new OtherException(ResultConstant.CATEGORY_PUT_BOTTOMS_MISMATCH);
+                }
             }
         }
 
         // 新增/修改主表数据
         saveOrUpdate(patternLibrary);
+        if (ObjectUtil.isEmpty(patternLibraryDTO.getId()) && ObjectUtil.isNotEmpty(patternLibraryDTO.getParentId())) {
+            // 如果是新增
+            newEverGreenTreeNode(patternLibrary.getId());
+        } else {
+            // 修改
+            if (ObjectUtil.isNotEmpty(patternLibraryDTO.getEverGreenCode())) {
+                // 从无到有  从有到有
+                newEverGreenTreeNode(patternLibrary.getId());
+            } else if (ObjectUtil.isNotEmpty(oldPatternLibrary.getEverGreenCode()) && ObjectUtil.isEmpty(patternLibraryDTO.getEverGreenCode())) {
+                // 从有到无
+                removeEverGreenTreeNode(patternLibrary.getId());
+            }
+        }
         // 修改品牌数据
         List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
         if (ObjectUtil.isNotEmpty(patternLibraryBrandList)) {
@@ -869,7 +885,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
                 .eq("s.enable_status", BaseGlobal.NO)
-                .in("s.status", "1", "2")
+                .ne("s.design_no", "")
+                .isNotNull("s.design_no")
                 .like(ObjectUtil.isNotEmpty(search), "s.design_no", search)
                 .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
                 .orderByDesc("s.create_date");
@@ -902,7 +919,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         .eq(Style::getDesignNo, designNo)
                         .eq(Style::getEnableStatus, "0")
                         .eq(Style::getDelFlag, "0")
-                        .in(Style::getStatus, "1", "2")
         );
         if (ObjectUtil.isEmpty(style)) {
             throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
@@ -924,6 +940,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
+            patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
             // 初始化大货的图片 ID-URL 集合
             List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
             for (StyleColor styleColor : styleColorList) {
@@ -983,14 +1000,22 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory3rd()), "s.prod_category3rd", patternLibraryDTO.getProdCategory3rd())
                 .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory3rd()), "s.prod_category3rd", patternLibraryDTO.getProdCategory3rd())
                 .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getPlanningSeasonId()), "s.planning_season_id", patternLibraryDTO.getPlanningSeasonId())
-                .in("s.status", "1", "2")
+                // .in("s.status", "1", "2")
                 .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getDesignNo()), "s.design_no", patternLibraryDTO.getDesignNo())
                 .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getStyleNo()), "tsc.style_no", patternLibraryDTO.getStyleNo())
                 .orderByDesc("s.create_date")
                 .groupBy("s.id");
         // 获取还没有生成版型库的数据
         PageHelper.startPage(patternLibraryDTO.getPageNum(), patternLibraryDTO.getPageSize());
+
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "s.");
+
         List<Style> styleList = baseMapper.listStyleToPatternLibrary(queryWrapper, patternLibraryDTO);
+        // 查询总的使用记录数
+        QueryWrapper<Style> wrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(wrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "ts.");
+        String allCount = baseMapper.queryAllUseStyle(wrapper);
+
         // 初始化返回的封装数据
         List<PatternLibrary> patternLibraryList = new ArrayList<>(styleList.size());
         if (ObjectUtil.isNotEmpty(styleList)) {
@@ -1000,6 +1025,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 String prodCategory2ndName = style.getProdCategory2ndName();
                 String prodCategory3rdName = style.getProdCategory3rdName();
                 PatternLibrary patternLibrary = new PatternLibrary();
+                patternLibrary.setId(style.getRegisteringId());
+                patternLibrary.setCode(style.getRegisteringNo());
                 patternLibrary.setDesignNo(style.getDesignNo());
                 patternLibrary.setStyleId(style.getId());
                 PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
@@ -1011,7 +1038,10 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 patternLibrary.setProdCategory2ndName(prodCategory2ndName);
                 patternLibrary.setProdCategory3rdName(prodCategory3rdName);
                 patternLibrary.setUseStyleNum(style.getUseStyleNum());
-                patternLibrary.setPatternLibraryUtilization(style.getPatternLibraryUtilization());
+                BigDecimal useStyleNum = new BigDecimal(style.getUseStyleNum());
+                BigDecimal count = new BigDecimal(allCount);
+                BigDecimal hundred = new BigDecimal("100");
+                patternLibrary.setPatternLibraryUtilization(String.valueOf(useStyleNum.multiply(hundred).divide(count, 2, RoundingMode.CEILING)));
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
                 patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
                 patternLibrary.setPlanningSeasonName(style.getPlanningSeasonName());
@@ -1063,6 +1093,165 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
         // 得到版型库主表数据集合
         return baseMapper.getAllFilterCriteria(queryWrapper, type);
+    }
+
+    @Override
+    public EverGreenVO listEverGreenTree(String patternLibraryId) {
+        if (ObjectUtil.isEmpty(patternLibraryId)) {
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
+        }
+        PatternLibrary patternLibrary = getById(patternLibraryId);
+        if (ObjectUtil.isEmpty(patternLibrary)) {
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
+        }
+        // 父级 ID
+        String parentIds = patternLibrary.getParentIds();
+        PatternLibrary topPatternLibrary = patternLibrary;
+        if (ObjectUtil.isNotEmpty(parentIds)) {
+            String topParentId = parentIds.split(",")[0].replace("\"", "");
+            if (ObjectUtil.isNotEmpty(topParentId)) {
+                topPatternLibrary = getById(topParentId);
+            }
+        }
+
+        // 顶级父节点 -> 常青原版对象
+        EverGreenVO everGreen = new EverGreenVO();
+        BeanUtil.copyProperties(topPatternLibrary, everGreen);
+
+        // 初始化下级常青原版树
+        List<EverGreenVO> bottomEverGreenTree = new ArrayList<>();
+        // 查询此版型的所有下级
+        List<PatternLibrary> patternLibraryList = list(
+                new LambdaQueryWrapper<PatternLibrary>()
+                        .eq(PatternLibrary::getDelFlag, "0")
+                        .like(PatternLibrary::getParentIds, "\"" + topPatternLibrary.getId() + "\"")
+        );
+
+
+        if (ObjectUtil.isNotEmpty(patternLibraryList)) {
+            // 下级版型组装成常青原版
+            List<EverGreenVO> everGreenVOList = new ArrayList<>(patternLibraryList.size());
+            for (PatternLibrary library : patternLibraryList) {
+                EverGreenVO everGreenVO = new EverGreenVO();
+                BeanUtil.copyProperties(library, everGreenVO);
+                everGreenVOList.add(everGreenVO);
+            }
+
+            // 生成常青原版树
+            bottomEverGreenTree = createEverGreenTree(everGreenVOList, topPatternLibrary.getId());
+        }
+
+        everGreen.setEverGreenVOList(bottomEverGreenTree);
+        return everGreen;
+    }
+
+    @Override
+
+    public PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO) {
+        String id = patternLibraryPageDTO.getId();
+        String code = patternLibraryPageDTO.getCode();
+        // 筛选条件
+        QueryWrapper<PatternLibrary> queryWrapper = new QueryWrapper<>();
+        queryWrapper
+                // 版型库ID
+                .ne(ObjectUtil.isNotEmpty(id), "tpl.id", id)
+                .like(ObjectUtil.isNotEmpty(code), "tpl.code", code)
+                // 已审核的数据
+                .eq("tpl.status", 4)
+                .orderByDesc("tpl.serial_number")
+                .groupBy("tpl.id");
+        // 权限设置
+        QueryWrapper<PatternLibraryBrand> brandQueryWrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(brandQueryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tplb.");
+        String sqlSegment = brandQueryWrapper.getSqlSegment();
+        if (ObjectUtil.isNotEmpty(sqlSegment)) {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0' and " + sqlSegment);
+        } else {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0'");
+        }
+        PageHelper.startPage(patternLibraryPageDTO.getPageNum(), patternLibraryPageDTO.getPageSize());
+        // 得到版型库主表数据集合
+        List<PatternLibrary> patternLibraryList = baseMapper.listEverGreenCode(queryWrapper);
+        PageInfo<PatternLibrary> patternLibraryPageInfo = new PageInfo<>(patternLibraryList);
+        return patternLibraryPageInfo;
+    }
+
+    public void removeEverGreenTreeNode(String patternLibraryId) {
+        PatternLibrary patternLibrary = getById(patternLibraryId);
+        String currParentIds = patternLibrary.getParentIds();
+        patternLibrary.setEverGreenCode(null);
+        patternLibrary.setParentId(null);
+        patternLibrary.setParentIds(null);
+        updateById(patternLibrary);
+        // 查询当前版型的所有子版型，根据 ID 模糊搜索 parentIds 包含此 ID 的子版型
+        List<PatternLibrary> patternLibraryList = list(
+                new LambdaQueryWrapper<PatternLibrary>()
+                        .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                        .like(PatternLibrary::getParentIds, "\"" + patternLibraryId + "\"")
+        );
+        if (ObjectUtil.isNotEmpty(patternLibraryList)) {
+            // 将直属子版型的 parentId 置空，直属和非直属的子版型的 parentIds 截取掉当前版型 ID 以及前面的所有 ID
+            for (PatternLibrary item : patternLibraryList) {
+                String nonDirectReportsParentIds = item.getParentIds();
+                item.setParentIds(nonDirectReportsParentIds.replace(currParentIds, ""));
+            }
+            updateBatchById(patternLibraryList);
+        }
+    }
+
+    public void newEverGreenTreeNode(String patternLibraryId) {
+        // 根据版型 ID 查询版型信息
+        PatternLibrary patternLibrary = getById(patternLibraryId);
+        if (ObjectUtil.isNotEmpty(patternLibrary)) {
+            // 获取当前版型的父
+            String parentId = patternLibrary.getParentId();
+            if (ObjectUtil.isNotEmpty(parentId)) {
+                // 获得父级的版型信息
+                PatternLibrary parentPatternLibrary = getById(parentId);
+                if (ObjectUtil.isNotEmpty(parentPatternLibrary)) {
+                    // 设置当前版型的父版型和所有上层版型
+                    patternLibrary.setParentIds(
+                            ObjectUtil.isEmpty(parentPatternLibrary.getParentIds())
+                                    ? "\"" + parentPatternLibrary.getId() + "\""
+                                    : parentPatternLibrary.getParentIds() + ",\"" + parentPatternLibrary.getId() + "\"");
+                    // 查询上层形成环
+                    if (patternLibrary.getParentIds().contains(patternLibrary.getId())) {
+                        throw new OtherException(ResultConstant.EVERGREEN_ORIGINALS_DO_NOT_FORM_RINGS);
+                    }
+                    updateById(patternLibrary);
+                    // 查询此版型下面的所有子版型
+                    List<PatternLibrary> patternLibraryList = list(
+                            new LambdaQueryWrapper<PatternLibrary>()
+                                    .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                                    .like(PatternLibrary::getParentIds, "\"" + patternLibrary.getId() + "\"")
+                    );
+                    if (ObjectUtil.isNotEmpty(patternLibraryList)) {
+                        for (PatternLibrary library : patternLibraryList) {
+                            // 查询上层形成环
+                            if (patternLibrary.getParentIds().contains(library.getId())) {
+                                throw new OtherException(ResultConstant.EVERGREEN_ORIGINALS_DO_NOT_FORM_RINGS);
+                            }
+                            library.setParentIds(patternLibrary.getParentIds() + ",\"" + library.getParentIds() + "\"");
+                        }
+                        // 修改子版型的上层版型集合
+                        updateBatchById(patternLibraryList);
+                    }
+                } else {
+                    throw new OtherException(ResultConstant.EVERGREEN_ORIGINALS_DOES_NOT_EXIST_REFRESH_TRY_AGAIN);
+                }
+            }
+        }
+    }
+
+    public List<EverGreenVO> createEverGreenTree(List<EverGreenVO> everGreenVOList, String parentId) {
+        List<EverGreenVO> collect = everGreenVOList.stream().filter(item -> ObjectUtil.isNotEmpty(item.getParentId()) && item.getParentId().equals(parentId)).collect(Collectors.toList());
+        if (ObjectUtil.isNotEmpty(collect)) {
+            for (EverGreenVO everGreenVO : collect) {
+                List<EverGreenVO> everGreenTree = createEverGreenTree(everGreenVOList, everGreenVO.getId());
+                everGreenVO.setEverGreenVOList(everGreenTree);
+            }
+        }
+        return collect;
     }
 
     /**
@@ -1231,7 +1420,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             .filter(item -> item.getType().equals(1))
                             .map(item -> item.getName()
                                     + "："
-                                    + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
+                                    + (ObjectUtil.isNotEmpty(item.getStructureValue()) ? item.getStructureValue() : "暂无") + "\n")
                             .collect(Collectors.joining("")).trim()
             );
             // 长度
@@ -1240,7 +1429,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             .filter(item -> item.getType().equals(2))
                             .map(item -> item.getName()
                                     + "："
-                                    + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
+                                    + (ObjectUtil.isNotEmpty(item.getStructureValue()) ? item.getStructureValue() : "暂无") + "\n")
                             .collect(Collectors.joining("")).trim()
             );
             // 部位
@@ -1313,6 +1502,9 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 // 启用状态
                 .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getEnableFlag())
                         , "tpl.enable_flag", patternLibraryPageDTO.getEnableFlag())
+                // 大货款号
+                .like(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStyleNo())
+                        , "tsc.style_no", patternLibraryPageDTO.getStyleNo())
                 .orderByDesc("tpl.serial_number")
                 .groupBy("tpl.id");
 

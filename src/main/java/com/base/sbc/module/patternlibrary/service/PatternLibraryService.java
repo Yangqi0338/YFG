@@ -8,6 +8,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.dto.UseStyleDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
+import com.base.sbc.module.patternlibrary.vo.EverGreenVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.style.entity.Style;
@@ -122,9 +123,11 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     Boolean excelExport(PatternLibraryPageDTO patternLibraryPageDTO, HttpServletResponse response);
 
     /**
-     * 查询已开款的设计款号数据信息
+     * 查询设计款号数据信息
      *
-     * @return 已开款后的设计款号数据信息
+     * @param search      查询条件
+     * @param styleNoList 款号集合
+     * @return 设计款号数据信息
      */
     List<Style> listStyle(String search, List<String> styleNoList);
 
@@ -173,4 +176,19 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     List<FilterCriteriaVO> getAllFilterCriteria(Integer type);
 
+    /**
+     * 根据版型库 ID 生成版型库对应的常青原版树
+     *
+     * @param patternLibraryId 版型库 ID
+     * @return 常青原版树
+     */
+    EverGreenVO listEverGreenTree(String patternLibraryId);
+
+    /**
+     * 常青编号列表
+     *
+     * @param patternLibraryPageDTO 筛选条件
+     * @return 常青编号列表
+     */
+    PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO);
 }

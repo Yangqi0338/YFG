@@ -16,6 +16,7 @@ import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
+import com.base.sbc.module.patternlibrary.vo.EverGreenVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.style.entity.Style;
@@ -160,9 +161,9 @@ public class PatternLibraryController {
         }
     }
 
-    @ApiOperation(value = "查询已开款的设计款号数据信息")
+    @ApiOperation(value = "查询设计款号数据信息")
     @GetMapping("/listStyle")
-    public ApiResult<List<String>> listStyle(String search) {
+    public ApiResult<List<String>> listStyle(@RequestParam(value = "search", required = false) String search) {
         List<Style> styleList = patternLibraryService.listStyle(search, null);
         if (ObjectUtil.isNotEmpty(styleList)) {
             List<String> styleNoList = styleList.stream().map(Style::getDesignNo).collect(Collectors.toList());
@@ -243,6 +244,20 @@ public class PatternLibraryController {
             }
         }
         return patternLibraryService.updateById(patternLibrary);
+    }
+
+    @ApiOperation(value = "根据版型库 ID 生成版型库对应的常青原版树")
+    @GetMapping("/listEverGreenTree")
+    public ApiResult<EverGreenVO> listEverGreenTree(String patternLibraryId) {
+        EverGreenVO everGreenVO = patternLibraryService.listEverGreenTree(patternLibraryId);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, everGreenVO);
+    }
+
+    @ApiOperation(value = "常青编号列表")
+    @GetMapping("/listEverGreenCode")
+    public ApiResult<PageInfo<PatternLibrary>> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO) {
+        PageInfo<PatternLibrary> patternLibraryPageInfo = patternLibraryService.listEverGreenCode(patternLibraryPageDTO);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryPageInfo);
     }
 
 }

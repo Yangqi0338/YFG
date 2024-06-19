@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -40,6 +41,18 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String code;
 
     /**
+     * 父级 ID
+     */
+    @ApiModelProperty("父级 ID")
+    private String parentId;
+
+    /**
+     * 所有的上层父级 ID
+     */
+    @ApiModelProperty("所有的上层父级 ID")
+    private String parentIds;
+
+    /**
      * 款式编码
      */
     @ApiModelProperty("款式编码")
@@ -50,6 +63,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      */
     @ApiModelProperty("款式 ID")
     private String styleId;
+
+    /**
+     * 热销大货款（多选逗号分隔，从当前款下获取）
+     */
+    @ApiModelProperty("热销大货款（多选逗号分隔，从当前款下获取）")
+    private String styleNos;
 
     /**
      * 大货款号
@@ -138,6 +157,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String templateName;
 
     /**
+     * 常青编号
+     */
+    @ApiModelProperty("常青编号")
+    private String everGreenCode;
+
+    /**
      * 文件 ID
      */
     @ApiModelProperty("文件 ID")
@@ -207,6 +232,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("大货图片文件 ID-URL 集合")
     @TableField(exist = false)
     private List<Map<String, String>> picIdList;
+
+    /**
+     * 大货款号集合（款下面的所有大货）
+     */
+    @ApiModelProperty("大货款号集合（款下面的所有大货）")
+    @TableField(exist = false)
+    private List<String> allStyleNoList;
 
     /**
      * 版型使用率
@@ -303,5 +335,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("产品季名称")
     @TableField(exist = false)
     private String planningSeasonName;
+
+    /**
+     * 常青编号分页集合
+     */
+    @ApiModelProperty("常青编号分页集合")
+    @TableField(exist = false)
+    private PageInfo<PatternLibrary> patternLibraryPageInfo;
+
 
 }
