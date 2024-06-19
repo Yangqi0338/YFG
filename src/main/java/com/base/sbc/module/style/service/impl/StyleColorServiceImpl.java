@@ -360,6 +360,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
         queryWrapper.notEmptyEqOrIsNull("ts.band_code", queryDto.getBandCode());
         queryWrapper.notEmptyEqOrIsNull("ts.brand_name", queryDto.getBrandName());
+        queryWrapper.notEmptyEqOrIsNull("ts.brand", queryDto.getBrand());
         queryWrapper.notEmptyLikeOrIsNull("tsc.band_name", queryDto.getBandName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());

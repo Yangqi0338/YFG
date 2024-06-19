@@ -95,6 +95,9 @@ public class QueryStyleColorDto extends QueryFieldDto {
     @ApiModelProperty(value = "品牌名称")
     private String brandName;
 
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+
     @ApiModelProperty(value = "设计师")
     private String designer;
 
