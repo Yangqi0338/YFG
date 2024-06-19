@@ -283,6 +283,8 @@
         ts.prod_category3rd_name,
         ts.pat_diff_name,
         ts.positioning_name,
+        ts.registering_no,
+        ts.serial_style_no,
         ts.plate_positioning_name,
         tsp.control_confirm,
         tsp.product_hangtag_confirm,

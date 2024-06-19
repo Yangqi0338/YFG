@@ -406,6 +406,11 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "版型定位名称"  )
     private String platePositioningName;
 
+    @ApiModelProperty(value = "版型库编码"  )
+    private String registeringNo;
+    @ApiModelProperty(value = "套版款号"  )
+    private String serialStyleNo;
+
     /** 上新时间 */
     @ApiModelProperty(value = "上新时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
