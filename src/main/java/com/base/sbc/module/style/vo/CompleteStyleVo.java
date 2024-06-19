@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.base.sbc.config.vo.EditPermissionReturnVo;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -90,8 +92,6 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
 
     @ApiModelProperty(value = "小类")
     private String prodCategory3ndName;
-
-
     /**
      * 品类编码
      */
@@ -507,4 +507,82 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      * 核价信息
      */
     private String calcItemVal;
+    /**
+     * 材料成本
+     */
+    @ApiModelProperty(value = "材料成本")
+    @Excel(name = "材料成本", numFormat = "#.###",type = 10,orderNum = "9")
+    private BigDecimal materialCost;
+    /**
+     * 包装费
+     */
+    @ApiModelProperty(value = "包装费")
+    @Excel(name = "包装费", numFormat = "#.###",type = 10,orderNum = "10")
+    private BigDecimal packagingFee;
+    /**
+     * 检测费
+     */
+    @ApiModelProperty(value = "检测费")
+    @Excel(name = "检测费", numFormat = "#.###",type = 10,orderNum = "11")
+    private BigDecimal testingFee;
+    /**
+     * 车缝加工费
+     */
+    @ApiModelProperty(value = "车缝加工费")
+    @Excel(name = "车缝加工费", numFormat = "#.###",type = 10,orderNum = "12")
+    private BigDecimal sewingProcessingFee;
+    /**
+     * 加工费
+     */
+    @ApiModelProperty(value = "加工费")
+//    @Excel(name = "加工费", numFormat = "#.###",type = 10)
+    private BigDecimal processingFee;
+    /**
+     * 毛纱加工费
+     */
+    @ApiModelProperty(value = "毛纱加工费")
+    @Excel(name = "毛纱加工费", numFormat = "#.###",type = 10,orderNum = "13")
+    private BigDecimal woolenYarnProcessingFee;
+    /**
+     * 外协加工费
+     */
+    @ApiModelProperty(value = "外协加工费")
+    @Excel(name = "外协加工费", numFormat = "#.###",type = 10,orderNum = "14")
+    private BigDecimal coordinationProcessingFee;
+    /**
+     * 二次加工费
+     */
+    @ApiModelProperty(value = "二次加工费")
+//    @Excel(name = "二次加工费", numFormat = "#.###",type = 10)
+    private BigDecimal secondaryProcessingFee;
+    /**
+     * 总成本
+     */
+    @ApiModelProperty(value = "总成本")
+    @Excel(name = "总成本", numFormat = "#.###",type = 10,orderNum = "15")
+    private BigDecimal totalCost;
+    /**
+     * 企划倍率
+     */
+    @ApiModelProperty(value = "企划倍率")
+    @Excel(name = "企划倍率", numFormat = "#.###",type = 10,orderNum = "19")
+    private BigDecimal planningRatio;
+    /**
+     * 预计销售价
+     */
+    @ApiModelProperty(value = "预计销售价")
+    @Excel(name = "预计销售价", numFormat = "#.###",type = 10,orderNum = "20")
+    private BigDecimal expectedSalesPrice;
+    /**
+     * 计控实际成本
+     */
+    @ApiModelProperty(value = "计控实际成本")
+    @Excel(name = "计控实际成本", numFormat = "#.###",type = 10,orderNum = "21")
+    private BigDecimal planCost;
+
+    /**
+     * 计控实际成本
+     */
+    @ApiModelProperty(value = "计控实际成本")
+    private BigDecimal controlPlanCost;
 }
