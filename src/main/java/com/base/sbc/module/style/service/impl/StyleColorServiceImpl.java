@@ -408,28 +408,28 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
                     packCommonSearchDto.setPackType(packType);
 
-                    packCommonSearchDto.setForeignId(stylePricingVO.getId());
+                    packCommonSearchDto.setForeignId(stylePricingVO.getPackInfoId());
                     //材料成本,如果fob,则不计算
                     if ("CMT".equals(stylePricingVO.getDevtTypeName())) {
                         stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
                     } else {
                         stylePricingVO.setMaterialCost(BigDecimal.ZERO);
                     }
-                    stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
-                    stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
-                    stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
-                    stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
+                    stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "包装费")));
+                    stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "检测费")));
+                    stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "车缝加工费")));
+                    stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "毛纱加工费")));
                     BigDecimal coordinationProcessingFee = new BigDecimal(0);
                     coordinationProcessingFee = coordinationProcessingFee.add(
-                                    BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协其他"))).
-                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协印花"))).
-                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协绣花"))).
-                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协压皱")));
+                                    BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "外协其他"))).
+                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "外协印花"))).
+                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "外协绣花"))).
+                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getPackInfoId() + "外协压皱")));
 
                     stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
                     //加工费
-                    List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
+                    List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getPackInfoId()).eq("pack_type", "packBigGoods"));
                     if (!processCostsList.isEmpty()) {
                         try {
                             processCostsList.stream()
@@ -442,7 +442,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                     }
                     //二次加工费用
-                    List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
+                    List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getPackInfoId()).eq("pack_type", "packBigGoods"));
                     if (!pricingCraftCostsList.isEmpty()) {
                         try {
                             pricingCraftCostsList.stream()
