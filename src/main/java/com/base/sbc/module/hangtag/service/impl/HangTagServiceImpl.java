@@ -809,7 +809,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								ObjectUtil.isNotEmpty(e.getIngredient())&&
 								ObjectUtil.isNotEmpty(e.getFabricDetails())&&
 								ObjectUtil.isNotEmpty(e.getWarmTips()))) {
-							throw new OtherException("存在待提交数据，请先提交");
+							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 						}
                     }
 					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
