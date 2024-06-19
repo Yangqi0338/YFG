@@ -960,6 +960,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
+            patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
             // 初始化大货的图片 ID-URL 集合
             List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
             for (StyleColor styleColor : styleColorList) {
@@ -974,7 +975,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 picFileIdList.add(hashMap);
             }
             patternLibrary.setPicIdList(picFileIdList);
-            patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
         } else {
             // 如果没有大货信息 那就直接取款式的图片
             patternLibrary.setStylePicId(style.getStylePic());
