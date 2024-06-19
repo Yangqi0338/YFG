@@ -460,9 +460,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             styleVO.getCoordinationProcessingFee(), styleVO.getSecondaryProcessingFee(), styleVO.getProcessingFee()));
                     styleVO.setTotalCost(styleVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
                     BigDecimal taxRate = BigDecimal.ONE;
-                    if ("CMT".equals(styleVO.getDevtTypeName())) {
 
-                        System.out.println(styleVO.getCalcItemVal());
+                    if ("CMT".equals(styleVO.getDevtTypeName())) {
                         com.alibaba.fastjson2.JSONObject jsonObject = JSON.parseObject(styleVO.getCalcItemVal());
                         if (jsonObject != null) {
                             taxRate = jsonObject.getBigDecimal("税率");
@@ -473,7 +472,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         }
                     }
 
-                    // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
                     /*优先展示手数的数据*/
                     if(styleVO.getControlPlanCost() != null){
                         styleVO.setPlanCost((styleVO.getControlPlanCost()));
@@ -530,6 +528,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*查询款式图*/
         stylePicUtils.setStylePic(completeStyleVos, "stylePic");
         stylePicUtils.setStyleColorPic2(completeStyleVos, "styleColorPic");
+        dataProcessing(completeStyleVos, super.getCompanyCode());
         return ApiResult.success("查询成功", completeStyleVos.get(0));
     }
 
