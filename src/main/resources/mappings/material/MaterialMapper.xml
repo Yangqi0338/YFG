@@ -62,7 +62,7 @@
         <if test="useSkill != null and useSkill != ''">
             and use_skill = #{useSkill}
         </if>
-        <if test="patternTypeList != null and patternTypeList.length > 0">
+        <if test="patternTypeList != null and patternTypeList.size > 0">
 
             <foreach collection="patternTypeList" open="(" separator="," item="patternType" close=")">
                 and FIND_IN_SET(#{patternType}, pattern_types)
@@ -90,7 +90,7 @@
         <if test="sql != null and sql != ''">
             #{sql}
         </if>
-        <if test="folderIdList != null and folderIdList.length > 0">
+        <if test="folderIdList != null and folderIdList.size > 0">
             and folder_id in
             <foreach collection="folderIdList" open="(" separator="," item="item" close=")">
                 #{item}

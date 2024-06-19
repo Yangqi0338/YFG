@@ -36,7 +36,7 @@ public class FileTreeController extends BaseController{
     @ApiOperation(value = "获取文件夹", notes = "获取文件夹")
     public ApiResult queryFileTree( FileTreeDto fileTreeDto) {
         List<FileTree> fileTrees = fileTreeService.queryFileTree(fileTreeDto);
-        return selectNotFound(fileTrees);
+        return success("查询成功",fileTrees);
     }
 
     @GetMapping("/del")
