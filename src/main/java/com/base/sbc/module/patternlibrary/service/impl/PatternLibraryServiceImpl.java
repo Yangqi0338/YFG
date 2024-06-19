@@ -1526,7 +1526,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getEnableFlag())
                         , "tpl.enable_flag", patternLibraryPageDTO.getEnableFlag())
                 // 大货款号
-                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStyleNo())
+                .like(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStyleNo())
                         , "tsc.style_no", patternLibraryPageDTO.getStyleNo())
                 .orderByDesc("tpl.serial_number")
                 .groupBy("tpl.id");
