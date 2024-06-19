@@ -253,19 +253,11 @@ public class PatternLibraryController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, everGreenVO);
     }
 
-    @ApiOperation(value = "删除常青原版树中节点")
-    @PostMapping("/removeEverGreenTreeNode")
-    public ApiResult<String> removeEverGreenTreeNode(String patternLibraryId) {
-        patternLibraryService.removeEverGreenTreeNode(patternLibraryId);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+    @ApiOperation(value = "常青编号列表")
+    @GetMapping("/listEverGreenCode")
+    public ApiResult<PageInfo<PatternLibrary>> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO) {
+        PageInfo<PatternLibrary> patternLibraryPageInfo = patternLibraryService.listEverGreenCode(patternLibraryPageDTO);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryPageInfo);
     }
-
-    @ApiOperation(value = "新增青原版树中节点")
-    @PostMapping("/newEverGreenTreeNode")
-    public ApiResult<String> newEverGreenTreeNode(String patternLibraryId) {
-        patternLibraryService.newEverGreenTreeNode(patternLibraryId);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
-    }
-
 
 }

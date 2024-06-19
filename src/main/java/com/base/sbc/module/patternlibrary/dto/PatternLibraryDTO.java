@@ -30,6 +30,18 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String id;
 
     /**
+     * 父级 ID
+     */
+    @ApiModelProperty("父级 ID")
+    private String parentId;
+
+    /**
+     * 所有的上层父级 ID
+     */
+    @ApiModelProperty("所有的上层父级 ID")
+    private String parentIds;
+
+    /**
      * 产品季
      */
     @ApiModelProperty("产品季")

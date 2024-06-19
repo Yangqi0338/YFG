@@ -265,36 +265,17 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
         // 新增/修改主表数据
         saveOrUpdate(patternLibrary);
-        if (ObjectUtil.isEmpty(patternLibraryDTO.getId()) && ObjectUtil.isNotEmpty(patternLibraryDTO.getEverGreenCode())) {
-            // 如果是新增 且常青编号不为空
+        if (ObjectUtil.isEmpty(patternLibraryDTO.getId()) && ObjectUtil.isNotEmpty(patternLibraryDTO.getParentId())) {
+            // 如果是新增
             newEverGreenTreeNode(patternLibrary.getId());
         } else {
             // 修改
-            if (ObjectUtil.isEmpty(oldPatternLibrary.getEverGreenCode()) && ObjectUtil.isNotEmpty(patternLibraryDTO.getEverGreenCode())) {
-                // 从无到有
+            if (ObjectUtil.isNotEmpty(patternLibraryDTO.getEverGreenCode())) {
+                // 从无到有  从有到有
                 newEverGreenTreeNode(patternLibrary.getId());
-                // 查询此版型下面的所有直属子版型
-                List<PatternLibrary> patternLibraryList = list(
-                        new LambdaQueryWrapper<PatternLibrary>()
-                                .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                                .eq(PatternLibrary::getParentId, patternLibrary.getId())
-                );
-                for (PatternLibrary library : patternLibraryList) {
-                    newEverGreenTreeNode(library.getId());
-                }
             } else if (ObjectUtil.isNotEmpty(oldPatternLibrary.getEverGreenCode()) && ObjectUtil.isEmpty(patternLibraryDTO.getEverGreenCode())) {
                 // 从有到无
-                // 从无到有
                 removeEverGreenTreeNode(patternLibrary.getId());
-                // 查询此版型下面的所有直属子版型
-                List<PatternLibrary> patternLibraryList = list(
-                        new LambdaQueryWrapper<PatternLibrary>()
-                                .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                                .eq(PatternLibrary::getParentId, patternLibrary.getId())
-                );
-                for (PatternLibrary library : patternLibraryList) {
-                    removeEverGreenTreeNode(library.getId());
-                }
             }
         }
         // 修改品牌数据
@@ -938,7 +919,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         .eq(Style::getDesignNo, designNo)
                         .eq(Style::getEnableStatus, "0")
                         .eq(Style::getDelFlag, "0")
-                        .in(Style::getStatus, "1", "2")
         );
         if (ObjectUtil.isEmpty(style)) {
             throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
@@ -1125,82 +1105,81 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
         // 父级 ID
-        String parentId = patternLibrary.getParentId();
-        // 上层 ID 逗号分隔
         String parentIds = patternLibrary.getParentIds();
+        PatternLibrary topPatternLibrary = patternLibrary;
+        if (ObjectUtil.isNotEmpty(parentIds)) {
+            String topParentId = parentIds.split(",")[0].replace("\"", "");
+            if (ObjectUtil.isNotEmpty(topParentId)) {
+                topPatternLibrary = getById(topParentId);
+            }
+        }
 
-        // 当前版型库对象 -> 常青原版对象
+        // 顶级父节点 -> 常青原版对象
         EverGreenVO everGreen = new EverGreenVO();
-        BeanUtil.copyProperties(patternLibrary, everGreen);
+        BeanUtil.copyProperties(topPatternLibrary, everGreen);
 
         // 初始化下级常青原版树
         List<EverGreenVO> bottomEverGreenTree = new ArrayList<>();
-        {
-            // 查询此版型的所有下级
-            List<PatternLibrary> patternLibraryList = list(
-                    new LambdaQueryWrapper<PatternLibrary>()
-                            .eq(PatternLibrary::getDelFlag, "0")
-                            .like(PatternLibrary::getParentIds, patternLibrary.getId())
-            );
+        // 查询此版型的所有下级
+        List<PatternLibrary> patternLibraryList = list(
+                new LambdaQueryWrapper<PatternLibrary>()
+                        .eq(PatternLibrary::getDelFlag, "0")
+                        .like(PatternLibrary::getParentIds, "\"" + topPatternLibrary.getId() + "\"")
+        );
 
 
-            if (ObjectUtil.isNotEmpty(patternLibraryList)) {
-                // 下级版型组装成常青原版
-                List<EverGreenVO> everGreenVOList = new ArrayList<>(patternLibraryList.size());
-                for (PatternLibrary library : patternLibraryList) {
-                    EverGreenVO everGreenVO = new EverGreenVO();
-                    BeanUtil.copyProperties(library, everGreenVO);
-                    everGreenVOList.add(everGreenVO);
-                }
-
-                // 生成常青原版树
-                bottomEverGreenTree = createEverGreenTree(everGreenVOList, patternLibrary.getId());
+        if (ObjectUtil.isNotEmpty(patternLibraryList)) {
+            // 下级版型组装成常青原版
+            List<EverGreenVO> everGreenVOList = new ArrayList<>(patternLibraryList.size());
+            for (PatternLibrary library : patternLibraryList) {
+                EverGreenVO everGreenVO = new EverGreenVO();
+                BeanUtil.copyProperties(library, everGreenVO);
+                everGreenVOList.add(everGreenVO);
             }
-            // 先设置当前版型的下级树
-            everGreen.setEverGreenVOList(bottomEverGreenTree);
+
+            // 生成常青原版树
+            bottomEverGreenTree = createEverGreenTree(everGreenVOList, topPatternLibrary.getId());
         }
 
-        // 设置当前常青原版的树顶层节点为当前版型
-        EverGreenVO topEverGreen = everGreen;
-        {
-            // 查询此版型的所有上级
-            if (ObjectUtil.isNotEmpty(parentId)) {
-                String[] parentIdArray = parentIds.split(",");
-                // 根据上级 ID 查询所有上级的版型信息
-                List<PatternLibrary> topPatternLibraryList = listByIds(Arrays.asList(parentIdArray));
-                // 上级版型转成常青原版对象
-                List<EverGreenVO> everGreenVOList = new ArrayList<>(topPatternLibraryList.size());
-                for (PatternLibrary library : topPatternLibraryList) {
-                    EverGreenVO everGreenVO = new EverGreenVO();
-                    BeanUtil.copyProperties(library, everGreenVO);
-                    everGreenVOList.add(everGreenVO);
-                }
-                Map<String, EverGreenVO> everGreenVOMap = everGreenVOList.stream().collect(Collectors.toMap(EverGreenVO::getId, item -> item));
-                while (true) {
-                    // 从当前版型开始往上找父级 并更改当前的最上级节点 最后返回最上层节点
-                    if (ObjectUtil.isNotEmpty(topEverGreen.getParentId())) {
-                        EverGreenVO everGreenVO = everGreenVOMap.get(topEverGreen.getParentId());
-                        if (ObjectUtil.isNotEmpty(everGreenVO)) {
-                            everGreenVO.setEverGreenVOList(CollUtil.newArrayList(topEverGreen));
-                            topEverGreen = everGreenVO;
-                        } else {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-        return topEverGreen;
+        everGreen.setEverGreenVOList(bottomEverGreenTree);
+        return everGreen;
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    @DuplicationCheck
+
+    public PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO) {
+        String id = patternLibraryPageDTO.getId();
+        String code = patternLibraryPageDTO.getCode();
+        // 筛选条件
+        QueryWrapper<PatternLibrary> queryWrapper = new QueryWrapper<>();
+        queryWrapper
+                // 版型库ID
+                .ne(ObjectUtil.isNotEmpty(id), "tpl.id", id)
+                .like(ObjectUtil.isNotEmpty(code), "tpl.code", code)
+                // 已审核的数据
+                .eq("tpl.status", 4)
+                .orderByDesc("tpl.serial_number")
+                .groupBy("tpl.id");
+        // 权限设置
+        QueryWrapper<PatternLibraryBrand> brandQueryWrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(brandQueryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tplb.");
+        String sqlSegment = brandQueryWrapper.getSqlSegment();
+        if (ObjectUtil.isNotEmpty(sqlSegment)) {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0' and " + sqlSegment);
+        } else {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0'");
+        }
+        PageHelper.startPage(patternLibraryPageDTO.getPageNum(), patternLibraryPageDTO.getPageSize());
+        // 得到版型库主表数据集合
+        List<PatternLibrary> patternLibraryList = baseMapper.listEverGreenCode(queryWrapper);
+        PageInfo<PatternLibrary> patternLibraryPageInfo = new PageInfo<>(patternLibraryList);
+        return patternLibraryPageInfo;
+    }
+
     public void removeEverGreenTreeNode(String patternLibraryId) {
         PatternLibrary patternLibrary = getById(patternLibraryId);
         String currParentIds = patternLibrary.getParentIds();
+        patternLibrary.setEverGreenCode(null);
         patternLibrary.setParentId(null);
         patternLibrary.setParentIds(null);
         updateById(patternLibrary);
@@ -1208,7 +1187,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         List<PatternLibrary> patternLibraryList = list(
                 new LambdaQueryWrapper<PatternLibrary>()
                         .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                        .like(PatternLibrary::getParentIds, patternLibraryId)
+                        .like(PatternLibrary::getParentIds, "\"" + patternLibraryId + "\"")
         );
         if (ObjectUtil.isNotEmpty(patternLibraryList)) {
             // 将直属子版型的 parentId 置空，直属和非直属的子版型的 parentIds 截取掉当前版型 ID 以及前面的所有 ID
@@ -1220,25 +1199,21 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    @DuplicationCheck
     public void newEverGreenTreeNode(String patternLibraryId) {
         // 根据版型 ID 查询版型信息
         PatternLibrary patternLibrary = getById(patternLibraryId);
         if (ObjectUtil.isNotEmpty(patternLibrary)) {
-            // 根据版型中的款式 ID 查询款式信息，获取套版款的信息
-            Style style = styleService.getById(patternLibrary.getStyleId());
-            if (ObjectUtil.isNotEmpty(style)) {
-                // 获得套版款号的信息
-                PatternLibrary copyingPatternLibrary = getById(style.getRegisteringId());
-                if (ObjectUtil.isNotEmpty(copyingPatternLibrary) && ObjectUtil.isNotEmpty(copyingPatternLibrary.getEverGreenCode())) {
+            // 获取当前版型的父
+            String parentId = patternLibrary.getParentId();
+            if (ObjectUtil.isNotEmpty(parentId)) {
+                // 获得父级的版型信息
+                PatternLibrary parentPatternLibrary = getById(parentId);
+                if (ObjectUtil.isNotEmpty(parentPatternLibrary)) {
                     // 设置当前版型的父版型和所有上层版型
-                    patternLibrary.setParentId(copyingPatternLibrary.getId());
                     patternLibrary.setParentIds(
-                            ObjectUtil.isEmpty(copyingPatternLibrary.getParentIds())
-                                    ? copyingPatternLibrary.getId()
-                                    : copyingPatternLibrary.getParentIds() + "," + copyingPatternLibrary.getId());
+                            ObjectUtil.isEmpty(parentPatternLibrary.getParentIds())
+                                    ? "\"" + parentPatternLibrary.getId() + "\""
+                                    : parentPatternLibrary.getParentIds() + ",\"" + parentPatternLibrary.getId() + "\"");
                     // 查询上层形成环
                     if (patternLibrary.getParentIds().contains(patternLibrary.getId())) {
                         throw new OtherException(ResultConstant.EVERGREEN_ORIGINALS_DO_NOT_FORM_RINGS);
@@ -1248,7 +1223,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                     List<PatternLibrary> patternLibraryList = list(
                             new LambdaQueryWrapper<PatternLibrary>()
                                     .eq(PatternLibrary::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                                    .like(PatternLibrary::getParentIds, patternLibrary.getId())
+                                    .like(PatternLibrary::getParentIds, "\"" + patternLibrary.getId() + "\"")
                     );
                     if (ObjectUtil.isNotEmpty(patternLibraryList)) {
                         for (PatternLibrary library : patternLibraryList) {
@@ -1256,11 +1231,13 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             if (patternLibrary.getParentIds().contains(library.getId())) {
                                 throw new OtherException(ResultConstant.EVERGREEN_ORIGINALS_DO_NOT_FORM_RINGS);
                             }
-                            library.setParentIds(patternLibrary.getParentIds() + "," + library.getParentIds());
+                            library.setParentIds(patternLibrary.getParentIds() + ",\"" + library.getParentIds() + "\"");
                         }
                         // 修改子版型的上层版型集合
                         updateBatchById(patternLibraryList);
                     }
+                } else {
+                    throw new OtherException(ResultConstant.EVERGREEN_ORIGINALS_DOES_NOT_EXIST_REFRESH_TRY_AGAIN);
                 }
             }
         }

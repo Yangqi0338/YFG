@@ -21,6 +21,12 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 主键 ID
+     */
+    @ApiModelProperty("主键 ID")
+    private String id;
+
+    /**
      * 版型编码
      */
     @ApiModelProperty("版型编码")
@@ -81,9 +87,9 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
     private String templateName;
 
     /**
-     * 涉及部件名称 （多选逗号分隔）
+     * 涉及部件名称（多选逗号分隔）
      */
-    @ApiModelProperty("涉及部件名称 （多选逗号分隔）")
+    @ApiModelProperty("涉及部件名称（多选逗号分隔）")
     private String partsNames;
 
     /**

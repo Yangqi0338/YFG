@@ -111,7 +111,7 @@
         AND tpli.del_flag = '0'
         LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
         LEFT JOIN t_style ts ON ts.id = tpl.style_id AND ts.del_flag = '0'
-        JOIN t_style_color tsc ON ts.id = tsc.style_id AND tsc.del_flag = '0'
+        left JOIN t_style_color tsc ON ts.id = tsc.style_id AND tsc.del_flag = '0'
         WHERE
         tpl.del_flag = '0'
         <if test="patternLibraryPageDTO.partsNameList != null and patternLibraryPageDTO.partsNameList.size > 0">
@@ -126,6 +126,20 @@
                 #{item}
             </foreach>
         </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="listEverGreenCode" resultType="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
+        SELECT
+        tpl.id,
+        tpl.`code`
+        FROM
+        t_pattern_library tpl
+        LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
+        WHERE
+        tpl.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -187,11 +201,11 @@
         </if>
         FROM t_pattern_library tpl
         <if test="type == 6">
-            JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
+            left JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
         AND tpli.del_flag = '0' and tpli.type = 4
         </if>
         <if test="type == 2">
-            JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
+            left JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
         </if>
         WHERE
         tpl.del_flag = '0'
@@ -267,7 +281,7 @@
         s.id, s.design_no, s.brand_name, s.style_pic, s.prod_category1st_name, s.prod_category_name,
         s.prod_category2nd_name, s.prod_category3rd_name,
         s.silhouette_name, s.pattern_parts, s.planning_season_id, s.prod_category2nd, s.prod_category,
-        s.channel,tfv.val_name silhouetteName,
+        tfv.val_name silhouetteName,
         ifnull((SELECT
         count( 1 )
         FROM
@@ -279,8 +293,6 @@
         AND ts.serial_style_id = s.id
         AND ts.serial_style_id IS NOT NULL
         ), 0) useStyleNum,
-        tps.name planningSeasonName,
-        group_concat(tsc.style_no) styleNo,
         tpl.id registeringId,
         tpl.code registeringNo
         FROM t_style s
@@ -288,7 +300,6 @@
         left join t_field_val tfv on tfv.foreign_id = s.id and tfv.del_flag = '0' and tfv.data_group =
         'SAMPLE_DESIGN_TECHNOLOGY'
         and tfv.field_explain = '廓形及代码'
-        left join t_planning_season tps on tps.id = s.planning_season_id AND tps.del_flag = '0'
         left join t_pattern_library tpl on tpl.style_id = s.id AND tpl.del_flag = '0'
         <where>
             <if test="patternLibraryDTO.silhouetteName != null and patternLibraryDTO.silhouetteName != ''">

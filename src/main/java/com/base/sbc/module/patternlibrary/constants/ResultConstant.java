@@ -28,5 +28,6 @@ public class ResultConstant {
     public static final String THERE_IS_NO_CORRESPONDING_DESIGN_VERSION = "没有对应的设计款！";
     public static final String PATTERN_LIBRARY_HAS_BEEN_STYLE_RELEVANCY = "版型已被款式关联！";
     public static final String EVERGREEN_ORIGINALS_DO_NOT_FORM_RINGS = "常青原版不能形成环！";
+    public static final String EVERGREEN_ORIGINALS_DOES_NOT_EXIST_REFRESH_TRY_AGAIN = "常青原版不存在，请刷新后重试！";
 
 }

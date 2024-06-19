@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -334,5 +335,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("产品季名称")
     @TableField(exist = false)
     private String planningSeasonName;
+
+    /**
+     * 常青编号分页集合
+     */
+    @ApiModelProperty("常青编号分页集合")
+    @TableField(exist = false)
+    private PageInfo<PatternLibrary> patternLibraryPageInfo;
+
 
 }

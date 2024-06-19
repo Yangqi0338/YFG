@@ -185,19 +185,10 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     EverGreenVO listEverGreenTree(String patternLibraryId);
 
     /**
-     * 删除常青原版树中节点
+     * 常青编号列表
      *
-     * @param patternLibraryId 版型库 ID 款对应的版型 不是套版的 ID
-     * @return 删除结果
+     * @param patternLibraryPageDTO 筛选条件
+     * @return 常青编号列表
      */
-    void removeEverGreenTreeNode(String patternLibraryId);
-
-    /**
-     * 新增常青原版树中节点
-     *
-     * @param patternLibraryId 版型库 ID 款对应的版型 不是套版的 ID
-     * @return 新增结果
-     */
-    void newEverGreenTreeNode(String patternLibraryId);
-
+    PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO);
 }
