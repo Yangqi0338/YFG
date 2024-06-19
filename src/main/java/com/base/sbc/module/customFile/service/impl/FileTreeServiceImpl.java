@@ -50,6 +50,17 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         if (StringUtils.isEmpty(fileTreeDto.getParentId())){
             throw new OtherException("父级节点不能为空");
         }
+        QueryWrapper<FileTree> qw = new QueryWrapper<>();
+        qw.lambda().eq(FileTree::getCreateId,companyUserInfo.get().getUserId());
+        qw.lambda().eq(FileTree::getName,fileTreeDto.getName());
+        qw.lambda().eq(FileTree::getDelFlag,"0");
+        qw.lambda().last("limit 1");
+        FileTree one = getOne(qw);
+        if (null != one && !one.getId().equals(fileTreeDto.getId())){
+            throw new OtherException("自定义文件夹名称不能重复！");
+        }
+
+
         FileBusinessType.getByCode(fileTreeDto.getBusinessType());
         if (StringUtils.isEmpty(fileTreeDto.getId())){
             FileTree fileTree = this.getById(fileTreeDto.getParentId());
@@ -58,11 +69,11 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
             }
             fileTreeDto.setId(new IdGen().nextIdStr());
             String parentIds = null == fileTree ? fileTreeDto.getParentId() +  Constants.COMMA : fileTree.getParentIds();
-
+            fileTreeDto.insertInit();
             fileTreeDto.setParentIds(parentIds + fileTreeDto.getId() + Constants.COMMA);
-
             save(fileTreeDto);
         }else {
+            fileTreeDto.updateInit();
             updateById(fileTreeDto);
         }
         return fileTreeDto.getId();
