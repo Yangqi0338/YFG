@@ -797,12 +797,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (HangTagStatusEnum.FINISH == e.getStatus()) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
-					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
-							&&
-							HangTagStatusEnum.DESIGN_CHECK != updateStatus
-					) {
-						throw new OtherException("存在待提交数据，请先提交");
-					}
+                    if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
+                            &&
+                            HangTagStatusEnum.DESIGN_CHECK != updateStatus
+                    ) {
+						if (!(ObjectUtil.isNotEmpty(e.getProductName())&&
+								ObjectUtil.isNotEmpty(e.getQualityGrade())&&
+								ObjectUtil.isNotEmpty(e.getSaftyTitle())&&
+								ObjectUtil.isNotEmpty(e.getPackagingForm())&&
+								ObjectUtil.isNotEmpty(e.getPackagingBagStandard())&&
+								ObjectUtil.isNotEmpty(e.getIngredient())&&
+								ObjectUtil.isNotEmpty(e.getFabricDetails())&&
+								ObjectUtil.isNotEmpty(e.getWarmTips()))) {
+							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+						}
+                    }
 					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
 							&&
 							HangTagStatusEnum.TECH_CHECK != updateStatus
