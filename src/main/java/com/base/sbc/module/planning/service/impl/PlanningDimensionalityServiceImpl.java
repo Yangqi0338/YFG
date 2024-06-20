@@ -452,7 +452,10 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Override
     public List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto dto) {
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
-        setBaseQueryWrapper(queryWrapper,dto);
+        queryWrapper.eq("tpd.prod_category_1st",dto.getProdCategory1st());
+        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
+        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
+        queryWrapper.orderByAsc("tpd.group_sort","tpd.sort");
         return baseMapper.getCoefficientList(queryWrapper);
     }
 
