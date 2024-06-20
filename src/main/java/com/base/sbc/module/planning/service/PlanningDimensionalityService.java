@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
@@ -75,7 +76,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
    boolean templateReference(DimensionLabelsSearchDto dto);
     List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto);
 
-    List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto);
+    List<FieldManagementVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto);
 
     List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList);
 

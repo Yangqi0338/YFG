@@ -27,6 +27,7 @@ import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FormType;
 import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.mapper.FormTypeMapper;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.CheckMutexDto;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
@@ -450,13 +451,19 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     @Override
-    public List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto dto) {
+    public List<FieldManagementVo> getMaterialCoefficient(DimensionLabelsSearchDto dto) {
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tpd.prod_category1st",dto.getProdCategory1st());
         queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
         queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
         queryWrapper.orderByAsc("tpd.group_sort","tpd.sort");
-        return baseMapper.getCoefficientList(queryWrapper);
+        List<PlanningDimensionalityVo> coefficientList = baseMapper.getCoefficientList(queryWrapper);
+        List<String> ids = coefficientList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+        QueryFieldManagementDto dto1 = new QueryFieldManagementDto();
+        dto1.setIds(ids);
+        dto1.setCompanyCode(getCompanyCode());
+        List<FieldManagementVo> fieldManagementList = fieldManagementMapper.getFieldManagementList(dto1);
+        return fieldManagementList;
     }
 
     @Override
