@@ -41,7 +41,7 @@ public class FileTreeController extends BaseController{
 
     @GetMapping("/del")
     @Transactional(rollbackFor = {Exception.class})
-    @ApiOperation(value = "新增文件夹", notes = "新增文件夹")
+    @ApiOperation(value = "删除文件夹", notes = "删除文件夹")
     public ApiResult del(String id) {
         boolean b = fileTreeService.del(id);
         return deleteSuccess(b);

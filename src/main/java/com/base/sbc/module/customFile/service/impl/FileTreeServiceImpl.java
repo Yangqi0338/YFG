@@ -108,6 +108,12 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         }
         List<String> ids = Lists.newArrayList();
 
+        QueryWrapper<FileTree> qw = new QueryWrapper<>();
+        qw.lambda().in(FileTree::getId, ids);
+        qw.lambda().eq(FileTree::getType,"0");
+        if (count(qw) > 0){
+            throw new OtherException("系统级文件夹不允许删除");
+        }
         //获取文件下面所有包含的文件夹集合
         for (String s : StringUtils.convertList(id)) {
             ids.addAll(getByAllFileIds(s));
