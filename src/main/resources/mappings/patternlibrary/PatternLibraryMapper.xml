@@ -263,7 +263,7 @@
         ORDER BY
         tpl.serial_number DESC
     </select>
-    <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
+    <select id="listStyleNoCode" resultType="com.base.sbc.module.style.entity.Style">
         SELECT
         s.design_no
         FROM t_style s
@@ -275,6 +275,17 @@
             </if>
         </where>
         limit 200
+    </select>
+    <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
+        SELECT
+        s.design_no,
+        s.id
+        FROM t_style s
+        <where>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
     </select>
     <select id="listStyleToPatternLibrary" resultType="com.base.sbc.module.style.entity.Style">
         SELECT
@@ -314,10 +325,10 @@
     <select id="queryAllUseStyle" resultType="String">
         SELECT count(1)
         FROM t_style ts
-                 JOIN t_style_color tsc ON ts.id = tsc.style_id
-            AND tsc.del_flag = '0'
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
+        AND tsc.del_flag = '0'
         WHERE ts.del_flag = 0
-          AND ts.serial_style_id IS NOT NULL
+        AND ts.serial_style_id IS NOT NULL
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

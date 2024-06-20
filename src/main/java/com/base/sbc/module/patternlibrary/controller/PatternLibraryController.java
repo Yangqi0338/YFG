@@ -164,7 +164,7 @@ public class PatternLibraryController {
     @ApiOperation(value = "查询设计款号数据信息")
     @GetMapping("/listStyle")
     public ApiResult<List<String>> listStyle(@RequestParam(value = "search", required = false) String search) {
-        List<Style> styleList = patternLibraryService.listStyle(search, null);
+        List<Style> styleList = patternLibraryService.listStyle(search);
         if (ObjectUtil.isNotEmpty(styleList)) {
             List<String> styleNoList = styleList.stream().map(Style::getDesignNo).collect(Collectors.toList());
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS, styleNoList);

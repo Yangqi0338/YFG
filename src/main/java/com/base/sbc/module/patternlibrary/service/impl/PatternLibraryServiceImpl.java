@@ -771,15 +771,29 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
         }
         // 拿到所有的设计编号
-        List<String> styleNoList = cachedDataList.stream().map(ExcelImportDTO::getCode).collect(Collectors.toList());
-        Set<String> styleNoSet = cachedDataList.stream().map(ExcelImportDTO::getCode).collect(Collectors.toSet());
-        if (styleNoSet.size() != styleNoList.size()) {
+        List<String> styleNoList = cachedDataList.stream().map(ExcelImportDTO::getCode).distinct().collect(Collectors.toList());
+        if (cachedDataList.size() != styleNoList.size()) {
             throw new OtherException(ResultConstant.LAYOUT_CODES_CANNOT_BE_REPEATED);
         }
         // 根据设计编号查询款式信息
-        List<Style> styleList = listStyle(null, styleNoList);
-        if (ObjectUtil.isEmpty(styleList) || (styleNoList.size() != styleList.size())) {
-            throw new OtherException(ResultConstant.CODE_NO_CORRESPONDING_STYLE_OR_ALREADY_EXISTS);
+        List<Style> styleList = listStyle(styleNoList);
+        if (ObjectUtil.isEmpty(styleList)) {
+            throw new OtherException("款式编码「" + CollUtil.join(styleNoList, ",") + "」不存在！");
+        } else if (styleNoList.size() != styleList.size()) {
+            List<String> haveStyleNoList = styleList.stream().map(Style::getDesignNo).collect(Collectors.toList());
+            styleNoList.removeAll(haveStyleNoList);
+            throw new OtherException("款式编码「" + CollUtil.join(styleNoList, ",") + "」不存在！");
+        } else {
+            List<String> haveStyleIdList = styleList.stream().map(Style::getId).collect(Collectors.toList());
+            List<PatternLibrary> patternLibraryList = list(
+                    new LambdaQueryWrapper<PatternLibrary>()
+                            .eq(PatternLibrary::getDelFlag, BaseGlobal.NO)
+                            .in(PatternLibrary::getStyleId, haveStyleIdList)
+            );
+            if (ObjectUtil.isNotEmpty(patternLibraryList)) {
+                List<String> patterLibraryCodeList = patternLibraryList.stream().map(PatternLibrary::getCode).collect(Collectors.toList());
+                throw new OtherException("版型库编码「" + CollUtil.join(patterLibraryCodeList, ",") + "」已存在！");
+            }
         }
         Map<String, Style> styleMap = styleList.stream().collect(Collectors.toMap(Style::getDesignNo, item -> item));
         // 拿到品牌字典数据
@@ -801,7 +815,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             for (String name : brandNameList) {
                 String code = brandMap.get(name);
                 if (ObjectUtil.isEmpty(code)) {
-                    throw new OtherException(ResultConstant.BRAND_DATA_NOT_EXIST);
+                    throw new OtherException("「" + name + "」" + ResultConstant.BRAND_DATA_NOT_EXIST);
                 }
                 PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
                 patternLibraryBrand.setBrand(code);
@@ -881,17 +895,17 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     @Override
-    public List<Style> listStyle(String search, List<String> styleNoList) {
+    public List<Style> listStyle(String search) {
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
                 .eq("s.enable_status", BaseGlobal.NO)
                 .ne("s.design_no", "")
                 .isNotNull("s.design_no")
                 .like(ObjectUtil.isNotEmpty(search), "s.design_no", search)
-                .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
                 .orderByDesc("s.create_date");
         // 获取还没有生成版型库的数据
-        List<Style> styleList = baseMapper.listStyle(queryWrapper);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "s.");
+        List<Style> styleList = baseMapper.listStyleNoCode(queryWrapper);
         if (ObjectUtil.isEmpty(styleList)) {
             long count = count(
                     new LambdaQueryWrapper<PatternLibrary>()
@@ -906,6 +920,18 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         return styleList;
     }
 
+    @Override
+    public List<Style> listStyle(List<String> styleNoList) {
+        QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
+                .eq("s.enable_status", BaseGlobal.NO)
+                .ne("s.design_no", "")
+                .isNotNull("s.design_no")
+                .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
+                .orderByDesc("s.create_date");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "s.");
+        return baseMapper.listStyle(queryWrapper);
+    }
 
     @Override
     public PatternLibrary getInfoByDesignNo(String designNo) {
