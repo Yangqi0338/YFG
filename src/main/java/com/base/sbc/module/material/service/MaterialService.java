@@ -58,7 +58,7 @@ public interface MaterialService extends BaseService<Material> {
      */
     boolean checkFolderRelation(List<String> folderIds);
 
-    long getFileCount(List<String> folderIds);
+    long getFileCount(String userId,List<String> folderIds);
 
-    String getFileSize(List<String> byAllFileIds);
+    String getFileSize(String userId,List<String> byAllFileIds);
 }

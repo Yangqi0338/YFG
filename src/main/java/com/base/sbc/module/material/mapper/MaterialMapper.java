@@ -25,5 +25,5 @@ public interface MaterialMapper extends BaseMapper<Material> {
 
     List<MaterialChildren> linkageQueryName(@Param("search") String search, @Param("materialCategoryIds") List<String> materialCategoryIds);
 
-    Long getFileSize(@Param("folderIds") List<String> folderIds);
+    Long getFileSize(@Param("userId") String userId ,@Param("folderIds") List<String> folderIds);
 }

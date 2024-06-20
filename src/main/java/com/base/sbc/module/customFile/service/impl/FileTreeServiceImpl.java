@@ -85,6 +85,7 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         QueryWrapper<FileTree> qw = new QueryWrapper<>();
         qw.lambda().eq(FileTree::getParentId,fileTreeDto.getParentId());
         qw.lambda().in(FileTree::getCreateId,Lists.newArrayList("0",userId));
+        qw.lambda().orderByAsc(FileTree::getType);
         List<FileTree> list = list(qw);
         if (CollUtil.isEmpty(list)){
             return list;
@@ -94,8 +95,8 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         if (fileBusinessType == FileBusinessType.material) {
             list.forEach(item ->{
                 List<String> byAllFileIds = getByAllFileIds(item.getId());
-                item.setFileCount(materialService.getFileCount(byAllFileIds));
-                item.setFileSize(materialService.getFileSize(byAllFileIds));
+                item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
+                item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
             });
         }
         return list;
