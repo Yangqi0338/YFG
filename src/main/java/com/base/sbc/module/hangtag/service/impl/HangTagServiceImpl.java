@@ -843,6 +843,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTag.setConfirmDate(null);
 			}else if (updateStatus == HangTagStatusEnum.TRANSLATE_CHECK) {
 				hangTag.setConfirmDate(new Date());
+				hangTag.setTranslateConfirmDate(null);
 			}else {
 				hangTag.setTranslateConfirmDate(new Date());
 			}
@@ -852,6 +853,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds().stream().map(it-> new HangTagLog(updateStatus.getText(), it)).collect(Collectors.toList()));
 
 		HangTagDeliverySCMStatusEnum type;
+		int confirmStatus = 1;
 		switch (updateStatus) {
 			case TECH_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM;
@@ -862,11 +864,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM;
 				break;
-            default:
+			case PART_TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
+				confirmStatus = 0;
+				break;
+			default:
+				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
+				break;
 		}
 
-		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,confirmStatus);
 		// 貌似无用, checkType前端不传
 		if (HangTagStatusCheckEnum.QC_CHECK == hangTagUpdateStatusDTO.getCheckType()) {
 			// 发送审批

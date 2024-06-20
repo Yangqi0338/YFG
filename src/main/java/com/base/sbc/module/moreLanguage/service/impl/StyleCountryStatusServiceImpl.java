@@ -476,15 +476,17 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 hangTagList.stream()
                         .filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo()))
                         .map(hangTag-> {
-                            HangTagStatusEnum status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
+                            long styleCountryStatusCount = this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                                    .eq(bulkStyleNoFunc, hangTag.getBulkStyleNo())
+                                    .eq(statusFunc, StyleCountryStatusEnum.CHECK));
+                            HangTagStatusEnum status = styleCountryStatusCount == 0 ? HangTagStatusEnum.TRANSLATE_CHECK : HangTagStatusEnum.PART_TRANSLATE_CHECK;
                             if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
-                                if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-                                        .eq(bulkStyleNoFunc, hangTag.getBulkStyleNo())
-                                        .eq(statusFunc, StyleCountryStatusEnum.CHECK)) >= (size * CountryLanguageType.values().length)
+                                if (styleCountryStatusCount >= (size * CountryLanguageType.values().length)
                                 ) {
                                     status = HangTagStatusEnum.FINISH;
                                 }
                             }
+
                             if (hangTag.getStatus() == status) return null;
                             return Pair.of(status, hangTag);
                         }).filter(Objects::nonNull)

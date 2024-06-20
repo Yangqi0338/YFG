@@ -1653,6 +1653,12 @@ public class SmpService {
                     tagConfirmDateDto.setQualityControlConfirm(1);
                     tagConfirmDateDto.setQualityControlConfirmDate(date);
                     list.add(tagConfirmDateDto);
+                } else if (HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM == type) {
+                    //品控确认
+                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
+                    tagConfirmDateDto.setTranslateControlConfirm(1);
+                    tagConfirmDateDto.setTranslateConfirmDate(date);
+                    list.add(tagConfirmDateDto);
                 }
             }
         } else {
@@ -1690,7 +1696,7 @@ public class SmpService {
 
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
                 Pair.of("moduleName","scm"),
-                Pair.of("functionName","下发尺寸和外辅工艺明细数据")
+                Pair.of("functionName","下发吊牌和款式定价确认状态和时间数据")
         );
 
         for (TagConfirmDateDto tagConfirmDateDto1 : list) {
