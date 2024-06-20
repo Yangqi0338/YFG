@@ -89,9 +89,9 @@
         </if>
 
         <if test="brandList != null and brandList.size > 0">
-            and
-            <foreach collection="brandList" item="brand" separator=" or " open="(" close=")">
-                 FIND_IN_SET(#{brand},brand)
+            and brand in
+            <foreach collection="brandList" open="(" separator="," item="brand" close=")">
+                #{brand}
             </foreach>
         </if>
 

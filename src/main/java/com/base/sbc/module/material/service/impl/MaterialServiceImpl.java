@@ -165,6 +165,16 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             materialQueryDto.setMaterialNameList(StringUtils.convertList(materialQueryDto.getMaterialNames()));
         }
 
+        //品牌
+        if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
+            //获取用户组的品牌权限列表
+            ApiResult<Map<String,String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
+            if (Objects.nonNull(brandList.getData())){
+                materialQueryDto.setBrandList(Lists.newArrayList(brandList.getData().values()));
+            }
+
+        }
+
     }
 
     /**
@@ -179,14 +189,6 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
         PageHelper.startPage(materialQueryDto);
-        if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
-            //获取用户组的品牌权限列表
-            ApiResult<Map<String,String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
-            if (Objects.nonNull(brandList.getData())){
-                materialQueryDto.setBrandList(Lists.newArrayList(brandList.getData().values()));
-            }
-
-        }
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
