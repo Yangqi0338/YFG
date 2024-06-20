@@ -1559,7 +1559,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 查询品类信息
         List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryBrandService.list(
                 new LambdaQueryWrapper<PatternLibraryBrand>()
-                        .eq(PatternLibraryBrand::getPatternLibraryId, patternLibraryIdList)
+                        .in(PatternLibraryBrand::getPatternLibraryId, patternLibraryIdList)
                         .eq(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap = new HashMap<>();
@@ -1569,7 +1569,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 查询版型库子表信息
         List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
                 new LambdaQueryWrapper<PatternLibraryItem>()
-                        .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryIdList)
+                        .in(PatternLibraryItem::getPatternLibraryId, patternLibraryIdList)
                         .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         Map<String, List<PatternLibraryItem>> patternLibraryItemMap = new HashMap<>();
