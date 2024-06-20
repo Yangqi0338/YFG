@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -528,8 +529,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*查询款式图*/
         stylePicUtils.setStylePic(completeStyleVos, "stylePic");
         stylePicUtils.setStyleColorPic2(completeStyleVos, "styleColorPic");
-        dataProcessing(completeStyleVos, super.getCompanyCode());
-        return ApiResult.success("查询成功", completeStyleVos.get(0));
+        if (CollUtil.isNotEmpty(completeStyleVos)) {
+            dataProcessing(completeStyleVos, super.getCompanyCode());
+            CompleteStyleVo detail = completeStyleVos.get(0);
+            List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getStyleCompanyCode(), detail.getSizeRange());
+            if (CollectionUtil.isNotEmpty(basicsdatumModelTypeList)) {
+                BasicsdatumModelType modelType = basicsdatumModelTypeList.get(0);
+                detail.setSizeRangeSizes(modelType.getSize());
+                detail.setSizeRangeSizeIds(modelType.getSizeIds());
+                detail.setSizeRangeSizeCodes(modelType.getSizeCode());
+                detail.setSizeRangeSizeRealCodes(modelType.getSizeRealCode());
+            }
+            return ApiResult.success("查询成功", detail);
+        }
+        return ApiResult.success("查询成功", null);
     }
 
     @NotNull

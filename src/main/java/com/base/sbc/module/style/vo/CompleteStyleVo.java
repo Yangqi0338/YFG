@@ -422,6 +422,25 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     private String registeringNo;
     @ApiModelProperty(value = "套版款号"  )
     private String serialStyleNo;
+    @ApiModelProperty(value = "尺码ids")
+    private String sizeIds;
+    /** 尺码codes */
+    @ApiModelProperty(value = "尺码codes"  )
+    private String sizeCodes;
+    /** 尺码真实codes */
+    @ApiModelProperty(value = "尺码真实codes"  )
+    private String sizeRealCodes;
+    @ApiModelProperty(value = "号型类型尺码")
+    private String sizeRangeSizes;
+
+    @ApiModelProperty(value = "号型类型尺码id")
+    private String sizeRangeSizeIds;
+
+    @ApiModelProperty(value = "号型类型尺码编码")
+    private String sizeRangeSizeCodes;
+
+    @ApiModelProperty(value = "号型类型尺码真实编码")
+    private String sizeRangeSizeRealCodes;
 
     /** 上新时间 */
     @ApiModelProperty(value = "上新时间"  )
@@ -619,4 +638,5 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
 
     @ApiModelProperty(value = "目标成本"  )
     private BigDecimal productCost;
+    protected String styleCompanyCode;
 }
