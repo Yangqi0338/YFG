@@ -262,7 +262,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser);
 
-    PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto);
+    PatternMakingCommonPageSearchVo sampleBoardList(PatternMakingCommonPageSearchDto dto);
 
     /**
      * 导出样衣看板

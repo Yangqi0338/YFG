@@ -18,6 +18,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.SeatMatchFlagEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -144,7 +145,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         if (StrUtil.isEmpty(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningSeason.class);
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
-            bean.setCreateDept(getVirtualDetpIds());
+            bean.setCreateDept(getVirtualDeptIds());
             save(bean);
             if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.ADD_PLANNING_SEASON_DEFAULT_INSERT_TEAM_SWITCH.getKeyCode())) {
                 amcFeignService.seasonSaveDefaultTeam(bean.getId());
@@ -278,9 +279,16 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         QueryWrapper qw = new QueryWrapper();
         qw.eq(StrUtil.isNotBlank(userCompany), "COMPANY_CODE", userCompany);
         qw.eq(StrUtil.isNotBlank(vo.getBrand()), "brand", vo.getBrand());
-        qw.eq(StrUtil.isNotBlank(vo.getYear()), "year", vo.getYear());
+
+        if (Constants.ONE_STR.equals(vo.getFutureStyleStatus())){
+            qw.in(StrUtil.isNotBlank(vo.getYear()), "year", Lists.newArrayList(vo.getYear(),"2099"));
+            qw.orderByAsc("name");
+        }else {
+            qw.eq(StrUtil.isNotBlank(vo.getYear()), "year", vo.getYear());
+            qw.orderByDesc("name");
+        }
         qw.eq("del_flag", BaseGlobal.NO);
-        qw.orderByDesc("name");
+
         dataPermissionsService.getDataPermissionsForQw(qw, businessType, "", new String[]{"brand"}, true);
         return getBaseMapper().getPlanningSeasonOptions(qw);
     }

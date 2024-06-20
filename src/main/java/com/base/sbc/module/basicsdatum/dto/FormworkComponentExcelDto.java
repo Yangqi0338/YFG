@@ -33,7 +33,9 @@ public class FormworkComponentExcelDto {
     private String description;
 
     /** 图片 */
-    @Excel(name = "图片",type = 2)
+    @Excel(name = "图片",imageType = 2,type = 2)
+    private byte[] picture1;
+
     private String picture;
 
     /**状态*/

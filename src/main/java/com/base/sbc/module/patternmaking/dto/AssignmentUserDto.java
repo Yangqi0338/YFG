@@ -46,4 +46,7 @@ public class AssignmentUserDto {
 
     @ApiModelProperty(value = "齐套原因")
     private String kittingReason;
+
+    @ApiModelProperty(value = "齐套原因名称")
+    private String kittingReasonName;
 }

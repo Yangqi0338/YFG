@@ -12,6 +12,9 @@ import javax.validation.constraints.NotNull;
 @ApiModel("启用停止 StartStopDto")
 public class StartStopDto {
 
+    @ApiModelProperty(name = "物料编码")
+    private String  materialCode;
+
     @ApiModelProperty(name = "编号", value = "多个编号加,",  required = true, dataType = "String", example = "11,22")
     @NotNull(message = "编号必填")
     private String ids;

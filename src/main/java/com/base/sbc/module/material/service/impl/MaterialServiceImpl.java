@@ -5,8 +5,10 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -20,11 +22,15 @@ import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.material.vo.MaterialChildren;
+import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：素材库 service实现类
@@ -63,6 +71,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private AmcService amcService;
 
 
     /**
@@ -96,6 +107,26 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
         }
 
+        //标签名称筛选条件
+        if (StringUtils.isNotEmpty(materialQueryDto.getLabelNames())) {
+            labelSet = new HashSet<>();
+            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(StringUtils.convertList(materialQueryDto.getLabelNames()));
+            for (MaterialLabel materialLabel : materialLabels) {
+                labelSet.add(materialLabel.getMaterialId());
+            }
+        }
+
+        //标签名称模糊筛选条件
+        if (StringUtils.isNotEmpty(materialQueryDto.getContent())) {
+            List<MaterialLabel> materialLabels = materialLabelService.getLikeLabelNames(materialQueryDto.getContent());
+            if (CollUtil.isNotEmpty(materialLabels)){
+                labelSet = new HashSet<>();
+                for (MaterialLabel materialLabel : materialLabels) {
+                    labelSet.add(materialLabel.getMaterialId());
+                }
+            }
+        }
+
         //尺码筛选条件
         if (!StringUtils.isEmpty(materialQueryDto.getSizeId())) {
             sizeSet = new HashSet<>();
@@ -125,6 +156,15 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
             materialQueryDto.setIds(new ArrayList<>(ids));
         }
+
+        if (StringUtils.isNotEmpty(materialQueryDto.getPatternTypes())){
+            materialQueryDto.setPatternTypeList(StringUtils.convertList(materialQueryDto.getPatternTypes()));
+        }
+
+        if (StringUtils.isNotEmpty(materialQueryDto.getMaterialNames())){
+            materialQueryDto.setMaterialNameList(StringUtils.convertList(materialQueryDto.getMaterialNames()));
+        }
+
     }
 
     /**
@@ -138,8 +178,15 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
-
         PageHelper.startPage(materialQueryDto);
+        if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
+            //获取用户组的品牌权限列表
+            ApiResult<Map<String,String>> brandList = amcService.getByUserDataPermissionsAll("materialLibrary", "read",companyUserInfo.get().getUserId(),"brand");
+            if (Objects.nonNull(brandList.getData())){
+                materialQueryDto.setBrandList(Lists.newArrayList(brandList.getData().values()));
+            }
+
+        }
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
@@ -229,8 +276,8 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
 
             //审核通过
-            material.setStatus("2");
-            String[] split = Pinyin4jUtil.converterToFirstSpell(material.getBrandName()).split(",");
+            material.setStatus("4");
+            String[] split = Pinyin4jUtil.converterToFirstSpell(material.getMaterialBrandName()).split(",");
             String time = String.valueOf(System.currentTimeMillis());
             String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
             material.setMaterialCode(materialCode);
@@ -313,6 +360,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
             materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+            materialSaveDto.setPicUrl(CommonUtils.removeQuery(materialSaveDto.getPicUrl()));
             this.updateById(materialSaveDto);
         }
 
@@ -359,9 +407,33 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
                 result.put(key,r);
             }
             materialList.add(BeanUtil.copyProperties(material,MaterialVo.class));
+            minioUtils.setObjectUrlToList(materialList, "picUrl");
         }
         List<AssociationMaterialVo> collect = result.values().stream().collect(Collectors.toList());
 
         return collect;
+    }
+
+    @Override
+    public List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds) {
+        List<MaterialLinkageVo> list = Lists.newArrayList();
+        //素材标签相关
+        List<String> materialCategoryIdList = StringUtils.convertList(materialCategoryIds);
+        List<MaterialChildren> labelList = materialLabelService.linkageQuery(search,materialCategoryIdList);
+        if (CollUtil.isNotEmpty(labelList)){
+            MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
+            materialLinkageVo.setChildren(labelList);
+            materialLinkageVo.setGroup("标签名称");
+            list.add(materialLinkageVo);
+        }
+        // 素材名称相关
+        List<MaterialChildren> materialNameList = this.getBaseMapper().linkageQueryName(search,materialCategoryIdList);
+        if (CollUtil.isNotEmpty(materialNameList)){
+            MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
+            materialLinkageVo.setChildren(materialNameList);
+            materialLinkageVo.setGroup("素材名称");
+            list.add(materialLinkageVo);
+        }
+        return list;
     }
 }

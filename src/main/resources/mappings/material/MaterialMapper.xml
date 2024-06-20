@@ -33,7 +33,7 @@
             and file_info like concat('%',#{fileInfo},'%')
         </if>
         <if test="search != null and search != ''">
-            and file_info like concat('%',#{search},'%')
+            and (file_info like concat('%',#{search},'%') or remarks like concat('%',#{search},'%') )
         </if>
         <if test="categoryId != null and categoryId != ''">
             and category_id = #{categoryId}
@@ -53,6 +53,66 @@
         <if test="createId != null and createId != ''">
             and tm.create_id = #{createId}
         </if>
+        <if test="occasionCode != null and occasionCode != ''">
+            and occasion_code = #{occasionCode}
+        </if>
+        <if test="colorMatchCode != null and colorMatchCode != ''">
+            and color_match_code = #{colorMatchCode}
+        </if>
+        <if test="useSkill != null and useSkill != ''">
+            and use_skill = #{useSkill}
+        </if>
+        <if test="patternTypeList != null and patternTypeList.length > 0">
+
+            <foreach collection="patternTypeList" open="(" separator="," item="patternType" close=")">
+                and FIND_IN_SET(#{patternType}, pattern_types)
+            </foreach>
+
+        </if>
+        <if test="materialNameList != null and materialNameList.size > 0">
+            and tm.material_name in
+            <foreach collection="materialNameList" item="materialName" separator="," open="(" close=")">
+                #{materialName}
+            </foreach>
+        </if>
+        <if test="companyFlag != null and companyFlag != ''">
+            and company_flag = #{companyFlag}
+        </if>
+        <if test="materialRemarks != null and materialRemarks != ''">
+            and material_remarks like concat('%',#{materialRemarks},'%')
+        </if>
+        <if test="enableFlag != null and enableFlag != ''">
+            and enable_flag = #{enableFlag}
+        </if>
+        <if test="content != null and content != ''">
+            and tm.material_name like concat('%',#{content},'%')
+        </if>
+
+        <if test="brandList != null and brandList.size > 0">
+            and
+            <foreach collection="brandList" item="brand" separator=" or " open="(" close=")">
+                 FIND_IN_SET(#{brand},brand)
+            </foreach>
+        </if>
+
         order by create_date desc
+    </select>
+
+
+    <select id="linkageQueryName" resultType="com.base.sbc.module.material.vo.MaterialChildren">
+        select
+        material_name as label , material_name as 'value'
+        from t_material tm
+        where
+        tm.del_flag = '0'
+        and material_name like  concat('%',#{search},'%')
+        <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+            and tm.status = '2'
+            and tm.material_category_id  in
+            <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by material_name
     </select>
 </mapper>

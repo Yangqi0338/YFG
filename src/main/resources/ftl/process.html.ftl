@@ -1366,5 +1366,96 @@
         </#if>
     </#if>
 </#if>
+
+<!--   注意事项 8-->
+<#if zysxTextShow>
+    <#if zysxDataList?size gt 0>
+        <#assign lastIndex = zysxDataList?size - 1>
+        <#assign totalSize = zysxDataList[lastIndex].rows + zysxDataList?size - 1>
+        <#assign maxSize = 21>
+
+        <!--    基础工艺 4 3-->
+        <#assign breakPointer = 0 >
+        <table class="table_border mt" style="page-break-inside: auto;">
+            <thead>
+            <tr>
+                <th colspan="2" class="th_title">
+                    <p>注意事项</p>
+                    <hr>
+                </th>
+            </tr>
+            <tr>
+                <th class="gb item_th">工艺项目</th>
+                <th class="gb">描述</th>
+            </tr>
+            </thead>
+            <tbody>
+            <#if zysxDataList??>
+                <#list zysxDataList as item>
+                    <#assign curRows = (item.numberRows+zysxDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (zysxDataList?last.rows - zysxDataList?last.numberRows))>
+                    <#if curRows lt maxSize>
+                        <tr>
+                            <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                            <td>
+                                ${item.content}
+                            </td>
+                        </tr>
+                        <#assign breakPointer = item_index >
+                    </#if>
+                </#list>
+            </#if>
+            </tbody>
+            <#if breakPointer+1 gte zysxDataList?size>
+                <tfoot>
+                <tr>
+                    <td colspan="3" style="height: 32px;">注意事项-${zysxDataList?size}</td>
+                </tr>
+                </tfoot>
+            </#if>
+        </table>
+
+        <#if breakPointer gt 0 && breakPointer+1 lt zysxDataList?size>
+        <#--            <#assign lastItem = wfgyDataList[breakPointer+1]>-->
+        <#--            &lt;#&ndash;总行数减去有数字的行数 = 不存在数字的行数&ndash;&gt;-->
+        <#--            <#assign hasPageBreak = ((lastItem.numberRows+wfgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))) gt 21>-->
+        <#--            <#if hasPageBreak>-->
+            <table class="table_border mt" style="page-break-before: always;">
+                <thead>
+                <tr>
+                    <th colspan="2" class="th_title">
+                        <p>注意事项</p>
+                        <hr>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="gb item_th">工艺项目</th>
+                    <th class="gb">描述</th>
+                </tr>
+                </thead>
+                <tbody>
+                <#if zysxDataList??>
+                    <#list zysxDataList as item>
+                        <#assign curRows = (item.numberRows+zysxDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (zysxDataList?last.rows - zysxDataList?last.numberRows))>
+                        <#if curRows gt maxSize || curRows == maxSize>
+                            <tr>
+                                <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                                <td>
+                                    ${item.content}
+                                </td>
+                            </tr>
+                        </#if>
+                    </#list>
+                </#if>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="3" style="height: 32px;">工艺项目-${zysxDataList?size}</td>
+                </tr>
+                </tfoot>
+            </table>
+        <#--            </#if>-->
+        </#if>
+    </#if>
+</#if>
 </body>
 </html>

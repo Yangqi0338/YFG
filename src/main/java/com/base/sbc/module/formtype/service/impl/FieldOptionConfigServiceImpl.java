@@ -113,14 +113,18 @@ public class FieldOptionConfigServiceImpl extends BaseServiceImpl<FieldOptionCon
      */
     @Override
     public Map<String, List<FieldOptionConfig>> getFieldConfig(QueryFieldOptionConfigDto queryFieldOptionConfigDto) {
-        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        BaseQueryWrapper<FieldOptionConfig> queryWrapper = new BaseQueryWrapper();
         queryWrapper.in("field_management_id", queryFieldOptionConfigDto.getFieldManagementIdList());
 
-        queryWrapper.eq("season", queryFieldOptionConfigDto.getSeason());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getProdCategory2nd()), "prod_category2nd", queryFieldOptionConfigDto.getProdCategory2nd());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getCategoryCode()), "category_code", queryFieldOptionConfigDto.getCategoryCode());
+        queryWrapper.and(wrapper -> wrapper.eq("season", queryFieldOptionConfigDto.getSeason()).or().isNull("season").or().eq("season",""));
+        if(StringUtils.isNotBlank(queryFieldOptionConfigDto.getProdCategory2nd())){
+            queryWrapper.and(wrapper -> wrapper.eq("prod_category2nd", queryFieldOptionConfigDto.getProdCategory2nd()).or().isNull("prod_category2nd").or().eq("prod_category2nd",""));
+        }
+        if(StringUtils.isNotBlank(queryFieldOptionConfigDto.getCategoryCode())){
+            queryWrapper.and(wrapper -> wrapper.eq("category_code", queryFieldOptionConfigDto.getCategoryCode()).or().isNull("category_code").or().eq("category_code",""));
+        }
 
-        queryWrapper.apply("find_in_set({0},brand)", queryFieldOptionConfigDto.getBrand());
+        queryWrapper.and(wrapper -> wrapper.eq("brand", queryFieldOptionConfigDto.getBrand()).or().isNull("brand").or().eq("brand",""));
         List<FieldOptionConfig> optionConfigList = baseMapper.selectList(queryWrapper);
         /*查询字段配置中的数据*/
         Map<String, List<FieldOptionConfig>> listMap = optionConfigList.stream().collect(Collectors.groupingBy(FieldOptionConfig::getFieldManagementId));

@@ -83,7 +83,6 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
         try {
             MybatisSqlSessionFactoryBean sessionFactoryBean = new MybatisSqlSessionFactoryBean();
             sessionFactoryBean.setDataSource(dataSource);
-
             // 读取配置
             sessionFactoryBean.setTypeAliasesPackage(typeAliasesPackage);
 

@@ -5,6 +5,7 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.mapper.MaterialLabelMapper;
 import com.base.sbc.module.material.service.MaterialLabelService;
+import com.base.sbc.module.material.vo.MaterialChildren;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,6 +37,25 @@ public class MaterialLabelServiceImpl extends BaseServiceImpl<MaterialLabelMappe
     public List<MaterialLabel> getByLabelIds(List<String> labelId){
         QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
         queryWrapper.in("label_id",labelId);
+        return materialLabelMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds) {
+        return this.getBaseMapper().linkageQuery(search, materialCategoryIds);
+    }
+
+    @Override
+    public List<MaterialLabel> getByLabelNames(List<String> labelNames) {
+        QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
+        queryWrapper.in("label_name",labelNames);
+        return materialLabelMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<MaterialLabel> getLikeLabelNames(String labelName) {
+        QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
+        queryWrapper.like("label_name",labelName);
         return materialLabelMapper.selectList(queryWrapper);
     }
 }

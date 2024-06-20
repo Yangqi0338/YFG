@@ -26,6 +26,7 @@
         ts.registering_no,
         ts.plate_positioning as patternPositioningCode,
         ts.plate_positioning_name as patternPositioningName,
+        ts.serial_style_no as registeringNo,
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
@@ -111,6 +112,13 @@
         </if>
         <if test="dto.styleCategory != null and dto.styleCategory != ''">
             AND tfv.field_name = #{dto.styleCategory}
+        </if>
+    </select>
+    <select id="getByStyleNoTotalProductionList" resultType="java.lang.String">
+        select sum(total_production)  from t_order_book_detail tobd left join  t_style_color tsc on tobd.style_color_id = tsc.id
+        where tobd.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
 </mapper>
