@@ -35,6 +35,9 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "素材分类名称")
     private String materialCategoryName;
 
+    @ApiModelProperty(value = "素材分类Code")
+    private String materialCategoryCode;
+
     @ApiModelProperty(value = "素材细分类")
     private String materialSubcategory;
 
@@ -182,5 +185,11 @@ public class Material extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "素材描述")
     private String materialRemarks;
+
+    @ApiModelProperty(value = "所属的文件夹id")
+    private String folderId;
+
+    @ApiModelProperty(value = "图片文件大小")
+    private Long fileSize;
 
 }

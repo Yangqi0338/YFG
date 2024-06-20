@@ -62,7 +62,7 @@
         <if test="useSkill != null and useSkill != ''">
             and use_skill = #{useSkill}
         </if>
-        <if test="patternTypeList != null and patternTypeList.length > 0">
+        <if test="patternTypeList != null and patternTypeList.size > 0">
 
             <foreach collection="patternTypeList" open="(" separator="," item="patternType" close=")">
                 and FIND_IN_SET(#{patternType}, pattern_types)
@@ -95,6 +95,15 @@
             </foreach>
         </if>
 
+        <if test="sql != null and sql != ''">
+            #{sql}
+        </if>
+        <if test="folderIdList != null and folderIdList.size > 0">
+            and folder_id in
+            <foreach collection="folderIdList" open="(" separator="," item="item" close=")">
+                #{item}
+            </foreach>
+        </if>
         order by create_date desc
     </select>
 
@@ -114,5 +123,20 @@
             </foreach>
         </if>
         group by material_name
+    </select>
+
+
+    <select id="getFileSize" resultType="java.lang.Long">
+        select
+        sum(file_size)
+        from t_material tm
+        where
+        tm.del_flag = '0' and create_id = #{userId}
+        <if test="folderIds != null and folderIds.size > 0">
+            and tm.folder_id  in
+            <foreach collection="folderIds" item="folderId" separator="," open="(" close=")">
+                #{folderId}
+            </foreach>
+        </if>
     </select>
 </mapper>

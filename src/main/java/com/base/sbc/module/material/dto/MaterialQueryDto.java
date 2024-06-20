@@ -102,4 +102,12 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "公司品牌权限列表")
     private List<String> brandList;
+
+    @ApiModelProperty(value = "所属的文件夹id")
+    private String folderId;
+
+    @ApiModelProperty(value = "所属的文件夹id")
+    private List<String> folderIdList;
+
+
 }

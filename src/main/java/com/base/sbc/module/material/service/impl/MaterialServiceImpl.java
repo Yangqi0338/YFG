@@ -165,6 +165,10 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             materialQueryDto.setMaterialNameList(StringUtils.convertList(materialQueryDto.getMaterialNames()));
         }
 
+        if (StringUtils.isNotEmpty(materialQueryDto.getFolderId())){
+            materialQueryDto.setFolderIdList(StringUtils.convertList(materialQueryDto.getFolderId()));
+        }
+
         //品牌
         if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
             //获取用户组的品牌权限列表
@@ -437,5 +441,39 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             list.add(materialLinkageVo);
         }
         return list;
+    }
+
+    @Override
+    public boolean checkFolderRelation(List<String> folderIds) {
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getFolderId, folderIds);
+        qw.lambda().eq(Material::getDelFlag, "0");
+        return count(qw) > 0;
+    }
+
+    @Override
+    public long getFileCount(String userId,List<String> folderIds) {
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getFolderId, folderIds);
+        qw.lambda().eq(Material::getCreateId,userId);
+        return count(qw);
+    }
+
+    @Override
+    public String getFileSize(String userId, List<String> folderIds) {
+        Long fileSize = baseMapper.getFileSize(userId,folderIds);
+        if (fileSize == null){
+            return "0";
+        }
+        return fileSize.toString();
+
+//        if (fileSize > 1073741824){
+//            return Math.ceil((double) fileSize / 1073741824) + "GB";
+//        }
+//
+//        if (fileSize > 1048576){
+//            return Math.ceil((double) fileSize / 1048576) + "MB";
+//        }
+//        return Math.ceil((double) fileSize / 1024) + "KB";
     }
 }

@@ -24,4 +24,6 @@ public interface MaterialMapper extends BaseMapper<Material> {
     List<MaterialVo> listQuery(MaterialQueryDto materialQueryDto);
 
     List<MaterialChildren> linkageQueryName(@Param("search") String search, @Param("materialCategoryIds") List<String> materialCategoryIds);
+
+    Long getFileSize(@Param("userId") String userId ,@Param("folderIds") List<String> folderIds);
 }
