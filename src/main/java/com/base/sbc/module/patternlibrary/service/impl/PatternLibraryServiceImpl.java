@@ -744,7 +744,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     @Override
-    @DuplicationCheck(type = 1, message = "请勿重复导入")
     @Transactional(rollbackFor = Exception.class)
     public Boolean excelImport(MultipartFile file) {
         if (ObjectUtil.isEmpty(file)) {
