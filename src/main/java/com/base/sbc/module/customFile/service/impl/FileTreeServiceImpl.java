@@ -81,9 +81,10 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
 
     @Override
     public List<FileTree> queryFileTree(FileTreeDto fileTreeDto) {
+        String userId = companyUserInfo.get().getUserId();
         QueryWrapper<FileTree> qw = new QueryWrapper<>();
         qw.lambda().eq(FileTree::getParentId,fileTreeDto.getParentId());
-        qw.lambda().eq(FileTree::getCreateId,companyUserInfo.get().getUserId());
+        qw.lambda().in(FileTree::getCreateId,Lists.newArrayList("0",userId));
         List<FileTree> list = list(qw);
         if (CollUtil.isEmpty(list)){
             return list;
