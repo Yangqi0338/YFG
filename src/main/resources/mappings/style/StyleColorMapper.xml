@@ -263,7 +263,7 @@
         ts.design_no designNo,
         ts.old_design_no,
         ts.style_unit,
-        ts.style_unit_name,
+        ts.style_unit_code,
         ts.dev_class,
         ts.dev_class_name,
         ts.prod_category1st,
