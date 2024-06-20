@@ -306,6 +306,8 @@
         ts.revised_design_id,
         ts.revised_design_name,
         ts.company_code styleCompanyCode,
+        ts.pattern_parts,
+        ts.pattern_parts_pic,
         tsp.control_confirm,
         tsp.product_hangtag_confirm,
         tsp.control_hangtag_confirm,

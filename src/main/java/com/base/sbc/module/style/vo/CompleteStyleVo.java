@@ -552,6 +552,10 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      * 维度系数动态字段
      */
     private Map<String, String> fieldValMap;
+    @ApiModelProperty(value = "模板部件")
+    private String patternParts;
+    @ApiModelProperty(value = "模板部件图片")
+    private String patternPartsPic;
 
     /**
      * 核价信息
