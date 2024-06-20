@@ -278,8 +278,7 @@
     </select>
     <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
         SELECT
-        s.design_no,
-        s.id
+        s.*
         FROM t_style s
         <where>
             <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

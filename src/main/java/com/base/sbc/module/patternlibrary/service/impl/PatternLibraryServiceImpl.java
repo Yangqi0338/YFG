@@ -244,7 +244,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         if (ObjectUtil.isNotEmpty(patternLibraryId)) {
             oldPatternLibrary = getById(patternLibraryId);
             if (!(oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
-                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
+                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode())
+                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))) {
                 throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
             }
 
