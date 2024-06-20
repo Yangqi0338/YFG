@@ -308,6 +308,8 @@
         ts.company_code styleCompanyCode,
         ts.pattern_parts,
         ts.pattern_parts_pic,
+        ts.start_time,
+        ts.end_time,
         tsp.control_confirm,
         tsp.product_hangtag_confirm,
         tsp.control_hangtag_confirm,

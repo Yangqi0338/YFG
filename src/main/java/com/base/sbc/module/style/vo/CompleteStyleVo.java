@@ -501,6 +501,14 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date startTime;
+    /** 截止时间 */
+    @ApiModelProperty(value = "截止时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date endTime;
 
     public String   getAccessory(){
         return getAccessory1();
