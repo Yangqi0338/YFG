@@ -428,7 +428,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     public boolean checkFolderRelation(List<String> folderIds) {
         QueryWrapper<Material> qw = new QueryWrapper<>();
         qw.lambda().in(Material::getFolderId, folderIds);
-        qw.lambda().in(Material::getDelFlag, "0");
+        qw.lambda().eq(Material::getDelFlag, "0");
         return count(qw) > 0;
     }
 
