@@ -428,6 +428,19 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date newDate;
 
+    @ApiModelProperty(value = "实际出稿时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date actualPublicationDate;
+    @ApiModelProperty(value = "审版设计师id"  )
+    private String reviewedDesignId;
+    @ApiModelProperty(value = "改版设计师id"  )
+    private String revisedDesignId;
+    /** 改版设计师 */
+    @ApiModelProperty(value = "改版设计师"  )
+    private String revisedDesignName;
+    /** 审版设计师 */
+    @ApiModelProperty(value = "审版设计师"  )
+    private String reviewedDesignName;
     /** 下稿设计师 */
     @ApiModelProperty(value = "下稿设计师"  )
     private String  senderDesignerId;
@@ -436,15 +449,9 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "下稿设计师名称"  )
     private String  senderDesignerName;
 
-    /**
-     * 备注
-     */
     @ApiModelProperty(value = "备注")
     private String remarks;
 
-    /**
-     * 下单标记（0否 1是）
-     */
     @ApiModelProperty(value = "下单标记（0否 1是）")
     private String orderFlag;
 
