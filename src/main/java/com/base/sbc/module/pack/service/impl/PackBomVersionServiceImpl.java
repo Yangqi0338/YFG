@@ -23,7 +23,6 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -650,6 +649,21 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             });
             throw new OtherException("未填写:" + CollUtil.join(errorMessage, StrUtil.COMMA));
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean reverseApproval(String id) {
+        PackBomVersion version = getById(id);
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(version.getForeignId(), version.getPackType());
+        version.setConfirmStatus("0");
+        packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.NO);
+        packInfoStatus.setBulkOrderClerkConfirmDate(null);
+        /*审核通过锁定状态*/
+        version.setLockFlag(BaseGlobal.STATUS_NORMAL);
+        packInfoStatusService.updateById(packInfoStatus);
+        updateById(version);
+        return true;
     }
 
 

@@ -321,4 +321,11 @@ public class PackBomController extends BaseController{
         return packBomService.renovatePackBom(dto.getId());
     }
 
+
+    @ApiOperation(value = "版本反审")
+    @GetMapping("/version/reverseApproval")
+    public boolean reverseApproval(@Valid IdDto ids) {
+        return packBomVersionService.reverseApproval(ids.getId());
+    }
+
 }
