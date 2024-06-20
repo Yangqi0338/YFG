@@ -108,8 +108,7 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         if (StringUtils.isEmpty(id)){
             return true;
         }
-        List<String> ids = Lists.newArrayList();
-
+        List<String> ids = StringUtils.convertList(id);
         QueryWrapper<FileTree> qw = new QueryWrapper<>();
         qw.lambda().in(FileTree::getId, ids);
         qw.lambda().eq(FileTree::getType,"0");
