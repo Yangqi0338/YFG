@@ -169,6 +169,19 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "颜色库编码"  )
     private String colorCode;
 
+    /*色系*/
+    private String colorType;
+    /*色系名称*/
+    private String colorTypeName;
+    /*色度*/
+    private String chroma;
+    private String chromaName;
+
+    /*颜色图片*/
+    private String colorPicture;
+    /*16进制图片*/
+    private String color16;
+
     /*BOM阶段*/
     @ApiModelProperty(value = "BOM阶段"  )
     private String bomStatus;

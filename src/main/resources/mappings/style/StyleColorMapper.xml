@@ -316,13 +316,20 @@
         ts.devt_type as devtType,
         ts.devt_type_name as devtTypeName,
         concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode,
-        tpp.calc_item_val as calcItemVal
+        tpp.calc_item_val as calcItemVal,
+        tbcl.color_type,
+        tbcl.color_type_name,
+        tbcl.chroma,
+        tbcl.chroma_name,
+        tbcl.picture colorPicture,
+        tbcl.color16
         FROM
         t_style_color tsc
         LEFT JOIN t_style ts ON (ts.id = tsc.style_id AND ts.del_flag = '0' )
         LEFT JOIN t_pack_info tpi ON (tpi.style_color_id = tsc.id AND tpi.del_flag = '0' )
         LEFT JOIN t_style_pricing tsp ON (tsp.pack_id = tpi.id AND tpi.del_flag = '0' )
         LEFT JOIN t_pack_pricing AS tpp ON ( tpp.foreign_id = tpi.id AND tpp.del_flag = '0' AND tpp.pack_type = 'packBigGoods')
+        LEFT JOIN t_basicsdatum_colour_library tbcl on (tbcl.id = tsc.colour_library_id and tbcl.del_flag = '0')
         LEFT JOIN (SELECT style_color_id ,GROUP_CONCAT(style_no) style_no  ,GROUP_CONCAT(color_name) color_name ,is_trim FROM t_style_main_accessories WHERE del_flag='0' GROUP BY style_color_id)  tsma on (tsma.style_color_id = tsc.id )
         LEFT JOIN t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
         ${ew.customSqlSegment}
