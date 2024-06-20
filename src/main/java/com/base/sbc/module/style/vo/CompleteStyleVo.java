@@ -63,21 +63,20 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
-    /*
-        设计款号
-        */
     @ApiModelProperty(value = "设计款号"  )
-    private String   designNo;
+    private String designNo;
 
-    /*
-     大类编码
-     */
+    @ApiModelProperty(value = "旧设计款号"  )
+    private String oldDesignNo;
+    /** 款式单位名称 */
+    @ApiModelProperty(value = "款式单位名称"  )
+    private String styleUnit;
+    /** 款式单位编码 */
+    @ApiModelProperty(value = "款式单位编码"  )
+    private String styleUnitCode;
     @ApiModelProperty(value = "大类编码"  )
     private String  prodCategory1st;
 
-    /*
-   大类编码
-   */
     @ApiModelProperty(value = "大类编码"  )
     private String  prodCategory1stName;
 
@@ -86,12 +85,12 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
 
     @ApiModelProperty(value = "中类"  )
     private String prodCategory2nd;
-
-    @ApiModelProperty(value = "小类编码")
-    private String prodCategory3nd;
-
-    @ApiModelProperty(value = "小类")
-    private String prodCategory3ndName;
+    /** 小类code */
+    @ApiModelProperty(value = "小类code"  )
+    private String prodCategory3rd;
+    /** 小类名称 */
+    @ApiModelProperty(value = "小类名称"  )
+    private String prodCategory3rdName;
     /**
      * 品类编码
      */
@@ -120,7 +119,17 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     /** 季节名称 */
     @ApiModelProperty(value = "季节名称"  )
     private String seasonName;
-
+    @ApiModelProperty(value = "月份"  )
+    private String month;
+    /** 月份名称 */
+    @ApiModelProperty(value = "月份名称"  )
+    private String monthName;
+    /** 开发分类 */
+    @ApiModelProperty(value = "开发分类"  )
+    private String devClass;
+    /** 开发分类名称 */
+    @ApiModelProperty(value = "开发分类名称"  )
+    private String devClassName;
     /**
      * 历史款
      */
@@ -203,6 +212,8 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     /** 波段 */
     @ApiModelProperty(value = "波段"  )
     private String bandName;
+    @ApiModelProperty(value = "Default尺码"  )
+    private String defaultSize;
 
     /** 设计师id */
     @ApiModelProperty(value = "设计师i"  )
@@ -402,7 +413,8 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     /** 是否报次款0否 1是 */
     @ApiModelProperty(value = "是否报次款0否 1是"  )
     private String isDefective;
-
+    @ApiModelProperty(value = "版型定位"  )
+    private String platePositioning;
     @ApiModelProperty(value = "版型定位名称"  )
     private String platePositioningName;
 
@@ -455,9 +467,8 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      * 工艺师
      */
     private String technologistName;
-    /**
-     * 打版难度名称
-     */
+    @ApiModelProperty(value = "打版难度")
+    private String patDiff;
     @ApiModelProperty(value = "打版难度名称")
     private String patDiffName;
     /**
@@ -598,4 +609,7 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
      */
     @ApiModelProperty(value = "计控实际成本")
     private BigDecimal controlPlanCost;
+
+    @ApiModelProperty(value = "目标成本"  )
+    private BigDecimal productCost;
 }
