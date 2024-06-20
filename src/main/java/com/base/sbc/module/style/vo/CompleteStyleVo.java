@@ -317,7 +317,7 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
 
     /** 吊牌价 */
     @ApiModelProperty(value = "吊牌价"  )
-    private String tagPrice;
+    private BigDecimal tagPrice;
 
     /** 产品风格 */
     @ApiModelProperty(value = "产品风格"  )
@@ -633,11 +633,12 @@ public class CompleteStyleVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "计控实际成本")
     @Excel(name = "计控实际成本", numFormat = "#.###",type = 10,orderNum = "21")
     private BigDecimal planCost;
+    @ApiModelProperty(value = "实际倍率")
+    @Excel(name = "实际倍率",orderNum = "28")
+    private BigDecimal actualMagnification;
 
-    /**
-     * 计控实际成本
-     */
     @ApiModelProperty(value = "计控实际成本")
+    @Excel(name = "计控实际成本", numFormat = "#.###",type = 10,orderNum = "21")
     private BigDecimal controlPlanCost;
 
     @ApiModelProperty(value = "目标成本"  )

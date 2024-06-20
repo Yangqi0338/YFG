@@ -478,10 +478,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         //目前逻辑修改为取计控实际成本取总成本
                         styleVO.setPlanCost(styleVO.getTotalCost());
                     }
-                    /*//计控实际倍率 = 吊牌价/计控实际成本
-                    stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
+                    //计控实际倍率 = 吊牌价/计控实际成本
+                    //stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
                     //实际倍率 = 吊牌价/总成本
-                    stylePricingVO.setActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));*/
+                    styleVO.setActualMagnification(BigDecimalUtil.div(styleVO.getTagPrice(), styleVO.getTotalCost(), 2));
+
                     //每次减一
                     countDownLatch.countDown();
                 });
