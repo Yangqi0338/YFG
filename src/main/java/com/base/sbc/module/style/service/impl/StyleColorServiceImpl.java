@@ -533,7 +533,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             dataProcessing(completeStyleVos, super.getCompanyCode());
             CompleteStyleVo detail = completeStyleVos.get(0);
             List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getStyleCompanyCode(), detail.getSizeRange());
-            if (CollectionUtil.isNotEmpty(basicsdatumModelTypeList)) {
+            if (CollUtil.isNotEmpty(basicsdatumModelTypeList)) {
                 BasicsdatumModelType modelType = basicsdatumModelTypeList.get(0);
                 detail.setSizeRangeSizes(modelType.getSize());
                 detail.setSizeRangeSizeIds(modelType.getSizeIds());
