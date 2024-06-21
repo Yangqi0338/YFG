@@ -49,7 +49,7 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
 
     @Override
     public List<FieldVal> list(List<String> foreignIds, String dataGroup) {
-        if (StrUtil.isNotEmpty(dataGroup) && CollUtil.isNotEmpty(foreignIds)) {
+        if (StrUtil.isEmpty(dataGroup) || CollUtil.isEmpty(foreignIds)) {
             return new ArrayList<>();
         }
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
