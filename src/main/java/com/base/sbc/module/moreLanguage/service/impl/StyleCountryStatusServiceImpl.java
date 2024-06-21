@@ -470,26 +470,26 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         boolean updateBatch = this.saveOrUpdateBatch(statusList);
 
         if (needUpdateHangTag) {
-            statusList.stream().collect(Collectors.groupingBy((it)-> Pair.of(it.getStatus(), it.getType()))).forEach((keyPair,sameKeyList)-> {
+            statusList.stream().collect(Collectors.groupingBy(StyleCountryStatus::getStatus)).forEach((countryStatus, sameKeyList)-> {
                 // 可能存在未处理的状态,需要筛选
-                List<String> rightBulkStyleNoList = statusList.stream().map(bulkStyleNoFunc).collect(Collectors.toList());
+                List<String> rightBulkStyleNoList = sameKeyList.stream().map(bulkStyleNoFunc).collect(Collectors.toList());
                 hangTagList.stream()
                         .filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo()))
                         .map(hangTag-> {
                             long styleCountryStatusCount = this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
                                     .eq(bulkStyleNoFunc, hangTag.getBulkStyleNo())
                                     .eq(statusFunc, StyleCountryStatusEnum.CHECK));
-                            HangTagStatusEnum status = styleCountryStatusCount == 0 ? HangTagStatusEnum.TRANSLATE_CHECK : HangTagStatusEnum.PART_TRANSLATE_CHECK;
-                            if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
-                                if (styleCountryStatusCount >= (size * CountryLanguageType.values().length)
-                                ) {
-                                    status = HangTagStatusEnum.FINISH;
-                                }
+                            HangTagStatusEnum status;
+                            if (styleCountryStatusCount == 0) {
+                                status = HangTagStatusEnum.TRANSLATE_CHECK;
+                            }else if (styleCountryStatusCount >= (size * CountryLanguageType.values().length)) {
+                                status = HangTagStatusEnum.FINISH;
+                            }else {
+                                status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
                             }
-
-                            if (hangTag.getStatus() == status) return null;
                             return Pair.of(status, hangTag);
-                        }).filter(Objects::nonNull)
+                        })
+                        .filter(it-> it.getKey() != it.getValue().getStatus())
                         .collect(CommonUtils.groupingBy(Pair::getKey, Pair::getValue))
                         .forEach((status,sameStatusHangTagList)-> {
                             // 直接调用吊牌更新接口, 将吊牌状态修改为完成
@@ -497,8 +497,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
                             statusDTO.setStatus(status);
                             statusDTO.setCountryCode(codeList);
-                            statusDTO.setCountryStatus(keyPair.getKey());
-                            statusDTO.setType(keyPair.getValue());
+                            statusDTO.setCountryStatus(countryStatus);
                             // 设置为translate_check 打破循环
                             if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
                                 sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
