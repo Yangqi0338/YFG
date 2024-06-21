@@ -2,6 +2,8 @@ package com.base.sbc.module.common.convert;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.constant.SmpProperties;
+import com.base.sbc.config.constant.UrlConfig;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
 import org.mapstruct.Mapper;

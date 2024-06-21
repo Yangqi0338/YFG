@@ -1358,7 +1358,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }else {
             PushRecordsDto pushRecordsDto = new PushRecordsDto();
             pushRecordsDto.setRelatedId(list.stream().map(relatedIdFunc).collect(Collectors.joining(",")));
-            pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
+            pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL.toString());
             pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
             pushRecordsDto.setUpdateDate(new String[]{ LocalDateTime.now().minusMinutes(15).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) });
             pushRecordsDto.reset2QueryList();
