@@ -9,7 +9,6 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
-import com.aliyun.oss.internal.ResponseParsers;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -21,7 +20,6 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -36,16 +34,19 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.*;
-import com.base.sbc.module.patternlibrary.entity.*;
+import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryBrand;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.listener.PatterLibraryListener;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
-import com.base.sbc.module.patternlibrary.mapper.PatternLibraryTemplateMapper;
-import com.base.sbc.module.patternlibrary.service.*;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryBrandService;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryItemService;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
 import com.base.sbc.module.patternlibrary.vo.*;
-import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
-import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
@@ -54,13 +55,10 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,13 +95,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     private PatternLibraryItemService patternLibraryItemService;
 
     @Autowired
-    private PatternLibraryTemplateMapper patternLibraryTemplateMapper;
-
-    @Autowired
     private PatternLibraryTemplateService patternLibraryTemplateService;
-
-    @Autowired
-    private PatternLibraryTemplateItemService patternLibraryTemplateItemService;
 
     @Autowired
     private StyleService styleService;
@@ -201,30 +193,25 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         .stream()
                         .collect(Collectors.groupingBy(PatternLibraryItem::getPatternLibraryId));
             }
-
-            // *************** 查询模板数据 ****************
-            // 拿到分页后的模板 code 集合
-            List<String> templateCodeList = patternLibraryList
-                    .stream().map(PatternLibrary::getTemplateCode).distinct().collect(Collectors.toList());
-            // 初始化模板 Map 数据
-            Map<String, PatternLibraryTemplate> patternLibraryTemplateMap = new HashMap<>();
-            if (ObjectUtil.isNotEmpty(templateCodeList)) {
-                // 根据模板 code 集合查询模板数据
-                List<PatternLibraryTemplate> patternLibraryTemplateList
-                        = patternLibraryTemplateMapper.listByCodes(templateCodeList);
-                // 模板数据根据模板 code 转成 map
-                if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
-                    patternLibraryTemplateMap = patternLibraryTemplateList
-                            .stream().collect(Collectors.toMap(PatternLibraryTemplate::getCode, item -> item));
-                }
-                // 如果模板数据不为空
-                if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
-                    setPatternLibraryTemplateItem(patternLibraryTemplateList);
-                }
+            // *************** 查询版型库模板数据 ***************
+            List<String> templateCodeList = patternLibraryList.stream().map(PatternLibrary::getTemplateCode)
+                    .distinct().collect(Collectors.toList());
+            // 拿到分页后的主表 ID
+            // 根据主表 ID 查询子表数据
+            List<PatternLibraryTemplate> patternLibraryTemplateList = patternLibraryTemplateService.list(
+                    new LambdaQueryWrapper<PatternLibraryTemplate>()
+                            .in(PatternLibraryTemplate::getCode, templateCodeList)
+            );
+            // 子表根据主表 ID 分组转成 map
+            Map<String, PatternLibraryTemplate> patternLibraryTemplateMap = Collections.emptyMap();
+            if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
+                patternLibraryTemplateMap = patternLibraryTemplateList
+                        .stream()
+                        .collect(Collectors.toMap(PatternLibraryTemplate::getCode, item -> item));
             }
 
             for (PatternLibrary patternLibrary : patternLibraryList) {
-                setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryTemplateMap, patternLibraryBrandMap, patternLibraryItemMap);
+                setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryBrandMap, patternLibraryItemMap, patternLibraryTemplateMap);
             }
         }
         return new PageInfo<>(patternLibraryList);
@@ -559,6 +546,14 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibrary.setPatternLibraryItemList(patternLibraryItemList);
+        // 查询版型库模板信息
+        if (ObjectUtil.isNotEmpty(patternLibrary) && ObjectUtil.isNotEmpty(patternLibrary.getTemplateCode())) {
+            PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
+                    new LambdaQueryWrapper<PatternLibraryTemplate>()
+                            .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
+            );
+            patternLibrary.setPatternLibraryTemplate(patternLibraryTemplate);
+        }
         return patternLibrary;
     }
 
@@ -1202,6 +1197,27 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         return patternLibraryPageInfo;
     }
 
+    @Override
+    public PatternLibraryTemplate queryPatternTypeByStyleId(String styleId) {
+        if (ObjectUtil.isEmpty(styleId)) {
+            throw new OtherException("「styleId」不能为空！");
+        }
+        Style style = styleService.getById(styleId);
+        if (ObjectUtil.isNotEmpty(style) && ObjectUtil.isNotEmpty(style.getRegisteringId())) {
+            PatternLibrary patternLibrary = getById(style.getRegisteringId());
+            if (ObjectUtil.isNotEmpty(patternLibrary) && ObjectUtil.isNotEmpty(patternLibrary.getTemplateCode())) {
+                PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
+                        new LambdaQueryWrapper<PatternLibraryTemplate>()
+                                .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
+                );
+                if (ObjectUtil.isNotEmpty(patternLibraryTemplate)) {
+                    return patternLibraryTemplate;
+                }
+            }
+        }
+        return new PatternLibraryTemplate();
+    }
+
     public void removeEverGreenTreeNode(String patternLibraryId) {
         PatternLibrary patternLibrary = getById(patternLibraryId);
         String currParentIds = patternLibrary.getParentIds();
@@ -1338,91 +1354,29 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     /**
-     * 设置模板子表的数据
-     *
-     * @param patternLibraryTemplateList
-     */
-    private void setPatternLibraryTemplateItem(List<PatternLibraryTemplate> patternLibraryTemplateList) {
-        // 拿到模板数据的 ID 集合
-        Set<String> patternLibraryTemplateIdSet = patternLibraryTemplateList
-                .stream().map(PatternLibraryTemplate::getId).collect(Collectors.toSet());
-        // 根据模板数据的 ID 集合 查询出模板子表的数据
-        List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplateItemService.list(
-                new LambdaQueryWrapper<PatternLibraryTemplateItem>()
-                        .in(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplateIdSet)
-                        .in(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-        );
-        // 按照模板 ID 分组
-        Map<String, List<PatternLibraryTemplateItem>> colpatternLibraryTemplateItemMap = Collections.emptyMap();
-        if (ObjectUtil.isNotEmpty(patternLibraryTemplateItemList)) {
-            colpatternLibraryTemplateItemMap = patternLibraryTemplateItemList
-                    .stream().collect(Collectors.groupingBy(PatternLibraryTemplateItem::getTemplateId));
-        }
-        // 设置模板子表数据
-        for (PatternLibraryTemplate patternLibraryTemplate : patternLibraryTemplateList) {
-            List<PatternLibraryTemplateItem> patternLibraryTemplateItems =
-                    colpatternLibraryTemplateItemMap.get(patternLibraryTemplate.getId());
-            if (ObjectUtil.isNotEmpty(patternLibraryTemplateItems)) {
-                // 设置原始数据
-                patternLibraryTemplate.setPatternLibraryTemplateItemList(patternLibraryTemplateItems);
-                // 格式化成前端所需要的数据
-                List<String> modifiableList = patternLibraryTemplateItems.stream()
-                        .filter(item -> item.getType().equals(1))
-                        .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
-                List<String> notModifiableList = patternLibraryTemplateItems.stream()
-                        .filter(item -> item.getType().equals(2))
-                        .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
-                if (ObjectUtil.isNotEmpty(modifiableList) && ObjectUtil.isNotEmpty(notModifiableList)) {
-                    patternLibraryTemplate.setPatternLibraryTemplateItem(
-                            StringUtils.join(modifiableList, "/")
-                                    + "可修改\n" + StringUtils.join(notModifiableList, "/")
-                                    + "不可修改"
-                    );
-                } else if (ObjectUtil.isNotEmpty(notModifiableList)) {
-                    patternLibraryTemplate.setPatternLibraryTemplateItem(
-                            StringUtils.join(notModifiableList, "/") + "不可修改"
-                    );
-                } else if (ObjectUtil.isNotEmpty(modifiableList)) {
-                    patternLibraryTemplate.setPatternLibraryTemplateItem(
-                            StringUtils.join(modifiableList, "/") + "可修改"
-                    );
-                }
-            }
-        }
-
-    }
-
-
-    /**
      * 设置返回值
      *
-     * @param isExcel                   是否是导出
-     * @param patternLibrary            主表返回对象
-     * @param patternLibraryTemplateMap 模板表 map
-     * @param patternLibraryBrandMap    品类表 map
-     * @param patternLibraryItemMap     子表 map
+     * @param isExcel                是否是导出
+     * @param patternLibrary         主表返回对象
+     * @param patternLibraryBrandMap 品类表 map
+     * @param patternLibraryItemMap  子表 map
      */
     private static void setPatternLibrary(Integer isExcel,
                                           PatternLibrary patternLibrary,
-                                          Map<String, PatternLibraryTemplate> patternLibraryTemplateMap,
                                           Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap,
-                                          Map<String, List<PatternLibraryItem>> patternLibraryItemMap) {
+                                          Map<String, List<PatternLibraryItem>> patternLibraryItemMap,
+                                          Map<String, PatternLibraryTemplate>  patternLibraryTemplateMap) {
         patternLibrary.setPatternLibraryUtilization(patternLibrary.getPatternLibraryUtilization() + "%");
-        // 设置所属版型库数据
-        patternLibrary.setPatternLibraryTemplate(
-                patternLibraryTemplateMap.get(patternLibrary.getTemplateCode())
-        );
+        // 设置版型库模板信息
+        PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateMap.get(patternLibrary.getTemplateCode());
+        patternLibrary.setPatternLibraryTemplate(patternLibraryTemplate);
+
         // 设置版型库品牌数据
         List<PatternLibraryBrand> brands = patternLibraryBrandMap.get(patternLibrary.getId());
         if (ObjectUtil.isNotEmpty(brands)) {
             patternLibrary.setPatternLibraryBrandList(brands);
             patternLibrary.setBrandNames(
                     brands.stream().map(PatternLibraryBrand::getBrandName).collect(Collectors.joining("/")));
-        }
-        // 设置模板子表数据
-        PatternLibraryTemplate patternLibraryTemplate = patternLibrary.getPatternLibraryTemplate();
-        if (ObjectUtil.isNotEmpty(patternLibraryTemplate)) {
-            patternLibrary.setPatternLibraryTemplateItem(patternLibraryTemplate.getPatternLibraryTemplateItem());
         }
         // 设置品类
         String prodCategory1stName = patternLibrary.getProdCategory1stName();
