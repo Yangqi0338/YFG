@@ -20,7 +20,6 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
-import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorAgentVo;
@@ -105,6 +104,7 @@ public class StyleColorController {
 
     @ApiOperation(value = "新增修改款式配色-款式配色")
     @PostMapping("/addRevampSampleStyleColor")
+    @DuplicationCheck
     public Boolean addRevampSampleStyleColor(@Valid @RequestBody AddRevampStyleColorDto addRevampStyleColorDto) {
         return styleColorService.addRevampSampleStyleColor(addRevampStyleColorDto);
     }
@@ -127,11 +127,16 @@ public class StyleColorController {
         return styleColorService.getById(id);
     }
 
+    @ApiOperation(value = "检查-配饰是否关联主款")
+    @PostMapping("/checkAccessoryRelatedMainStyle")
+    public ApiResult checkAccessoryRelatedMainStyle(@Valid @RequestBody QueryStyleColorDto querySampleStyleColorDto) {
+        return styleColorService.checkAccessoryRelatedMainStyle(querySampleStyleColorDto.getIds());
+    }
 
     @ApiOperation(value = "下发-款式配色")
     @PostMapping("/issueScm")
     public ApiResult issueScm(@Valid @RequestBody QueryStyleColorDto querySampleStyleColorDto) {
-        return styleColorService.issueScm(querySampleStyleColorDto.getIds());
+        return styleColorService.issueScm(querySampleStyleColorDto);
     }
 
     @ApiOperation(value = "获取款式下的颜色id")

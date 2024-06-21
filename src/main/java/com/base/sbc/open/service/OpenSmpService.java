@@ -251,7 +251,9 @@ public class OpenSmpService {
 				basicsdatumMaterialWidth.setSizeName(modelItem.getSIZENAME());
 				basicsdatumMaterialWidth.setCode(modelItem.getCODE());
                 basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
-                basicsdatumMaterialWidth.setName(modelItem.getSIZECODE().replaceAll(",", "<->"));
+                //basicsdatumMaterialWidth.setName(modelItem.getSIZECODE().replaceAll(",", "<->"));
+                //不用替换，影响接口下发下游
+                basicsdatumMaterialWidth.setName(modelItem.getSIZECODE());
 				basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);

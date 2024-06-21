@@ -124,7 +124,15 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * @param ids
      * @return
      */
-    ApiResult issueScm(String ids);
+    ApiResult issueScm(QueryStyleColorDto ids);
+
+        /**
+         * 检查配饰款数据是否关联主款数据
+         * @param ids
+         * @return
+         */
+        ApiResult checkAccessoryRelatedMainStyle(String ids);
+
 
         /**
          * 方法描述 获取款式下的颜色

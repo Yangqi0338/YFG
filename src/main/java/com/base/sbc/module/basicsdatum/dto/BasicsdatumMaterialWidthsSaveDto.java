@@ -17,7 +17,6 @@ public class BasicsdatumMaterialWidthsSaveDto {
 	@NotBlank(message = "物料编码必填")
 	@ApiModelProperty(value = "物料编码", required = true)
 	private String materialCode;
-	@NotBlank(message = "规格编码必填")
 	@ApiModelProperty(value = "规格编码", required = true)
 	private String width;
 	@ApiModelProperty(value = "门幅/规格名称")

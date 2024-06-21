@@ -1,17 +1,7 @@
 package com.base.sbc.module.smp.dto;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import com.base.sbc.config.constant.SmpProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -28,6 +18,10 @@ public class HttpReq {
     private String moduleName;
     private String functionName;
     private String data;
+
+    private String businessId;
+
+    private String businessCode;
 
     public HttpReq(String url) {
         this.url = url;

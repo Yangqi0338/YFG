@@ -246,6 +246,7 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
     public Boolean batchSaveBomTemplate(List<AddRevampBomTemplateMaterialDto> list) {
         List<BasicsdatumBomTemplateMaterial> templateMaterialList = BeanUtil.copyToList(list, BasicsdatumBomTemplateMaterial.class);
         templateMaterialList.forEach(it-> {
+            CommonUtils.removeQuery(it, "imageUrl");
             if (!ObjectUtils.isEmpty(it.getUnitUse()) && !ObjectUtils.isEmpty(it.getPrice())) {
                 it.setCost(it.getUnitUse().multiply(it.getPrice()));
             }

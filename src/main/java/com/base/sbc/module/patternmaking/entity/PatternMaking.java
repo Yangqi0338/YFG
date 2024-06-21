@@ -413,6 +413,15 @@ public class PatternMaking extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "是否齐套原因"  )
     private String kittingReason;
+
+    @ApiModelProperty(value = "是否齐套原因名称"  )
+    private String kittingReasonName;
+
+    @ApiModelProperty(value = "是否更换面料 0：否，1：是"  )
+    private Integer isChangeFabric;
+
+    @ApiModelProperty(value = "面料成分"  )
+    private String ingredient;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

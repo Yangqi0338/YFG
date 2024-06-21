@@ -4,6 +4,7 @@ import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialColor;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.entity.MaterialSize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -33,4 +34,7 @@ public class MaterialSaveDto extends Material {
     private List<MaterialColor> colors;
 
     private boolean save;
+
+    @ApiModelProperty("是否管理人员：1为管理人员")
+    private String  materialManagerStaff;
 }

@@ -29,4 +29,7 @@ public class PatternMakingScoreVo {
      */
     @ApiModelProperty(value = "版师工作量评分")
     private BigDecimal patternMakingScoreSum;
+
+    @ApiModelProperty(value = "需求数量")
+    private BigDecimal requirementNum;
 }

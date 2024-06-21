@@ -16,9 +16,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum StyleSaleIntoCalculateResultType {
-    SALE("销售"),
-    INTO("投产"),
-    SALE_INTO("产销"),
+    SALE("销售","sell"),
+    INTO("投产","startup"),
+    SALE_INTO("产销","marketing"),
     ;
     /** 编码 */
     @EnumValue
@@ -26,13 +26,21 @@ public enum StyleSaleIntoCalculateResultType {
     /** 文本 */
     private final String text;
 
+    private final String prefix;
+
+
+
 
     @JsonValue
     public String getCode() {
         return code;
     }
 
-    StyleSaleIntoCalculateResultType(String text) {
+
+
+
+    StyleSaleIntoCalculateResultType(String text, String prefix) {
+        this.prefix = prefix;
         String code = this.name().toLowerCase();
         this.code = StrUtil.toCamelCase(code);
 //        this.code = this.ordinal()+"";

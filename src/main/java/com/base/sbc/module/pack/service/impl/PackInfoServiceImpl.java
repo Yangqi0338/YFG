@@ -235,22 +235,23 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         // 查询款式设计数据
         BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
-        sdQw.in("status", "1", "2");
-        sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
-        sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
-        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
-        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
-        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
-        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getDesignNo() ) ,"design_no", StringUtils.convertList(pageDto.getDesignNo()) );
-        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"style_no", StringUtils.convertList(pageDto.getStyleNo()) );
-        sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
-        sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        sdQw.orderByDesc("create_date");
+        sdQw.in("ts.status", "1", "2");
+        sdQw.notEmptyEq("ts.prod_category1st", pageDto.getProdCategory1st());
+        sdQw.notEmptyEq("ts.prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("ts.prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("ts.prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("ts.planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getDesignNo() ) ,"ts.design_no", StringUtils.convertList(pageDto.getDesignNo()) );
+        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"tsc.style_no", StringUtils.convertList(pageDto.getStyleNo()) );
+        sdQw.andLike(pageDto.getSearch(), "ts.design_no", "tsc.style_no", "ts.style_name");
+        sdQw.notEmptyEq("ts.devt_type", pageDto.getDevtType());
+        sdQw.groupBy("ts.id");
+        sdQw.orderByDesc("ts.create_date");
 
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packDesign.getK());
+        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packDesign.getK(), "ts.");
         Page<Style> page = PageHelper.startPage(pageDto);
-        styleService.list(sdQw);
+        styleColorMapper.pageBySampleDesign(sdQw);
         PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
         //查询bom列表
         List<StylePackInfoListVo> sdpList = pageInfo.getList();
@@ -448,6 +449,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 .or().likeRight("name",pageDto.getPackType()));
 //        qw.eq("path", pageDto.getPackType()).or().likeRight("name",pageDto.getPackType());
         qw.orderByDesc("id");
+        qw.ne("json_content", "[]");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);
         return objects.toPageInfo();
@@ -1191,7 +1193,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.eq("tpi.company_code", userCompany.getCompanyCode());
         qw.eq("ts.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StringUtils.isNotEmpty(dto.getFormerSupplierCode()),"tpb.supplier_id",StringUtils.convertList(dto.getFormerSupplierCode()));
-        qw.likeRight(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
+        qw.like(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
         qw.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tpb.material_code", dto.getMaterialCode());
         qw.in(!CollectionUtils.isEmpty(dto.getBomList()),"tpb.id", dto.getBomList());
         qw.in(!CollectionUtils.isEmpty(dto.getStyleNos()),"tsc.style_no", dto.getStyleNos());
