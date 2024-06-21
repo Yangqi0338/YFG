@@ -225,6 +225,7 @@
             tsp.control_hangtag_confirm,
             ts.devt_type as devtType,
             ts.devt_type_name as devtTypeName,
+            ts.channel,
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
             FROM
             t_style_color tsc

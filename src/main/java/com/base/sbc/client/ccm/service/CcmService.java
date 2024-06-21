@@ -265,4 +265,11 @@ public interface CcmService {
      */
     @GetMapping(value ="/ccm/api/saas/basicDictDepends/getDictDependsList")
     String getDictDependsList(@RequestParam("dictTypeName")String dictTypeName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize);
+
+    /**
+     * 根据结构名称，查询列表
+     * @param structureCode 结构名称
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/getAllByStructureCodes")
+    String getAllByStructureCodes(@RequestParam("structureCode") String structureCode);
 }

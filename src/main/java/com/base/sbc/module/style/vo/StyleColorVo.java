@@ -495,4 +495,6 @@ public class StyleColorVo extends EditPermissionReturnVo {
      */
     private String planningSeason;
 
+    private String channel;
+
 }

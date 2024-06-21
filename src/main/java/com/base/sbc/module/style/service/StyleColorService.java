@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式-款式配色 service类
@@ -314,4 +315,6 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentControl(String id);
 
     void agentUnControl(String id);
+
+    ApiResult importMarkingOrder(List<Map<String, Object>> readAll);
 }
