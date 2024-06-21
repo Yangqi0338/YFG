@@ -31,6 +31,14 @@ import java.util.List;
 public interface HangTagService extends BaseService<HangTag> {
 
 // 自定义方法区 不替换的区域【other_start】
+    /**
+     * 分页查询（列头筛选）
+     *
+     * @param hangTagDTO
+     * @param userCompany
+     * @return
+     */
+    PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagDTO, String userCompany);
 
     /**
      * 分页查询

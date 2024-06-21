@@ -66,6 +66,12 @@ public class HangTagController extends BaseController {
     private final StyleColorService styleColorService;
 
     @ApiOperation(value = "分页查询")
+    @GetMapping("/queryPageInfo")
+    public PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagSearchDTO) {
+        return hangTagService.queryPageInfoByLine(hangTagSearchDTO, super.getUserCompany());
+    }
+
+    @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")
     public PageInfo<HangTagListVO> queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
         return hangTagService.queryPageInfo(hangTagSearchDTO, super.getUserCompany());

@@ -263,6 +263,119 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
+	public PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagDTO, String userCompany) {
+		hangTagDTO.setCompanyCode(userCompany);
+		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
+		QueryGenerator.initQueryWrapperByMap(qw,hangTagDTO);
+		hangTagDTO.startPage();
+		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
+		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
+			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+		}
+		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
+			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
+		}
+
+		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
+			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
+		}
+
+		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
+			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
+		}
+
+		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
+			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
+		}
+		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
+		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
+		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
+		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
+		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
+
+		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
+		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
+			if(hangTagListVOS.size() > 2000){
+				throw new OtherException("带图片导出2000条数据");
+			}
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		}
+		if(!StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)){
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		}
+		if (hangTagListVOS.isEmpty()) {
+			return new PageInfo<>(hangTagListVOS);
+		}
+		/* 获取大货款号 */
+		List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo()))
+				.map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
+		/* 查询流程审批的结果 */
+		Map<String, FlowRecordVo> flowRecordVoMap;
+		if ("2".equals(hangTagDTO.getCheckType())) {
+			flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
+
+		} else {
+			flowRecordVoMap = null;
+		}
+		// 1A7290012
+		// IdGen idGen = new IdGen();
+		List<String> bulkStyleNos = new ArrayList<>();
+		hangTagListVOS.forEach(e -> {
+			if (flowRecordVoMap != null) {
+				FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
+				if (!ObjectUtils.isEmpty(flowRecordVo)) {
+//                判断流程是否完成
+					e.setExamineUserNema(flowRecordVo.getUserName());
+					e.setExamineUserId(flowRecordVo.getUserId());
+					if (BaseGlobal.YES.equals(flowRecordVo.getEndFlag())) {
+//                    e.setConfirmDate(flowRecordVo.getEndTime());
+						// e.setStatus("5"); 不需要设置为通过,通过或者不通过会在回调页面设置
+					} else {
+						// 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
+
+						if (HangTagStatusEnum.SUSPEND != e.getStatus()) {
+							switch (flowRecordVo.getName()) {
+								case "大货工艺员确认":
+									e.setStatus(HangTagStatusEnum.NOT_COMMIT);
+									break;
+								case "后技术确认":
+									e.setStatus(HangTagStatusEnum.TECH_CHECK);
+									break;
+								case "品控确认":
+									e.setStatus(HangTagStatusEnum.QC_CHECK);
+									break;
+								case "翻译确认":
+									e.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
+									break;
+								default:
+									break;
+							}
+						}
+
+					}
+				}
+			}
+
+			bulkStyleNos.add(e.getBulkStyleNo());
+
+		});
+		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
+		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
+			long size = countryLanguageService.getAllCountrySize();
+			hangTagListVOS.stream().filter(it-> it.getStatus() == HangTagStatusEnum.FINISH).forEach(hangTag-> {
+				if (styleCountryStatusService.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+						.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) < size) {
+					hangTag.setStatus(HangTagStatusEnum.PART_TRANSLATE_CHECK);
+				}
+			});
+		}
+
+		return new PageInfo<>(hangTagListVOS);
+	}
+
+	@Override
+	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
 		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
