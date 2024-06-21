@@ -39,6 +39,18 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @param dto
      * @return
      */
+    List<HangTagListVO> queryList0(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+    List<HangTagListVO> queryList1(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+
+    List<HangTagListVO> queryList0_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+    List<HangTagListVO> queryList1_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+
+    /**
+     * 列表分页查询
+     *
+     * @param dto
+     * @return
+     */
     List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
 
 

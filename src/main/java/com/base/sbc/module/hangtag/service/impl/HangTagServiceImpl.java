@@ -293,7 +293,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
 		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
 
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
+		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList0(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");
