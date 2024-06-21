@@ -1658,8 +1658,8 @@ public class SmpService {
                 } else if (HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM == type) {
                     //翻译确认
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
-                    tagConfirmDateDto.setTranslateControlConfirm(1);
-                    tagConfirmDateDto.setTranslateConfirmDate(hangTag.getTranslateConfirmDate());
+                    tagConfirmDateDto.setTranslateControlConfirm(confirmStatus);
+                    tagConfirmDateDto.setTranslateConfirmDate(date);
                     list.add(tagConfirmDateDto);
                 }
             }
