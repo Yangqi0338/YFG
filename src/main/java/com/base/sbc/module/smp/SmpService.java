@@ -1629,9 +1629,11 @@ public class SmpService {
                         tagConfirmDateDto.setTechnologistConfirm(0);
                         tagConfirmDateDto.setTechnicalConfirm(0);
                         tagConfirmDateDto.setQualityControlConfirm(0);
+                        tagConfirmDateDto.setWorkingHourConfirm(0);
                         tagConfirmDateDto.setTechnologistConfirmDate(null);
                         tagConfirmDateDto.setTechnicalConfirmDate(null);
                         tagConfirmDateDto.setQualityControlConfirmDate(null);
+                        tagConfirmDateDto.setWorkingHourConfirmDate(null);
                         list.add(tagConfirmDateDto);
                     }
                 }
@@ -1654,10 +1656,10 @@ public class SmpService {
                     tagConfirmDateDto.setQualityControlConfirmDate(date);
                     list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM == type) {
-                    //品控确认
+                    //翻译确认
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTranslateControlConfirm(1);
-                    tagConfirmDateDto.setTranslateConfirmDate(date);
+                    tagConfirmDateDto.setTranslateConfirmDate(hangTag.getTranslateConfirmDate());
                     list.add(tagConfirmDateDto);
                 }
             }
@@ -1670,7 +1672,23 @@ public class SmpService {
                 if (StringUtils.isEmpty(styleNo)){
                     continue;
                 }
+                //款式定价的状态时间取数据库的而不是系统操作时间
+                for (StylePricing stylePricing : stylePricings) {
+                    if (stylePricing.getWagesConfirmTime() != null) {
+                        date = stylePricing.getWagesConfirmTime();
+                    }
+                    if (stylePricing.getProductHangtagConfirmTime() != null) {
+                        date = stylePricing.getProductHangtagConfirmTime();
+                    }
+                    if (stylePricing.getControlHangtagConfirmTime() != null) {
+                        date = stylePricing.getControlHangtagConfirmTime();
+                    }
+                    if (stylePricing.getControlConfirmTime() != null) {
+                        date = stylePricing.getControlConfirmTime();
+                    }
+                }
                 TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
+
                 if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM == type) {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
@@ -1685,6 +1703,12 @@ public class SmpService {
                     list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM == type) {
                     //计控吊牌确认
+                    tagConfirmDateDto.setStyleNo(styleNo);
+                    tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
+                    list.add(tagConfirmDateDto);
+                } else if (HangTagDeliverySCMStatusEnum.WORKING_HOUR_CONFIRM == type) {
+                    //工时部工价确认时间
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
                     tagConfirmDateDto.setPlanTagPriceConfirmDate(date);

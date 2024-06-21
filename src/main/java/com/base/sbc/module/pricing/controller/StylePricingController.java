@@ -195,7 +195,7 @@ public class StylePricingController extends BaseController {
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
             }
-            if (!StringUtils.isEmpty(dto.getWagesConfirm())){
+            if (!StrUtil.isNotEmpty(dto.getWagesConfirm())){
                 if (!isCmt || dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
                     throw new OtherException("工时部已确认");
                 }
@@ -255,6 +255,11 @@ public class StylePricingController extends BaseController {
         //是否商品吊牌确认
         if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
             type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
+        }
+
+        //是否商品吊牌确认
+        if(StrUtil.equals(dto.getWagesConfirm(),BaseGlobal.YES)){
+            type = HangTagDeliverySCMStatusEnum.WORKING_HOUR_CONFIRM;
         }
         smpService.tagConfirmDates(list,type,1);
 
