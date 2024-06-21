@@ -68,6 +68,7 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
@@ -3788,7 +3789,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
         if(CollUtil.isNotEmpty(dictList)){
             dictList = dictList.stream().distinct().collect(Collectors.toList());
-            dictInfoToMap = ccmFeignService.getDictInfoToMap(String.join(",", dictList));
+            dictInfoToMap = ccmFeignService.getDictInfoToMapTurnOver(String.join(",", dictList));
         }
         //这里可能要加入字典依赖的查询，后续判断使用TODO
 
@@ -3809,7 +3810,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         StringBuffer sbMsg = new StringBuffer();
 
+        List<OperaLogEntity> updateLogs = new ArrayList<>();
+
+        int successCount = 0;
         for (Map.Entry<String, Map<String, Object>> entry : styleColorFields.entrySet()) {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            List<Map<String,String>> updateLogMaps = new ArrayList<>();
             String styleNo = entry.getKey();
             if(!styleColorMap.containsKey(styleNo)){
                 //该款不存在
@@ -3848,7 +3854,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             //判断使用的是字典项
                             Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
                             if(orDefault.containsKey(value)){
-                                valName = orDefault.get(value);
+                                valName = value;
+                                value = orDefault.get(value);
                             }else{
                                 //字典项不存在
                                 sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
@@ -3859,7 +3866,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             //还是使用的结构字段项
                             Map<String, String> structureTrees = structureTreesMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>()).getOrDefault(planningDimensionality.getStructureTier(), new HashMap<>());
                             if(structureTrees.containsKey(value)){
-                                valName = structureTrees.get(value);
+                                valName = value;
+                                value = structureTrees.get(value);
                             }else{
                                 //结构字典项不存在
                                 sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
@@ -3867,24 +3875,29 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 continue;
                             }
                         }
-
+                        Map<String,String> updateLogMap = new HashMap<>();
+                        updateLogMap.put("name",planningDimensionality.getDimensionalityName());
+                        updateLogMap.put("newStr",StrUtil.isEmpty(valName)?value:valName);
                         if(fieldValMap.containsKey(planningDimensionality.getFieldId())){
                             FieldVal fieldVal = fieldValMap.get(planningDimensionality.getFieldId());
+                            updateLogMap.put("oldStr",StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName());
                             fieldVal.setVal(value);
                             fieldVal.setValName(valName);
                             fieldValList.add(fieldVal);
                         }else{
+                            updateLogMap.put("oldStr","");
                             FieldVal fieldVal = new FieldVal();
                             fieldVal.setForeignId(styleColor.getId());
                             fieldVal.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
                             fieldVal.setFieldId(planningDimensionality.getFieldId());
-                            fieldVal.setFieldName(planningDimensionality.getDimensionalityName());
+                            fieldVal.setFieldName(planningDimensionality.getFieldName());
                             fieldVal.setFieldExplain(planningDimensionality.getDimensionalityName());
                             fieldVal.setVal(value);
                             fieldVal.setValName(valName);
                             fieldVal.insertInit();
                             fieldValList.add(fieldVal);
                         }
+                        updateLogMaps.add(updateLogMap);
                     }else{
                         //该款没有这个动态字段
                         sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段").append(entry1.getKey()).append(",如需要,请联系管理员维护;");
@@ -3894,13 +3907,25 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             if(fieldValFlag){
                 updateFieldValList.addAll(fieldValList);
+                operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
+                operaLogEntity.setType("修改");
+                operaLogEntity.setDocumentId(styleColor.getId());
+                operaLogEntity.setName("款式打标-批量导入修改");
+                operaLogEntity.setDocumentName(styleNo);
+                updateLogs.add(operaLogEntity);
+                successCount++;
             }
         }
+        if(CollUtil.isNotEmpty(updateFieldValList)){
+            fieldValService.saveOrUpdateBatch(updateFieldValList);
+        }
 
-        fieldValService.saveOrUpdateBatch(updateFieldValList);
+        //保存修改记录
+        if(CollUtil.isNotEmpty(updateLogs)){
+            operaLogService.saveBatch(updateLogs);
+        }
 
-        //保存修改记录 TODO
-
+        sbMsg.append("导入："+readAll.size()+"条,成功："+successCount+"条,失败原因如下;");
 
         return ApiResult.success(sbMsg.toString());
     }
