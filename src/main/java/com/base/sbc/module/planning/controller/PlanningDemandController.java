@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
@@ -207,5 +208,16 @@ public class PlanningDemandController {
 	}
 
 
+	@ApiOperation(value = "获取物料库字段数据")
+	@GetMapping("/getMaterialCoefficient")
+	public List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+		return planningDimensionalityService.getMaterialCoefficient(queryDemandDimensionalityDto);
+	}
+
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/batchSaveMaterial")
+	public List<PlanningDimensionality> batchSaveMaterial(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+		return planningDimensionalityService.batchSaveMaterial(dimensionalityDtoList);
+	}
 
 }
