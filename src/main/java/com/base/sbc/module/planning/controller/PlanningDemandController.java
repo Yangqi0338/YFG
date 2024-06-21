@@ -210,7 +210,7 @@ public class PlanningDemandController {
 
 	@ApiOperation(value = "获取物料库字段数据")
 	@GetMapping("/getMaterialCoefficient")
-	public List<FieldManagementVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+	public List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
 		return planningDimensionalityService.getMaterialCoefficient(queryDemandDimensionalityDto);
 	}
 
