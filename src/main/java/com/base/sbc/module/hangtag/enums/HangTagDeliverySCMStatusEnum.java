@@ -6,6 +6,8 @@ package com.base.sbc.module.hangtag.enums;
  */
 public enum HangTagDeliverySCMStatusEnum {
     TAG_LIST_CANCEL(0, "吊牌列表反审"),
+
+    STYLE_PRICING_LIST_CANCEL(9, "款式定价列表反审"),
     TECHNOLOGIST_CONFIRM(1, "工艺员确认"),
     TECHNICAL_CONFIRM(2, "技术确认"),
     QUALITY_CONTROL_CONFIRM(3, "品控确认"),
