@@ -54,9 +54,9 @@ public class ReplayRatingController extends BaseController {
     }
 
     @ApiOperation(value = "单款复盘明细")
-    @GetMapping("/style/{id}")
-    public ApiResult<ReplayRatingStyleDTO> getStyleById(@PathVariable("id") @NotBlank(message = "id不能为空") String id) {
-        return selectSuccess(replayRatingService.getStyleById(id));
+    @GetMapping("/style/{styleColorId}")
+    public ApiResult<ReplayRatingStyleDTO> getStyleById(@PathVariable("styleColorId") @NotBlank(message = "id不能为空") String styleColorId) {
+        return selectSuccess(replayRatingService.getStyleById(styleColorId));
     }
 
     @ApiOperation(value = "版型复盘明细")

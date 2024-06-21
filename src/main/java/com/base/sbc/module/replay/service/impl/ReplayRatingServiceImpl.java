@@ -11,7 +11,9 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -28,6 +30,10 @@ import com.base.sbc.module.replay.service.ReplayRatingService;
 import com.base.sbc.module.replay.vo.ReplayRatingQO;
 import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -65,6 +71,12 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     @Autowired
     private StylePicUtils stylePicUtils;
 
+    @Autowired
+    private StyleColorService styleColorService;
+
+    @Autowired
+    private StyleService styleService;
+
     private static @NotNull BaseQueryWrapper<ReplayRating> buildQueryWrapper(ReplayRatingQO dto) {
         BaseQueryWrapper<ReplayRating> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("tsc.plan_season_id", dto.getPlanningSeasonId());
@@ -93,35 +105,41 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     @Override
     public PageInfo<? extends ReplayRatingVO> queryPageInfo(ReplayRatingQO dto) {
         Page<? extends ReplayRatingVO> page = PageHelper.startPage(dto);
-        BaseQueryWrapper<ReplayRating> qw = buildQueryWrapper(dto);
+        BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(dto);
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
+
         switch (dto.getType()) {
             case STYLE:
-                List<ReplayRatingStyleVO> styleDTOList = baseMapper.queryStyleList(qw);
+                List<ReplayRatingStyleVO> styleDTOList = baseMapper.queryStyleList(queryWrapper);
                 styleDTOList.forEach(styleDTO -> {
                     // 为空获取 想要实时就去掉该空判断
                     if (styleDTO.getPlanningLevel() == null) {
 //                        styleDTO.setPlanningLevel();
                     }
-                    if (styleDTO.getPlanningLevel() == null) {
+                    if (styleDTO.getSeasonLevel() == null) {
 //                        styleDTO.setSaleLevel();
                     }
                 });
                 break;
             case PATTERN:
-                baseMapper.queryPatternList(qw);
+                baseMapper.queryPatternList(queryWrapper);
                 break;
             case FABRIC:
-                baseMapper.queryFabricList(qw);
+                baseMapper.queryFabricList(queryWrapper);
                 break;
             default:
                 throw new UnsupportedOperationException("不受支持的复盘类型");
         }
-        List<? extends ReplayRatingVO> list = page.getResult();
-        Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(
-                new LambdaQueryWrapper<PlanningSeason>().in(PlanningSeason::getId, list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList())), PlanningSeason::getId, PlanningSeason::getName);
-        stylePicUtils.setStyleColorPic2(list);
-        list.forEach(it -> it.setPlanningSeasonName(planningSeasonNameMap.getOrDefault(it.getPlanningSeasonId(), "")));
-        return page.toPageInfo();
+
+        PageInfo<? extends ReplayRatingVO> pageInfo = page.toPageInfo();
+        List<? extends ReplayRatingVO> list = pageInfo.getList();
+        if (!isColumnHeard && CollUtil.isNotEmpty(list)) {
+            Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(
+                    new LambdaQueryWrapper<PlanningSeason>().in(PlanningSeason::getId, list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList())), PlanningSeason::getId, PlanningSeason::getName);
+            stylePicUtils.setStyleColorPic2(list);
+            list.forEach(it -> it.setPlanningSeasonName(planningSeasonNameMap.getOrDefault(it.getPlanningSeasonId(), "")));
+        }
+        return pageInfo;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -166,18 +184,33 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     @Override
-    public ReplayRatingStyleDTO getStyleById(String id) {
-        ReplayRating replayRating = getById(id);
+    public ReplayRatingStyleDTO getStyleById(String styleColorId) {
+        // 获取主表数据
+        styleColorService.warnMsg("未找到对应大货款");
+        StyleColor styleColor = styleColorService.findOne(styleColorId);
+        styleColor.setStyleColorPic(stylePicUtils.getStyleUrl(styleColor.getStyleColorPic()));
+
+        styleColorService.warnMsg("未找到对应款式");
+        Style style = styleService.findOne(styleColor.getStyleId());
+
+        ReplayRating replayRating = this.findOne(new LambdaQueryWrapper<ReplayRating>()
+                .eq(ReplayRating::getType, ReplayRatingType.STYLE)
+                .eq(ReplayRating::getForeignId, styleColorId)
+        );
+        ReplayRatingStyleDTO result = new ReplayRatingStyleDTO();
+        REPLAY_CV.copy(result, style);
+        REPLAY_CV.copy(result, styleColor);
+        REPLAY_CV.copy(result, replayRating);
+        return result;
+    }
+
+    @Override
+    public ReplayRatingPatternDTO getPatternById(String styleColorId) {
         return null;
     }
 
     @Override
-    public ReplayRatingPatternDTO getPatternById(String id) {
-        return null;
-    }
-
-    @Override
-    public ReplayRatingFabricDTO getFabricById(String id) {
+    public ReplayRatingFabricDTO getFabricById(String styleColorId) {
         return null;
     }
 

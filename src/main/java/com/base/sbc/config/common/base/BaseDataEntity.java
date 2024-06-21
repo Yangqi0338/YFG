@@ -9,7 +9,6 @@ package com.base.sbc.config.common.base;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -24,7 +23,7 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
  * @date 2023/3/31 19:56:38
  */
 @Data
-public abstract class BaseDataEntity<T> extends BaseEntity {
+public class BaseDataEntity<T> extends BaseEntity {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 7022181519896948997L;

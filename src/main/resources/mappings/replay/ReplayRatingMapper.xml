@@ -28,12 +28,17 @@
         ts.prod_category2nd_name,
         ts.prod_category3rd,
         ts.prod_category3rd_name,
+        trr.*
     </sql>
 
     <select id="queryStyleList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
         select
-        <include refid="queryStyleListField"/>
-        trr.*
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            <include refid="queryStyleListField"/>
+        </if>
         from t_style_color tsc
         left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = 'style'
         left join t_style ts on ts.id = tsc.style_id

@@ -20,7 +20,7 @@ import java.util.Map;
  * @date 2023/4/13 11:49:17
  * 自定义增强
  */
-public interface BaseService<T> extends IService<T> {
+public interface BaseService<T> extends IService<T>, BaseEnhanceService<T> {
 
     /**
      * 跟据字段名称和字段集合查询列表
@@ -180,6 +180,8 @@ public interface BaseService<T> extends IService<T> {
     boolean exists(String id);
 
     T findOne(QueryWrapper<T> wrapper);
+
+    T findOne(String id);
     T findOne(LambdaQueryWrapper<T> wrapper);
     <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
     <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);

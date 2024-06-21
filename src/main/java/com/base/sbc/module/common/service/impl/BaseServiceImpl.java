@@ -726,8 +726,13 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     @Override
+    public T findOne(String id) {
+        return findOne(new LambdaQueryWrapper<T>().eq(T::getId, id));
+    }
+
+    @Override
     public T findOne(LambdaQueryWrapper<T> wrapper) {
-        return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
+        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst(), null);
     }
 
     @Override

@@ -33,11 +33,11 @@ public interface ReplayRatingService extends BaseService<ReplayRating> {
 
     String doSave(ReplayRatingSaveDTO replayRatingSaveDTO);
 
-    ReplayRatingStyleDTO getStyleById(String id);
+    ReplayRatingStyleDTO getStyleById(String styleColorId);
 
-    ReplayRatingPatternDTO getPatternById(String id);
+    ReplayRatingPatternDTO getPatternById(String styleColorId);
 
-    ReplayRatingFabricDTO getFabricById(String id);
+    ReplayRatingFabricDTO getFabricById(String styleColorId);
 
 // 自定义方法区 不替换的区域【other_end】
 
