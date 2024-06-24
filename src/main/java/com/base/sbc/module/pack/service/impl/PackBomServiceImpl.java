@@ -15,6 +15,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.excel.EasyExcel;
@@ -1471,6 +1472,61 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     return mul;
                 }
         ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(3, RoundingMode.HALF_UP);
+    }
+
+    public Map<String, BigDecimal> calculateCosts(List<String> foreignIdList, String packType) {
+        Map<String, BigDecimal> map = new HashMap<>();
+        //查询当前启用版本
+        QueryWrapper<PackBomVersion> qw = new QueryWrapper<>();
+        qw.eq("del_flag", BaseGlobal.NO);
+        qw.in("foreign_id", foreignIdList);
+        qw.eq("pack_type", packType);
+        qw.eq("status", BaseGlobal.YES);
+        qw.groupBy("foreign_id");
+        List<PackBomVersion> packBomVersionList = packBomVersionService.list(qw);
+        if (ObjectUtil.isEmpty(packBomVersionList)) {
+            return map;
+        }
+        // 查询物料列表
+
+        List<String> packBomVersionIdList = packBomVersionList.stream().map(PackBomVersion::getId).collect(Collectors.toList());
+        PackCommonPageSearchDto packCommonPageSearchDto = new PackCommonPageSearchDto();
+        packCommonPageSearchDto.setUnusableFlag(BaseGlobal.STATUS_NORMAL);
+        packCommonPageSearchDto.setPackType(packType);
+        packCommonPageSearchDto.setForeignIdList(foreignIdList);
+        packCommonPageSearchDto.setBomVersionIdList(packBomVersionIdList);
+        List<PackBom> packBomList = baseMapper.getPackBomPageList(packCommonPageSearchDto);
+        if (CollUtil.isEmpty(packBomList)) {
+            return map;
+        }
+        //
+        // 是否开启笛莎资料包计算开关 开启后资料包计算都是大货物料费用
+        Boolean ifSwitch =false;
+        try {
+            ifSwitch  = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
+        }catch (Exception ignored){}
+        /*设计还是大货*/
+        Boolean loss = "packDesign".equals(packType);
+        //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
+        //大货物料费用=物料大货用量*物料大货单价*（1+额定损耗率)
+        Boolean finalIfSwitch = ifSwitch;
+        Map<String, List<PackBom>> packBomMap = packBomList.stream().collect(Collectors.groupingBy(PackBom::getBomVersionId));
+
+        for (Map.Entry<String, List<PackBom>> stringListEntry : packBomMap.entrySet()) {
+            BigDecimal bigDecimal = stringListEntry.getValue().stream().map(packBom -> {
+                        /*获取损耗率*/
+                        BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(finalIfSwitch || !loss ? packBom.getPlanningLoossRate() : packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP));
+                        BigDecimal mul = NumberUtil.mul(
+                                finalIfSwitch || !loss ? packBom.getBulkUnitUse() : packBom.getDesignUnitUse(),
+                                packBom.getPrice(),
+                                divide
+                        );
+                        return mul;
+                    }
+            ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(3, RoundingMode.HALF_UP);
+            map.put(stringListEntry.getValue().get(0).getForeignId(), ObjectUtil.isEmpty(bigDecimal) ? BigDecimal.ZERO:bigDecimal);
+        }
+        return map;
     }
 
     @Override

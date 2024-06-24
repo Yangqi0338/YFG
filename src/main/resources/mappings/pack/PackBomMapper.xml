@@ -488,6 +488,28 @@
         GROUP BY pb.id
         ORDER BY sort ASC
     </select>
+    <select id="getPackBomPageList" parameterType="com.base.sbc.module.pack.dto.PackCommonPageSearchDto" resultType="com.base.sbc.module.pack.entity.PackBom">
+        SELECT
+        pb.*
+        FROM
+        t_pack_bom pb
+        LEFT JOIN t_pack_bom_color pbc ON pbc.bom_id = pb.id
+        AND pbc.del_flag = '0'
+        WHERE
+        pb.del_flag = '0'
+        AND pb.foreign_id in
+          <foreach collection="packCommonPageSearchDto.foreignIdList" item="item" open="(" close=")" separator=",">
+              #{item}
+          </foreach>
+        AND pb.pack_type = #{packCommonPageSearchDto.packType}
+        AND pb.bom_version_id in
+        <foreach collection="packCommonPageSearchDto.bomVersionIdList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        AND pb.unusable_flag = #{packCommonPageSearchDto.unusableFlag}
+        GROUP BY pb.id
+        ORDER BY sort ASC
+    </select>
     <select id="getPackSendStatus" resultType="java.util.Map">
 
     SELECT
