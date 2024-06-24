@@ -1,7 +1,7 @@
 package com.base.sbc.module.basicsdatum.vo;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -394,5 +394,5 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	private Integer groupCount;
 
 	@ApiModelProperty(value = "物料库动态字段")
-	List<FieldVal> fieldValList;
+	List<FieldManagementVo> fieldValList;
 }
