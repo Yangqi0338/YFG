@@ -356,7 +356,7 @@ public class SmpService {
             BeanUtil.copyProperties(style, dto);
             dto.setId(style.getId());
             dto.setForeignId(style.getId());
-            dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
             List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabels(dto);
             //List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             Map<String, FieldManagementVo> collect1 = fieldManagementVoList.stream().collect(Collectors.toMap(FieldManagementVo::getFieldName, o -> o, (v1, v2) -> v1));

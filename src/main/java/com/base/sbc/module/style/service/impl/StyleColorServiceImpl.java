@@ -3925,9 +3925,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             operaLogService.saveBatch(updateLogs);
         }
 
-        sbMsg.append("导入："+readAll.size()+"条,成功："+successCount+"条,失败原因如下;");
+        StringBuffer sbMsg1 = new StringBuffer();
 
-        return ApiResult.success(sbMsg.toString());
+        if(sbMsg.length() > 0){
+            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条,失败原因如下;").append(sbMsg);
+        }else{
+            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条");
+        }
+
+        String[] idsUpdate = updateFieldValList.stream().map(FieldVal::getForeignId).distinct().toArray(String[]::new);
+
+        if(idsUpdate.length > 0){
+            //推送下游系统
+            int i = smpService.goods(idsUpdate);
+            if (idsUpdate.length == i) {
+                sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条");
+            } else {
+                sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条");
+            }
+        }
+
+        return ApiResult.success(sbMsg1.toString());
     }
 
 
