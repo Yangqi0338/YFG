@@ -3937,11 +3937,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if(idsUpdate.length > 0){
             //推送下游系统
-            int i = smpService.goods(idsUpdate);
-            if (idsUpdate.length == i) {
-                sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条");
-            } else {
-                sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条");
+            try{
+                int i = smpService.goods(idsUpdate);
+                if (idsUpdate.length == i) {
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条");
+                } else {
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条");
+                }
+            }catch (Exception e){
+                log.error("批量修改下单阶段字段，下发下游系统失败",e);
+                sbMsg1.append("下发下游系统失败");
             }
         }
 
