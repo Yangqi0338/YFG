@@ -75,7 +75,7 @@ public class StyleColorController {
 
     @ApiOperation(value = "导出大货款列表")
     @GetMapping("/getStyleColorListExport")
-    public void getStyleColorListExport(HttpServletResponse response, Principal user, QueryBulkCargoDto queryBulkCargoDto) throws IOException {
+    public void getStyleColorListExport(HttpServletResponse response, QueryBulkCargoDto queryBulkCargoDto) throws IOException {
         styleColorService.getStyleColorListExport(response, queryBulkCargoDto);
     }
 
