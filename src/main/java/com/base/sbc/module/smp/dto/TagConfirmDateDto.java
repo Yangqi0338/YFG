@@ -91,12 +91,12 @@ public class TagConfirmDateDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planControlDate;
     /**
-     * 吊牌翻译确认
+     * 吊牌翻译确认时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date translateConfirmDate;
     /**
-     * 吊牌翻译确认
+     * 工时部工价确认时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date workingHourConfirmDate;
