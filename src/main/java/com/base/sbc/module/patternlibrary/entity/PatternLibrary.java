@@ -41,6 +41,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String code;
 
     /**
+     * 版型常青顶级编码
+     */
+    @ApiModelProperty("版型常青顶级编码")
+    @TableField(exist = false)
+    private String topParentCode;
+
+    /**
      * 父级 ID
      */
     @ApiModelProperty("父级 ID")

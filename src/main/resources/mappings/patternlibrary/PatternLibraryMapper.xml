@@ -74,6 +74,8 @@
         tpl.del_flag,
         tpl.company_code,
         tpl.style_nos,
+        tpl.parent_id,
+        tpl.parent_ids,
         ifnull((SELECT
         count( 1 )
         FROM

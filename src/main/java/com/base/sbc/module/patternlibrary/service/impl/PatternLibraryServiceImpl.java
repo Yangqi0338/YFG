@@ -210,8 +210,29 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         .collect(Collectors.toMap(PatternLibraryTemplate::getCode, item -> item));
             }
 
+            List<String> parentIds = patternLibraryList.stream().map(PatternLibrary::getParentIds).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+            Set<String> topParentId = new HashSet<>(parentIds.size());
+            Map<String, PatternLibrary> patternLibraryMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(parentIds)) {
+                for (String parentId : parentIds) {
+                    topParentId.add(parentId.split(",")[0].replace("\"", ""));
+                }
+
+                List<PatternLibrary> topParentPatternLibrary = listByIds(topParentId);
+                if (ObjectUtil.isNotEmpty(topParentPatternLibrary)) {
+                    patternLibraryMap = topParentPatternLibrary.stream().collect(Collectors.toMap(PatternLibrary::getId, item -> item));
+                }
+            }
+
+
             for (PatternLibrary patternLibrary : patternLibraryList) {
                 setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryBrandMap, patternLibraryItemMap, patternLibraryTemplateMap);
+
+                if (ObjectUtil.isNotEmpty(patternLibrary.getParentIds())) {
+                    String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
+                    PatternLibrary parent = patternLibraryMap.get(replace);
+                    patternLibrary.setTopParentCode(parent.getCode());
+                }
             }
         }
         return new PageInfo<>(patternLibraryList);
