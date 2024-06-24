@@ -1,9 +1,9 @@
 package com.base.sbc.module.material.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -18,9 +18,17 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
-import com.base.sbc.module.material.entity.*;
+import com.base.sbc.module.material.entity.Material;
+import com.base.sbc.module.material.entity.MaterialCollect;
+import com.base.sbc.module.material.entity.MaterialColor;
+import com.base.sbc.module.material.entity.MaterialLabel;
+import com.base.sbc.module.material.entity.MaterialSize;
 import com.base.sbc.module.material.mapper.MaterialMapper;
-import com.base.sbc.module.material.service.*;
+import com.base.sbc.module.material.service.MaterialCollectService;
+import com.base.sbc.module.material.service.MaterialColorService;
+import com.base.sbc.module.material.service.MaterialLabelService;
+import com.base.sbc.module.material.service.MaterialService;
+import com.base.sbc.module.material.service.MaterialSizeService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialChildren;
 import com.base.sbc.module.material.vo.MaterialLinkageVo;
@@ -29,17 +37,28 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：素材库 service实现类
@@ -92,6 +111,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
             qc.eq("user_id", materialQueryDto.getUserId());
+            qc.eq(StringUtils.isNotBlank(materialQueryDto.getCollectFolderId()),"folderId",materialQueryDto.getCollectFolderId());
             List<MaterialCollect> materialCollects = materialCollectService.list(qc);
             for (MaterialCollect materialCollect : materialCollects) {
                 collectSet.add(materialCollect.getMaterialId());
@@ -475,5 +495,13 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 //            return Math.ceil((double) fileSize / 1048576) + "MB";
 //        }
 //        return Math.ceil((double) fileSize / 1024) + "KB";
+    }
+
+    @Override
+    public void mergeFolderReplace(String id, List<String> byMergeFolderIds) {
+        UpdateWrapper<Material> qw = new UpdateWrapper<>();
+        qw.lambda().in(Material::getFolderId,byMergeFolderIds);
+        qw.lambda().set(Material::getFolderId,id);
+        update(qw);
     }
 }

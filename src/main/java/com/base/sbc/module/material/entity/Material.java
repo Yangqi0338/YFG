@@ -3,11 +3,12 @@ package com.base.sbc.module.material.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Date;
 
 /**
  * 素材
@@ -111,7 +112,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "风险评估")
     private String riskAssessment;
 
-    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过，4:审核通过）")
+    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：已发布，3：审核不通过，4:审核通过）")
     private String status;
 
     @ApiModelProperty(value = "图片地址")
@@ -191,5 +192,8 @@ public class Material extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "图片文件大小")
     private Long fileSize;
+
+    @ApiModelProperty(value = "描述")
+    private String describe;
 
 }

@@ -61,4 +61,6 @@ public interface MaterialService extends BaseService<Material> {
     long getFileCount(String userId,List<String> folderIds);
 
     String getFileSize(String userId,List<String> byAllFileIds);
+
+    void mergeFolderReplace(String id, List<String> byMergeFolderIds);
 }

@@ -99,7 +99,7 @@
             #{sql}
         </if>
         <if test="folderIdList != null and folderIdList.size > 0">
-            and folder_id in
+            and tm.folder_id in
             <foreach collection="folderIdList" open="(" separator="," item="item" close=")">
                 #{item}
             </foreach>

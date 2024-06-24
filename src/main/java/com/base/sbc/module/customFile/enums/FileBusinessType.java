@@ -1,15 +1,17 @@
 package com.base.sbc.module.customFile.enums;
 
 import com.base.sbc.config.exception.OtherException;
-import lombok.Getter;
 
 import java.util.List;
 import java.util.function.Function;
 
+import lombok.Getter;
+
 @Getter
 public enum FileBusinessType {
 
-    material("1","素材库相关");
+    material("1","素材库相关"),
+    material_collect("2","素材收藏相关");
 
     private final String code;
 

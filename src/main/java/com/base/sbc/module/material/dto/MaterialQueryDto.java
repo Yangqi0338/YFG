@@ -109,5 +109,8 @@ public class MaterialQueryDto extends Page {
     @ApiModelProperty(value = "所属的文件夹id")
     private List<String> folderIdList;
 
+    @ApiModelProperty(value = "收藏的文件夹id")
+    private String collectFolderId;
+
 
 }

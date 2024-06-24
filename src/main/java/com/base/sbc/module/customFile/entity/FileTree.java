@@ -9,6 +9,8 @@ package com.base.sbc.module.customFile.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.customFile.enums.FileBusinessType;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -47,7 +49,10 @@ public class FileTree extends BaseDataEntity<String> {
     @ApiModelProperty(value = "文件夹名称"  )
     private String name;
     /** 文件夹业务类型：1：素材库相关 */
-    @ApiModelProperty(value = "文件夹业务类型：1：素材库相关"  )
+    @ApiModelProperty(value = "文件夹业务类型：1：素材库相关，2：个人素材收藏"  )
+    /**
+     * {@link FileBusinessType}
+     */
     private String businessType;
     /** 父级id */
     @ApiModelProperty(value = "父级id"  )
