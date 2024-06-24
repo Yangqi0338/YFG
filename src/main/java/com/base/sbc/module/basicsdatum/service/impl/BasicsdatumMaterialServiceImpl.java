@@ -309,7 +309,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return new PageInfo<>(list);
         }
 
-        queryCoefficient(list.get(0));
+        List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
+        list.get(0).setFieldValList(fieldManagementVos);
 
         if (isColumnHeard) {
             return new PageInfo<>(list);
@@ -318,7 +319,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return new PageInfo<>(list);
     }
 
-    public void queryCoefficient(BasicsdatumMaterialPageVo pageVo) {
+    public List<FieldManagementVo> queryCoefficient(BasicsdatumMaterialPageVo pageVo) {
         //查询动态字段
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.in("tpd.prod_category1st", Arrays.asList(pageVo.getCategory1Code(), pageVo.getCategory2Code(), pageVo.getCategory3Code()));
@@ -353,7 +354,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         }
 
-        pageVo.setFieldValList(fieldManagementVos);
+        return fieldManagementVos;
     }
 
     @Transactional
@@ -762,6 +763,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     list.stream().filter(item -> "1".equals(item.getType())).collect(Collectors.toList()));
         }
         minioUtils.setObjectUrlToObject(copy, "imageUrl");
+
+        List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
+        copy.setFieldValList(fieldManagementVos);
         return copy;
     }
 
