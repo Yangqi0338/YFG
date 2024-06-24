@@ -274,6 +274,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             queryWrapper.ne("tsc.scm_send_flag","0");
             //只查询已经有关联Bom的
             queryWrapper.isNotNullStr("tsc.bom");
+            queryWrapper.notEmptyIn("tsc.style_no",queryDto.getStyleNo());
         }
 
 
