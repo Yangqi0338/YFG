@@ -355,7 +355,7 @@ public class SmpService {
             DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
             BeanUtil.copyProperties(style, dto);
             dto.setId(style.getId());
-            dto.setForeignId(style.getId());
+            dto.setForeignId(styleColor.getId());
             dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
             List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabels(dto);
             //List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
