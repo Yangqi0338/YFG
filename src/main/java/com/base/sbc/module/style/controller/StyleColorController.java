@@ -39,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.xml.transform.Result;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -68,8 +69,14 @@ public class StyleColorController {
 
     @ApiOperation(value = "大货款列表")
     @GetMapping("/getStyleColorList")
-    public PageInfo<CompleteStyleVo> getStyleColorList(Principal user, QueryBulkCargoDto queryBulkCargoDto) {
-        return styleColorService.getCompleteStyleVoList(user, queryBulkCargoDto);
+    public PageInfo<CompleteStyleVo> getStyleColorList(QueryBulkCargoDto queryBulkCargoDto) {
+        return styleColorService.getCompleteStyleVoList(queryBulkCargoDto);
+    }
+
+    @ApiOperation(value = "导出大货款列表")
+    @GetMapping("/getStyleColorListExport")
+    public void getStyleColorListExport(HttpServletResponse response, Principal user, QueryBulkCargoDto queryBulkCargoDto) throws IOException {
+        styleColorService.getStyleColorListExport(response, queryBulkCargoDto);
     }
 
     @ApiOperation(value = "大货款号查询大货详情")

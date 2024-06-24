@@ -91,6 +91,7 @@ import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
+import com.base.sbc.module.report.vo.StyleAnalyseVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
@@ -331,7 +332,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     @Override
-    public PageInfo<CompleteStyleVo> getCompleteStyleVoList(Principal user, QueryBulkCargoDto queryDto) {
+    public PageInfo<CompleteStyleVo> getCompleteStyleVoList(QueryBulkCargoDto queryDto) {
         /*分页*/
         BaseQueryWrapper<StyleAnalyseQueryDto> queryWrapper = new BaseQueryWrapper<>();
         //dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "tsc.");
@@ -373,14 +374,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*查询款式图*/
         stylePicUtils.setStylePic(completeStyleVoList, "stylePic");
+        stylePicUtils.setStyleColorPic2(completeStyleVoList, "styleColorPic");
 
-        if (user != null) {
-            /*查询款式配色图*/
-            GroupUser userBy = userUtils.getUserBy(user);
-            stylePicUtils.setStyleColorPic2(completeStyleVoList, "styleColorPic");
-        }
         dataProcessing(completeStyleVoList, super.getCompanyCode());
         return new PageInfo<>(completeStyleVoList);
+    }
+
+    @Override
+    public void getStyleColorListExport(HttpServletResponse response, QueryBulkCargoDto queryDto) throws IOException {
+        queryDto.setPageNum(0);
+        queryDto.setPageSize(0);
+        List<CompleteStyleVo> list = getCompleteStyleVoList(queryDto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "大货款列表", response, queryDto);
     }
 
     /**

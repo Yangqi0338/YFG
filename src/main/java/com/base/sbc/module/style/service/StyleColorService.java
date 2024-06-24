@@ -52,7 +52,9 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param queryDto 查询条件
          * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<CompleteStyleVo> getCompleteStyleVoList(Principal user, QueryBulkCargoDto queryDto);
+        PageInfo<CompleteStyleVo> getCompleteStyleVoList(QueryBulkCargoDto queryDto);
+
+        void getStyleColorListExport(HttpServletResponse response, QueryBulkCargoDto queryDto) throws IOException;
 
         /**
          * 方法描述：大货款详情
