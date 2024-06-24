@@ -5,10 +5,12 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.customFile.service;
+
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.customFile.dto.FileTreeDto;
 import com.base.sbc.module.customFile.dto.MergeFolderDto;
 import com.base.sbc.module.customFile.entity.FileTree;
+import com.base.sbc.module.customFile.vo.FileTreeVo;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public interface FileTreeService extends BaseService<FileTree>{
 
     boolean del(String id);
 
-    List<FileTree> queryFileTree(FileTreeDto fileTreeDto);
+    List<FileTreeVo> queryFileTree(FileTreeDto fileTreeDto);
 
     Boolean mergeFolder(MergeFolderDto dto);
 

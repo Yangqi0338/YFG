@@ -4,8 +4,8 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.customFile.dto.FileTreeDto;
 import com.base.sbc.module.customFile.dto.MergeFolderDto;
-import com.base.sbc.module.customFile.entity.FileTree;
 import com.base.sbc.module.customFile.service.FileTreeService;
+import com.base.sbc.module.customFile.vo.FileTreeVo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -44,7 +44,7 @@ public class FileTreeController extends BaseController {
   @Transactional(rollbackFor = {Exception.class})
   @ApiOperation(value = "获取文件夹", notes = "获取文件夹")
   public ApiResult queryFileTree(FileTreeDto fileTreeDto) {
-    List<FileTree> fileTrees = fileTreeService.queryFileTree(fileTreeDto);
+    List<FileTreeVo> fileTrees = fileTreeService.queryFileTree(fileTreeDto);
     return success("查询成功", fileTrees);
   }
 

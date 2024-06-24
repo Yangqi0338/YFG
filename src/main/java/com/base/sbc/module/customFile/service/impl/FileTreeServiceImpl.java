@@ -21,6 +21,8 @@ import com.base.sbc.module.customFile.entity.FileTree;
 import com.base.sbc.module.customFile.enums.FileBusinessType;
 import com.base.sbc.module.customFile.mapper.FileTreeMapper;
 import com.base.sbc.module.customFile.service.FileTreeService;
+import com.base.sbc.module.customFile.vo.FileTreeVo;
+import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.service.MaterialCollectService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.google.common.collect.Lists;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 
 /**
@@ -92,7 +95,7 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
     }
 
     @Override
-    public List<FileTree> queryFileTree(FileTreeDto fileTreeDto) {
+    public List<FileTreeVo> queryFileTree(FileTreeDto fileTreeDto) {
         String userId = companyUserInfo.get().getUserId();
         QueryWrapper<FileTree> qw = new QueryWrapper<>();
         qw.lambda().eq(FileTree::getParentId,fileTreeDto.getParentId());
@@ -101,19 +104,32 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         qw.lambda().orderByAsc(FileTree::getType);
         List<FileTree> list = list(qw);
         if (CollUtil.isEmpty(list)){
-            return list;
+            return Lists.newArrayList();
         }
         FileBusinessType fileBusinessType = FileBusinessType.getByCode(list.get(0).getBusinessType());
+        List<FileTreeVo> fileTreeVos = BeanUtil.copyToList(list, FileTreeVo.class);
         //类型少暂时用if
-        if (fileBusinessType == FileBusinessType.material) {
-            list.forEach(item ->{
-                List<String> byAllFileIds = getByAllFileIds(item.getId());
-                item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
-                item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
-            });
+//        if (fileBusinessType == FileBusinessType.material) {
+//            fileTreeVos.forEach(item ->{
+//                List<String> byAllFileIds = getByAllFileIds(item.getId());
+//                item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
+//                item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
+//            });
+//        }
+        switch (fileBusinessType){
+            case material:
+                fillMaterialFileTreeVo(fileTreeVos,false,userId);
+                break;
+            case  material_collect:
+                fillMaterialFileTreeVo(fileTreeVos,true,null);
+                break;
+            default:
+                break;
         }
-        return list;
+
+        return fileTreeVos;
     }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class )
@@ -266,6 +282,20 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         return update(uw);
     }
 
+
+    private void fillMaterialFileTreeVo(List<FileTreeVo> list, boolean collect, String userId){
+        MaterialQueryDto materialQueryDto = new MaterialQueryDto();
+        materialQueryDto.setPageNum(1);
+        materialQueryDto.setPageSize(3);
+        materialQueryDto.setCollect(collect);
+        materialQueryDto.setUserId(userId);
+        list.forEach(item ->{
+            if (!collect){
+                materialQueryDto.setFolderId("0".equals(item.getType()) ? item.getId() : null);
+            }
+            item.setDataList(materialService.listQuery(materialQueryDto).getList());
+        });
+    }
 
 // 自定义方法区 不替换的区域【other_start】
 
