@@ -30,6 +30,7 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -58,8 +59,11 @@ import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldManagementService;
@@ -102,10 +106,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorAgent;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.service.StyleColorAgentService;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleMainAccessoriesService;
-import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.service.*;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -179,7 +180,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     private StylePicUtils stylePicUtils;
 
     @Autowired
+    private StylePicService stylePicService;
+
+    @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
     private StyleColorService styleColorService;
+    @Autowired
+    private CustomStylePicUpload customStylePicUpload;
 
     private final FieldManagementService fieldManagementService;
 
@@ -531,7 +540,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<CompleteStyleVo> completeStyleVos = baseMapper.pageCompleteStyle(queryWrapper);
 
         /*查询款式图*/
-        stylePicUtils.setStylePic(completeStyleVos, "stylePic");
         stylePicUtils.setStyleColorPic2(completeStyleVos, "styleColorPic");
         if (CollUtil.isNotEmpty(completeStyleVos)) {
             dataProcessing(completeStyleVos, super.getCompanyCode());
@@ -543,6 +551,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 detail.setSizeRangeSizeIds(modelType.getSizeIds());
                 detail.setSizeRangeSizeCodes(modelType.getSizeCode());
                 detail.setSizeRangeSizeRealCodes(modelType.getSizeRealCode());
+                // 款式图片
+                if (customStylePicUpload.isOpen()) {
+                    List<StylePicVo> stylePicVos = stylePicService.listByStyleId(detail.getStyleId());
+                    detail.setStylePicList(stylePicVos);
+                } else {
+                    List<AttachmentVo> stylePicList = attachmentService.findByforeignId(detail.getStyleId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+                    detail.setStylePicList(BeanUtil.copyToList(stylePicList, StylePicVo.class));
+                }
             }
             return ApiResult.success("查询成功", detail);
         }
