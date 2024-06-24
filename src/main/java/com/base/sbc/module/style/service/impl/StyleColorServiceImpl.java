@@ -3930,7 +3930,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if(sbMsg.length() > 0){
             sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条,失败原因如下;").append(sbMsg);
         }else{
-            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条");
+            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条;");
         }
 
         String[] idsUpdate = updateFieldValList.stream().map(FieldVal::getForeignId).distinct().toArray(String[]::new);
