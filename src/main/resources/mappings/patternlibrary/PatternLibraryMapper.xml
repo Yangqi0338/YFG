@@ -292,20 +292,24 @@
         s.prod_category2nd_name, s.prod_category3rd_name,
         s.silhouette_name, s.pattern_parts, s.planning_season_id, s.prod_category2nd, s.prod_category,
         tfv.val_name silhouetteName,
-        ifnull((SELECT
-        count( 1 )
+        ifnull(usc.useStyleNum, 0) as useStyleNum,
+        tpl.id registeringId,
+        tpl.code registeringNo
+        FROM t_style s
+        LEFT JOIN (
+        SELECT
+        ts.serial_style_id,
+        COUNT( 1 ) AS useStyleNum
         FROM
         t_style ts
         JOIN t_style_color tsc ON ts.id = tsc.style_id
         AND tsc.del_flag = '0'
         WHERE
         ts.del_flag = 0
-        AND ts.serial_style_id = s.id
         AND ts.serial_style_id IS NOT NULL
-        ), 0) useStyleNum,
-        tpl.id registeringId,
-        tpl.code registeringNo
-        FROM t_style s
+        GROUP BY
+        ts.serial_style_id
+        ) usc ON usc.serial_style_id = s.id
         left JOIN t_style_color tsc ON s.id = tsc.style_id AND tsc.del_flag = '0'
         left join t_field_val tfv on tfv.foreign_id = s.id and tfv.del_flag = '0' and tfv.data_group =
         'SAMPLE_DESIGN_TECHNOLOGY'
