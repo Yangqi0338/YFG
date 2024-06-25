@@ -13,6 +13,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.dto.UseStyleDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
@@ -260,4 +261,10 @@ public class PatternLibraryController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryPageInfo);
     }
 
+    @ApiOperation(value = "根据款式 ID 获取可否改版信息")
+    @GetMapping("/queryPatternTypeByStyleId")
+    public ApiResult<PatternLibraryTemplate> queryPatternTypeByStyleId(String styleId) {
+        PatternLibraryTemplate patternLibraryTemplate = patternLibraryService.queryPatternTypeByStyleId(styleId);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryTemplate);
+    }
 }
