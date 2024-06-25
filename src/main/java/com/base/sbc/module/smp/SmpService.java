@@ -219,10 +219,14 @@ public class SmpService {
         return goods(ids,null,null);
     }
 
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
+        return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null);
+    }
+
     /**
      * 商品主数据下发
      */
-    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem,Integer type,List<String> msg) {
         int i = 0;
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
@@ -254,7 +258,12 @@ public class SmpService {
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
             //吊牌价为空或者等于0
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
-                throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                if(type != null && type == 1){
+                    //不抛出异常  保存到msg中
+                    msg.add(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                }else{
+                    throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                }
             }
             PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
@@ -570,7 +579,12 @@ public class SmpService {
             //smpGoodsDto.setSalesGroup(null);
             List<String> sizeCodes = StringUtils.convertList(style.getSizeCodes());
             if (sizeCodes.isEmpty()){
-                throw new OtherException("尺码不能为空");
+                if(type != null && type == 1){
+                    //不抛出异常  保存到msg中
+                    msg.add(styleColor.getStyleNo()+"尺码不能为空");
+                }else{
+                    throw new OtherException("尺码不能为空");
+                }
             }
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
 

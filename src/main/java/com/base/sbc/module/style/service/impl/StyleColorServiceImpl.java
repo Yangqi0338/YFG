@@ -3923,6 +3923,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         updateLogMap.put("newStr",StrUtil.isEmpty(valName)?value:valName);
                         if(fieldValMap.containsKey(planningDimensionality.getFieldId())){
                             FieldVal fieldVal = fieldValMap.get(planningDimensionality.getFieldId());
+                            if(StrUtil.equals(StrUtil.isEmpty(valName)?value:valName,StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName())){
+                                //没有修改时跳过
+                                continue;
+                            }
                             updateLogMap.put("oldStr",StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName());
                             fieldVal.setVal(value);
                             fieldVal.setValName(valName);
@@ -3965,11 +3969,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             fieldValService.saveBatch(updateFieldValList);
         }
 
-        //保存修改记录
-        if(CollUtil.isNotEmpty(updateLogs)){
-            operaLogService.saveBatch(updateLogs);
-        }
-
         StringBuffer sbMsg1 = new StringBuffer();
 
         if(sbMsg.length() > 0){
@@ -3983,17 +3982,32 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if(idsUpdate.length > 0){
             //推送下游系统
             try{
-                int i = smpService.goods(idsUpdate);
+                List<String> msg = new ArrayList<>();
+                int i = smpService.goods(idsUpdate,"BCS",null,1,msg);
                 if (idsUpdate.length == i) {
                     sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条");
                 } else {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条");
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条;失败原因如下:").append(String.join(";", msg));
                 }
             }catch (Exception e){
                 log.error("批量修改下单阶段字段,下发下游系统失败",e);
                 sbMsg1.append("下发下游系统失败:").append(e.getMessage());
             }
         }
+
+
+        //保存修改记录
+        if(CollUtil.isNotEmpty(updateLogs)){
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setType("导入");
+            operaLogEntity.setDocumentId("导入结果");
+            operaLogEntity.setName("款式打标-批量导入修改");
+            operaLogEntity.setDocumentName("导入结果");
+            operaLogEntity.setContent(sbMsg1.toString());
+            updateLogs.add(operaLogEntity);
+            operaLogService.saveBatch(updateLogs);
+        }
+
 
         return ApiResult.success(sbMsg1.toString());
     }
