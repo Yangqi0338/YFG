@@ -422,6 +422,12 @@ public class PatternMaking extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "面料成分"  )
     private String ingredient;
+
+    /**
+     * 可否改版（没有的时候取套版款号对应的可否改版 当下发之后存储取下发时刻所对应的可否改版 之后也读取存储的）
+     */
+    @ApiModelProperty(value = "可否改版")
+    private String patternType;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
