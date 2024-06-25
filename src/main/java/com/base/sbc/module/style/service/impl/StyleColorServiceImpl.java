@@ -3857,19 +3857,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
                             if("multiple".equals(planningDimensionality.getFieldTypeCoding())){
                                 List<String> values = StrUtil.split(value, ",");
-                                StringBuilder val = new StringBuilder();
+                                List<String> vals = new ArrayList<>();
                                 for (String s : values) {
                                     if(orDefault.containsKey(s)){
-                                        val.append(orDefault.get(s));
+                                        vals.add(orDefault.get(s));
                                     }else{
                                         //字典项不存在
                                         sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
                                         fieldValFlag = false;
                                     }
                                 }
-                                if(StrUtil.isNotEmpty(val.toString())){
+                                if(CollUtil.isNotEmpty(vals)){
                                     valName = value;
-                                    value = val.toString();
+                                    value = String.join(",", vals);
                                 }else {
                                     continue;
                                 }
@@ -3890,19 +3890,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             Map<String, String> structureTrees = structureTreesMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>()).getOrDefault(planningDimensionality.getStructureTier(), new HashMap<>());
                             if("multiple".equals(planningDimensionality.getFieldTypeCoding())){
                                 List<String> values = StrUtil.split(value, ",");
-                                StringBuilder val = new StringBuilder();
+                                List<String> vals = new ArrayList<>();
                                 for (String s : values) {
                                     if(structureTrees.containsKey(s)){
-                                        val.append(structureTrees.get(s));
+                                        vals.add(structureTrees.get(s));
                                     }else{
                                         //字典项不存在
                                         sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
                                         fieldValFlag = false;
                                     }
                                 }
-                                if(StrUtil.isNotEmpty(val.toString())){
+                                if(CollUtil.isNotEmpty(vals)){
                                     valName = value;
-                                    value = val.toString();
+                                    value = String.join(",", vals);
                                 }else {
                                     continue;
                                 }
