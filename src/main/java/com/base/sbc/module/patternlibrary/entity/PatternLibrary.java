@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternlibrary.vo.EverGreenVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -174,6 +175,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      */
     @ApiModelProperty("常青编号")
     private String everGreenCode;
+
+    /**
+     * 常青编号
+     */
+    @ApiModelProperty("常青编号")
+    @TableField(exist = false)
+    private EverGreenVO everGreenVO;
 
     /**
      * 文件 ID
