@@ -261,6 +261,7 @@ public class SmpService {
                 if(type != null && type == 1){
                     //不抛出异常  保存到msg中
                     msg.add(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                    continue;
                 }else{
                     throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
                 }
@@ -582,6 +583,7 @@ public class SmpService {
                 if(type != null && type == 1){
                     //不抛出异常  保存到msg中
                     msg.add(styleColor.getStyleNo()+"尺码不能为空");
+                    continue;
                 }else{
                     throw new OtherException("尺码不能为空");
                 }
