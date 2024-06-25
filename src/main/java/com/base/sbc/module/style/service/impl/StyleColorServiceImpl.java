@@ -663,7 +663,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //region ED品牌大货款号特殊处理
         if ("6".equals(brand)) {
-            styleNo = createEDStyleNo(designNo, isLuxury, category, yearOn, styleNo, aLong + index);
+            styleNo = createEDStyleNo(designNo, isLuxury, category, yearOn, styleNo,style.getMonth(),aLong + index);
             return styleNo;
         }
         //endregion
@@ -697,18 +697,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
     @NotNull
-    private static String createEDStyleNo(String designNo, String isLuxury, String category, String yearOn, String styleNo, Long aLong) {
+    private static String createEDStyleNo(String designNo, String isLuxury, String category, String yearOn, String styleNo,String month, Long aLong) {
         styleNo = "1";
         styleNo += yearOn;
         String monthStr = "";
-        int month = DateUtil.month(new Date());
         monthStr = String.valueOf(month);
-        if (month == 10) {
-            monthStr ="A";
-        }else if(month == 11){
-            monthStr ="B";
-        }else if(month == 12){
-            monthStr ="C";
+        if ("10".equals(month)) {
+            monthStr = "A";
+        } else if ("11".equals(month)) {
+            monthStr = "B";
+        } else if ("12".equals(month)) {
+            monthStr = "C";
         }
         styleNo+=monthStr;
         styleNo +="9";
