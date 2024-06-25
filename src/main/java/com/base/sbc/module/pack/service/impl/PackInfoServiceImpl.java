@@ -848,8 +848,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     packInfoStatus.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new OtherException("生成工艺文件失败");
+            log.error("生成工艺文件失败", e);
+            throw new OtherException("生成工艺文件失败，失败原因：" + e.getMessage());
         }
 
     }
