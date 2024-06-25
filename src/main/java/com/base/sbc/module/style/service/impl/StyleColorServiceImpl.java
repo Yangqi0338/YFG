@@ -6,18 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
-import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -39,8 +27,13 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -76,7 +69,11 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -95,7 +92,19 @@ import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.dto.*;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.dto.MangoStyleColorExeclDto;
+import com.base.sbc.module.style.dto.MangoStyleColorExeclExportDto;
+import com.base.sbc.module.style.dto.PublicStyleColorDto;
+import com.base.sbc.module.style.dto.QueryStyleColorAgentDto;
+import com.base.sbc.module.style.dto.QueryStyleColorDto;
+import com.base.sbc.module.style.dto.RelevanceBomDto;
+import com.base.sbc.module.style.dto.StyleColorOverdueReasonDto;
+import com.base.sbc.module.style.dto.StyleColorsDto;
+import com.base.sbc.module.style.dto.StyleMainAccessoriesSaveDto;
+import com.base.sbc.module.style.dto.UpdateColorDto;
+import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.style.dto.UpdateTagPriceDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorAgent;
@@ -105,12 +114,16 @@ import com.base.sbc.module.style.service.StyleColorAgentService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.*;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
+import com.base.sbc.module.style.vo.StyleColorExcel;
+import com.base.sbc.module.style.vo.StyleColorListExcel;
+import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -127,19 +140,41 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.http.HttpUtil;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：样衣-款式配色 service类
@@ -1451,6 +1486,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper1.eq("style_color_id", styleColor.getId());
         queryWrapper1.eq("style_no", styleColor.getStyleNo());
         PackInfo packInfo = packInfoService.getOne(queryWrapper1);
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
 
         /*复制配色数据*/
         StyleColor copyStyleColor = new StyleColor();
@@ -1462,7 +1498,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         long count = packInfoMapper.countByQw(codeQw);
         /*复制配色*/
         String packType = "";
-        if(StrUtil.equals(copyStyleColor.getBom(),BaseGlobal.NO)){
+        if(StrUtil.equals(packInfoStatus.getBomStatus(),BaseGlobal.NO)){
             packType = PackUtils.PACK_TYPE_DESIGN;
         }else {
             packType =  PackUtils.PACK_TYPE_BIG_GOODS;
@@ -1502,8 +1538,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
         packInfoService.save(copyPackInfo);
-
-        PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
 
         /*复制资料包里面的数据*/
         packInfoService.copyPack(packInfo.getId(),packType , copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES, BasicNumber.ZERO.getNumber(),BaseGlobal.YES);
