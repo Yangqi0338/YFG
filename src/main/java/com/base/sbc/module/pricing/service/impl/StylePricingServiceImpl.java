@@ -304,7 +304,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     .collect(Collectors.toList());
             Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, companyCode, "packBigGoods");
             List<String> foreignIdInCmtList = stylePricingList.stream().filter(item -> "CMT".equals(item.getProductionType())).map(StylePricingVO::getId).distinct().collect(Collectors.toList());
-            Map<String, BigDecimal> stringBigDecimalMap = packBomService.calculateCosts(foreignIdInCmtList, PackUtils.PACK_TYPE_BIG_GOODS);
+            Map<String, BigDecimal> stringBigDecimalMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(foreignIdInCmtList)) {
+                stringBigDecimalMap = packBomService.calculateCosts(foreignIdInCmtList, PackUtils.PACK_TYPE_BIG_GOODS);
+            }
 
             // 加工费
             List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(
