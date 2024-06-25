@@ -895,6 +895,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 转成导出的数据
         try {
             List<ExcelExportVO> excelExportVOList = new ArrayList<>(list.size());
+            minioUtils.setObjectUrlToList(list, "picUrl");
             for (PatternLibrary patternLibrary : list) {
                 ExcelExportVO excelExportVO = new ExcelExportVO();
                 BeanUtil.copyProperties(patternLibrary, excelExportVO);
