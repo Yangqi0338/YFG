@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -19,7 +20,6 @@ import com.base.sbc.module.pricing.mapper.PricingTemplateItemMapper;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.beust.jcommander.internal.Lists;
-import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
