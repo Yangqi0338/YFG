@@ -290,9 +290,7 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         materialQueryDto.setCollect(collect);
         materialQueryDto.setUserId(userId);
         list.forEach(item ->{
-            if (!collect){
-                materialQueryDto.setFolderId("0".equals(item.getType()) ? item.getId() : null);
-            }
+            materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
             item.setDataList(materialService.listQuery(materialQueryDto).getList());
         });
     }
