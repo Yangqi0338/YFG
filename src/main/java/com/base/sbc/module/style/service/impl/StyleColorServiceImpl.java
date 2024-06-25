@@ -34,6 +34,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
@@ -3852,27 +3853,69 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         PlanningDimensionalityVo planningDimensionality = collect.get(entry1.getKey());
                         if("1".equals(planningDimensionality.getIsOption())){
                             //判断使用的是字典项
+                            //判断是否多选
                             Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
-                            if(orDefault.containsKey(value)){
-                                valName = value;
-                                value = orDefault.get(value);
+                            if("multiple".equals(planningDimensionality.getFieldTypeCoding())){
+                                List<String> values = StrUtil.split(value, ",");
+                                StringBuilder val = new StringBuilder();
+                                for (String s : values) {
+                                    if(orDefault.containsKey(s)){
+                                        val.append(orDefault.get(s));
+                                    }else{
+                                        //字典项不存在
+                                        sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
+                                        fieldValFlag = false;
+                                    }
+                                }
+                                if(StrUtil.isNotEmpty(val.toString())){
+                                    valName = value;
+                                    value = val.toString();
+                                }else {
+                                    continue;
+                                }
                             }else{
-                                //字典项不存在
-                                sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
-                                fieldValFlag = false;
-                                continue;
+                                if(orDefault.containsKey(value)){
+                                    valName = value;
+                                    value = orDefault.get(value);
+                                }else{
+                                    //字典项不存在
+                                    sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    fieldValFlag = false;
+                                    continue;
+                                }
                             }
                         }else if("2".equals(planningDimensionality.getIsOption())){
                             //还是使用的结构字段项
+                            //判断是否多选
                             Map<String, String> structureTrees = structureTreesMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>()).getOrDefault(planningDimensionality.getStructureTier(), new HashMap<>());
-                            if(structureTrees.containsKey(value)){
-                                valName = value;
-                                value = structureTrees.get(value);
-                            }else{
-                                //结构字典项不存在
-                                sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
-                                fieldValFlag = false;
-                                continue;
+                            if("multiple".equals(planningDimensionality.getFieldTypeCoding())){
+                                List<String> values = StrUtil.split(value, ",");
+                                StringBuilder val = new StringBuilder();
+                                for (String s : values) {
+                                    if(structureTrees.containsKey(s)){
+                                        val.append(structureTrees.get(s));
+                                    }else{
+                                        //字典项不存在
+                                        sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
+                                        fieldValFlag = false;
+                                    }
+                                }
+                                if(StrUtil.isNotEmpty(val.toString())){
+                                    valName = value;
+                                    value = val.toString();
+                                }else {
+                                    continue;
+                                }
+                            }else {
+                                if(structureTrees.containsKey(value)){
+                                    valName = value;
+                                    value = structureTrees.get(value);
+                                }else{
+                                    //结构字典项不存在
+                                    sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    fieldValFlag = false;
+                                    continue;
+                                }
                             }
                         }
                         Map<String,String> updateLogMap = new HashMap<>();
@@ -3917,7 +3960,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         }
         if(CollUtil.isNotEmpty(updateFieldValList)){
-            fieldValService.saveOrUpdateBatch(updateFieldValList);
+            fieldValService.removeByIds(updateFieldValList.stream().map(BaseEntity::getId).filter(StrUtil::isNotEmpty).collect(Collectors.toList()));
+
+            fieldValService.saveBatch(updateFieldValList);
         }
 
         //保存修改记录
@@ -3940,13 +3985,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             try{
                 int i = smpService.goods(idsUpdate);
                 if (idsUpdate.length == i) {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条");
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条");
                 } else {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条，成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条");
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条");
                 }
             }catch (Exception e){
-                log.error("批量修改下单阶段字段，下发下游系统失败",e);
-                sbMsg1.append("下发下游系统失败");
+                log.error("批量修改下单阶段字段,下发下游系统失败",e);
+                sbMsg1.append("下发下游系统失败:").append(e.getMessage());
             }
         }
 
