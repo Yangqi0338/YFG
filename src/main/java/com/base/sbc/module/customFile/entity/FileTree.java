@@ -33,13 +33,31 @@ public class FileTree extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "文件数量")
     @TableField(exist = false)
-    private long fileCount;
+    private Long fileCount;
 
     @ApiModelProperty(value = "文件所占空间大小")
     @TableField(exist = false)
-    private String fileSize;
+    private Long fileSize;
 
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    @ApiModelProperty(value = "文件所占空间大小说明")
+    @TableField(exist = false)
+    private String  fileSizeStr;
+
+    public String getFileSizeStr() {
+        if (null == fileSize){
+            return null;
+        }
+        if (fileSize > 1073741824){
+            return Math.ceil((double) fileSize / 1073741824) + "GB";
+        }
+
+        if (fileSize > 1048576){
+            return Math.ceil((double) fileSize / 1048576) + "MB";
+        }
+        return Math.ceil((double) fileSize / 1024) + "KB";
+    }
+
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/

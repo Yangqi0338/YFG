@@ -109,22 +109,14 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         FileBusinessType fileBusinessType = FileBusinessType.getByCode(list.get(0).getBusinessType());
         List<FileTreeVo> fileTreeVos = BeanUtil.copyToList(list, FileTreeVo.class);
         //类型少暂时用if
-//        if (fileBusinessType == FileBusinessType.material) {
-//            fileTreeVos.forEach(item ->{
-//                List<String> byAllFileIds = getByAllFileIds(item.getId());
-//                item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
-//                item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
-//            });
-//        }
-        switch (fileBusinessType){
-            case material:
-                fillMaterialFileTreeVo(fileTreeVos,false,userId);
-                break;
-            case  material_collect:
-                fillMaterialFileTreeVo(fileTreeVos,true,null);
-                break;
-            default:
-                break;
+        if (fileBusinessType == FileBusinessType.material) {
+            fileTreeVos.forEach(item ->{
+                if (!"0".equals(item.getType())){
+                    List<String> byAllFileIds = getByAllFileIds(item.getId());
+                    item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
+                    item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
+                }
+            });
         }
 
         return fileTreeVos;
@@ -283,10 +275,13 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
     }
 
 
-    private void fillMaterialFileTreeVo(List<FileTreeVo> list, boolean collect, String userId){
+    private void fillMaterialFileTreeVo(List<FileTreeVo> list, boolean collect, String userId, Boolean showTopSeveral){
+        if (null == showTopSeveral || !showTopSeveral){
+            return;
+        }
         MaterialQueryDto materialQueryDto = new MaterialQueryDto();
         materialQueryDto.setPageNum(1);
-        materialQueryDto.setPageSize(3);
+        materialQueryDto.setPageSize(5);
         materialQueryDto.setCollect(collect);
         materialQueryDto.setUserId(userId);
         list.forEach(item ->{

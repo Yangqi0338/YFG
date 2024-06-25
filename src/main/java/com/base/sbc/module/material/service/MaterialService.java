@@ -10,6 +10,7 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：素材库 service类
@@ -60,7 +61,9 @@ public interface MaterialService extends BaseService<Material> {
 
     long getFileCount(String userId,List<String> folderIds);
 
-    String getFileSize(String userId,List<String> byAllFileIds);
+    Long getFileSize(String userId,List<String> byAllFileIds);
 
     void mergeFolderReplace(String id, List<String> byMergeFolderIds);
+
+    Map<String,List<String>> listImgQuery(MaterialQueryDto materialQueryDto);
 }
