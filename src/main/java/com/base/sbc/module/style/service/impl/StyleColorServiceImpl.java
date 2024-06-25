@@ -116,6 +116,7 @@ import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
@@ -3964,7 +3965,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         }
         if(CollUtil.isNotEmpty(updateFieldValList)){
-            fieldValService.removeByIds(updateFieldValList.stream().map(BaseEntity::getId).filter(StrUtil::isNotEmpty).collect(Collectors.toList()));
+            List<String> collect = updateFieldValList.stream().map(BaseEntity::getId).filter(StrUtil::isNotEmpty).collect(Collectors.toList());
+            List<List<String>> partition = Lists.partition(collect, 1000);
+            for (List<String> strings : partition) {
+                fieldValService.removeByIds(strings);
+            }
 
             fieldValService.saveBatch(updateFieldValList);
         }
