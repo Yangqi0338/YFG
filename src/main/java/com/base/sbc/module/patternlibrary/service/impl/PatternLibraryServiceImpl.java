@@ -20,6 +20,8 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -84,6 +86,9 @@ import static com.base.sbc.config.constant.Constants.COMMA;
  */
 @Service
 public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMapper, PatternLibrary> implements PatternLibraryService {
+
+    @Autowired
+    private MinioUtils minioUtils;
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
@@ -234,6 +239,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                     patternLibrary.setTopParentCode(parent.getCode());
                 }
             }
+            minioUtils.setObjectUrlToList(patternLibraryList, "picUrl");
         }
         return new PageInfo<>(patternLibraryList);
     }
@@ -273,6 +279,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
 
         // 新增/修改主表数据
+        patternLibrary.setPicUrl(CommonUtils.removeQuery(patternLibrary.getPicUrl()));
         saveOrUpdate(patternLibrary);
         if (ObjectUtil.isEmpty(patternLibraryDTO.getId()) && ObjectUtil.isNotEmpty(patternLibraryDTO.getParentId())) {
             // 如果是新增
@@ -367,7 +374,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         );
                         picSampleAttachmentDto.setFileId(attachmentVo.getFileId());
                         patternLibrary.setPicId(attachmentVo.getFileId());
-                        patternLibrary.setPicUrl(attachmentVo.getUrl());
+                        patternLibrary.setPicUrl(CommonUtils.removeQuery(attachmentVo.getUrl()));
                         updateById(patternLibrary);
                     } catch (IOException e) {
                         throw new RuntimeException(ResultConstant.FILE_SAVE_FAIL_REFRESH_TRY_AGAIN);
@@ -543,15 +550,16 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
 
+        minioUtils.setObjectUrlToObject(patternLibrary, "picUrl");
+
         if (ObjectUtil.isNotEmpty(patternLibrary.getFileId())) {
             AttachmentVo fileAttachmentVo = attachmentService.getAttachmentByFileId(patternLibrary.getFileId());
             patternLibrary.setFileAttachmentVo(fileAttachmentVo);
         }
-
-        if (ObjectUtil.isNotEmpty(patternLibrary.getPicId())) {
-            AttachmentVo picAttachmentVo = attachmentService.getAttachmentByFileId(patternLibrary.getPicId());
-            patternLibrary.setPicAttachmentVo(picAttachmentVo);
-        }
+        // if (ObjectUtil.isNotEmpty(patternLibrary.getPicId())) {
+        //     AttachmentVo picAttachmentVo = attachmentService.getAttachmentByFileId(patternLibrary.getPicId());
+        //     patternLibrary.setPicAttachmentVo(picAttachmentVo);
+        // }
 
         // 查询品类信息
         List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryBrandService.list(
