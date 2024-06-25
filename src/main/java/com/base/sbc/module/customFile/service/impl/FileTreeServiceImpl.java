@@ -119,6 +119,18 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
             });
         }
 
+        switch (fileBusinessType){
+            case material:
+                fillMaterialFileTreeVo(fileTreeVos,false,userId);
+                break;
+            case material_collect:
+                fillMaterialFileTreeVo(fileTreeVos,true,null);
+                break;
+            default:
+                break;
+        }
+
+
         return fileTreeVos;
     }
 
@@ -275,18 +287,20 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
     }
 
 
-    private void fillMaterialFileTreeVo(List<FileTreeVo> list, boolean collect, String userId, Boolean showTopSeveral){
-        if (null == showTopSeveral || !showTopSeveral){
-            return;
-        }
+    private void fillMaterialFileTreeVo(List<FileTreeVo> list, boolean collect, String userId){
         MaterialQueryDto materialQueryDto = new MaterialQueryDto();
         materialQueryDto.setPageNum(1);
         materialQueryDto.setPageSize(5);
         materialQueryDto.setCollect(collect);
         materialQueryDto.setUserId(userId);
         list.forEach(item ->{
+            if ( !collect && !"0".equals(item.getType())){
+                List<String> byAllFileIds = getByAllFileIds(item.getId());
+                item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
+                item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
+            }
             materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
-            item.setDataList(materialService.listQuery(materialQueryDto).getList());
+            item.setDataList(materialService.listImgQuery(materialQueryDto));
         });
     }
 

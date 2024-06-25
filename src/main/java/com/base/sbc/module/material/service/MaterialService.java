@@ -1,4 +1,5 @@
 package com.base.sbc.module.material.service;
+
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
@@ -10,7 +11,6 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：素材库 service类
@@ -65,5 +65,5 @@ public interface MaterialService extends BaseService<Material> {
 
     void mergeFolderReplace(String id, List<String> byMergeFolderIds);
 
-    Map<String,List<String>> listImgQuery(MaterialQueryDto materialQueryDto);
+    List<String> listImgQuery(MaterialQueryDto materialQueryDto);
 }

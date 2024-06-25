@@ -37,7 +37,6 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -494,25 +493,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     }
 
     @Override
-    public Map<String, List<String>> listImgQuery(MaterialQueryDto materialQueryDto) {
-        if (StringUtils.isBlank(materialQueryDto.getFolderId())){
-            return null;
-        }
+    public List<String> listImgQuery(MaterialQueryDto materialQueryDto) {
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
-        List<String> folders = StringUtils.convertList(materialQueryDto.getFolderId());
-        Map<String, List<String>> map = Maps.newHashMap();
         PageHelper.startPage(materialQueryDto);
-        for (String folder : folders) {
-            materialQueryDto.setFolderIdList(Lists.newArrayList(folder));
-            List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
-            minioUtils.setObjectUrlToList(materialAllDtolist, "picUrl");
-            if (CollUtil.isEmpty(materialAllDtolist)){
-                continue;
-            }
-            map.put(folder,materialAllDtolist.stream().map(MaterialVo::getPicUrl).collect(Collectors.toList()));
+        List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
+        minioUtils.setObjectUrlToList(materialAllDtolist, "picUrl");
+        if (CollUtil.isEmpty(materialAllDtolist)){
+            return null;
         }
-        return map;
+        return materialAllDtolist.stream().map(MaterialVo::getPicUrl).collect(Collectors.toList());
     }
+
 }

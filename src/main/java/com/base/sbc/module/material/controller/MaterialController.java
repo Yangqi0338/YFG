@@ -328,14 +328,7 @@ public class MaterialController extends BaseController {
         return ApiResult.success("发布成功");
     }
 
-    @ApiOperation(value = "查询前几条图片数据", notes = "查询前几条图片数据")
-    @GetMapping("/listImgQuery")
-    public ApiResult  listImgQuery(MaterialQueryDto materialQueryDto) {
-        if (materialQueryDto == null) {
-            throw new OtherException("参数不能为空");
-        }
-        return selectSuccess(materialService.listImgQuery(materialQueryDto));
-    }
+
 
 
 }
