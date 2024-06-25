@@ -319,6 +319,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return new PageInfo<>(list);
     }
 
+    @Override
     public List<FieldManagementVo> queryCoefficient(BasicsdatumMaterialPageVo pageVo) {
         //查询动态字段
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();

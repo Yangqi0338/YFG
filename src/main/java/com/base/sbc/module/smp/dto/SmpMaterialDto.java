@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpColor;
 import com.base.sbc.module.smp.entity.SmpModuleSize;
@@ -205,4 +206,7 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 风险评估 */
     @ApiModelProperty(value = "风险评估")
     private String riskDescription;
+
+    @ApiModelProperty(value = "物料库动态字段")
+    List<FieldManagementVo> fieldValList;
 }
