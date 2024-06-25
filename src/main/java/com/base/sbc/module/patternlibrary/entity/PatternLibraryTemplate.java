@@ -50,6 +50,12 @@ public class PatternLibraryTemplate extends BaseDataEntity<String> implements Se
     private Integer sort;
 
     /**
+     * 可否改版
+     */
+    @ApiModelProperty("可否改版")
+    private String patternType;
+
+    /**
      * 启用状态（0-停用，1-启用)
      */
     @ApiModelProperty("启用状态（0-停用，1-启用)")
