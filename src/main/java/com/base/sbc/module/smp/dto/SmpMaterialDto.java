@@ -208,5 +208,5 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private String riskDescription;
 
     @ApiModelProperty(value = "物料库动态字段")
-    List<FieldManagementVo> fieldValList;
+    List<FieldManagementVo> dynamicFieldList;
 }

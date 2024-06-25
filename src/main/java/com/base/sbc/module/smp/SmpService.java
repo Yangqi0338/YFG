@@ -681,7 +681,7 @@ public class SmpService {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
 
             List<FieldManagementVo> fieldManagementVos = basicsdatumMaterialService.queryCoefficient(BeanUtil.copyProperties(basicsdatumMaterial, BasicsdatumMaterialPageVo.class));
-            smpMaterialDto.setFieldValList(fieldManagementVos);
+            smpMaterialDto.setDynamicFieldList(fieldManagementVos);
 
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
