@@ -1572,6 +1572,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         stylePricing.setControlConfirm(styleColorVo.getControlConfirm());
         stylePricing.setProductHangtagConfirm(styleColorVo.getProductHangtagConfirm());
         stylePricing.setControlHangtagConfirm(styleColorVo.getControlHangtagConfirm());
+        stylePricing.setWagesConfirm(styleColorVo.getWagesConfirm());
+        stylePricing.setControlPlanCost(styleColorVo.getControlPlanCost());
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
         stylePricingMapper.insert(stylePricing);
