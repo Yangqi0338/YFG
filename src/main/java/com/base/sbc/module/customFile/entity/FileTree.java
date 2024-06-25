@@ -81,5 +81,8 @@ public class FileTree extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "类型，0:系统默认，1：自定义"  )
     private String type;
+
+    @ApiModelProperty(value = "描述")
+    private String descInfo;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

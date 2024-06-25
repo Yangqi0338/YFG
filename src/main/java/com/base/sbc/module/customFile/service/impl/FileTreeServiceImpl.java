@@ -109,15 +109,15 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         FileBusinessType fileBusinessType = FileBusinessType.getByCode(list.get(0).getBusinessType());
         List<FileTreeVo> fileTreeVos = BeanUtil.copyToList(list, FileTreeVo.class);
         //类型少暂时用if
-        if (fileBusinessType == FileBusinessType.material) {
-            fileTreeVos.forEach(item ->{
-                if (!"0".equals(item.getType())){
-                    List<String> byAllFileIds = getByAllFileIds(item.getId());
-                    item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
-                    item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
-                }
-            });
-        }
+//        if (fileBusinessType == FileBusinessType.material) {
+//            fileTreeVos.forEach(item ->{
+//                if (!"0".equals(item.getType())){
+//                    List<String> byAllFileIds = getByAllFileIds(item.getId());
+//                    item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
+//                    item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
+//                }
+//            });
+//        }
 
         switch (fileBusinessType){
             case material:

@@ -194,6 +194,6 @@ public class Material extends BaseDataEntity<String> {
     private Long fileSize;
 
     @ApiModelProperty(value = "描述")
-    private String describe;
+    private String descInfo;
 
 }
