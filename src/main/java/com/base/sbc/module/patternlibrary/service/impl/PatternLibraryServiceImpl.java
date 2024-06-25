@@ -229,7 +229,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryBrandMap, patternLibraryItemMap, patternLibraryTemplateMap);
 
                 if (ObjectUtil.isNotEmpty(patternLibrary.getParentIds())) {
-                    String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
+                     String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
                     PatternLibrary parent = patternLibraryMap.get(replace);
                     patternLibrary.setTopParentCode(parent.getCode());
                 }
@@ -575,6 +575,9 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             );
             patternLibrary.setPatternLibraryTemplate(patternLibraryTemplate);
         }
+        // 查询常青原版树
+        EverGreenVO everGreenVO = listEverGreenTree(patternLibraryId);
+        patternLibrary.setEverGreenVO(everGreenVO);
         return patternLibrary;
     }
 
