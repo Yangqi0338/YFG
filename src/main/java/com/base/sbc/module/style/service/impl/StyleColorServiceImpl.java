@@ -3997,16 +3997,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
         //保存修改记录
-        if(CollUtil.isNotEmpty(updateLogs)){
-            OperaLogEntity operaLogEntity = new OperaLogEntity();
-            operaLogEntity.setType("导入");
-            operaLogEntity.setDocumentId("导入结果");
-            operaLogEntity.setName("款式打标-批量导入修改");
-            operaLogEntity.setDocumentName("导入结果");
-            operaLogEntity.setContent(sbMsg1.toString());
-            updateLogs.add(operaLogEntity);
-            operaLogService.saveBatch(updateLogs);
-        }
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setType("导入");
+        operaLogEntity.setDocumentId("导入结果");
+        operaLogEntity.setName("款式打标-批量导入修改");
+        operaLogEntity.setDocumentName("导入结果");
+        operaLogEntity.setContent(sbMsg1.toString());
+        updateLogs.add(operaLogEntity);
+        operaLogService.saveBatch(updateLogs);
 
 
         return ApiResult.success(sbMsg1.toString());
