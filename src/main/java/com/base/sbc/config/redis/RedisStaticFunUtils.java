@@ -3,6 +3,7 @@ package com.base.sbc.config.redis;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.module.common.service.BaseService;
@@ -169,7 +170,7 @@ public class RedisStaticFunUtils {
 	 */
 	public static Set<String> keys(String key,String... indexList) {
 		StringBuilder pattern = new StringBuilder(decorateKey(key));
-		if (!Arrays.isNullOrEmpty(indexList)) {
+		if (!ArrayUtil.isEmpty(indexList)) {
 			for (String index : indexList) {
 				pattern.append(decorateKey(index));
 			}

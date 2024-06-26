@@ -111,7 +111,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.jetty.util.ArrayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -255,7 +254,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer... judgeGroup) {
-        List<Integer> judgeList = ArrayUtil.asMutableList(judgeGroup);
+        List<Integer> judgeList = Arrays.asList(judgeGroup);
         boolean openDataAuth = CommonUtils.judge(judgeList, 0, 1);
         if (openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
@@ -1363,7 +1362,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }else {
             PushRecordsDto pushRecordsDto = new PushRecordsDto();
             pushRecordsDto.setRelatedId(list.stream().map(relatedIdFunc).collect(Collectors.joining(",")));
-            pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
+            pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL.toString());
             pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
             pushRecordsDto.setUpdateDate(new String[]{ LocalDateTime.now().minusMinutes(15).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) });
             pushRecordsDto.reset2QueryList();

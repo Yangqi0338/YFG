@@ -88,6 +88,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
     boolean unusableChange(String id, String unusableFlag);
 
     BigDecimal calculateCosts(PackCommonSearchDto dto);
+    Map<String, BigDecimal> calculateCosts(List<String> foreignIdList, String packType);
 
     List<PackBom> getListByVersionId(String versionId, String unusableFlag);
 

@@ -1969,7 +1969,7 @@ public class SmpService {
     public ApiResult<List<ScmProductionBudgetDto>> productionBudgetList(ScmProductionBudgetQueryDto productionBudgetQueryDto) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data",productionBudgetQueryDto);
-        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL, jsonObject.toJSONString(),
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL.toString(), jsonObject.toJSONString(),
                 Pair.of("moduleName","scm"),
                 Pair.of("functionName","预算号查询")
         );

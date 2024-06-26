@@ -1,34 +1,22 @@
 package com.base.sbc.module.smp.job;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.SmpProperties;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
-import com.base.sbc.module.httplog.entity.HttpLog;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
-import com.base.sbc.open.service.BiColorwayService;
-import com.base.sbc.open.service.BiSampleService;
-import com.base.sbc.open.service.BiSizeChartService;
-import com.base.sbc.open.service.BiStyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -89,9 +77,9 @@ public class SmpJob {
         for (PushRecords pushRecords : pushRecordsList) {
             String url = pushRecords.getPushAddress();
             Integer pushCount = pushRecords.getPushCount();
-            for (SmpProperties.SystemEnums systemEnums : SmpProperties.SystemEnums.values()) {
-                if (url.startsWith(systemEnums.getBaseUrl())) {
-                    if (systemEnums.getRetryNum() <= pushCount) {
+            for (SmpProperties.SystemModuleEnum systemEnum : SmpProperties.SystemModuleEnum.values()) {
+                if (url.startsWith(systemEnum.getUrl())) {
+                    if (systemEnum.getRetryNum() <= pushCount) {
                         pushRecords.setPushStatus(PushRespStatus.FAILURE);
                         pushRecords.setResponseMessage("处理超时,请重试");
                         pushRecords.setResponseStatusCode("501");

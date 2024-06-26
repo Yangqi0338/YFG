@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.constant.SmpProperties;
+import com.base.sbc.config.constant.UrlConfig;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +51,32 @@ public class RestTemplateService {
 
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
             restTemplate.postForEntity(url, fromEntity, String.class);
+            return RequestLoggingInterceptor.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+            httpResp.setSuccess(false);
+            httpResp.setMessage(e.getMessage());
+        }
+        return httpResp;
+    }
+
+    @SafeVarargs
+    public final HttpResp spmPost(UrlConfig url, String jsonStr, Pair<String, String>... headers) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        HttpResp httpResp = new HttpResp();
+        try {
+            Boolean b = ccmFeignService.getSwitchByCode(SEND_FLAG.getKeyCode());
+            if (!b){
+                httpResp.setSuccess(true);
+                return httpResp;
+            }
+            requestHeaders.add("Content-Type", "application/json");
+            for (Pair<String, String> header : headers) {
+                requestHeaders.add(header.getKey(), header.getValue());
+            }
+
+            HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
+            restTemplate.postForEntity(url.toString(), fromEntity, String.class);
             return RequestLoggingInterceptor.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
