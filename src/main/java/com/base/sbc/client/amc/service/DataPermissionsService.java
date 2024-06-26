@@ -102,7 +102,9 @@ public class DataPermissionsService {
             qw.apply(sql);
         }
         if (!flg) {
-            qw.apply(" 1=0 ");
+            String applySql = " 1=0 ";
+            if (qw.nonEmptyOfWhere()) applySql = String.format(" and %s", applySql);
+            qw.apply(applySql);
         }
     }
 
