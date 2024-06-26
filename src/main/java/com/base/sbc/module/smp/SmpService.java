@@ -40,6 +40,7 @@ import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.common.entity.UploadFile;
@@ -708,6 +709,8 @@ public class SmpService {
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
 
+            List<FieldManagementVo> fieldManagementVos = basicsdatumMaterialService.queryCoefficient(BeanUtil.copyProperties(basicsdatumMaterial, BasicsdatumMaterialPageVo.class));
+            smpMaterialDto.setDynamicFieldList(fieldManagementVos);
 
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
