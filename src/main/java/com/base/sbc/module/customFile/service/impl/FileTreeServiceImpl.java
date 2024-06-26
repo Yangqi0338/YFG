@@ -298,7 +298,9 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
                 List<String> byAllFileIds = getByAllFileIds(item.getId());
                 item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
                 item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
+
             }
+            materialQueryDto.setCompanyFlag(collect ? null : "0");
             materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
             item.setDataList(materialService.listImgQuery(materialQueryDto));
         });
