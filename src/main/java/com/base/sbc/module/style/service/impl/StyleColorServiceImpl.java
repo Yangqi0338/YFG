@@ -537,6 +537,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("tsc.style_no", styleNo);
         queryWrapper.eq("tsc.del_flag", "0");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.bulkCargoStyle.getK());
         List<CompleteStyleVo> completeStyleVos = baseMapper.pageCompleteStyle(queryWrapper);
 
         /*查询款式图*/
