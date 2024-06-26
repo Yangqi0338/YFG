@@ -351,7 +351,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<CompleteStyleVo> getCompleteStyleVoList(QueryBulkCargoDto queryDto) {
         /*分页*/
         BaseQueryWrapper<StyleAnalyseQueryDto> queryWrapper = new BaseQueryWrapper<>();
-        //dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "tsc.");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.bulkCargoStyle.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, queryDto);
         Page<Object> objects = PageHelper.startPage(queryDto);
@@ -544,6 +544,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("tsc.style_no", styleNo);
         queryWrapper.eq("tsc.del_flag", "0");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.bulkCargoStyle.getK());
         List<CompleteStyleVo> completeStyleVos = baseMapper.pageCompleteStyle(queryWrapper);
 
         /*查询款式图*/
