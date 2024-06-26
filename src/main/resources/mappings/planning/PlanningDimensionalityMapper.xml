@@ -26,4 +26,36 @@
          ${ ew.customSqlSegment}
 
     </select>
+
+    <select id="getMaterialCoefficient" resultType="com.base.sbc.module.planning.vo.PlanningDimensionalityVo">
+        select
+        tpd.* ,
+        tfm.group_name,
+        tfm.field_name,
+        tfm.field_explain,
+        tfm.id,
+        tfm.form_type_id,
+        tfm.field_type,
+        tfm.field_type_id,
+        tfm.field_type_name,
+        tfm.field_type_coding,
+        tfm.default_hint,
+        tfm.is_option,
+        tfm.option_dict_key,
+        tfm.is_must_fill,
+        tfm.category_id,
+        tfm.category_name,
+        tfm.season,
+        tfm.is_examine,
+        tfm.status,
+        tfm.sequence,
+        tfm.is_compile,
+        tfm.form_object_id formObjectId,
+        tfm.brand,
+        tfm.brand_name,
+        tfm.structure_tier
+         from t_planning_dimensionality tpd
+         LEFT JOIN  t_field_management tfm on (tpd.field_id = tfm.id and tfm.del_flag = '0')
+         ${ ew.customSqlSegment}
+    </select>
 </mapper>

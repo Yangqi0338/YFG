@@ -31,4 +31,6 @@ public interface FieldValDataGroupConstant {
      * 款式配色维度数据
      */
     String STYLE_COLOR = "STYLE_COLOR";
+
+    String MATERIAL = "MATERIAL";
 }

@@ -7,6 +7,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.*;
 import com.base.sbc.config.constant.BaseConstant;
@@ -308,6 +309,20 @@ public class CcmFeignService {
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             List<BasicStructureTree> data = jsonObject.getJSONArray("data").toJavaList(BasicStructureTree.class);
             return data;
+        }
+        return null;
+    }
+
+    public Map<String, List<BasicStructureTree>> getAllByStructureCodes(String structureCode) {
+        String str = ccmService.getAllByStructureCodes(structureCode);
+        if (StrUtil.isBlank(str)) {
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            Map<String, JSONArray> data = jsonObject.getJSONObject("data").toJavaObject(HashMap.class);
+            Map<String, List<BasicStructureTree>> collect = data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> o.getValue().toJavaList(BasicStructureTree.class)));
+            return collect;
         }
         return null;
     }

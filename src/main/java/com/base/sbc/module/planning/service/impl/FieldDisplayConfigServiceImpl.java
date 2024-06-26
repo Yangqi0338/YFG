@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -69,6 +68,8 @@ public class FieldDisplayConfigServiceImpl extends BaseServiceImpl<FieldDisplayC
      * 维度系数
      */
     private final String FORM_TYPE_NAME = "维度系数";
+    @Autowired
+    private FieldManagementService fieldManagementServiceImpl;
 
     @Override
     public List<FieldDisplayVo> getConfig(String type) {
@@ -190,7 +191,7 @@ public class FieldDisplayConfigServiceImpl extends BaseServiceImpl<FieldDisplayC
             return new ArrayList<>();
         }
         queryFieldManagementDto.setFormTypeId(formType.getId());
-        return fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+        return fieldManagementServiceImpl.getFieldManagementListMapper(queryFieldManagementDto);
     }
 
     @Override

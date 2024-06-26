@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -35,6 +36,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
@@ -72,6 +74,7 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
@@ -85,8 +88,12 @@ import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
+import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import com.base.sbc.module.planningproject.constants.GeneralConstant;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
@@ -111,6 +118,7 @@ import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
@@ -249,6 +257,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
+    @Autowired
+    private PlanningDimensionalityMapper planningDimensionalityMapper;
+
 
     @Autowired
     private PackPricingCraftCostsService packPricingCraftCostsService;
@@ -3939,6 +3952,315 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         updateWrapper.set(StyleColorAgent::getStatus,"3");
         updateWrapper.in(StyleColorAgent::getStyleColorId, Collections.singletonList(id));
         styleColorAgentService.update(updateWrapper);
+    }
+
+    @Override
+    @Transactional
+    public ApiResult importMarkingOrder(List<Map<String, Object>> readAll) {
+        if(readAll.size() > 40){
+            throw new OtherException("导入数据不能超过40条");
+        }
+        //大货款号清单
+        List<String> styleNos = new ArrayList<>();
+        //大货款号对应的动态字段，用于后续检查字段是否符合 大货款号对应的企划需求管理
+        Map<String, Map<String, Object>> styleColorFields = new HashMap<>();
+        //遍历导入数据
+        for (Map<String, Object> map : readAll) {
+            if (map.containsKey("大货款号")) {
+                styleNos.add(map.get("大货款号").toString());
+                styleColorFields.put(map.get("大货款号").toString(), map);
+            }else{
+                throw new OtherException("大货款号不能为空");
+            }
+        }
+        //根据大货款号查询所有数据
+        List<StyleColorVo> styleColors = baseMapper.colorList(new QueryWrapper<>().in("tsc.style_no", styleNos));
+        Map<String, StyleColorVo> styleColorMap = new HashMap<>();
+        List<String> ids = new ArrayList<>();
+        List<String> planningSeasonIds = new ArrayList<>();
+        List<String> channels = new ArrayList<>();
+        List<String> prodCategory1sts = new ArrayList<>();
+        List<String> prodCategorys = new ArrayList<>();
+        List<String> prodCategory2nds = new ArrayList<>();
+        for (StyleColorVo styleColor : styleColors) {
+            styleColorMap.put(styleColor.getStyleNo(),styleColor);
+            ids.add(styleColor.getId());
+            planningSeasonIds.add(styleColor.getPlanningSeasonId());
+            channels.add(styleColor.getChannel());
+            prodCategory1sts.add(styleColor.getProdCategory1st());
+            prodCategorys.add(styleColor.getProdCategory());
+            prodCategory2nds.add(styleColor.getProdCategory2nd());
+        }
+
+        //查询维度数据，判断修改的字段是否超出配置范围
+        //先按照中类查询一遍，如果中类取不到，则按照品类取
+        BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
+        qw.eq("coefficient_flag",BaseGlobal.YES);
+        qw.in("planning_season_id", planningSeasonIds);
+        qw.in("channel", channels);
+        qw.in("prod_category1st", prodCategory1sts);
+        qw.in("prod_category", prodCategorys);
+        qw.in("prod_category2nd", prodCategory2nds);
+        List<PlanningDimensionalityVo> planningDimensionalities = planningDimensionalityMapper.getMaterialCoefficient(qw);
+        //按照产品季+渠道+大类+品类+中类 分组
+        Map<String, List<PlanningDimensionalityVo>> dimensionalityMap = planningDimensionalities.stream().collect(Collectors.groupingBy(
+                o -> o.getPlanningSeasonId() + "_" + o.getChannel() + "_" + o.getProdCategory1st()+"_"+o.getProdCategory()+"_"+o.getProdCategory2nd()));
+        //按照品类查询一遍
+        qw = new BaseQueryWrapper<>();
+        qw.eq("coefficient_flag",BaseGlobal.YES);
+        qw.in("planning_season_id", planningSeasonIds);
+        qw.in("channel", channels);
+        qw.in("prod_category1st", prodCategory1sts);
+        qw.in("prod_category", prodCategorys);
+        qw.isNullStr("prod_category2nd");
+        List<PlanningDimensionalityVo> planningDimensionalities1 = planningDimensionalityMapper.getMaterialCoefficient(qw);
+        //按照产品季+渠道+大类+品类 分组
+        Map<String, List<PlanningDimensionalityVo>> dimensionalityMap1 = planningDimensionalities1.stream().collect(Collectors.groupingBy(
+                o -> o.getPlanningSeasonId() + "_" + o.getChannel() + "_" + o.getProdCategory1st()+"_"+o.getProdCategory()));
+
+        List<String> dictList = new ArrayList<>();
+        List<String> structList = new ArrayList<>();
+        for (PlanningDimensionalityVo planningDimensionality : planningDimensionalities) {
+            if("1".equals(planningDimensionality.getIsOption())){
+                dictList.add(planningDimensionality.getOptionDictKey());
+            }else if("2".equals(planningDimensionality.getIsOption())){
+                structList.add(planningDimensionality.getOptionDictKey());
+            }
+        }
+        for (PlanningDimensionalityVo planningDimensionality : planningDimensionalities1) {
+            if("1".equals(planningDimensionality.getIsOption())){
+                dictList.add(planningDimensionality.getOptionDictKey());
+            }else if("2".equals(planningDimensionality.getIsOption())){
+                structList.add(planningDimensionality.getOptionDictKey());
+            }
+        }
+
+        //将两个里面需要用到的数据字典拉出来一起查询一遍
+        Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
+        if(CollUtil.isNotEmpty(dictList)){
+            dictList = dictList.stream().distinct().collect(Collectors.toList());
+            dictInfoToMap = ccmFeignService.getDictInfoToMapTurnOver(String.join(",", dictList));
+        }
+        //这里可能要加入字典依赖的查询，后续判断使用TODO
+
+        //结构字典也同理
+        Map<String, List<BasicStructureTree>> allByStructureCodes = new HashMap<>();
+        if(CollUtil.isNotEmpty(structList)){
+            structList = structList.stream().distinct().collect(Collectors.toList());
+            allByStructureCodes = ccmFeignService.getAllByStructureCodes(String.join(",", structList));
+        }
+        Map<String, Map<String, Map<String, String>>> structureTreesMap = allByStructureCodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                o -> o.getValue().stream().collect(Collectors.groupingBy(s->String.valueOf(s.getLevel()), Collectors.toMap(BasicStructureTree::getName, BasicStructureTree::getValue,(v1,v2)->v1)))));
+
+        //查询已经保存的维度数据集合，方便后续修改使用
+        List<FieldVal> list = fieldValService.list(ids, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+        Map<String, Map<String,FieldVal>> styleColorFieldMap = list.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,Collectors.toMap(FieldVal::getFieldId, o->o)));
+
+        List<FieldVal> updateFieldValList = new ArrayList<>();
+
+        StringBuffer sbMsg = new StringBuffer();
+
+        List<OperaLogEntity> updateLogs = new ArrayList<>();
+
+        int successCount = 0;
+        for (Map.Entry<String, Map<String, Object>> entry : styleColorFields.entrySet()) {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            List<Map<String,String>> updateLogMaps = new ArrayList<>();
+            String styleNo = entry.getKey();
+            if(!styleColorMap.containsKey(styleNo)){
+                //该款不存在
+                sbMsg.append("大货款号：").append(styleNo).append(",不存在;");
+                continue;
+            }
+            StyleColorVo styleColor = styleColorMap.get(styleNo);
+
+            String key = styleColor.getPlanningSeasonId() + "_" + styleColor.getChannel() + "_" + styleColor.getProdCategory1st() + "_" + styleColor.getProdCategory();
+            //获取该款的动态字段
+            List<PlanningDimensionalityVo> dimensionalities = null;
+            if(dimensionalityMap.containsKey(key + "_" + styleColor.getProdCategory2nd())){
+                dimensionalities = dimensionalityMap.get(key + "_" + styleColor.getProdCategory2nd());
+            }else if(dimensionalityMap1.containsKey(key)){
+                dimensionalities = dimensionalityMap1.get(key);
+            }else{
+                //该款没有获取到动态字段
+                sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段,如需要,请联系管理员维护;");
+                continue;
+            }
+            Map<String, PlanningDimensionalityVo> collect = dimensionalities.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getDimensionalityName, o -> o,(v1,v2)->v1));
+
+            //获取该款已经保存的下单阶段动态字段
+            Map<String,FieldVal> fieldValMap = styleColorFieldMap.getOrDefault(styleColor.getId(),new HashMap<>());
+
+            boolean fieldValFlag = true;
+            List<FieldVal> fieldValList = new ArrayList<>();
+            for (Map.Entry<String, Object> entry1 : entry.getValue().entrySet()) {
+                if(!"大货款号".equals(entry1.getKey()) && entry1.getValue() != null && StrUtil.isNotEmpty(String.valueOf(entry1.getValue()))){
+                    if(collect.containsKey(entry1.getKey())){
+                        String value = String.valueOf(entry1.getValue());
+                        String valName = "";
+                        //校验是否字典项
+                        PlanningDimensionalityVo planningDimensionality = collect.get(entry1.getKey());
+                        if("1".equals(planningDimensionality.getIsOption())){
+                            //判断使用的是字典项
+                            //判断是否多选
+                            Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
+                            if("multiple".equals(planningDimensionality.getFieldTypeCoding())){
+                                List<String> values = StrUtil.split(value, ",");
+                                List<String> vals = new ArrayList<>();
+                                for (String s : values) {
+                                    if(orDefault.containsKey(s)){
+                                        vals.add(orDefault.get(s));
+                                    }else{
+                                        //字典项不存在
+                                        sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
+                                        fieldValFlag = false;
+                                    }
+                                }
+                                if(CollUtil.isNotEmpty(vals)){
+                                    valName = value;
+                                    value = String.join(",", vals);
+                                }else {
+                                    continue;
+                                }
+                            }else{
+                                if(orDefault.containsKey(value)){
+                                    valName = value;
+                                    value = orDefault.get(value);
+                                }else{
+                                    //字典项不存在
+                                    sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    fieldValFlag = false;
+                                    continue;
+                                }
+                            }
+                        }else if("2".equals(planningDimensionality.getIsOption())){
+                            //还是使用的结构字段项
+                            //判断是否多选
+                            Map<String, String> structureTrees = structureTreesMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>()).getOrDefault(planningDimensionality.getStructureTier(), new HashMap<>());
+                            if("multiple".equals(planningDimensionality.getFieldTypeCoding())){
+                                List<String> values = StrUtil.split(value, ",");
+                                List<String> vals = new ArrayList<>();
+                                for (String s : values) {
+                                    if(structureTrees.containsKey(s)){
+                                        vals.add(structureTrees.get(s));
+                                    }else{
+                                        //字典项不存在
+                                        sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
+                                        fieldValFlag = false;
+                                    }
+                                }
+                                if(CollUtil.isNotEmpty(vals)){
+                                    valName = value;
+                                    value = String.join(",", vals);
+                                }else {
+                                    continue;
+                                }
+                            }else {
+                                if(structureTrees.containsKey(value)){
+                                    valName = value;
+                                    value = structureTrees.get(value);
+                                }else{
+                                    //结构字典项不存在
+                                    sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    fieldValFlag = false;
+                                    continue;
+                                }
+                            }
+                        }
+                        Map<String,String> updateLogMap = new HashMap<>();
+                        updateLogMap.put("name",planningDimensionality.getDimensionalityName());
+                        updateLogMap.put("newStr",StrUtil.isEmpty(valName)?value:valName);
+                        if(fieldValMap.containsKey(planningDimensionality.getFieldId())){
+                            FieldVal fieldVal = fieldValMap.get(planningDimensionality.getFieldId());
+                            if(StrUtil.equals(StrUtil.isEmpty(valName)?value:valName,StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName())){
+                                //没有修改时跳过
+                                continue;
+                            }
+                            updateLogMap.put("oldStr",StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName());
+                            fieldVal.setVal(value);
+                            fieldVal.setValName(valName);
+                            fieldValList.add(fieldVal);
+                        }else{
+                            updateLogMap.put("oldStr","");
+                            FieldVal fieldVal = new FieldVal();
+                            fieldVal.setForeignId(styleColor.getId());
+                            fieldVal.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+                            fieldVal.setFieldId(planningDimensionality.getFieldId());
+                            fieldVal.setFieldName(planningDimensionality.getFieldName());
+                            fieldVal.setFieldExplain(planningDimensionality.getDimensionalityName());
+                            fieldVal.setVal(value);
+                            fieldVal.setValName(valName);
+                            fieldVal.insertInit();
+                            fieldValList.add(fieldVal);
+                        }
+                        updateLogMaps.add(updateLogMap);
+                    }else{
+                        //该款没有这个动态字段
+                        sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段").append(entry1.getKey()).append(",如需要,请联系管理员维护;");
+                        fieldValFlag = false;
+                    }
+                }
+            }
+            if(fieldValFlag){
+                updateFieldValList.addAll(fieldValList);
+                operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
+                operaLogEntity.setType("修改");
+                operaLogEntity.setDocumentId(styleColor.getId());
+                operaLogEntity.setName("款式打标-批量导入修改");
+                operaLogEntity.setDocumentName(styleNo);
+                updateLogs.add(operaLogEntity);
+                successCount++;
+            }
+        }
+        if(CollUtil.isNotEmpty(updateFieldValList)){
+            List<String> collect = updateFieldValList.stream().map(BaseEntity::getId).filter(StrUtil::isNotEmpty).collect(Collectors.toList());
+            List<List<String>> partition = Lists.partition(collect, 1000);
+            for (List<String> strings : partition) {
+                fieldValService.removeByIds(strings);
+            }
+
+            fieldValService.saveBatch(updateFieldValList);
+        }
+
+        StringBuffer sbMsg1 = new StringBuffer();
+
+        if(sbMsg.length() > 0){
+            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条,失败原因如下;").append(sbMsg);
+        }else{
+            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条;");
+        }
+
+        String[] idsUpdate = updateFieldValList.stream().map(FieldVal::getForeignId).distinct().toArray(String[]::new);
+
+        if(idsUpdate.length > 0){
+            //推送下游系统
+            try{
+                List<String> msg = new ArrayList<>();
+                int i = smpService.goods(idsUpdate,"BCS",null,1,msg);
+                if (idsUpdate.length == i) {
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条");
+                } else {
+                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条;失败原因如下:").append(String.join(";", msg));
+                }
+            }catch (Exception e){
+                log.error("批量修改下单阶段字段,下发下游系统失败",e);
+                sbMsg1.append("下发下游系统失败:").append(e.getMessage());
+            }
+        }
+
+
+        //保存修改记录
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setType("导入");
+        operaLogEntity.setDocumentId("导入结果");
+        operaLogEntity.setName("款式打标-批量导入修改");
+        operaLogEntity.setDocumentName("导入结果");
+        operaLogEntity.setContent(sbMsg1.toString());
+        updateLogs.add(operaLogEntity);
+        operaLogService.saveBatch(updateLogs);
+
+
+        return ApiResult.success(sbMsg1.toString());
     }
 
 
