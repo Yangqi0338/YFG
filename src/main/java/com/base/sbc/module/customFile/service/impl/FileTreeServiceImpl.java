@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,7 +125,7 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
                 fillMaterialFileTreeVo(fileTreeVos,false,userId);
                 break;
             case material_collect:
-                fillMaterialFileTreeVo(fileTreeVos,true,null);
+                fillMaterialFileTreeVo(fileTreeVos,true,userId);
                 break;
             default:
                 break;
@@ -147,15 +148,23 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         QueryWrapper<FileTree> qw = new QueryWrapper<>();
         qw.lambda().in(FileTree::getId,dto.getMergeFolderIds());
         List<FileTree> list = list(qw);
+        Map<String, FileTree> fileTreeMap = list.stream().collect(Collectors.toMap(FileTree::getId, item -> item));
         Set<String> set = list.stream().map(FileTree::getBusinessType).collect(Collectors.toSet());
         if (set.size() > 1){
             throw new OtherException("需要合并的文件夹类型必须一致");
         }
         FileBusinessType fileBusinessType = FileBusinessType.getByCode(list.get(0).getBusinessType());
-        //检查名称
-        checkFileName(dto.getName(),fileBusinessType.getCode(),dto.getMergeFolderIds());
-        FileTree fileTree = list.get(0);
-        if (StringUtils.isNotEmpty(dto.getName())){
+        //列表的第一个文件作为住文件夹
+        FileTree fileTree = fileTreeMap.get(dto.getMergeFolderIds().get(0));
+
+        List<FileTree> collect = list.stream().filter(item -> "0".equals(item.getType()) && !item.getId().equals(fileTree.getId())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(collect)){
+            throw new OtherException("系统文件夹不允许合并到另外一个文件夹中！");
+        }
+
+        if (StringUtils.isNotEmpty(dto.getName()) && !dto.getName().equals(fileTree.getName())){
+            //检查名称
+            checkFileName(dto.getName(),fileBusinessType.getCode(),dto.getMergeFolderIds());
             fileTree.setName(dto.getName());
         }
         updateById(fileTree);
@@ -292,14 +301,15 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         materialQueryDto.setPageNum(1);
         materialQueryDto.setPageSize(5);
         materialQueryDto.setCollect(collect);
-        materialQueryDto.setUserId(userId);
         list.forEach(item ->{
-            if ( !collect && !"0".equals(item.getType())){
+            if ( !collect ){
                 List<String> byAllFileIds = getByAllFileIds(item.getId());
-                item.setFileCount(materialService.getFileCount(userId,byAllFileIds));
-                item.setFileSize(materialService.getFileSize(userId,byAllFileIds));
+                item.setFileCount(materialService.getFileCount(userId,"0".equals(item.getType()) ? null : byAllFileIds));
+                item.setFileSize(materialService.getFileSize(userId,"0".equals(item.getType()) ? null : byAllFileIds));
 
             }
+            materialQueryDto.setCreateId(collect ? null : userId);
+            materialQueryDto.setUserId(collect ? userId : null);
             materialQueryDto.setCompanyFlag(collect ? null : "0");
             materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
             item.setDataList(materialService.listImgQuery(materialQueryDto));

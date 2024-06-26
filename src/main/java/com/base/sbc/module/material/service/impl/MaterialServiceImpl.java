@@ -474,13 +474,18 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     @Override
     public long getFileCount(String userId,List<String> folderIds) {
         QueryWrapper<Material> qw = new QueryWrapper<>();
-        qw.lambda().in(Material::getFolderId, folderIds);
+        if (CollUtil.isNotEmpty(folderIds)){
+            qw.lambda().in(Material::getFolderId, folderIds);
+        }
         qw.lambda().eq(Material::getCreateId,userId);
         return count(qw);
     }
 
     @Override
     public Long getFileSize(String userId, List<String> folderIds) {
+        if (CollUtil.isEmpty(folderIds)){
+            return 0L;
+        }
         return baseMapper.getFileSize(userId,folderIds);
     }
 
