@@ -309,8 +309,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return new PageInfo<>(list);
         }
 
-        List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
-        list.get(0).setFieldValList(fieldManagementVos);
+        /*List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
+        list.get(0).setFieldValList(fieldManagementVos);*/
 
         if (isColumnHeard) {
             return new PageInfo<>(list);
@@ -400,7 +400,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
 
         //保存动态字段
-        fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());
+        /*fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());*/
 
         return getBasicsdatumMaterial(entity.getId());
     }
@@ -765,8 +765,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         minioUtils.setObjectUrlToObject(copy, "imageUrl");
 
-        List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
-        copy.setFieldValList(fieldManagementVos);
+        /*List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
+        copy.setFieldValList(fieldManagementVos);*/
         return copy;
     }
 
