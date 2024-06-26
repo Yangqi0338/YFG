@@ -104,7 +104,9 @@
                 #{item}
             </foreach>
         </if>
-        order by create_date desc
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
     </select>
 
 

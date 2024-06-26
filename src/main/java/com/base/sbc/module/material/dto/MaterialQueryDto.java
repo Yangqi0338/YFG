@@ -1,11 +1,13 @@
 package com.base.sbc.module.material.dto;
 
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.Page;
+
+import java.util.List;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.List;
 
 /**
  * @author 卞康
@@ -112,5 +114,8 @@ public class MaterialQueryDto extends Page {
     @ApiModelProperty(value = "收藏的文件夹id")
     private String collectFolderId;
 
+    @ApiModelProperty(value = "排序")
+    private String showSort;
 
+    private BaseQueryWrapper ew;
 }

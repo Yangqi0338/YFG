@@ -9,7 +9,9 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
@@ -198,6 +200,16 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
 
         }
+
+        //排序
+        BaseQueryWrapper qw = new BaseQueryWrapper<>();
+
+        if (Constants.CREATE_DATE_ASC.equals(materialQueryDto.getShowSort())) {
+            qw.orderByAsc("tm.create_date");
+        } else {
+            qw.orderByDesc("tm.create_date");
+        }
+        materialQueryDto.setEw(qw);
 
     }
 
