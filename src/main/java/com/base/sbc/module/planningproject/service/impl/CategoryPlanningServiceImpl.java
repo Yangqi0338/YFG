@@ -224,7 +224,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             queryFieldManagementDto.setCompanyCode(userUtils.getCompanyCode());
             queryFieldManagementDto.setIds(fieldIdList);
             List<FieldManagementVo> fieldManagementList
-                    = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+                    = fieldManagementService.getFieldManagementListMapper(queryFieldManagementDto);
             if (ObjectUtil.isNotEmpty(fieldManagementList)) {
                 fieldManagementMap = fieldManagementList.stream().collect(Collectors.toMap(FieldManagementVo::getId, item -> item));
             }
