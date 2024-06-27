@@ -227,6 +227,9 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "尺寸表")
     private List<PackSizeVo> sizeList;
 
+    @ApiModelProperty(value = "是否高价值文本")
+    private String highValStr;
+
     private boolean pdfView = true;
 
     private float lrMargin = 20;

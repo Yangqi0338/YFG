@@ -58,6 +58,9 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -229,6 +232,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Autowired
     @Lazy
     private SmpService smpService;
+
+    @Resource
+    private FieldValService fieldValService;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -766,6 +772,31 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 BeanUtil.copyProperties(tag, vo);
             }
         }
+        // 获取versionId
+        String bomVersionId = packBomVersionService.findOneField(new LambdaQueryWrapper<PackBomVersion>()
+                        .eq(PackBomVersion::getForeignId, detail.getId())
+                        .eq(PackBomVersion::getPackType, detail.getPackType())
+                        .orderByDesc(PackBomVersion::getVersion)
+                , PackBomVersion::getId);
+        if (StrUtil.isNotBlank(bomVersionId)) {
+            // 获取物料清单id
+            List<String> packBomIdList = packBomService.listOneField(new LambdaQueryWrapper<PackBom>()
+                            .eq(PackBom::getBomVersionId, bomVersionId)
+                            .eq(PackBom::getForeignId, detail.getId())
+                            .eq(PackBom::getPackType, detail.getPackType())
+                    , PackBom::getId);
+            if (CollUtil.isNotEmpty(packBomIdList)) {
+                // 获取动态表值
+                String highVal = fieldValService.findOneField(new LambdaQueryWrapper<FieldVal>()
+                        .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.MATERIAL)
+                        .eq(FieldVal::getFieldName, "fabric_value")
+                        .in(FieldVal::getForeignId, packBomIdList)
+                        .eq(FieldVal::getVal, "JZ001")
+                , FieldVal::getValName);
+                vo.setHighValStr(highVal);
+            }
+        }
+
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(stylePicUtils.getStyleUrl(vo.getStylePic()));
         }
