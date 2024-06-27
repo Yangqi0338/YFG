@@ -12,6 +12,7 @@ import com.base.sbc.module.storageSpace.service.StorageSpaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class StorageSpaceController {
     private StorageSpacePersonService storageSpacePersonService;
 
 
-    @PostMapping("")
+    @GetMapping("")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "空间设置查询", notes = "空间设置查询")
     public ApiResult storageSpace(StorageSpace dto){
@@ -58,6 +59,9 @@ public class StorageSpaceController {
     @ApiOperation(value = "空间设置更新", notes = "空间设置更新")
     public ApiResult storageSpaceUpdate(@RequestBody StorageSpace dto){
         boolean b = storageSpaceService.updateById(dto);
+//        saveOrUpdateOperaLog();
         return b ? ApiResult.success("更新成功") : ApiResult.error("更新失败",500);
     }
+
+
 }
