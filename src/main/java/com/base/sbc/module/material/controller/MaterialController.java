@@ -1,7 +1,5 @@
 package com.base.sbc.module.material.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -29,20 +27,35 @@ import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.google.common.collect.Lists;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author 卞康
@@ -127,10 +140,12 @@ public class MaterialController extends BaseController {
                 if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus())){
                     throw new OtherException("未审核过的素材，不允许提交！");
                 }
-                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getMaterialBrandName()).split(",");
-                String time = String.valueOf(System.currentTimeMillis());
-                String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
-                materialSaveDto.setMaterialCode(materialCode);
+                if (StringUtils.isBlank(materialSaveDto.getMaterialCode())){
+                    String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getMaterialBrandName()).split(",");
+                    String time = String.valueOf(System.currentTimeMillis());
+                    String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+                    materialSaveDto.setMaterialCode(materialCode);
+                }
             }else {
                 // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
                 MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
@@ -301,5 +316,19 @@ public class MaterialController extends BaseController {
         List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds);
         return updateSuccess(list);
     }
+
+    @PutMapping("/batchUpdate")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "批量更新", notes = "批量更新")
+    public ApiResult batchSubmit(@RequestBody List<MaterialSaveDto> list){
+        if (CollUtil.isEmpty(list)){
+            return ApiResult.success();
+        }
+        list.forEach(this::update);
+        return ApiResult.success("发布成功");
+    }
+
+
+
 
 }
