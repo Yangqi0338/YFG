@@ -320,9 +320,6 @@
                 <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
                     ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
                 </if>
-                <if test="dto.fieldQueryMap != null">
-                    limit #{dto.startNum}, #{dto.pageSize}
-                </if>
             </where>
         </if>
     </select>
