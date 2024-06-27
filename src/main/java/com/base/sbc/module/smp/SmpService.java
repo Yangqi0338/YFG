@@ -256,7 +256,7 @@ public class SmpService {
 
         //查询动态字段
         List<FieldVal> fieldValList = fieldValService.list(styleColorIds, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getFieldId));
+        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
 
         //添加配色指定面料下发 huangqiang
         QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper<>();
@@ -472,9 +472,6 @@ public class SmpService {
 
             //查询下单阶段动态字段  取 水洗字段和自主研发版型字段
             List<FieldVal> fvList = fieldValMap.getOrDefault(styleColor.getId(),new ArrayList<>());
-            if(CollUtil.isEmpty(fvList)){
-                fvList = fieldValService.list(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            }
             Map<String, String> oldFvMap = fvList.stream().collect(CollectorUtil.toMap(FieldVal::getFieldName, FieldVal::getVal,(a, b) -> b));
             if(oldFvMap.containsKey("plateType")){
                 smpGoodsDto.setPlateType(oldFvMap.get("plateType"));
