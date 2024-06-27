@@ -162,7 +162,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         BaseQueryWrapper qw = new BaseQueryWrapper();
         Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
-        qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getBulkStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
 

@@ -45,6 +45,8 @@ public class StylePricingSearchDTO extends QueryFieldDto {
     private String styleNo;
     @ApiModelProperty(value = "设计款号")
     private String designNo;
+    @ApiModelProperty(value = "大货款号(款式定价查询)")
+    private String bulkStyleNo;
 
     @ApiModelProperty(value = "图片标记")
     private String  imgFlag;
