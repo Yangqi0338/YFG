@@ -324,11 +324,50 @@ public class MaterialController extends BaseController {
         if (CollUtil.isEmpty(list)){
             return ApiResult.success();
         }
+        checkMaterialSaveDto(list);
         list.forEach(this::update);
         return ApiResult.success("发布成功");
     }
 
+    private void checkMaterialSaveDto(List<MaterialSaveDto> list) {
+        MaterialSaveDto materialSaveDto = list.get(0);
+        if (!"2".equals(materialSaveDto.getStatus())){
+            return;
+        }
+        for (MaterialSaveDto saveDto : list) {
+            if (StringUtils.isEmpty(saveDto.getMaterialName())){
+                throw new OtherException("素材名称不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getMaterialCategoryId())){
+                throw new OtherException("素材分类不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getMaterialBrand())){
+                throw new OtherException("素材品牌不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getBrand())){
+                throw new OtherException("品牌不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getMarketLevel())){
+                throw new OtherException("市场等级不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getFame())){
+                throw new OtherException("知名度不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getYear()) || StringUtils.isEmpty(saveDto.getMonth()) || StringUtils.isEmpty(saveDto.getSeason())){
+                throw new OtherException("年/季/月不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getSourcePerson())){
+                throw new OtherException("来源人不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getSourceWay())){
+                throw new OtherException("来源方式不能为空！");
+            }
+            if (StringUtils.isEmpty(saveDto.getSourceDepartment())){
+                throw new OtherException("来源部门不能为空！");
+            }
+        }
 
+    }
 
 
 }
