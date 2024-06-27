@@ -336,7 +336,6 @@ public class MaterialController extends BaseController {
     }
 
     @GetMapping("/details")
-    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "查看详情", notes = "查看详情")
     public ApiResult details( String id){
         if (StringUtils.isEmpty(id)){
