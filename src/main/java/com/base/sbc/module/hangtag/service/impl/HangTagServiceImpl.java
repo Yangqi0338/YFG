@@ -54,6 +54,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -214,7 +216,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Autowired
 	@Lazy
 	private PackTechPackagingService packTechPackagingService;
-
+	private final ColumnDefineService columnDefineService;
 
 	@Autowired
 	@Lazy
@@ -266,7 +268,32 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	public PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
 		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
-		QueryGenerator.initQueryWrapperByMap(qw,hangTagDTO);
+		Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw,hangTagDTO);
+		Map<String, String> columnMap = new HashMap<>();
+		Map<String,String> queryMap = hangTagDTO.getFieldQueryMap();
+		if (StrUtil.isNotBlank(hangTagDTO.getStyleNo())) {
+			columnMap.put("ssc", "style_no");
+		}
+		if (StrUtil.isNotBlank(hangTagDTO.getDesignNo())) {
+			columnMap.put("sd", "design_no");
+		}
+		if (null != queryMap) {
+			List<ColumnDefine> list = columnDefineService.getByTableCode(hangTagDTO.getTableCode(), false);
+			if (CollUtil.isNotEmpty(list)) {
+				for (ColumnDefine column : list) {
+					for (String columnCode : hangTagDTO.getFieldQueryMap().keySet()) {
+						if (StrUtil.equals(column.getColumnCode(), columnCode)) {
+							String sqlCode = column.getSqlCode();
+							if (StrUtil.isNotEmpty(sqlCode)) {
+								String[] tablePre = sqlCode.split("\\.");
+								columnMap.put(tablePre[0], columnCode);
+							}
+						}
+					}
+				}
+			}
+		}
+		hangTagDTO.setColumnMap(columnMap);
 		hangTagDTO.startPage();
 		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
@@ -276,24 +303,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
 
-		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
-			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
-			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
-			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
-		}
-		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
-		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
-		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
-		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
-		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
-
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
+		if (CollUtil.isEmpty(hangTagListVOS)) {
+			return new PageInfo<>(hangTagListVOS);
+		}
+		if (isColumnHeard) {
+			return new PageInfo<>(hangTagListVOS);
+		}
+
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");
@@ -355,9 +372,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 				}
 			}
-
 			bulkStyleNos.add(e.getBulkStyleNo());
-
 		});
 		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
 		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
