@@ -161,9 +161,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         dto.setCompanyCode(super.getCompanyCode());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
-        qw.notEmptyEq("sd.year", dto.getYear());
-        qw.notEmptyEq("sd.season", dto.getSeason());
-        qw.notEmptyEq("sd.month", dto.getMonth());
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
         qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
@@ -185,7 +182,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             qw.groupBy(groupStr);
         }
 
-        com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         if (null == dto.getPageNum() || 0 == dto.getPageNum()) {
             dto.setPageNum(1);
         }
@@ -195,6 +191,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         dto.setStartNum((dto.getPageNum()-1)*dto.getPageSize());
         Map<String, String> columnMap = new HashMap<>();
         Map<String,String> queryMap = dto.getFieldQueryMap();
+        if (StrUtil.isNotBlank(dto.getStyleNo())) {
+            columnMap.put("ssc", "style_no");
+        }
+        if (StrUtil.isNotBlank(dto.getDesignNo())) {
+            columnMap.put("sd", "design_no");
+        }
         if (null != queryMap) {
             List<ColumnDefine> list = columnDefineService.getByTableCode(dto.getTableCode(), false);
             if (CollUtil.isNotEmpty(list)) {
@@ -212,7 +214,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
         }
         dto.setColumnMap(columnMap);
-
+        com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
