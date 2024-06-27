@@ -14,10 +14,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -828,14 +825,17 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             String weight = packTechPackaging.getWeight();
             String volume = packTechPackaging.getVolume();
             String stackedVolume = packTechPackaging.getStackedVolume();
+            String packagingFormName = packTechPackaging.getPackagingFormName();
             if (ObjectUtils.isEmpty(weight) || !(new BigDecimal(weight).compareTo(BigDecimal.ZERO) > 0)) {
                 throw new OtherException("请先填写重量！");
             }
             if (ObjectUtils.isEmpty(volume) || !(new BigDecimal(volume).compareTo(BigDecimal.ZERO) > 0)) {
                 throw new OtherException("请先计算体积！");
             }
-            if (ObjectUtils.isEmpty(stackedVolume) || !(new BigDecimal(stackedVolume).compareTo(BigDecimal.ZERO) > 0)) {
-                throw new OtherException("请先计算叠装体积！");
+            if (ObjectUtil.isNotEmpty(packagingFormName) && "叠装".equals(packagingFormName)) {
+                if (ObjectUtils.isEmpty(stackedVolume) || !(new BigDecimal(stackedVolume).compareTo(BigDecimal.ZERO) > 0)) {
+                    throw new OtherException("请先计算叠装体积！");
+                }
             }
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName() + fileName);
