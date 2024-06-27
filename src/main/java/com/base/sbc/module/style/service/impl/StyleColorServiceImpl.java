@@ -663,7 +663,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //region ED品牌大货款号特殊处理
         if ("6".equals(brand)) {
-            styleNo = createEDStyleNo(designNo, isLuxury, category, yearOn, styleNo,style.getMonth(),aLong + index);
+            styleNo = createEDStyleNo(style.getOldDesignNo(),year,season,brand, isLuxury, category, yearOn, styleNo,style.getMonth(),aLong + index);
             return styleNo;
         }
         //endregion
@@ -687,17 +687,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return styleNo;
     }
     /**
-     * 创建 ED品牌大货款号
+     *
      * @param designNo 设计款号
-     * @param isLuxury  特殊标识
+     * @param year 年份
+     * @param season 季节
+     * @param brand 品牌
+     * @param isLuxury 是否高奢标识
      * @param category 品类
      * @param yearOn 年份转义后的字母
      * @param styleNo 大货款号空字符串（进来设置为空）
+     * @param month 月份
      * @param aLong 该大货款的设计款下有几个大货款
      * @return
      */
     @NotNull
-    private static String createEDStyleNo(String designNo, String isLuxury, String category, String yearOn, String styleNo,String month, Long aLong) {
+    private static String createEDStyleNo(String designNo, String year, String season, String brand, String isLuxury, String category, String yearOn, String styleNo, String month, Long aLong) {
+        String years = year.substring(year.length() - 2);
+        /*拼接的设计款号（用于获取流水号）*/
+        String joint = brand + years + season + category;
+        designNo = designNo.replaceAll(joint, "");
+        String regEx = "[^0-9]";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(designNo);
+        String designNoSeq = m.replaceAll("").trim();
+
         styleNo = "1";
         styleNo += yearOn;
         String monthStr = "";
@@ -713,10 +726,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleNo +="9";
         styleNo += category;
         //设计款的流水位
-        styleNo += designNo.substring(designNo.length()-3);
+        styleNo += designNoSeq;
         //统计该大货款设计款下的大货款个数
         styleNo += aLong;
-        styleNo += StrUtil.equals(isLuxury, BaseGlobal.YES) ? "Q" : "";
+        styleNo += isLuxury;
         return styleNo;
     }
 
