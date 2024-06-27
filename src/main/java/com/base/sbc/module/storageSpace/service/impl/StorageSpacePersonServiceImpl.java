@@ -61,7 +61,6 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 
     private void checkMaterialUploadPermissionUpdate() {
 
-
         if (!getIsCheckUpdate()){
             return;
         }
@@ -73,7 +72,8 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 
         try {
             List<UserCompany> byMenuUrlUser = amcService.getByMenuUrlUser("pdm:materialLibrary:myMaterial:btn:systemUpload");
-            System.out.println(byMenuUrlUser);
+            StorageSpacePerson storageSpacePerson = new StorageSpacePerson();
+
 //            redisUtils.set(key,"0");
         }finally {
             redisUtils.del(key);
