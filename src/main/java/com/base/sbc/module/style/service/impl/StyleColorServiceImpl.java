@@ -40,14 +40,8 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibraryAgent;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryAgentService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
@@ -296,6 +290,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private BasicsdatumColourLibraryAgentService colourLibraryAgentService;
+
+    @Autowired
+    private BasicsdatumWashIconService basicsdatumWashIconService;
 
     @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
@@ -2572,9 +2569,33 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
                 size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
+                size.setSIZECODE(styleColorAgentVo.getInternalSize());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
+            //品牌
+            tagPrinting.setC8_Season_Brand(styleColorAgentVo1.getBrand());
+            //品名
+            tagPrinting.setProductName(styleColorAgentVo1.getProductName());
+            //质量等级
+            tagPrinting.setQualityClass(styleColorAgentVo1.getQualityGrade());
+            //执行标准
+            tagPrinting.setOPStandard(styleColorAgentVo1.getExecuteStandard());
+            //安全技术类别
+            tagPrinting.setSaftyType(styleColorAgentVo1.getSaftyType());
+            //成分
+            tagPrinting.setComposition(styleColorAgentVo1.getIngredient());
+            //产地
+            tagPrinting.setC8_APPBOM_MadeIn(styleColorAgentVo1.getProducer());
+            //水洗标路径
+            tagPrinting.setCareSymbols(styleColorAgentVo1.getWashingCode());
+            //吊牌价
+            tagPrinting.setC8_Colorway_SalesPrice(StrUtil.isNotEmpty(styleColorAgentVo1.getTagPrice()) ? new BigDecimal(styleColorAgentVo1.getTagPrice()) : null);
+            //品名翻译
+            tagPrinting.setProductNameTranslate(styleColorAgentVo1.getProductNameTranslate());
+            //颜色code翻译
+            tagPrinting.setColorCodeTranslate(styleColorAgentVo1.getColorCodeTranslate());
+
             tagPrintings.add(tagPrinting);
         }
 
@@ -3422,6 +3443,217 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             msg+="成功导入条数"+list.size()+"条！";
             msg+="其中新增"+insertStyleColorAgentList.size()+"条，";
             msg+="修改"+updateStyleColorAgentList.size()+"条。";
+        return ApiResult.success(msg);
+    }
+
+    @Transactional
+    @Override
+    public ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list) {
+
+        String errorInfo = "";
+        for (int i = 0; i < list.size(); i++) {
+            MangoHangTagExeclDto mangoHangTagExeclDto = list.get(i);
+            //大货款号
+            String styleNo = mangoHangTagExeclDto.getStyleNo();
+            //品名翻译
+            String productNameTranslate = mangoHangTagExeclDto.getProductNameTranslate();
+            //质量等级
+            String qualityGrade = mangoHangTagExeclDto.getQualityGrade();
+            //品名
+            String productName = mangoHangTagExeclDto.getProductName();
+            //执行标准
+            String executeStandard = mangoHangTagExeclDto.getExecuteStandard();
+            //安全技术类别
+            String saftyType = mangoHangTagExeclDto.getSaftyType();
+            //材料成分
+            String ingredient = mangoHangTagExeclDto.getIngredient();
+            //颜色代码翻译
+            String colorCodeTranslate = mangoHangTagExeclDto.getColorCodeTranslate();
+            //产地
+            String producer = mangoHangTagExeclDto.getProducer();
+            //水洗唛编码
+            String washingCode = mangoHangTagExeclDto.getWashingCode();
+
+            if (StrUtil.isEmpty(styleNo)) {
+                errorInfo+="第" + (i + 1) + "行" + "大货款号不能为空！\n";
+            }
+            if (StrUtil.isEmpty(qualityGrade)) {
+                errorInfo+="第" + (i + 1) + "行" + "质量等级不能为空！\n";
+            }
+            if (StrUtil.isEmpty(productName)) {
+                errorInfo+="第" + (i + 1) + "行" + "品名不能为空！\n";
+            }
+            if (StrUtil.isEmpty(productNameTranslate)) {
+                errorInfo+="第" + (i + 1) + "行" + "品名翻译不能为空！\n";
+            }
+            if (StrUtil.isEmpty(colorCodeTranslate)) {
+                errorInfo+="第" + (i + 1) + "行" + "颜色代码翻译不能为空！\n";
+            }
+            if (StrUtil.isEmpty(executeStandard)) {
+                errorInfo+="第" + (i + 1) + "行" + "执行标准不能为空！\n";
+            }
+            if (StrUtil.isEmpty(saftyType)) {
+                errorInfo+="第" + (i + 1) + "行" + "安全技术类别不能为空！\n";
+            }
+            if (StrUtil.isEmpty(ingredient)) {
+                errorInfo+="第" + (i + 1) + "行" + "材料成分不能为空！\n";
+            }
+            if (StrUtil.isEmpty(producer)) {
+                errorInfo+="第" + (i + 1) + "行" + "原产地不能为空！\n";
+            }
+            if (StrUtil.isEmpty(washingCode)) {
+                errorInfo+="第" + (i + 1) + "行" + "洗标编码不能为空！\n";
+            }
+        }
+
+        if (StrUtil.isNotEmpty(errorInfo)) {
+            return ApiResult.error(errorInfo,500);
+        }
+
+        //获取对应的枚举信息
+        //品名
+        List<BasicBaseDict> productList = ccmFeignService.getDictInfoToList("ProductName");
+        //质量等级
+        List<BasicBaseDict> qualityClassList = ccmFeignService.getDictInfoToList("C8_QualityClass");
+        //执行标准
+        List<BasicBaseDict> standardList = ccmFeignService.getDictInfoToList("C8_OPStandard");
+        //安全技术类别
+        List<BasicBaseDict> saftyTypeList = ccmFeignService.getAllDictInfoToList("C8_SaftyType");
+        //水洗唛
+        List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
+        //创建吊牌信息数据
+        List<HangTag> updateHangTagList = new ArrayList<>();
+
+        Map<String, StyleColorAgentVo> styleHangTagMap = null;
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.eq("ts.brand_name","MANGO");
+        queryWrapper.eq("tsca.del_flag","0");
+        List<StyleColorAgentVo> agentList = baseMapper.agentList(queryWrapper);
+        if (CollUtil.isNotEmpty(agentList)) {
+            styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getStyleNo, m -> m, (k1, k2) -> k1));
+        }
+
+
+        HangTag updateHangTag = null;
+
+        for (int i = 0; i < list.size(); i++) {
+
+            updateHangTag = new HangTag();
+
+            MangoHangTagExeclDto mangoHangTagExeclDto = list.get(i);
+            //品名
+            String productName = mangoHangTagExeclDto.getProductName();
+            //大货款号
+            String styleNo = mangoHangTagExeclDto.getStyleNo();
+            //质量等级
+            String qualityGrade = mangoHangTagExeclDto.getQualityGrade();
+            //执行标准
+            String executeStandard = mangoHangTagExeclDto.getExecuteStandard();
+            //安全技术类别
+            String saftyType = mangoHangTagExeclDto.getSaftyType();
+            //水洗唛编码
+            String washingCode = mangoHangTagExeclDto.getWashingCode();
+            //产地
+            String producer = mangoHangTagExeclDto.getProducer();
+            //品名翻译
+            String productNameTranslate = mangoHangTagExeclDto.getProductNameTranslate();
+            //材料成分
+            String ingredient = mangoHangTagExeclDto.getIngredient();
+            //颜色代码翻译
+            String colorCodeTranslate = mangoHangTagExeclDto.getColorCodeTranslate();
+
+            //得到MANGO品牌大货款信息，并判断是否导入的大货款是否存在数据库
+            if (!styleHangTagMap.containsKey(styleNo)) {
+                errorInfo+="第" + (i + 1) + "行,【" + styleNo + "】找不到对应的大货款信息！\n";
+            }
+
+            //region 质量等级验证
+            List<BasicBaseDict> productNameIsExistList = getBasicBaseDicts(productList, productName);
+
+            if (CollUtil.isNotEmpty(productNameIsExistList)) {
+                updateHangTag.setProductCode(productNameIsExistList.get(0).getValue());
+                updateHangTag.setProductName(productNameIsExistList.get(0).getName());
+            } else {
+                errorInfo+="第" + (i + 1) + "行,【" + qualityGrade + "】找不到对应的品名！\n";
+            }
+            //endregion
+            //region 质量等级验证
+            List<BasicBaseDict> qualityClassIsExistList = getBasicBaseDicts(qualityClassList, qualityGrade);
+
+            if (CollUtil.isNotEmpty(qualityClassIsExistList)) {
+                updateHangTag.setQualityGradeCode(qualityClassIsExistList.get(0).getValue());
+                updateHangTag.setQualityGrade(qualityClassIsExistList.get(0).getName());
+            } else {
+                errorInfo+="第" + (i + 1) + "行,【" + qualityGrade + "】找不到对应的质量等级！\n";
+            }
+            //endregion
+
+            //region 执行标准验证
+            List<BasicBaseDict> standardIsExistList = getBasicBaseDicts(standardList, executeStandard);
+
+            if (CollUtil.isNotEmpty(standardIsExistList)) {
+                updateHangTag.setExecuteStandardCode(standardIsExistList.get(0).getValue());
+                updateHangTag.setExecuteStandard(standardIsExistList.get(0).getName());
+            } else {
+                errorInfo+="第" + (i + 1) + "行,【" + executeStandard + "】找不到对应的执行标准！\n";
+            }
+            //endregion
+
+            //region 安全技术类别验证
+            List<BasicBaseDict> saftyTypeIsExistList = getBasicBaseDicts(saftyTypeList, saftyType);
+
+            if (CollUtil.isNotEmpty(saftyTypeIsExistList)) {
+                updateHangTag.setSaftyTitleCode(saftyTypeIsExistList.get(0).getValue());
+                updateHangTag.setSaftyType(saftyTypeIsExistList.get(0).getName());
+            } else {
+                errorInfo+="第" + (i + 1) + "行,【" + saftyType + "】找不到对应的安全技术类别！\n";
+            }
+            //endregion
+
+            //region 洗标编码是否存在验证
+            List<BasicsdatumWashIcon> washIconsisExistList = basicsdatumWashIconList.stream().filter(o -> o.getCode().equals(washingCode)).collect(Collectors.toList());
+
+            if (CollUtil.isNotEmpty(washIconsisExistList)) {
+                updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
+                updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
+            }else{
+                errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
+            }
+            //endregion
+
+            StyleColorAgentVo styleColorAgentVo = styleHangTagMap.get(styleNo);
+            if (styleColorAgentVo == null) {
+                errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的吊牌信息！\n";
+            }else{
+                //如果是已下发不允许导入吊牌信息，必须先解锁再导入
+                String enableStatus = styleColorAgentVo.getSendStatus();
+                if ("1".equals(enableStatus)) {
+                    errorInfo+="第" + (i + 1) + "行,【" + styleNo + "】请先解锁，然后再导入吊牌信息！\n";
+                }
+            }
+
+
+
+            updateHangTag.setId(styleColorAgentVo.getHangTagId());
+            updateHangTag.setIngredient(ingredient);
+            updateHangTag.setProductNameTranslate(productNameTranslate);
+            updateHangTag.setColorCodeTranslate(colorCodeTranslate);
+            updateHangTag.setProducer(producer);
+            //添加吊牌需要修改的信息
+            updateHangTagList.add(updateHangTag);
+
+        }
+
+        if (StrUtil.isNotEmpty(errorInfo)) {
+            return ApiResult.error(errorInfo,500);
+        }
+
+        if (CollUtil.isNotEmpty(updateHangTagList)) {
+            hangTagService.updateBatchById(updateHangTagList);
+        }
+
+        String msg = "";
+        msg+="成功导入条数:"+updateHangTagList.size()+"！";
         return ApiResult.success(msg);
     }
 
