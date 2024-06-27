@@ -17,6 +17,7 @@ import com.base.sbc.module.material.dto.CategoryIdDto;
 import com.base.sbc.module.material.dto.MaterialEnableDto;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
+import com.base.sbc.module.material.dto.MaterialSubmitDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.entity.Test;
@@ -317,24 +318,27 @@ public class MaterialController extends BaseController {
         return updateSuccess(list);
     }
 
-    @PutMapping("/batchUpdate")
+    @PutMapping("/batchSubmit")
     @Transactional(rollbackFor = {Exception.class})
-    @ApiOperation(value = "批量更新", notes = "批量更新")
-    public ApiResult batchSubmit(@RequestBody List<MaterialSaveDto> list){
-        if (CollUtil.isEmpty(list)){
+    @ApiOperation(value = "批量提交发布", notes = "批量提交发布")
+    public ApiResult batchSubmit(@RequestBody MaterialSubmitDto dto){
+        if (CollUtil.isEmpty(dto.getIdList())){
             return ApiResult.success();
         }
-        checkMaterialSaveDto(list);
-        list.forEach(this::update);
+        List<Material> materials = materialService.listByIds(dto.getIdList());
+
+        checkMaterial(materials);
+        materials.forEach(item ->item.setStatus("2"));
+
+        materialService.saveOrUpdateBatch(materials);
         return ApiResult.success("发布成功");
     }
 
-    private void checkMaterialSaveDto(List<MaterialSaveDto> list) {
-        MaterialSaveDto materialSaveDto = list.get(0);
-        if (!"2".equals(materialSaveDto.getStatus())){
-            return;
-        }
-        for (MaterialSaveDto saveDto : list) {
+    private void checkMaterial(List<Material> list) {
+        for (Material saveDto : list) {
+            if (!"1".equals(saveDto.getCompanyFlag()) && !"4".equals(saveDto.getStatus())){
+                throw new OtherException("未审核过的素材，不允许提交！");
+            }
             if (StringUtils.isEmpty(saveDto.getMaterialName())){
                 throw new OtherException("素材名称不能为空！");
             }
