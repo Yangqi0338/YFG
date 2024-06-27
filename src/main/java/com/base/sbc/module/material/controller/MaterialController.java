@@ -25,6 +25,7 @@ import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialLinkageVo;
+import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.google.common.collect.Lists;
@@ -325,21 +326,26 @@ public class MaterialController extends BaseController {
         if (CollUtil.isEmpty(dto.getIdList())){
             return ApiResult.success();
         }
-
-
         List<Material> materials = materialService.listByIds(dto.getIdList());
-
         //检查参数
         checkMaterial(materials, dto.getType());
-
         //参数补全
         fillMaterial(materials,dto.getType());
-
-
-
-
         materialService.saveOrUpdateBatch(materials);
         return ApiResult.success("发布成功");
+    }
+
+    @GetMapping("/details")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "查看详情", notes = "查看详情")
+    public ApiResult details( String id){
+        if (StringUtils.isEmpty(id)){
+            throw new OtherException("查询id不能为空");
+        }
+        MaterialQueryDto materialQueryDto = new MaterialQueryDto();
+        materialQueryDto.setIds(Lists.newArrayList(id));
+        List<MaterialVo> list = materialService.listQuery(materialQueryDto).getList();
+        return ApiResult.success("查询成功",CollUtil.isEmpty(list) ? null : list.get(0));
     }
 
 
