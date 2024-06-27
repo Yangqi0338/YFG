@@ -5,9 +5,13 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
 import com.base.sbc.module.storageSpace.entity.StorageSpace;
+import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
 import com.base.sbc.module.storageSpace.service.StorageSpaceService;
+import com.github.pagehelper.PageInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -58,9 +62,25 @@ public class StorageSpaceController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "空间设置更新", notes = "空间设置更新")
     public ApiResult storageSpaceUpdate(@RequestBody StorageSpace dto){
+        StorageSpace byId = storageSpaceService.getById(dto.getId());
         boolean b = storageSpaceService.updateById(dto);
-//        saveOrUpdateOperaLog();
+        if (b){
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setName("空间设置");
+            operaLogEntity.setDocumentId(dto.getId());
+            operaLogEntity.setType("更新");
+            storageSpaceService.saveOrUpdateOperaLog(dto,byId,operaLogEntity);
+        }
         return b ? ApiResult.success("更新成功") : ApiResult.error("更新失败",500);
+    }
+
+
+    @GetMapping("spacePersonListPage")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "获取个人空间列表", notes = "获取个人空间列表")
+    public ApiResult spacePersonListPage(StorageSpacePersonDto dto){
+        PageInfo<StorageSpacePerson> page = storageSpacePersonService.listQueryPage(dto);
+        return  ApiResult.success("查询成功",page);
     }
 
 
