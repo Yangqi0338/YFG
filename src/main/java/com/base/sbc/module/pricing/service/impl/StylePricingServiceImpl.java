@@ -164,7 +164,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
         qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getBulkStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
 
         MergeSegments mergeSegments = qw.getExpression();
         String groupStr = null;
@@ -215,6 +214,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         dto.setColumnMap(columnMap);
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
