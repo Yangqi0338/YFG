@@ -76,13 +76,12 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
    boolean templateReference(DimensionLabelsSearchDto dto);
     List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto);
 
+    @Transactional(rollbackFor = {Exception.class})
+    ApiResult batchSaveDimensionalityNoCheck(List<UpdateDimensionalityDto> dimensionalityDtoList);
     List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto);
 
     List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList);
 
-
-    @Transactional(rollbackFor = {Exception.class})
-    List<PlanningDimensionality> batchSaveDimensionalityNoCheck(List<UpdateDimensionalityDto> dimensionalityDtoList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

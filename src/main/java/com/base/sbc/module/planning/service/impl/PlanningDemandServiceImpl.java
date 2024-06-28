@@ -451,7 +451,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
      * @param checkMutexDto
      */
     @Override
-    public void checkMutex(CheckMutexDto checkMutexDto) {
+    public String checkMutex(CheckMutexDto checkMutexDto) {
         //品类和中类互斥,当前如果是中类,查询是否存在品类,如果是品类,查询是否存在中类
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("planning_season_id", checkMutexDto.getPlanningSeasonId());
@@ -478,10 +478,15 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
                 queryWrapper1.isNotNullStr("group_name");
                 long count = fieldManagementService.count(queryWrapper1);
                 if (count>0) {
-                    throw new OtherException(err);
+                    if(StrUtil.isNotBlank(checkMutexDto.getType())){
+                        return err;
+                    }else{
+                        throw new OtherException(err);
+                    }
                 }
             }
         }
+        return "";
     }
 
 
