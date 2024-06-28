@@ -5,10 +5,10 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.storageSpace.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,7 +36,7 @@ public class StorageSpacePerson extends BaseDataEntity<String> {
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 父空间id */
     @ApiModelProperty(value = "父空间id"  )
-    private Integer parentSpaceId;
+    private String parentSpaceId;
     /** 初始划分空间大小(单位：GB) */
     @ApiModelProperty(value = "初始划分空间大小(单位：GB)"  )
     private Integer initSpace;

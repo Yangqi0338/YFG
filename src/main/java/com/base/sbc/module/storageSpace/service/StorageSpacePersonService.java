@@ -11,6 +11,8 @@ import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /** 
  * 类描述：个人空间划分 service类
  * @address com.base.sbc.module.storageSpace.service.StorageSpacePersonService
@@ -21,6 +23,8 @@ import com.github.pagehelper.PageInfo;
  */
 public interface StorageSpacePersonService extends BaseService<StorageSpacePerson>{
     PageInfo<StorageSpacePerson> listQueryPage(StorageSpacePersonDto dto);
+
+    Boolean personUpdate(List<StorageSpacePerson> list);
 
 // 自定义方法区 不替换的区域【other_start】
 

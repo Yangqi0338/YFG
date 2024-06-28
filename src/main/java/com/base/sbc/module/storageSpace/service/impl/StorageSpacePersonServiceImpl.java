@@ -6,24 +6,37 @@
  *****************************************************************************/
 package com.base.sbc.module.storageSpace.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
+import com.base.sbc.module.storageSpace.entity.StorageSpace;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.base.sbc.module.storageSpace.mapper.StorageSpacePersonMapper;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
+import com.base.sbc.module.storageSpace.service.StorageSpaceService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+
+import cn.hutool.core.collection.CollUtil;
 
 /**
  * 类描述：个人空间划分 service类
@@ -36,6 +49,8 @@ import javax.annotation.Resource;
 @Service
 public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpacePersonMapper, StorageSpacePerson> implements StorageSpacePersonService {
 
+    @Autowired
+    private StorageSpaceService storageSpaceService;
 
     @Autowired
     private AmcService amcService;
@@ -47,19 +62,49 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
     private final ReentrantLock lock = new ReentrantLock();
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PageInfo<StorageSpacePerson> listQueryPage(StorageSpacePersonDto dto) {
 
-        //检查用户在权限的变动
-        checkMaterialUploadPermissionUpdate();
+        if (StringUtils.isEmpty(dto.getStorageType())){
+            throw new OtherException("存储类型不能为空");
+        }
 
+        StorageSpace storageSpace = storageSpaceService.getByStorageType(dto.getStorageType());
 
+        if ("1".equals(storageSpace.getStorageType())){
+            //检查用户在权限的变动
+            checkMaterialUploadPermissionUpdate(storageSpace);
+        }
+        Page<StorageSpacePerson> page = PageHelper.startPage(dto);
+        QueryWrapper<StorageSpacePerson> qw = new QueryWrapper<>();
+        qw.lambda().eq(StorageSpacePerson::getParentSpaceId,storageSpace.getId());
+        qw.lambda().eq(StorageSpacePerson::getDelFlag,"0");
+        qw.lambda().like(StringUtils.isNotBlank(dto.getUserName()),StorageSpacePerson::getUserName,dto.getUserName());
+        qw.lambda().like(StringUtils.isNotBlank(dto.getOwnerName()),StorageSpacePerson::getOwnerName,dto.getOwnerName());
+        qw.lambda().like(null != dto.getOwnerSpace(),StorageSpacePerson::getOwnerSpace,dto.getOwnerSpace());
+        qw.lambda().like(null != dto.getInitSpace(),StorageSpacePerson::getInitSpace,dto.getInitSpace());
+        qw.lambda().like(null != dto.getMagnification(),StorageSpacePerson::getMagnification,dto.getMagnification());
+        return page.toPageInfo();
+    }
 
-        return null;
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean personUpdate(List<StorageSpacePerson> list) {
+        //查询旧数据
+        List<StorageSpacePerson> oldPersonList = listByIds(list.stream().map(StorageSpacePerson::getId).collect(Collectors.toList()));
+        //批量修改
+        boolean b = updateBatchById(list);
+        if (b){
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setName("操作个人空间");
+            operaLogEntity.setType("更新");
+            updateBatchOperaLog(list,oldPersonList,operaLogEntity);
+        }
+        return b;
     }
 
 
-
-    private void checkMaterialUploadPermissionUpdate() {
+    private void checkMaterialUploadPermissionUpdate(StorageSpace storageSpace) {
 
         if (!getIsCheckUpdate()){
             return;
@@ -69,17 +114,50 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         if (!aBoolean) {
             throw new OtherException("请稍后重新查询，正在同步数据....");
         }
-
         try {
+            if (!getIsCheckUpdate()){
+                return;
+            }
             List<UserCompany> byMenuUrlUser = amcService.getByMenuUrlUser("pdm:materialLibrary:myMaterial:btn:systemUpload");
-            StorageSpacePerson storageSpacePerson = new StorageSpacePerson();
-
-//            redisUtils.set(key,"0");
+            if (CollUtil.isEmpty(byMenuUrlUser)){
+                return;
+            }
+            List<String> userIds = baseMapper.selectOwnerIds();
+            if (CollUtil.isEmpty(userIds)){
+                addStorageSpacePersonInfo(byMenuUrlUser,storageSpace);
+            }else {
+                addStorageSpacePersonInfo(byMenuUrlUser.stream().filter(item ->!userIds.contains(item.getUserId())).collect(Collectors.toList()),storageSpace);
+            }
+            redisUtils.set(key,"0");
         }finally {
             redisUtils.del(key);
         }
 
     }
+
+    private void addStorageSpacePersonInfo(List<UserCompany> list,StorageSpace storageSpace){
+        if (CollUtil.isEmpty(list)){
+            return;
+        }
+        List<StorageSpacePerson> personList = Lists.newArrayList();
+        list.forEach(item ->{
+            StorageSpacePerson storageSpacePerson = new StorageSpacePerson();
+            storageSpacePerson.setOwnerId(item.getUserId());
+            storageSpacePerson.setOwnerName(item.getName());
+            storageSpacePerson.setUserName(item.getUsername());
+            storageSpacePerson.setParentSpaceId(storageSpace.getId());
+            storageSpacePerson.setInitSpace(storageSpace.getInitSpace());
+            storageSpacePerson.setMagnification(storageSpace.getInitMagnification());
+            storageSpacePerson.setId(new IdGen().nextIdStr());
+            storageSpacePerson.insertInit();
+            personList.add(storageSpacePerson);
+        });
+
+        saveBatch(personList);
+
+
+    }
+
 
     private boolean getIsCheckUpdate(){
         Object o = redisUtils.get(key);

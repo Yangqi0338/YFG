@@ -1,6 +1,5 @@
 package com.base.sbc.module.storageSpace.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
@@ -18,9 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,12 +51,7 @@ public class StorageSpaceController {
         if (StringUtils.isEmpty(dto.getStorageType())){
             throw new OtherException("存储类型不能为空");
         }
-        QueryWrapper<StorageSpace> qw = new QueryWrapper<>();
-        qw.lambda().eq(StorageSpace::getStorageType,dto.getStorageType());
-        qw.lambda().eq(StorageSpace::getDelFlag,"0");
-        qw.lambda().last("limit 1");
-
-        StorageSpace one = storageSpaceService.getOne(qw);
+        StorageSpace one = storageSpaceService.getByStorageType(dto.getStorageType());
         return  ApiResult.success("查询成功",one);
     }
 
@@ -75,13 +72,23 @@ public class StorageSpaceController {
     }
 
 
-    @GetMapping("spacePersonListPage")
+    @GetMapping("personListQueryPage")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "获取个人空间列表", notes = "获取个人空间列表")
-    public ApiResult spacePersonListPage(StorageSpacePersonDto dto){
+    public ApiResult personListQueryPage(StorageSpacePersonDto dto){
         PageInfo<StorageSpacePerson> page = storageSpacePersonService.listQueryPage(dto);
         return  ApiResult.success("查询成功",page);
     }
+
+
+    @PutMapping("personUpdate")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "修改个人空间", notes = "修改个人空间")
+    public ApiResult personUpdate(List<StorageSpacePerson> list){
+        Boolean result = storageSpacePersonService.personUpdate(list);
+        return  result ? ApiResult.success("修改成功") : ApiResult.error("修改失败",500);
+    }
+
 
 
 }

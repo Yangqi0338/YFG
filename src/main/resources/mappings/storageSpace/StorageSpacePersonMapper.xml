@@ -9,6 +9,9 @@
         版本号：1.0
       -->
 
+    <select id="selectOwnerIds" resultType="java.lang.String">
+        select owner_id from t_storage_space_person where del_flag = '0'
+    </select>
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
 

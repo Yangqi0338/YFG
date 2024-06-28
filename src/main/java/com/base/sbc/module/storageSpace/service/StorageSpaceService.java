@@ -19,6 +19,10 @@ import com.base.sbc.module.storageSpace.entity.StorageSpace;
  */
 public interface StorageSpaceService extends BaseService<StorageSpace>{
 
+
+    StorageSpace getByStorageType(String storageType);
+
+
 // 自定义方法区 不替换的区域【other_start】
 
 

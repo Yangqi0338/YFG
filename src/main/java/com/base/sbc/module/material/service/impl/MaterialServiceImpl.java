@@ -490,6 +490,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             qw.lambda().in(Material::getFolderId, folderIds);
         }
         qw.lambda().eq(Material::getCreateId,userId);
+        qw.lambda().eq(Material::getDelFlag,"0");
         return count(qw);
     }
 

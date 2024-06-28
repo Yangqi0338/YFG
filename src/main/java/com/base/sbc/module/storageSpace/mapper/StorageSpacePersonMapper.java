@@ -7,9 +7,13 @@
 package com.base.sbc.module.storageSpace.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
-/** 
+
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+/**
  * 类描述：个人空间划分 dao类
  * @address com.base.sbc.module.storageSpace.dao.StorageSpacePersonDao
  * @author your name  
@@ -19,6 +23,7 @@ import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
  */
 @Mapper
 public interface StorageSpacePersonMapper extends BaseMapper<StorageSpacePerson> {
+    List<String> selectOwnerIds();
 // 自定义方法区 不替换的区域【other_start】
 
 

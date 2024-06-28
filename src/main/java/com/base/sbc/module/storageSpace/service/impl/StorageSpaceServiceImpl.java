@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.storageSpace.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.storageSpace.entity.StorageSpace;
 import com.base.sbc.module.storageSpace.mapper.StorageSpaceMapper;
@@ -22,6 +23,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StorageSpaceServiceImpl extends BaseServiceImpl<StorageSpaceMapper, StorageSpace> implements StorageSpaceService {
+    @Override
+    public StorageSpace getByStorageType(String storageType) {
+        QueryWrapper<StorageSpace> qw = new QueryWrapper<>();
+        qw.lambda().eq(StorageSpace::getStorageType,storageType);
+        qw.lambda().eq(StorageSpace::getDelFlag,"0");
+        qw.lambda().last("limit 1");
+        return getOne(qw);
+    }
 
 // 自定义方法区 不替换的区域【other_start】
 
