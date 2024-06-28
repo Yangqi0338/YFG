@@ -308,6 +308,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			return new PageInfo<>(hangTagListVOS);
 		}
 		if (isColumnHeard) {
+			if (hangTagDTO.getFieldQueryMap().containsKey("status")) {
+				List<HangTagListVO> hl = hangTagListVOS.stream().filter(h -> null != h.getStatus()).collect(Collectors.toList());
+				return new PageInfo<>(hl);
+			}
 			return new PageInfo<>(hangTagListVOS);
 		}
 

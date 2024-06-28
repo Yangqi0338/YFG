@@ -51,11 +51,12 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @param dto
      * @return
      */
-    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
-    List<HangTagListVO> queryList_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+    List<HangTagListVO> queryListByLine(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+    List<HangTagListVO> queryListByLine_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
 
     List<TagPrinting> hangTagPrinting(@Param("companyCode") String companyCode, @Param("styleNo") String styleNo,@Param("likeQueryFlag") String likeQueryFlag);
 
+    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
     /**
      * 通过id查询详情
      *

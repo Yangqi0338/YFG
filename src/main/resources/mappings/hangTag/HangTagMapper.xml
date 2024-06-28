@@ -383,7 +383,9 @@
     </select>
 
     <!-- 备份 -->
-    <select id="queryList" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
+
+
+    <select id="queryListByLine" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
             SELECT
             ${ew.sqlSelect}
@@ -602,7 +604,7 @@
         </if>
     </select>
 
-    <select id="queryList_COUNT" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
+    <select id="queryListByLine_COUNT" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
             select count(0) from (
                 select
