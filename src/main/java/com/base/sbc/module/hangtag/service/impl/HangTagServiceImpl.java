@@ -303,7 +303,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
 
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
+		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryListByLine(hangTagDTO, qw);
 		if (CollUtil.isEmpty(hangTagListVOS)) {
 			return new PageInfo<>(hangTagListVOS);
 		}
@@ -353,7 +353,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						// e.setStatus("5"); 不需要设置为通过,通过或者不通过会在回调页面设置
 					} else {
 						// 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
-
 						if (HangTagStatusEnum.SUSPEND != e.getStatus()) {
 							switch (flowRecordVo.getName()) {
 								case "大货工艺员确认":
@@ -535,8 +534,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			throws IOException {
 		/* 查询吊牌数据 */
 		hangTagSearchDTO.setDeriveFlag(BaseGlobal.YES);
-		List<HangTagListVO> list = queryPageInfo(hangTagSearchDTO, userCompany).getList();
+		hangTagSearchDTO.setPageNum(1);
+		hangTagSearchDTO.setPageSize(99999);
+		List<HangTagListVO> list = queryPageInfoByLine(hangTagSearchDTO, userCompany).getList();
 		List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
+		for (HangTagVoExcel h : hangTagVoExcels) {
+			h.setStatus(HangTagStatusEnum.getTextByCode(h.getStatus()));
+		}
 		ExcelUtils.executorExportExcel(hangTagVoExcels, HangTagVoExcel.class,"吊牌",hangTagSearchDTO.getImgFlag(),2000,response,"washingLabel");
 	}
 
