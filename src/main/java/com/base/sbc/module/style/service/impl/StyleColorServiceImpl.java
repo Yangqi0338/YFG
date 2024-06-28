@@ -4189,8 +4189,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     @Transactional
     public ApiResult importMarkingOrder(List<Map<String, Object>> readAll) {
-        if(readAll.size() > 40){
-            throw new OtherException("导入数据不能超过40条");
+        if(readAll.size() > 120){
+            throw new OtherException("导入数据不能超过120条");
         }
         //大货款号清单
         List<String> styleNos = new ArrayList<>();
