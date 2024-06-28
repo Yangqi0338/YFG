@@ -702,35 +702,37 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @NotNull
     private static String createEDStyleNo(String designNo, String year, String season, String brand, String isLuxury, String category, String yearOn, String styleNo, String month, Long aLong) {
-        String years = year.substring(year.length() - 2);
-        /*拼接的设计款号（用于获取流水号）*/
-        String joint = brand + years + season + category;
-        designNo = designNo.replaceAll(joint, "");
-        String regEx = "[^0-9]";
-        Pattern p = Pattern.compile(regEx);
-        Matcher m = p.matcher(designNo);
-        String designNoSeq = m.replaceAll("").trim();
-
-        styleNo = "1";
-        styleNo += yearOn;
-        String monthStr = "";
-        monthStr = String.valueOf(month);
-        if ("10".equals(month)) {
-            monthStr = "A";
-        } else if ("11".equals(month)) {
-            monthStr = "B";
-        } else if ("12".equals(month)) {
-            monthStr = "C";
-        }
-        styleNo+=monthStr;
-        styleNo +="9";
-        styleNo += category;
-        //设计款的流水位
-        styleNo += designNoSeq;
-        //统计该大货款设计款下的大货款个数
-        styleNo += aLong;
-        styleNo += isLuxury;
-        return styleNo;
+            String years = year.substring(year.length() - 2);
+            /*拼接的设计款号（用于获取流水号）*/
+            String joint = brand + years + season + category;
+            designNo = designNo.replaceAll(joint, "");
+            String regEx = "[^0-9]";
+            Pattern p = Pattern.compile(regEx);
+            Matcher m = p.matcher(designNo);
+            String designNoSeq = m.replaceAll("").trim();
+            designNoSeq = designNoSeq.substring(designNoSeq.length() - 3, designNoSeq.length());
+            styleNo = "1";
+            styleNo += years;
+            String monthStr = "";
+            monthStr = String.valueOf(month);
+            if ("10".equals(month)) {
+                monthStr = "A";
+            } else if ("11".equals(month)) {
+                monthStr = "B";
+            } else if ("12".equals(month)) {
+                monthStr = "C";
+            }else{
+                monthStr = monthStr.replace("0","");
+            }
+            styleNo+=monthStr;
+            styleNo +="9";
+            styleNo += category;
+            //设计款的流水位
+            styleNo += designNoSeq;
+            //统计该大货款设计款下的大货款个数
+            styleNo += aLong;
+            styleNo += isLuxury;
+            return styleNo;
     }
 
 
