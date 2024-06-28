@@ -702,6 +702,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @NotNull
     private static String createEDStyleNo(String designNo, String year, String season, String brand, String isLuxury, String category, String yearOn, String styleNo, String month, Long aLong) {
+            yearOn = getYearOn(year);
             String years = year.substring(year.length() - 2);
             /*拼接的设计款号（用于获取流水号）*/
             String joint = brand + years + season + category;
@@ -712,7 +713,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String designNoSeq = m.replaceAll("").trim();
             designNoSeq = designNoSeq.substring(designNoSeq.length() - 3, designNoSeq.length());
             styleNo = "1";
-            styleNo += years;
+            styleNo += yearOn;
             String monthStr = "";
             monthStr = String.valueOf(month);
             if ("10".equals(month)) {
@@ -767,12 +768,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     /**
+     * 查询波段中的月份
+     *
+     * @param bandName
+     * @param s
+     * @return
+     */
+    public String getMonth(String bandName, String s) {
+        String month = bandName.replace(s, "");
+        if (!month.matches("[1-9]")) {
+            month = "10".equals(month) ? "A" : "11".equals(month) ? "B" : "12".equals(month) ? "C" : "";
+        }
+        return month;
+    }
+
+    /**
      * 年份 初始值从2019开始为A依次往后推 超过26年份为A1
      *
      * @param year
      * @return
      */
-    public String getYearOn(String year) {
+    public static String getYearOn(String year) {
         if (StrUtil.equals(year, "2099")) {
             return "99";
         }
@@ -789,21 +805,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             yearOn = String.valueOf(c1) + (year1 - initial) / 26;
         }
         return yearOn;
-    }
-
-    /**
-     * 查询波段中的月份
-     *
-     * @param bandName
-     * @param s
-     * @return
-     */
-    public String getMonth(String bandName, String s) {
-        String month = bandName.replace(s, "");
-        if (!month.matches("[1-9]")) {
-            month = "10".equals(month) ? "A" : "11".equals(month) ? "B" : "12".equals(month) ? "C" : "";
-        }
-        return month;
     }
 
     /**
