@@ -481,12 +481,12 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             List<PlanningDimensionality> list = list(queryWrapper);
             if(CollUtil.isNotEmpty(list)){
                 if (StrUtil.isNotBlank(updateDimensionalityDto.getProdCategory2nd())) {
-                    msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonId()).append(",渠道：").append(updateDimensionalityDto.getChannel())
-                            .append(",大类：").append(updateDimensionalityDto.getProdCategory1st()).append(",品类：").append(updateDimensionalityDto.getProdCategory())
-                            .append(",中类：").append(updateDimensionalityDto.getProdCategory2nd()).append(",已存在品类维度;");
+                    msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                            .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
+                            .append(",中类：").append(updateDimensionalityDto.getProdCategory2ndName()).append(",已存在品类维度;");
                 }else{
-                    msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonId()).append(",渠道：").append(updateDimensionalityDto.getChannel())
-                            .append(",大类：").append(updateDimensionalityDto.getProdCategory1st()).append(",品类：").append(updateDimensionalityDto.getProdCategory())
+                    msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                            .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
                             .append(",已存在中类维度;");
                 }
             }else{
@@ -515,12 +515,12 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
                     }).collect(Collectors.toList());
                     if(CollUtil.isNotEmpty(errFiled)){
                         if (StrUtil.isNotBlank(updateDimensionalityDto.getProdCategory2nd())) {
-                            msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonId()).append(",渠道：").append(updateDimensionalityDto.getChannel())
-                                    .append(",大类：").append(updateDimensionalityDto.getProdCategory1st()).append(",品类：").append(updateDimensionalityDto.getProdCategory())
-                                    .append(",中类：").append(updateDimensionalityDto.getProdCategory2nd()).append(",已存字段：").append(String.join(",", errFiled)).append(";");
+                            msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                                    .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
+                                    .append(",中类：").append(updateDimensionalityDto.getProdCategory2ndName()).append(",已存字段：").append(String.join(",", errFiled)).append(";");
                         }else{
-                            msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonId()).append(",渠道：").append(updateDimensionalityDto.getChannel())
-                                    .append(",大类：").append(updateDimensionalityDto.getProdCategory1st()).append(",品类：").append(updateDimensionalityDto.getProdCategory())
+                            msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                                    .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
                                     .append(",已存字段：").append(String.join(",", errFiled)).append(";");
                         }
                     }
