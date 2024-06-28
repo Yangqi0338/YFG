@@ -29,7 +29,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-需求管理相关接口
@@ -208,7 +210,43 @@ public class PlanningDemandController {
 
 	@ApiOperation(value = "保存/编辑维度标签")
 	@PostMapping("/batchSaveDimensionalityNoCheck")
-	public ApiResult batchSaveDimensionalityNoCheck(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+	public ApiResult batchSaveDimensionalityNoCheck(@Valid @RequestBody Map<String,List<UpdateDimensionalityDto>> dimensionalityDtoMap) {
+		//前端选择产品季+渠道+品类树
+		List<UpdateDimensionalityDto> tree = dimensionalityDtoMap.get("tree");
+		//选择的字段
+		List<UpdateDimensionalityDto> field = dimensionalityDtoMap.get("field");
+		//取笛卡尔积
+		List<UpdateDimensionalityDto> dimensionalityDtoList = new ArrayList<>();
+		for (UpdateDimensionalityDto treeDto : tree) {
+			for (UpdateDimensionalityDto fieldDto : field) {
+				UpdateDimensionalityDto dto = new UpdateDimensionalityDto();
+
+				dto.setPlanningSeasonId(treeDto.getPlanningSeasonId());
+				dto.setPlanningSeasonName(treeDto.getPlanningSeasonName());
+				dto.setChannel(treeDto.getChannel());
+				dto.setChannelName(treeDto.getChannelName());
+				dto.setProdCategory1st(treeDto.getProdCategory1st());
+				dto.setProdCategory1stName(treeDto.getProdCategory1stName());
+				dto.setProdCategory(treeDto.getProdCategory());
+				dto.setProdCategoryName(treeDto.getProdCategoryName());
+				dto.setProdCategory2nd(treeDto.getProdCategory2nd());
+				dto.setProdCategory2ndName(treeDto.getProdCategory2ndName());
+
+				dto.setFieldId(fieldDto.getFieldId());
+				dto.setDimensionalityName(fieldDto.getDimensionalityName());
+				dto.setDesignShowFlag(fieldDto.getDesignShowFlag());
+				dto.setDesignExamineFlag(fieldDto.getDesignExamineFlag());
+				dto.setResearchShowFlag(fieldDto.getResearchShowFlag());
+				dto.setResearchExamineFlag(fieldDto.getResearchExamineFlag());
+				dto.setReplayShowFlag(fieldDto.getReplayShowFlag());
+				dto.setReplayExamineFlag(fieldDto.getReplayExamineFlag());
+				dto.setCoefficientFlag(fieldDto.getCoefficientFlag());
+				dto.setSort(fieldDto.getSort());
+				dto.setGroupSort(fieldDto.getGroupSort());
+				dto.setStatus(fieldDto.getStatus());
+				dimensionalityDtoList.add(dto);
+			}
+		}
 		return planningDimensionalityService.batchSaveDimensionalityNoCheck(dimensionalityDtoList);
 	}
 

@@ -10,4 +10,5 @@ import lombok.Data;
 public class UpdateDimensionalityDto extends PlanningDimensionality {
 
 
+    private String planningSeasonName;
 }
