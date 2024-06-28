@@ -82,7 +82,7 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
 
     @Override
     public PageInfo<TaskAssignmentVO> queryTaskAssignmentPage(TaskAssignmentDTO queryTaskAssignment) {
-        Page<TaskAssignment> page = PageHelper.startPage(queryTaskAssignment.getPage().getPageNum(), queryTaskAssignment.getPage().getPageSize());
+        PageHelper.startPage(queryTaskAssignment.getPage().getPageNum(), queryTaskAssignment.getPage().getPageSize());
         LambdaQueryWrapper<TaskAssignment> taskAssignmentQueryWrapper = new LambdaQueryWrapper<>();
         taskAssignmentQueryWrapper.eq(ObjectUtil.isNotEmpty(queryTaskAssignment.getBrand()), TaskAssignment::getBrand, queryTaskAssignment.getBrand())
                 .eq(ObjectUtil.isNotEmpty(queryTaskAssignment.getVirtualDeptId()), TaskAssignment::getVirtualDeptId, queryTaskAssignment.getVirtualDeptId())
@@ -94,12 +94,12 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
         if (ObjectUtil.isNotEmpty(queryTaskAssignment.getTriggerMenus())) {
             taskAssignmentQueryWrapper.eq(TaskAssignment::getTriggerMenus, queryTaskAssignment.getTriggerMenus().split(","));
         }
-        List<TaskAssignment> list = list(taskAssignmentQueryWrapper);
-        PageInfo<TaskAssignment> taskAssignmentPageInfo = new PageInfo<>(list);
+        List<TaskAssignment> taskAssignmentList = list(taskAssignmentQueryWrapper);
+        PageInfo<TaskAssignment> taskAssignmentPageInfo = new PageInfo<>(taskAssignmentList);
         PageInfo<TaskAssignmentVO> newTaskAssignmentPageInfo = new PageInfo<>();
         BeanUtil.copyProperties(taskAssignmentPageInfo, newTaskAssignmentPageInfo);
-        if (ObjectUtil.isNotEmpty(list)) {
-            newTaskAssignmentPageInfo.setList(BeanUtil.copyToList(list, TaskAssignmentVO.class));
+        if (ObjectUtil.isNotEmpty(taskAssignmentList)) {
+            newTaskAssignmentPageInfo.setList(BeanUtil.copyToList(taskAssignmentList, TaskAssignmentVO.class));
         }
         return newTaskAssignmentPageInfo;
     }
@@ -117,14 +117,21 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
     }
 
     @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
     public Boolean enableDisableTaskAssignment(TaskAssignmentDTO enableDisableTaskAssignment) {
         if (ObjectUtil.isEmpty(enableDisableTaskAssignment) || ObjectUtil.isEmpty(enableDisableTaskAssignment.getId())) {
             throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
         if (ObjectUtil.isEmpty(GeneralFlagEnum.getValueByCode(enableDisableTaskAssignment.getEnableFlag()))) {
-
+            throw new OtherException(ResultConstant.ENABLE_DISABLED_STATUS_ERROR);
         }
-        return null;
+        TaskAssignment taskAssignment = getById(enableDisableTaskAssignment.getId());
+        if (ObjectUtil.isEmpty(taskAssignment)) {
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
+        }
+        taskAssignment.setEnableFlag(enableDisableTaskAssignment.getEnableFlag());
+        return updateById(taskAssignment);
     }
 
     /**
@@ -157,7 +164,7 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
                 .and(item -> {
                     String triggerMenus = needComparisonTaskAssignment.getTriggerMenus();
                     if (ObjectUtil.isEmpty(triggerMenus)) {
-                        throw new OtherException(ResultConstant.PLEASE_CHOOSE_TRIGGER_MUNE);
+                        throw new OtherException(ResultConstant.PLEASE_CHOOSE_TRIGGER_MENU);
                     }
                     String[] triggerMenuArray = triggerMenus.split(",");
                     for (String triggerMenu : triggerMenuArray) {

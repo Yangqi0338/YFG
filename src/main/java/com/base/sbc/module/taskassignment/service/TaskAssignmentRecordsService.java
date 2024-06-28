@@ -19,6 +19,12 @@ import com.github.pagehelper.PageInfo;
  */
 public interface TaskAssignmentRecordsService extends BaseService<TaskAssignmentRecords>{
 
+    /**
+     * 根据任务分配 ID 查询触发记录列表分页
+     *
+     * @param queryTaskAssignmentRecords 查询条件
+     * @return 触发记录列表分页
+     */
     PageInfo<TaskAssignmentRecordsVO> queryTaskAssignmentRecordsPage(TaskAssignmentRecordsDTO queryTaskAssignmentRecords);
 
 

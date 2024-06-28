@@ -7,7 +7,10 @@
 package com.base.sbc.module.taskassignment.dto;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.taskassignment.entity.TaskAssignmentRecords;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
@@ -18,8 +21,14 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("任务分配-触发记录入参")
-public class TaskAssignmentRecordsDTO extends BaseDataEntity<String> {
+public class TaskAssignmentRecordsDTO extends TaskAssignmentRecords {
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 分页数据
+	 */
+	@ApiModelProperty("分页数据")
+	private Page page;
 
 }

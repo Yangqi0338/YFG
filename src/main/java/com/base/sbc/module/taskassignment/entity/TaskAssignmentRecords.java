@@ -12,8 +12,10 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：任务分配-触发记录 实体类
+ *
  * @author XHTE
  * @create 2024/6/27
  */
@@ -23,40 +25,51 @@ import lombok.EqualsAndHashCode;
 @ApiModel("任务分配-触发记录 TaskAssignmentRecords")
 public class TaskAssignmentRecords extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 任务分配 ID
+     */
+    @ApiModelProperty("任务分配 ID")
+    private String taskAssignmentId;
     /**
      * 设计款编码
      */
-    @ApiModelProperty(value = "设计款编码"  )
+    @ApiModelProperty(value = "设计款编码")
     private String designNo;
     /**
      * 样板号
      */
-    @ApiModelProperty(value = "样板号"  )
+    @ApiModelProperty(value = "样板号")
     private String patternNo;
     /**
      * 打版类型
      */
-    @ApiModelProperty(value = "打版类型"  )
+    @ApiModelProperty(value = "打版类型")
     private String sampleType;
     /**
      * 打版类型名称
      */
-    @ApiModelProperty(value = "打版类型名称"  )
+    @ApiModelProperty(value = "打版类型名称")
     private String sampleTypeName;
     /**
-     * 触发菜单类型（产品季总览，技术中心看板）
+     * 触发菜单（产品季总览，技术中心看板）
      */
-    @ApiModelProperty(value = "触发菜单类型（产品季总览，技术中心看板）"  )
-    private String triggerMenuType;
+    @ApiModelProperty(value = "触发菜单（产品季总览，技术中心看板）")
+    private String triggerMenu;
     /**
      * 启用状态（ 0-未启用 1-启用）
      */
-    @ApiModelProperty(value = "启用状态（ 0-未启用 1-启用）"  )
+    @ApiModelProperty(value = "启用状态（ 0-未启用 1-启用）")
     private String enableFlag;
     /**
      * 成功状态（0-失败 1-成功）
      */
-    @ApiModelProperty(value = "成功状态（0-失败 1-成功）"  )
+    @ApiModelProperty(value = "成功状态（0-失败 1-成功）")
     private String successFlag;
+    /**
+     * 触发结果
+     */
+    @ApiModelProperty(value = "触发结果")
+    private String triggerResult;
 }

@@ -59,7 +59,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
      * 大类 code
      */
     @NotBlank(message = "大类不能为空")
-    @ApiModelProperty(value = "大类code")
+    @ApiModelProperty(value = "大类 code")
     private String prodCategory1st;
     /**
      * 大类名称
@@ -70,7 +70,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
      * 品类 code
      */
     @NotBlank(message = "品类不能为空")
-    @ApiModelProperty(value = "品类code")
+    @ApiModelProperty(value = "品类 code")
     private String prodCategory;
     /**
      * 品类名称
@@ -81,7 +81,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
      * 中类 code
      */
     @NotBlank(message = "中类不能为空")
-    @ApiModelProperty(value = "中类code")
+    @ApiModelProperty(value = "中类 code")
     private String prodCategory2nd;
     /**
      * 中类名称
@@ -92,7 +92,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
      * 小类 code
      */
     @NotBlank(message = "小类不能为空")
-    @ApiModelProperty(value = "小类code")
+    @ApiModelProperty(value = "小类 code")
     private String prodCategory3rd;
     /**
      * 小类名称

@@ -30,6 +30,8 @@ public class ResultConstant {
     public static final String EVERGREEN_ORIGINALS_DO_NOT_FORM_RINGS = "常青原版不能形成环！";
     public static final String EVERGREEN_ORIGINALS_DOES_NOT_EXIST_REFRESH_TRY_AGAIN = "常青原版不存在，请刷新后重试！";
     public static final String TASK_ASSIGNMENT_EXIST = "任务分配已存在！";
-    public static final String PLEASE_CHOOSE_TRIGGER_MUNE = "请选择触发菜单！";
+    public static final String PLEASE_CHOOSE_TRIGGER_MENU = "请选择触发菜单！";
+    public static final String TRIGGER_MENU_DOES_NOT_EXIST = "触发菜单不存在！";
+    public static final String ENABLE_DISABLED_STATUS_ERROR = "启用/禁用状态错误！";
 
 }

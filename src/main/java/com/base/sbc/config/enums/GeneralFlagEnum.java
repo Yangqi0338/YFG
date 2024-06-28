@@ -1,5 +1,6 @@
 package com.base.sbc.config.enums;
 
+import cn.hutool.core.util.ObjectUtil;
 import lombok.Getter;
 
 @Getter

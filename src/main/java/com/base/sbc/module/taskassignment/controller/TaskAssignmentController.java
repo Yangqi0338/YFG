@@ -92,8 +92,8 @@ public class TaskAssignmentController {
     @ApiOperation(value = "查询任务分配列表分页")
     @PostMapping("/queryTaskAssignmentPage")
     public ApiResult<PageInfo<TaskAssignmentVO>> queryTaskAssignmentPage(@RequestBody TaskAssignmentDTO queryTaskAssignment) {
-        PageInfo<TaskAssignmentVO> taskAssignmentVOPageInfo = taskAssignmentService.queryTaskAssignmentPage(queryTaskAssignment);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, taskAssignmentVOPageInfo);
+        PageInfo<TaskAssignmentVO> taskAssignmentPageInfo = taskAssignmentService.queryTaskAssignmentPage(queryTaskAssignment);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, taskAssignmentPageInfo);
     }
 
     /**
@@ -121,13 +121,6 @@ public class TaskAssignmentController {
         taskAssignmentService.enableDisableTaskAssignment(enableDisableTaskAssignment);
         return ApiResult.success();
     }
-
-
-    // @ApiOperation(value = "分页查询")
-    // @GetMapping
-    // public PageInfo<TaskAssignmentVo> page(TaskAssignmentQueryDTO dto) {
-    // 	return taskAssignmentService.findPage(dto);
-    // }
 
 }
 

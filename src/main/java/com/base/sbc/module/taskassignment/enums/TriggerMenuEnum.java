@@ -1,5 +1,6 @@
 package com.base.sbc.module.taskassignment.enums;
 
+import com.base.sbc.config.enums.GeneralFlagEnum;
 import lombok.Getter;
 
 @Getter
@@ -12,6 +13,15 @@ public enum TriggerMenuEnum {
 
     TriggerMenuEnum(String value) {
         this.value = value;
+    }
+
+    public static String checkValue(String value) {
+        for (TriggerMenuEnum item : TriggerMenuEnum.values()) {
+            if (item.getValue().equals(value)) {
+                return item.getValue();
+            }
+        }
+        return "";
     }
 
 }

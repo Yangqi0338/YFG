@@ -6,12 +6,22 @@
  *****************************************************************************/
 package com.base.sbc.module.taskassignment.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.taskassignment.constants.ResultConstant;
+import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
+import com.base.sbc.module.taskassignment.dto.TaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.service.TaskAssignmentRecordsService;
+import com.base.sbc.module.taskassignment.vo.TaskAssignmentRecordsVO;
+import com.base.sbc.module.taskassignment.vo.TaskAssignmentVO;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,11 +42,18 @@ public class TaskAssignmentRecordsController {
     @Autowired
     private TaskAssignmentRecordsService taskAssignmentRecordsService;
 
-    // @ApiOperation(value = "分页查询")
-    // @GetMapping
-    // public PageInfo<TaskAssignmentRecordsVo> page(TaskAssignmentRecordsQueryDto dto) {
-    //     return taskAssignmentRecordsService.findPage(dto);
-    // }
+    /**
+     * 根据任务分配 ID 查询触发记录列表分页
+     *
+     * @param queryTaskAssignmentRecords 查询条件
+     * @return 触发记录列表分页
+     */
+    @ApiOperation(value = "根据任务分配 ID 查询触发记录列表分页")
+    @PostMapping("/queryTaskAssignmentRecordsPage")
+    public ApiResult<PageInfo<TaskAssignmentRecordsVO>> queryTaskAssignmentRecordsPage(@RequestBody TaskAssignmentRecordsDTO queryTaskAssignmentRecords) {
+        PageInfo<TaskAssignmentRecordsVO> taskAssignmentRecordsPageInfo = taskAssignmentRecordsService.queryTaskAssignmentRecordsPage(queryTaskAssignmentRecords);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, taskAssignmentRecordsPageInfo);
+    }
 }
 
 
