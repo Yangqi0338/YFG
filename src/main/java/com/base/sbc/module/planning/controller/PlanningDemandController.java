@@ -206,6 +206,11 @@ public class PlanningDemandController {
 		return planningDimensionalityService.templateReference(dto);
 	}
 
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/batchSaveDimensionalityNoCheck")
+	public ApiResult batchSaveDimensionalityNoCheck(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+		return planningDimensionalityService.batchSaveDimensionalityNoCheck(dimensionalityDtoList);
+	}
 
 	@ApiOperation(value = "获取物料库字段数据")
 	@GetMapping("/getMaterialCoefficient")
@@ -217,11 +222,6 @@ public class PlanningDemandController {
 	@PostMapping("/batchSaveMaterial")
 	public List<PlanningDimensionality> batchSaveMaterial(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
 		return planningDimensionalityService.batchSaveMaterial(dimensionalityDtoList);
-	}
-	@ApiOperation(value = "保存/编辑维度标签")
-	@PostMapping("/batchSaveDimensionality")
-	public List<PlanningDimensionality> batchSaveDimensionalityNoCheck(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
-		return planningDimensionalityService.batchSaveDimensionalityNoCheck(dimensionalityDtoList);
 	}
 
 }
