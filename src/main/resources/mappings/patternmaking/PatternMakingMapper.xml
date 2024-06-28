@@ -274,7 +274,10 @@
     <select id="findBySampleDesignId" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
         select m.*, d.product_sizes, d.pat_diff as sd_pat_diff, d.pat_diff_name as sd_pat_diff_name, d.default_size
         from t_pattern_making m
-                 join t_style d on (m.style_id = d.id) ${ew.customSqlSegment}
+                 left join t_style d on (m.style_id = d.id)
+                 left join
+
+                 ${ew.customSqlSegment}
     </select>
 
     <select id="getAllList" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo">

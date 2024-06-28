@@ -23,6 +23,8 @@ public class PatternMakingListVo extends PatternMaking {
     private String productSizes;
     @ApiModelProperty(value = "默认尺码")
     private String defaultSize;
+
+    private String isUpdate;
     /**
      * 打版难度
      */

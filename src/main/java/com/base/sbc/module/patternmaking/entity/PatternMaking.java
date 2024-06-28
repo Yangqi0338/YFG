@@ -194,6 +194,7 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计下发时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designSendDate;
+
     /**
      * 设计下发状态:(0未下发，1已下发)
      */
@@ -428,6 +429,12 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "可否改版")
     private String patternType;
+
+    @ApiModelProperty(value = "供应商")
+    private String supplier;
+    @ApiModelProperty(value = "供应商名称")
+    private String supplierName;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
