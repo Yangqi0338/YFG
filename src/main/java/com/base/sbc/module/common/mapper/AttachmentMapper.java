@@ -33,5 +33,7 @@ public interface AttachmentMapper extends BaseMapper<Attachment> {
 List<AttachmentVo> findByFId(@Param("foreignId") String foreignId, @Param("type") String type, @Param("typeLikeStart") String typeLikeStart);
 
     List<AttachmentVo> findByQw(@Param(Constants.WRAPPER) QueryWrapper wrappe);
+
+    List<AttachmentVo> findByFIds(@Param("foreignIds") List<String> foreignIds, @Param("type") String type, @Param("typeLikeStart") String typeLikeStart);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

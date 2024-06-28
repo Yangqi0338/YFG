@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.List;
+
 /**
  * 类描述：工艺信息查询 dto
  *
@@ -107,5 +109,7 @@ public class DimensionLabelsSearchDto {
 
     @ApiModelProperty(value = "款式配色Id")
     private String styleColorId;
+
+    private List<String> foreignIdList;
 
 }

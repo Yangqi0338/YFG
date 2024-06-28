@@ -49,6 +49,34 @@
                  left join t_attachment a on (a.file_id = f.id)
             ${ ew.customSqlSegment}
     </select>
+    <select id="findByFIds" resultType="com.base.sbc.module.common.vo.AttachmentVo">
+        select a.id,
+               a.foreign_id,
+        f.id as file_id,
+        f.url,
+        f.name,
+        f.type,
+        f.size,
+        a.create_name,
+        a.type as attachment_type,
+        a.remarks,
+        a.create_date
+        from t_attachment a,
+        t_upload_file f
+        where a.file_id = f.id
+        and a.foreign_id in
+        <foreach collection="foreignIds" item="foreignId" separator="," open="(" close=")">
+            #{foreignId}
+        </foreach>
+        and a.del_flag = '0'
+        <if test="type!=null and type!=''">
+            and a.type = #{type}
+        </if>
+        <if test="typeLikeStart!=null and typeLikeStart!=''">
+            and a.type like CONCAT(#{typeLikeStart},'%')
+        </if>
+        order by a.sort,a.id
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 
