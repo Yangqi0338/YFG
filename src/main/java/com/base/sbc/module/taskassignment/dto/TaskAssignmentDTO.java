@@ -6,10 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.taskassignment.dto;
 
+import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.common.vo.BasePageInfo;
 import com.base.sbc.module.taskassignment.entity.TaskAssignment;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.validation.annotation.Validated;
+
 /**
  * 类描述：任务分配入参
  * @author XHTE
@@ -18,8 +23,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("任务分配入参")
+@Validated
 public class TaskAssignmentDTO extends TaskAssignment {
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 分页数据
+	 */
+	@ApiModelProperty("分页数据")
+	private Page page;
 
 }

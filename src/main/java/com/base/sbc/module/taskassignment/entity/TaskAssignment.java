@@ -12,8 +12,16 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+
 /**
  * 类描述：任务分配 实体类
+ *
  * @author XHTE
  * @create 2024/6/27
  */
@@ -23,81 +31,94 @@ import lombok.EqualsAndHashCode;
 @ApiModel("任务分配 TaskAssignment")
 public class TaskAssignment extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * 品牌
      */
-    @ApiModelProperty(value = "品牌 code"  )
+    @NotBlank(message = "品牌不能为空")
+    @ApiModelProperty(value = "品牌 code")
     private String brand;
     /**
      * 品牌名称
      */
-    @ApiModelProperty(value = "品牌名称"  )
+    @ApiModelProperty(value = "品牌名称")
     private String brandName;
     /**
      * 虚拟部门 ID
      */
-    @ApiModelProperty(value = "虚拟部门 ID"  )
+    @NotBlank(message = "虚拟部门不能为空")
+    @ApiModelProperty(value = "虚拟部门 ID")
     private String virtualDeptId;
+    /**
+     * 虚拟部门名称
+     */
+    @ApiModelProperty(value = "")
+    private String virtualDeptName;
     /**
      * 大类 code
      */
-    @ApiModelProperty(value = "大类code"  )
+    @NotBlank(message = "大类不能为空")
+    @ApiModelProperty(value = "大类code")
     private String prodCategory1st;
     /**
      * 大类名称
      */
-    @ApiModelProperty(value = "大类名称"  )
+    @ApiModelProperty(value = "大类名称")
     private String prodCategory1stName;
     /**
      * 品类 code
      */
-    @ApiModelProperty(value = "品类code"  )
+    @NotBlank(message = "品类不能为空")
+    @ApiModelProperty(value = "品类code")
     private String prodCategory;
     /**
      * 品类名称
      */
-    @ApiModelProperty(value = "品类名称"  )
+    @ApiModelProperty(value = "品类名称")
     private String prodCategoryName;
     /**
      * 中类 code
      */
-    @ApiModelProperty(value = "中类code"  )
+    @NotBlank(message = "中类不能为空")
+    @ApiModelProperty(value = "中类code")
     private String prodCategory2nd;
     /**
      * 中类名称
      */
-    @ApiModelProperty(value = "中类名称"  )
+    @ApiModelProperty(value = "中类名称")
     private String prodCategory2ndName;
     /**
      * 小类 code
      */
-    @ApiModelProperty(value = "小类code"  )
+    @NotBlank(message = "小类不能为空")
+    @ApiModelProperty(value = "小类code")
     private String prodCategory3rd;
     /**
      * 小类名称
      */
-    @ApiModelProperty(value = "小类名称"  )
+    @ApiModelProperty(value = "小类名称")
     private String prodCategory3rdName;
     /**
      * 用户 ID（取值范围是属于这个虚拟部门下面的）
      */
-    @ApiModelProperty(value = "用户 ID（取值范围是属于这个虚拟部门下面的）"  )
+    @NotBlank(message = "用户不能为空")
+    @ApiModelProperty(value = "用户 ID（取值范围是属于这个虚拟部门下面的）")
     private String userId;
     /**
      * 用户名称
      */
-    @ApiModelProperty(value = "用户名称"  )
+    @ApiModelProperty(value = "用户名称")
     private String userName;
     /**
      * 触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）
      */
-    @ApiModelProperty(value = "触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）"  )
-    private String triggerMenu;
+    @NotBlank(message = "触发菜单不能为空")
+    @ApiModelProperty(value = "触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）")
+    private String triggerMenus;
     /**
      * 启用状态（ 0-未启用 1-启用）
      */
-    @ApiModelProperty(value = "启用状态（ 0-未启用 1-启用）"  )
+    @ApiModelProperty(value = "启用状态（ 0-未启用 1-启用）")
     private String enableFlag;
 }
