@@ -7,7 +7,9 @@
 package com.base.sbc.module.storageSpace.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
+import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -24,6 +26,8 @@ import java.util.List;
 @Mapper
 public interface StorageSpacePersonMapper extends BaseMapper<StorageSpacePerson> {
     List<String> selectOwnerIds();
+
+    List<StorageSpacePersonVo> listQueryMaterialPage(StorageSpacePersonDto dto);
 // 自定义方法区 不替换的区域【other_start】
 
 

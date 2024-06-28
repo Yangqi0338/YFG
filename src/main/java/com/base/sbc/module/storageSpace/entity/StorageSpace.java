@@ -5,10 +5,10 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.storageSpace.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,13 +36,13 @@ public class StorageSpace extends BaseDataEntity<String> {
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 总空间大小(单位：GB) */
     @ApiModelProperty(value = "总空间大小(单位：GB)"  )
-    private Integer totalSpace;
+    private String totalSpace;
     /** 初始划分空间大小(单位：GB) */
     @ApiModelProperty(value = "初始划分空间大小(单位：GB)"  )
-    private Integer initSpace;
+    private String initSpace;
     /** 初始倍率 */
     @ApiModelProperty(value = "初始倍率"  )
-    private Integer initMagnification;
+    private String initMagnification;
     /** 存储类型：1:素材库相关 */
     @ApiModelProperty(value = "存储类型：1:素材库相关"  )
     private String storageType;

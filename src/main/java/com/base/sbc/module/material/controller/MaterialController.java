@@ -1,5 +1,7 @@
 package com.base.sbc.module.material.controller;
 
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -7,6 +9,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -28,8 +31,10 @@ import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
 import com.google.common.collect.Lists;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +87,9 @@ public class MaterialController extends BaseController {
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
+    @Autowired
+    private StorageSpacePersonService storageSpacePersonService;
+
     /**
      * 新增
      */
@@ -109,6 +117,9 @@ public class MaterialController extends BaseController {
             material.setStatus(BasicNumber.ZERO.getNumber());
             material.setPicUrl(CommonUtils.removeQuery(material.getPicUrl()));
         }
+
+        //检查空间
+        checkSpace(materialList);
 
         materialService.saveBatch(materialList);
         return insertSuccess(materialList.size());
@@ -171,7 +182,6 @@ public class MaterialController extends BaseController {
         //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
         //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
-        materialService.updateById(materialSaveDto,"创意素材库");
         boolean b = materialService.updateById(materialSaveDto);
             return updateSuccess(b);
     }
@@ -347,6 +357,15 @@ public class MaterialController extends BaseController {
         return ApiResult.success("查询成功",CollUtil.isEmpty(list) ? null : list.get(0));
     }
 
+    @PutMapping("/batchUpdate")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "批量更新", notes = "批量更新")
+    public ApiResult batchSubmit(@RequestBody @Valid List<MaterialSaveDto> list){
+        list.forEach(this::update);
+        return ApiResult.success("更新成功");
+    }
+
+
 
     private void checkMaterial(List<Material> list, String type) {
         if ("1".equals(type)){
@@ -420,8 +439,21 @@ public class MaterialController extends BaseController {
             });
         }
 
+    }
 
-
+    private void checkSpace(List<Material> materials) {
+        if (CollUtil.isEmpty(materials)){
+            return;
+        }
+        if (Constants.ONE_STR.equals(materials.get(0).getCompanyFlag())){
+            return;
+        }
+        String userId = companyUserInfo.get().getUserId();
+        Long fileSize = materialService.getFileSize(userId, null);
+        if (fileSize != null){
+            long sum = materials.stream().mapToLong(Material::getFileSize).sum();
+            storageSpacePersonService.checkPersonSpacer(fileSize + sum,"1",userId);
+        }
     }
 
 }

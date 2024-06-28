@@ -9,6 +9,7 @@ package com.base.sbc.module.storageSpace.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
+import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -22,9 +23,13 @@ import java.util.List;
  * @version 1.0  
  */
 public interface StorageSpacePersonService extends BaseService<StorageSpacePerson>{
-    PageInfo<StorageSpacePerson> listQueryPage(StorageSpacePersonDto dto);
+    PageInfo<StorageSpacePersonVo> listQueryPage(StorageSpacePersonDto dto);
 
     Boolean personUpdate(List<StorageSpacePerson> list);
+
+    void checkPersonSpacer(long needSpacer, String storageType, String userId);
+
+
 
 // 自定义方法区 不替换的区域【other_start】
 

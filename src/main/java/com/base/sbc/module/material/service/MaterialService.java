@@ -66,4 +66,6 @@ public interface MaterialService extends BaseService<Material> {
     void mergeFolderReplace(String id, List<String> byMergeFolderIds);
 
     List<String> listImgQuery(MaterialQueryDto materialQueryDto);
+
+    void delMaterialPersonSpace(List<String> userIds);
 }

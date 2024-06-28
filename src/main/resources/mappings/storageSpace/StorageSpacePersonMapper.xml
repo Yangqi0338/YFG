@@ -12,6 +12,35 @@
     <select id="selectOwnerIds" resultType="java.lang.String">
         select owner_id from t_storage_space_person where del_flag = '0'
     </select>
+
+    <select id="listQueryMaterialPage" resultType="com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo">
+        select * from
+        t_storage_space_person tssp
+        where
+        del_flag = '0' and parent_space_id = #{parentSpaceId}
+        <if test="initSpace != null and initSpace != ''">
+            and tssp.init_space like concat('%',#{initSpace},'%')
+        </if>
+        <if test="ownerSpace != null and ownerSpace != ''">
+            and tssp.owner_space like concat('%',#{ownerSpace},'%')
+        </if>
+        <if test="magnification != null and magnification != ''">
+            and tssp.magnification like concat('%',#{magnification},'%')
+        </if>
+        <if test="userName != null and userName != ''">
+            and tssp.user_name like concat('%',#{userName},'%')
+        </if>
+        <if test="ownerName != null and ownerName != ''">
+            and tssp.owner_name like concat('%',#{ownerName},'%')
+        </if>
+        order by tssp.update_date desc
+        <!--
+             select * from t_storage_space_person tssp
+             left join (select create_id, sum(file_size) from t_material tm where tm.del_flag = '0' and tm.status != '2' group by tm.create_id) tmcopy on tssp.owner_id = tmcopy.create_id
+             where del_flag = '0'
+         -->
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
 

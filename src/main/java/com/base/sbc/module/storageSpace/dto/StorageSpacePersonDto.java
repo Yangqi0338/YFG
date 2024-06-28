@@ -1,6 +1,7 @@
 package com.base.sbc.module.storageSpace.dto;
 
-import cn.hutool.db.Page;
+import com.base.sbc.config.common.base.Page;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -19,13 +20,13 @@ public class StorageSpacePersonDto extends Page {
 
     /** 初始划分空间大小(单位：GB) */
     @ApiModelProperty(value = "初始划分空间大小(单位：GB)"  )
-    private Integer initSpace;
+    private String initSpace;
     /** 拥有的空间大小(单位：GB) */
     @ApiModelProperty(value = "拥有的空间大小(单位：GB)"  )
-    private Integer ownerSpace;
+    private String ownerSpace;
     /** 倍率 */
     @ApiModelProperty(value = "倍率"  )
-    private Integer magnification;
+    private String magnification;
 
     /** 空间所属人工号 */
     @ApiModelProperty(value = "空间所属人工号"  )

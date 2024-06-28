@@ -1,15 +1,18 @@
 package com.base.sbc.module.storageSpace.controller;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
 import com.base.sbc.module.storageSpace.entity.StorageSpace;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
 import com.base.sbc.module.storageSpace.service.StorageSpaceService;
+import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
 import com.github.pagehelper.PageInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import cn.hutool.core.collection.CollUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +48,9 @@ public class StorageSpaceController {
 
     @Autowired
     private StorageSpacePersonService storageSpacePersonService;
+
+    @Autowired
+    private MaterialService materialService;
 
 
     @GetMapping("")
@@ -73,10 +82,9 @@ public class StorageSpaceController {
 
 
     @GetMapping("personListQueryPage")
-    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "获取个人空间列表", notes = "获取个人空间列表")
     public ApiResult personListQueryPage(StorageSpacePersonDto dto){
-        PageInfo<StorageSpacePerson> page = storageSpacePersonService.listQueryPage(dto);
+        PageInfo<StorageSpacePersonVo> page = storageSpacePersonService.listQueryPage(dto);
         return  ApiResult.success("查询成功",page);
     }
 
@@ -87,6 +95,37 @@ public class StorageSpaceController {
     public ApiResult personUpdate(List<StorageSpacePerson> list){
         Boolean result = storageSpacePersonService.personUpdate(list);
         return  result ? ApiResult.success("修改成功") : ApiResult.error("修改失败",500);
+    }
+
+
+    @GetMapping("personDel")
+    @ApiOperation(value = "删除个人空间", notes = "删除个人空间")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult personDel(String ids){
+
+        if (StringUtils.isEmpty(ids)){
+            return ApiResult.success();
+        }
+        List<String> idList = StringUtils.convertList(ids);
+        List<StorageSpacePerson> personList = storageSpacePersonService.listByIds(idList);
+        if (CollUtil.isEmpty(personList)){
+            return ApiResult.success();
+        }
+        Set<String> parentSpaceIdSet = personList.stream().map(StorageSpacePerson::getParentSpaceId).collect(Collectors.toSet());
+        if (parentSpaceIdSet.size() > 1){
+            throw new OtherException("批量仅允许同种类型的操作！");
+        }
+        StorageSpace storageSpace = storageSpaceService.getById(personList.get(0).getParentSpaceId());
+        List<String> userIds = personList.stream().map(StorageSpacePerson::getOwnerId).collect(Collectors.toList());
+        //素材库相关
+        if ("1".equals(storageSpace.getStorageType())){
+            materialService.delMaterialPersonSpace(userIds);
+        }
+        UpdateWrapper<StorageSpacePerson> uw = new UpdateWrapper<>();
+        uw.lambda().in(StorageSpacePerson::getId,idList);
+        uw.lambda().set(StorageSpacePerson::getDelFlag,"1");
+        boolean result = storageSpacePersonService.update(uw);
+        return  result ? ApiResult.success("删除成功") : ApiResult.error("删除失败",500);
     }
 
 

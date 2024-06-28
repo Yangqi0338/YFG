@@ -499,9 +499,6 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
     @Override
     public Long getFileSize(String userId, List<String> folderIds) {
-        if (CollUtil.isEmpty(folderIds)){
-            return 0L;
-        }
         return baseMapper.getFileSize(userId,folderIds);
     }
 
@@ -525,6 +522,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             return null;
         }
         return materialAllDtolist.stream().map(MaterialVo::getPicUrl).collect(Collectors.toList());
+    }
+
+    @Override
+    public void delMaterialPersonSpace(List<String> userIds) {
+        //删除个人除了已发布的所有数据
+        UpdateWrapper<Material> uw = new UpdateWrapper<>();
+        uw.lambda().in(Material::getCreateId,userIds);
+        uw.lambda().notIn(Material::getStatus,Lists.newArrayList("2"));
+        uw.lambda().eq(Material::getDelFlag,"0");
+        uw.lambda().set(Material::getDelFlag,"1");
+        update(uw);
     }
 
 }
