@@ -315,10 +315,13 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
             //审核通过
             material.setStatus("4");
-            String[] split = Pinyin4jUtil.converterToFirstSpell(material.getMaterialBrandName()).split(",");
-            String time = String.valueOf(System.currentTimeMillis());
-            String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
-            material.setMaterialCode(materialCode);
+
+            if (StringUtils.isNotEmpty(material.getMaterialBrandName())){
+                String[] split = Pinyin4jUtil.converterToFirstSpell(material.getMaterialBrandName()).split(",");
+                String time = String.valueOf(System.currentTimeMillis());
+                String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+                material.setMaterialCode(materialCode);
+            }
             this.updateById(material);
             redisTemplate.delete("MTUP:" + material.getId());
             return true;

@@ -6,16 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.base.sbc.config.vo.EditPermissionReturnVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Optional;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 类描述：样衣-款式配色 Vo类
@@ -27,8 +30,8 @@ import lombok.Data;
  */
 @Data
 
-@ApiModel("样衣-款式配色 SampleStyleColor")
-public class StyleColorVo extends EditPermissionReturnVo {
+@ApiModel("大货款 CompleteStyleVo")
+public class CompleteStyleVo extends EditPermissionReturnVo {
     /**
      * 是否撞色
      */
@@ -56,25 +59,27 @@ public class StyleColorVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "款式图")
     private String  style;
 
+    @ApiModelProperty(value = "详情款式图片信息")
+    private List<StylePicVo> stylePicList;
+
     public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
-    /*
-        设计款号
-        */
     @ApiModelProperty(value = "设计款号"  )
-    private String   designNo;
+    private String designNo;
 
-    /*
-     大类编码
-     */
+    @ApiModelProperty(value = "旧设计款号"  )
+    private String oldDesignNo;
+    /** 款式单位名称 */
+    @ApiModelProperty(value = "款式单位名称"  )
+    private String styleUnit;
+    /** 款式单位编码 */
+    @ApiModelProperty(value = "款式单位编码"  )
+    private String styleUnitCode;
     @ApiModelProperty(value = "大类编码"  )
     private String  prodCategory1st;
 
-    /*
-   大类编码
-   */
     @ApiModelProperty(value = "大类编码"  )
     private String  prodCategory1stName;
 
@@ -83,14 +88,12 @@ public class StyleColorVo extends EditPermissionReturnVo {
 
     @ApiModelProperty(value = "中类"  )
     private String prodCategory2nd;
-
-    @ApiModelProperty(value = "小类编码")
-    private String prodCategory3nd;
-
-    @ApiModelProperty(value = "小类")
-    private String prodCategory3ndName;
-
-
+    /** 小类code */
+    @ApiModelProperty(value = "小类code"  )
+    private String prodCategory3rd;
+    /** 小类名称 */
+    @ApiModelProperty(value = "小类名称"  )
+    private String prodCategory3rdName;
     /**
      * 品类编码
      */
@@ -119,7 +122,17 @@ public class StyleColorVo extends EditPermissionReturnVo {
     /** 季节名称 */
     @ApiModelProperty(value = "季节名称"  )
     private String seasonName;
-
+    @ApiModelProperty(value = "月份"  )
+    private String month;
+    /** 月份名称 */
+    @ApiModelProperty(value = "月份名称"  )
+    private String monthName;
+    /** 开发分类 */
+    @ApiModelProperty(value = "开发分类"  )
+    private String devClass;
+    /** 开发分类名称 */
+    @ApiModelProperty(value = "开发分类名称"  )
+    private String devClassName;
     /**
      * 历史款
      */
@@ -158,6 +171,19 @@ public class StyleColorVo extends EditPermissionReturnVo {
     /*颜色库编码*/
     @ApiModelProperty(value = "颜色库编码"  )
     private String colorCode;
+
+    /*色系*/
+    private String colorType;
+    /*色系名称*/
+    private String colorTypeName;
+    /*色度*/
+    private String chroma;
+    private String chromaName;
+
+    /*颜色图片*/
+    private String colorPicture;
+    /*16进制图片*/
+    private String color16;
 
     /*BOM阶段*/
     @ApiModelProperty(value = "BOM阶段"  )
@@ -202,6 +228,8 @@ public class StyleColorVo extends EditPermissionReturnVo {
     /** 波段 */
     @ApiModelProperty(value = "波段"  )
     private String bandName;
+    @ApiModelProperty(value = "Default尺码"  )
+    private String defaultSize;
 
     /** 设计师id */
     @ApiModelProperty(value = "设计师i"  )
@@ -305,7 +333,7 @@ public class StyleColorVo extends EditPermissionReturnVo {
 
     /** 吊牌价 */
     @ApiModelProperty(value = "吊牌价"  )
-    private String tagPrice;
+    private BigDecimal tagPrice;
 
     /** 产品风格 */
     @ApiModelProperty(value = "产品风格"  )
@@ -394,17 +422,60 @@ public class StyleColorVo extends EditPermissionReturnVo {
     /** 版式名称 */
     @ApiModelProperty(value = "版式名称"  )
     private String patternDesignName;
+    /** 款式定位名称 */
+    @ApiModelProperty(value = "款式定位名称"  )
+    private String positioningName;
 
     /** 是否报次款0否 1是 */
     @ApiModelProperty(value = "是否报次款0否 1是"  )
     private String isDefective;
+    @ApiModelProperty(value = "版型定位"  )
+    private String platePositioning;
+    @ApiModelProperty(value = "版型定位名称"  )
+    private String platePositioningName;
 
+    @ApiModelProperty(value = "版型库编码"  )
+    private String registeringNo;
+    @ApiModelProperty(value = "套版款号"  )
+    private String serialStyleNo;
+    @ApiModelProperty(value = "尺码ids")
+    private String sizeIds;
+    /** 尺码codes */
+    @ApiModelProperty(value = "尺码codes"  )
+    private String sizeCodes;
+    /** 尺码真实codes */
+    @ApiModelProperty(value = "尺码真实codes"  )
+    private String sizeRealCodes;
+    @ApiModelProperty(value = "号型类型尺码")
+    private String sizeRangeSizes;
+
+    @ApiModelProperty(value = "号型类型尺码id")
+    private String sizeRangeSizeIds;
+
+    @ApiModelProperty(value = "号型类型尺码编码")
+    private String sizeRangeSizeCodes;
+
+    @ApiModelProperty(value = "号型类型尺码真实编码")
+    private String sizeRangeSizeRealCodes;
 
     /** 上新时间 */
     @ApiModelProperty(value = "上新时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date newDate;
 
+    @ApiModelProperty(value = "实际出稿时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date actualPublicationDate;
+    @ApiModelProperty(value = "审版设计师id"  )
+    private String reviewedDesignId;
+    @ApiModelProperty(value = "改版设计师id"  )
+    private String revisedDesignId;
+    /** 改版设计师 */
+    @ApiModelProperty(value = "改版设计师"  )
+    private String revisedDesignName;
+    /** 审版设计师 */
+    @ApiModelProperty(value = "审版设计师"  )
+    private String reviewedDesignName;
     /** 下稿设计师 */
     @ApiModelProperty(value = "下稿设计师"  )
     private String  senderDesignerId;
@@ -413,15 +484,9 @@ public class StyleColorVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "下稿设计师名称"  )
     private String  senderDesignerName;
 
-    /**
-     * 备注
-     */
     @ApiModelProperty(value = "备注")
     private String remarks;
 
-    /**
-     * 下单标记（0否 1是）
-     */
     @ApiModelProperty(value = "下单标记（0否 1是）")
     private String orderFlag;
 
@@ -444,12 +509,22 @@ public class StyleColorVo extends EditPermissionReturnVo {
      * 工艺师
      */
     private String technologistName;
-
-
+    @ApiModelProperty(value = "打版难度")
+    private String patDiff;
+    @ApiModelProperty(value = "打版难度名称")
+    private String patDiffName;
     /**
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date startTime;
+    /** 截止时间 */
+    @ApiModelProperty(value = "截止时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date endTime;
 
     public String   getAccessory(){
         return getAccessory1();
@@ -497,12 +572,87 @@ public class StyleColorVo extends EditPermissionReturnVo {
      */
     private String planningSeason;
 
-    private String channel;
+    /**
+     * 维度系数动态字段
+     */
+    private Map<String, String> fieldValMap;
+    @ApiModelProperty(value = "模板部件")
+    private String patternParts;
+    @ApiModelProperty(value = "模板部件图片")
+    private String patternPartsPic;
 
-    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
-    private String wagesConfirm;
+    /**
+     * 核价信息
+     */
+    private String calcItemVal;
+    /**
+     * 材料成本
+     */
+    @ApiModelProperty(value = "材料成本")
+    private BigDecimal materialCost;
+    /**
+     * 包装费
+     */
+    @ApiModelProperty(value = "包装费")
+    private BigDecimal packagingFee;
+    /**
+     * 检测费
+     */
+    @ApiModelProperty(value = "检测费")
+    private BigDecimal testingFee;
+    /**
+     * 车缝加工费
+     */
+    @ApiModelProperty(value = "车缝加工费")
+    private BigDecimal sewingProcessingFee;
+    /**
+     * 加工费
+     */
+    @ApiModelProperty(value = "加工费")
+    private BigDecimal processingFee;
+    /**
+     * 毛纱加工费
+     */
+    @ApiModelProperty(value = "毛纱加工费")
+    private BigDecimal woolenYarnProcessingFee;
+    /**
+     * 外协加工费
+     */
+    @ApiModelProperty(value = "外协加工费")
+    private BigDecimal coordinationProcessingFee;
+    /**
+     * 二次加工费
+     */
+    @ApiModelProperty(value = "二次加工费")
+//    @Excel(name = "二次加工费", numFormat = "#.###",type = 10)
+    private BigDecimal secondaryProcessingFee;
+    /**
+     * 总成本
+     */
+    @ApiModelProperty(value = "总成本")
+    private BigDecimal totalCost;
+    /**
+     * 企划倍率
+     */
+    @ApiModelProperty(value = "企划倍率")
+    private BigDecimal planningRatio;
+    /**
+     * 预计销售价
+     */
+    @ApiModelProperty(value = "预计销售价")
+    private BigDecimal expectedSalesPrice;
+    /**
+     * 计控实际成本
+     */
+    @ApiModelProperty(value = "计控实际成本")
+    private BigDecimal planCost;
+    @ApiModelProperty(value = "实际倍率")
+    private BigDecimal actualMagnification;
 
     @ApiModelProperty(value = "计控实际成本")
     private BigDecimal controlPlanCost;
 
+    @ApiModelProperty(value = "目标成本"  )
+    private BigDecimal productCost;
+    protected String styleCompanyCode;
 }

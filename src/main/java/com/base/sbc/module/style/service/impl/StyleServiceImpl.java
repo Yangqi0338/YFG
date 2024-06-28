@@ -77,7 +77,6 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
@@ -1734,7 +1733,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // 字段说明为「面料类型」
             queryFieldManagementDto.setFieldExplain(FABRIC_TYPE);
             // 查询下稿面料的下拉条件信息
-            List<FieldManagementVo> list = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+            List<FieldManagementVo> list = fieldManagementService.getFieldManagementListMapper(queryFieldManagementDto);
             if (ObjectUtil.isNotEmpty(list)) {
                 return list.get(0);
             }

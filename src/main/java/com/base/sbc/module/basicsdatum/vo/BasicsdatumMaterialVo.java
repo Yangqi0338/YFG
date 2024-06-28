@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
@@ -366,5 +367,8 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	 * 附件名称
 	 */
 	private String attachmentName;
+
+	@ApiModelProperty(value = "物料库动态字段")
+	List<FieldManagementVo> fieldValList;
 }
 

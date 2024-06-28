@@ -17,6 +17,7 @@ import com.base.sbc.module.material.dto.CategoryIdDto;
 import com.base.sbc.module.material.dto.MaterialEnableDto;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
+import com.base.sbc.module.material.dto.MaterialSubmitDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.entity.Test;
@@ -24,6 +25,7 @@ import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialLinkageVo;
+import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.google.common.collect.Lists;
@@ -317,18 +319,109 @@ public class MaterialController extends BaseController {
         return updateSuccess(list);
     }
 
-    @PutMapping("/batchUpdate")
+    @PutMapping("/batchSubmit")
     @Transactional(rollbackFor = {Exception.class})
-    @ApiOperation(value = "批量更新", notes = "批量更新")
-    public ApiResult batchSubmit(@RequestBody List<MaterialSaveDto> list){
-        if (CollUtil.isEmpty(list)){
+    @ApiOperation(value = "批量提交", notes = "批量提交")
+    public ApiResult batchSubmit(@RequestBody @Valid MaterialSubmitDto dto){
+        if (CollUtil.isEmpty(dto.getIdList())){
             return ApiResult.success();
         }
-        list.forEach(this::update);
+        List<Material> materials = materialService.listByIds(dto.getIdList());
+        //检查参数
+        checkMaterial(materials, dto.getType());
+        //参数补全
+        fillMaterial(materials,dto.getType());
+        materialService.saveOrUpdateBatch(materials);
         return ApiResult.success("发布成功");
     }
 
+    @GetMapping("/details")
+    @ApiOperation(value = "查看详情", notes = "查看详情")
+    public ApiResult details( String id){
+        if (StringUtils.isEmpty(id)){
+            throw new OtherException("查询id不能为空");
+        }
+        MaterialQueryDto materialQueryDto = new MaterialQueryDto();
+        materialQueryDto.setIds(Lists.newArrayList(id));
+        List<MaterialVo> list = materialService.listQuery(materialQueryDto).getList();
+        return ApiResult.success("查询成功",CollUtil.isEmpty(list) ? null : list.get(0));
+    }
 
 
+    private void checkMaterial(List<Material> list, String type) {
+        if ("1".equals(type)){
+            for (Material material : list) {
+                if (!"0".equals(material.getStatus()) && !"3".equals(material.getStatus())){
+                    throw new OtherException("只有未提交或者审核不通过的才可以提交审核！");
+                }
+            }
+
+        }
+        if ("2".equals(type)){
+            for (Material saveDto : list) {
+                if (!"1".equals(saveDto.getCompanyFlag()) && !"4".equals(saveDto.getStatus())){
+                    throw new OtherException("未审核过的素材，不允许提交！");
+                }
+                if (StringUtils.isEmpty(saveDto.getMaterialName())){
+                    throw new OtherException("素材名称不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getMaterialCategoryId())){
+                    throw new OtherException("素材分类不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getMaterialBrand())){
+                    throw new OtherException("素材品牌不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getBrand())){
+                    throw new OtherException("品牌不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getMarketLevel())){
+                    throw new OtherException("市场等级不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getFame())){
+                    throw new OtherException("知名度不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getYear()) || StringUtils.isEmpty(saveDto.getMonth()) || StringUtils.isEmpty(saveDto.getSeason())){
+                    throw new OtherException("年/季/月不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getSourcePerson())){
+                    throw new OtherException("来源人不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getSourceWay())){
+                    throw new OtherException("来源方式不能为空！");
+                }
+                if (StringUtils.isEmpty(saveDto.getSourceDepartment())){
+                    throw new OtherException("来源部门不能为空！");
+                }
+            }
+        }
+    }
+    private void fillMaterial(List<Material> materials, String type) {
+
+        //提交审核
+        if ("1".equals(type)){
+            materials.forEach(item ->{
+                item.setStatus("1");
+                flowableService.start(FlowableService.MATERIAL + item.getMaterialCategoryName(), FlowableService.MATERIAL, item.getId(), "/pdm/api/saas/material/toExamine",
+                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, BeanUtil.beanToMap(item));
+            });
+
+        }
+
+        //提交发布
+        if ("2".equals(type)){
+            materials.forEach(item ->{
+                item.setStatus("2");
+                if (StringUtils.isEmpty(item.getMaterialCode())){
+                    String[] split = Pinyin4jUtil.converterToFirstSpell(item.getMaterialBrandName()).split(",");
+                    String time = String.valueOf(System.currentTimeMillis());
+                    String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+                    item.setMaterialCode(materialCode);
+                }
+            });
+        }
+
+
+
+    }
 
 }

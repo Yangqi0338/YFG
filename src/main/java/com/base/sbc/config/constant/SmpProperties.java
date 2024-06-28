@@ -1,37 +1,33 @@
 package com.base.sbc.config.constant;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.redis.RedisKeyBuilder;
-import com.base.sbc.config.redis.RedisKeyConstant;
-import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.standard.entity.StandardColumn;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.INCORRECT_STANDARD_CODE;
-import static com.base.sbc.config.constant.SmpProperties.SystemEnums.*;
 
 /**
  * {@code 描述：生成工艺单属性}
@@ -52,139 +48,182 @@ public class SmpProperties {
         SmpProperties.DELIMITER = delimiter;
     }
 
-    private static Map<SystemEnums, InterfaceConfig> urlMap =
-            Arrays.stream(values()).collect(Collectors.toMap(Function.identity(), (it)-> new InterfaceConfig()));
+    private static final Map<SystemModuleEnum, InterfaceConfig> urlMap =
+            getSystemEnumList().stream().collect(Collectors.toMap(Function.identity(), InterfaceConfig::new));
 
-    public void setUrlMap(Map<SystemEnums, InterfaceConfig> urlMap) {
-        SmpProperties.urlMap = urlMap;
-        urlMap.forEach((systemEnums, interfaceConfig) -> {
-            UrlConfig config = interfaceConfig.getConfig();
-            if (StrUtil.isNotBlank(config.getUrl())) {
-                systemEnums.baseUrl = config.getUrl();
+    public void setUrlMap(Map<SystemModuleEnum, InterfaceConfig> urlMap) {
+        urlMap.forEach((key, config) -> {
+            Map.Entry<SystemModuleEnum, InterfaceConfig> entry = SmpProperties.urlMap.entrySet().stream().filter(it -> it.getKey() == key).findFirst().get();
+            SystemModuleEnum systemEnum = entry.getKey();
+            if (StrUtil.isBlank(config.getName())) {
+                config.setName(systemEnum.getModuleName());
             }
-            if (StrUtil.isNotBlank(config.getName())) {
-                systemEnums.name = config.getName();
+            if (config.getRetryNum() == null) {
+                config.setRetryNum(systemEnum.getRetryNum());
             }
-            if (config.getRetryNum() != null) {
-                systemEnums.retryNum = config.getRetryNum();
+            if (StrUtil.isBlank(config.getRetryTime())) {
+                config.setRetryTime(systemEnum.getRetryTime());
             }
-            if (StrUtil.isNotBlank(config.getRetryTime())) {
-                systemEnums.retryTime = config.getRetryTime();
-            }
+            SmpProperties.urlMap.put(systemEnum.decorate(config),config);
         });
     }
 
-    @Data
-    @NoArgsConstructor
-    public static class InterfaceConfig {
-        @NestedConfigurationProperty
-        private UrlConfig config = new UrlConfig();
-        private Map<SystemModuleEnums, Config> modules = Arrays.stream(SystemModuleEnums.values()).collect(Collectors.toMap(Function.identity(), (it)-> new Config()));
+    public static List<SystemModuleEnum> getSystemEnumList() {
+        return Arrays.stream(SystemModuleEnum.values()).filter(SystemModuleEnum::isSystem).collect(Collectors.toList());
+    }
 
-        public void setModules(Map<SystemModuleEnums, Config> modules) {
-            this.modules = modules;
-            modules.forEach((systemModuleEnums, config) -> {
-                if (StrUtil.isNotBlank(config.getUrl())) {
-                    systemModuleEnums.baseUrl = config.getUrl();
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    @NoArgsConstructor
+    public static class InterfaceConfig extends UrlConfig {
+        private Map<SystemModuleEnum, InterfaceConfig> modules;
+        private Map<String, UrlConfig> urlConfigMap;
+
+        public InterfaceConfig(SystemModuleEnum moduleEnum) {
+            super(moduleEnum);
+            this.setModules(
+                    Arrays.stream(SystemModuleEnum.values()).filter(it-> it.parentModelEnum == moduleEnum)
+                            .collect(Collectors.toMap(SystemModuleEnum::name, InterfaceConfig::new))
+            );
+        }
+
+        public InterfaceConfig(UrlConfig urlConfig) {
+            this.setUrl(urlConfig.getUrl());
+            this.setExcludeErrorCodes(urlConfig.getExcludeErrorCodes());
+            this.setName(urlConfig.getName());
+            this.setRetryNum(urlConfig.getRetryNum());
+            this.setRetryTime(urlConfig.getRetryTime());
+        }
+
+        public void setModules(Map<String, InterfaceConfig> modules) {
+            this.modules = new HashMap<>();
+            this.urlConfigMap = new HashMap<>();
+            modules.forEach((modelEnumName, config) -> {
+                if (MapUtil.isNotEmpty(config.getUrlConfigMap())) {
+                    SystemModuleEnum moduleEnum = SystemModuleEnum.valueOf(modelEnumName);
+                    moduleEnum.decorate(config);
+                    if (StrUtil.isBlank(this.getName())) {
+                        config.setName(moduleEnum.getModuleName());
+                    }
+                    if (this.getRetryNum() == null) {
+                        config.setRetryNum(moduleEnum.getRetryNum());
+                    }
+                    if (StrUtil.isBlank(this.getRetryTime())) {
+                        config.setRetryTime(moduleEnum.getRetryTime());
+                    }
+                    this.modules.put(moduleEnum, config);
+                }else {
+                    this.urlConfigMap.put(modelEnumName, config);
                 }
-                if (StrUtil.isNotBlank(config.getName())) {
-                    systemModuleEnums.name = config.getName();
-                }
-                if (config.getRetryNum() != null) {
-                    systemModuleEnums.retryNum = config.getRetryNum();
-                }
-                if (StrUtil.isNotBlank(config.getRetryTime())) {
-                    systemModuleEnums.retryTime = config.getRetryTime();
-                }
-//                buildUrl(systemModuleEnums, config.getUrls());
             });
         }
-    }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class Config extends UrlConfig {
-        private List<UrlConfig> urls;
-    }
-
-    @Data
-    public static class UrlConfig {
-        private String url;
-        private String name;
-        private List<String> excludeErrorCodes;
-
-        private Integer retryNum = 3;
-        private String retryTime = "180";
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public enum SystemEnums {
-        /** 系统枚举 */
-        SCM("http://10.8.250.100:1980/"),
-        SMP("http://10.98.250.31:7006/"),
-        OA("http://10.8.240.161:40002/"),
-        ;
-        private String baseUrl;
-        private String name;
-        private Integer retryNum = 3;
-        private String retryTime = "180";
-
-        SystemEnums(String baseUrl) {
-            this.baseUrl = baseUrl;
-            this.name = this.name().toLowerCase();
+        @Override
+        public String toString() {
+            return super.toString();
         }
     }
 
     @Getter
-    public enum SystemModuleEnums {
-        /** 模块枚举 */
+    @AllArgsConstructor
+    public enum SystemModuleEnum {
+        /** 系统枚举 (不要相信这个URL, 只是默认值, 有可能通过Nacos配置进行了修改) */
+        SCM(null,"http://10.8.250.100:1980/"),
+        SMP(null,"http://10.98.250.31:7006/"),
+        OA(null,"http://10.8.240.161:40002/"),
+
+        /** 模块枚举 (不要相信这个URL, 只是默认值, 有可能通过Nacos配置进行了修改) */
         APP_INFORMATION(SCM,"/escm-app/information/pdm/"),
         PDM(SMP,"/pdm/"),
         MPS_SAMPLE(OA,"/mps-interfaces/sample/"),
         NEW_MF_FAC(SCM,"/new-mf-fac/"),
         APP_BILL(SCM,"/escm-app/bill/"),
         ;
-        private final SystemEnums systemEnums;
-        private String baseUrl;
-        private String name;
-        private Integer retryNum;
-        private String retryTime;
+        private final SystemModuleEnum parentModelEnum;
+        private String url;
+        private String moduleName;
+        private Integer retryNum = 3;
+        private String retryTime = "180";
 
-        SystemModuleEnums(SystemEnums systemEnums, String baseUrl) {
-            this.systemEnums = systemEnums;
-            this.baseUrl = baseUrl;
-            this.name = this.name().toLowerCase();
+        SystemModuleEnum(SystemModuleEnum moduleEnum, String url) {
+            this.url = url;
+            this.moduleName = this.name();
+            this.parentModelEnum = moduleEnum;
         }
+
+        public boolean isSystem(){
+            return this.parentModelEnum == null;
+        }
+
+        public SystemModuleEnum decorate(UrlConfig config){
+            if (StrUtil.isBlank(this.url) && StrUtil.isNotBlank(config.getUrl())) {
+                this.url = config.getUrl();
+            }
+            if (StrUtil.isBlank(this.moduleName) && StrUtil.isNotBlank(config.getName())) {
+                this.moduleName = config.getName();
+            }
+            if (this.retryNum == null && config.getRetryNum() != null) {
+                this.retryNum = config.getRetryNum();
+            }
+            if (StrUtil.isBlank(this.retryTime) && StrUtil.isNotBlank(config.getRetryTime())) {
+                this.retryTime = config.getRetryTime();
+            }
+            return this;
+        }
+
     }
 
-    public static String SCM_APP_INFORMATION_URL = buildUrl(SCM.baseUrl, SystemModuleEnums.APP_INFORMATION.baseUrl);
-    public static String SMP_PDM_URL = buildUrl(SMP.baseUrl, SystemModuleEnums.PDM.baseUrl);
-    public static String OA_MPS_SAMPLE_URL = buildUrl(OA.baseUrl, SystemModuleEnums.MPS_SAMPLE.baseUrl);
-    public static String SCM_NEW_MF_FAC_URL = buildUrl(SCM.baseUrl, SystemModuleEnums.NEW_MF_FAC.baseUrl);
-    public static String SCM_APP_BILL_URL = buildUrl(SCM.baseUrl, SystemModuleEnums.APP_BILL.baseUrl);
+    public static UrlConfig SCM_NEW_MF_FAC_PRODUCTION_IN_URL = UrlConfig.of("/v1/api/facPrdOrder/saveFacPrdOrder");
+    public static UrlConfig SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL = UrlConfig.of("/v1/api/facPrdOrder/facPrdOrderUpCheck");
 
-    public static String SCM_NEW_MF_FAC_PRODUCTION_IN_URL = buildUrl(SCM_NEW_MF_FAC_URL, "/v1/api/facPrdOrder/saveFacPrdOrder");
-    public static String SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL = buildUrl(SCM_NEW_MF_FAC_URL, "/v1/api/facPrdOrder/facPrdOrderUpCheck");
+    public static UrlConfig SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL = UrlConfig.of("/productionBudget/option/List");
 
-    public static String SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL = buildUrl(SCM_APP_BILL_URL, "/productionBudget/option/List");
+    public static UrlConfig SMP_PDM_GOODS_URL = UrlConfig.of("/goods");
+    public static UrlConfig SMP_PDM_MATERIALS_URL = UrlConfig.of("/materials");
+    public static UrlConfig SMP_PDM_BOM_URL = UrlConfig.of("/bom");
+    public static UrlConfig SMP_PDM_COLOR_URL = UrlConfig.of("/color");
+    public static UrlConfig SMP_PDM_PROCESS_SHEET_URL = UrlConfig.of("/processSheet");
 
-    public static String SMP_PDM_GOODS_URL = buildUrl(SMP_PDM_URL, "/goods");
-    public static String SMP_PDM_MATERIALS_URL = buildUrl(SMP_PDM_URL, "/materials");
-    public static String SMP_PDM_BOM_URL = buildUrl(SMP_PDM_URL, "/bom");
-    public static String SMP_PDM_COLOR_URL = buildUrl(SMP_PDM_URL, "/color");
-    public static String SMP_PDM_PROCESS_SHEET_URL = buildUrl(SMP_PDM_URL, "/processSheet");
-
-    public static String buildUrl(String... urls){
-        StrJoiner urlJoiner = CommonUtils.strJoin(DELIMITER);
-        for (String url : urls) {
-            urlJoiner.append(StrUtil.removeSuffix(StrUtil.removePrefix(url, DELIMITER), DELIMITER));
-        }
-        return urlJoiner.toString();
+    @PostConstruct
+    public void init(){
+        // 获取所有静态变量 以_URL结尾的, 变量类型是UrlConfig
+        List<Field> fieldList = Arrays.stream(SmpProperties.class.getDeclaredFields()).filter(it ->
+                it.getName().endsWith("_URL") && Modifier.isStatic(it.getModifiers()) && UrlConfig.class.isAssignableFrom(it.getType())
+        ).peek(it-> it.setAccessible(true)).collect(Collectors.toList());
+        fieldList.forEach(field -> {
+            for (Map.Entry<SystemModuleEnum, InterfaceConfig> entry : SmpProperties.urlMap.entrySet()) {
+                if (setUrl(field, entry.getValue(), entry.getKey().toString() + "_")) break;
+            }
+        });
     }
 
-    public static void buildUrl(SystemModuleEnums systemModuleEnums, UrlConfig... urlConfigs){
+    @SneakyThrows
+    private static boolean setUrl(Field field, InterfaceConfig config, String preName){
+        String fieldName = field.getName();
+        if (config == null || !fieldName.startsWith(preName)) return false;
 
+        Map<SystemModuleEnum, InterfaceConfig> modules = config.getModules();
+        Map<String, UrlConfig> urlConfigMap = config.getUrlConfigMap();
+        if (MapUtil.isNotEmpty(modules)) {
+            for (Map.Entry<SystemModuleEnum, InterfaceConfig> entry : modules.entrySet()) {
+                InterfaceConfig value = BeanUtil.copyProperties(entry.getValue(),InterfaceConfig.class);
+                value.setUrl(StrUtil.removeSuffix(config.getUrl(),"/") + "/" + StrUtil.removePrefix( value.getUrl(), "/"));
+                if (setUrl(field, value, preName + entry.getKey().toString() + "_")) return true;
+            }
+        }
+
+        Object obj = null;
+        UrlConfig urlConfig = (UrlConfig) field.get(obj);
+        String name = StrUtil.removeSuffix(StrUtil.removePrefix(fieldName,preName),"_URL");
+        if (MapUtil.isNotEmpty(urlConfigMap) && urlConfigMap.containsKey(name)) {
+            urlConfig = urlConfigMap.get(name);
+        }
+        if (!urlConfig.toString().startsWith(config.toString())) {
+            urlConfig.setUrl(StrUtil.removeSuffix(config.getUrl(),"/") + "/" + StrUtil.removePrefix( urlConfig.getUrl(), "/"));
+        }
+        urlConfig.setUrl(urlConfig.getUrl());
+        field.set(obj,urlConfig);
+        return true;
     }
 
 }

@@ -28,7 +28,6 @@
         <result column="field_explain" property="fieldExplain"/>
         <result column="is_compile" property="isCompile"/>
         <result column="structure_tier" property="structureTier"/>
-        <association property="optionList"  javaType="arraylist"  column="id"    select="getOptionList"> </association>
     </resultMap>
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
@@ -106,10 +105,16 @@
         select
         option_name optionName,
         id id,
-        option_code optionCode
+        option_code optionCode,
+        field_id fieldId
         from  t_field_option
-         where field_id = #{id} and  del_flag='0'
+         where field_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+           and  del_flag='0'
     </select>
+
     <select id="getTableMessage" resultType="java.util.Map">
         select
         COLUMN_NAME,

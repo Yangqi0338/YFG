@@ -50,11 +50,18 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
@@ -149,6 +156,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Resource
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private FieldValService fieldValService;
+
+    @Autowired
+    private PlanningDimensionalityMapper planningDimensionalityMapper;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -295,11 +308,54 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
         }
+
+        /*List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
+        list.get(0).setFieldValList(fieldManagementVos);*/
+
         if (isColumnHeard) {
             return new PageInfo<>(list);
         }
         minioUtils.setObjectUrlToList(list, "imageUrl");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public List<FieldManagementVo> queryCoefficient(BasicsdatumMaterialPageVo pageVo) {
+        //查询动态字段
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.in("tpd.prod_category1st", Arrays.asList(pageVo.getCategory1Code(), pageVo.getCategory2Code(), pageVo.getCategory3Code()));
+        queryWrapper.eq("tpd.coefficient_flag", BaseGlobal.YES);
+        queryWrapper.eq("tpd.del_flag", BaseGlobal.NO);
+        queryWrapper.orderByAsc("tpd.group_sort", "tpd.sort");
+        List<PlanningDimensionalityVo> coefficientList = planningDimensionalityMapper.getMaterialCoefficient(queryWrapper);
+        Map<String, List<PlanningDimensionalityVo>> collect = coefficientList.stream().collect(Collectors.groupingBy(PlanningDimensionality::getProdCategory1st));
+
+        List<PlanningDimensionalityVo> planningDimensionalityVos = new ArrayList<>();
+        if (collect.containsKey(pageVo.getCategory3Code())) {
+            planningDimensionalityVos = collect.get(pageVo.getCategory3Code());
+        } else if (collect.containsKey(pageVo.getCategory2Code())) {
+            planningDimensionalityVos = collect.get(pageVo.getCategory2Code());
+        } else if (collect.containsKey(pageVo.getCategory1Code())) {
+            planningDimensionalityVos = collect.get(pageVo.getCategory1Code());
+        }
+        List<FieldManagementVo> fieldManagementVos = BeanUtil.copyToList(planningDimensionalityVos, FieldManagementVo.class);
+
+        List<FieldVal> fvList = fieldValService.list(pageVo.getId(), FieldValDataGroupConstant.MATERIAL);
+
+        if (CollUtil.isNotEmpty(fieldManagementVos)) {
+            Map<String, FieldVal> valMap = Optional.ofNullable(fvList).orElse(new ArrayList<>())
+                    .stream().collect(Collectors.toMap(FieldVal::getFieldName, v -> v, (a, b) -> b));
+            for (FieldManagementVo vo : fieldManagementVos) {
+                vo.setFieldId(vo.getId());
+                vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getId).orElse(null));
+                vo.setVal(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(null));
+                vo.setValName(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getValName).orElse(null));
+                vo.setSelected(valMap.containsKey(vo.getFieldName()));
+            }
+
+        }
+
+        return fieldManagementVos;
     }
 
     @Transactional
@@ -342,6 +398,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }*/
         // 保存主信息
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
+
+        //保存动态字段
+        /*fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());*/
+
         return getBasicsdatumMaterial(entity.getId());
     }
 
@@ -704,6 +764,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     list.stream().filter(item -> "1".equals(item.getType())).collect(Collectors.toList()));
         }
         minioUtils.setObjectUrlToObject(copy, "imageUrl");
+
+        /*List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
+        copy.setFieldValList(fieldManagementVos);*/
         return copy;
     }
 

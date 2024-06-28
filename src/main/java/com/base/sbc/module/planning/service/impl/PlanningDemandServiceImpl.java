@@ -123,7 +123,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
             queryFieldManagementDto.setIds(stringList1);
             /*查询所有关联的字段*/
-            fieldManagementVoList = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+            fieldManagementVoList = fieldManagementService.getFieldManagementListMapper(queryFieldManagementDto);
         }
 
         Map<String, List<FieldManagementVo>> map = new HashMap<>();

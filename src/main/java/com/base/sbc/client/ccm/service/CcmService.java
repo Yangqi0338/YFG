@@ -4,7 +4,7 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -265,4 +265,11 @@ public interface CcmService {
      */
     @GetMapping(value ="/ccm/api/saas/basicDictDepends/getDictDependsList")
     String getDictDependsList(@RequestParam("dictTypeName")String dictTypeName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize);
+
+    /**
+     * 根据结构名称，查询列表
+     * @param structureCode 结构名称
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/getAllByStructureCodes")
+    String getAllByStructureCodes(@RequestParam("structureCode") String structureCode);
 }

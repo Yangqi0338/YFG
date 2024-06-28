@@ -126,9 +126,9 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         pushRecords.setPushAddress(url);
         pushRecords.setPushContent(httpReq.getData());
         pushRecords.setPushCount(1);
-        for (SmpProperties.SystemEnums systemEnums : SmpProperties.SystemEnums.values()) {
-            if (url.startsWith(systemEnums.getBaseUrl())) {
-                pushRecords.setPushCount(systemEnums.getRetryNum());
+        for (SmpProperties.SystemModuleEnum systemEnum : SmpProperties.SystemModuleEnum.values()) {
+            if (url.startsWith(systemEnum.getUrl())) {
+                pushRecords.setPushCount(systemEnum.getRetryNum());
             }
         }
 
