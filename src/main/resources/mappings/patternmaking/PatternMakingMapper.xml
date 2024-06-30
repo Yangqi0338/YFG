@@ -166,9 +166,8 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-
-
     </select>
+
     <select id="sampleBoardList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
         SELECT
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
