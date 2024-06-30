@@ -97,4 +97,9 @@ public class PatternMakingTaskSearchDto extends Page {
 
     private String userType;
 
+    @ApiModelProperty(value = "生产类型")
+    private String devtType;
+
+    @ApiModelProperty(value = "供应商id")
+    private String supplierId;
 }

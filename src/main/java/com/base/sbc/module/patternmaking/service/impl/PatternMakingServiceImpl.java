@@ -795,6 +795,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
+        qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "s.supplier_id", dto.getSupplierId());
         if (StrUtil.isNotBlank(dto.getUserType())){
             switch (dto.getUserType()) {
                 case "0":
