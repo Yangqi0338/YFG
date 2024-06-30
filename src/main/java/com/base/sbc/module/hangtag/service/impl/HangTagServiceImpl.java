@@ -464,6 +464,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
 					.findFirst().map(BasicBaseDict::getName).orElse(""));
 		}
+		// 如果是引用查询 加多一个成分查询
+		if ("quote".equals(selectType)) {
+			List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+					.eq(HangTagIngredient::getHangTagId, hangTagVO.getId()));
+			list.forEach(it-> it.setId(null));
+			hangTagVO.setHangTagIngredients(list);
+		}
 
 		return hangTagVO;
 	}
@@ -609,6 +616,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
 		hangTagLogService.save(new HangTagLog(OperationDescriptionEnum.SAVE.getV(), id));
+
+		// 保存成分信息
+		List<HangTagIngredient> hangTagIngredients = CollUtil.filter(hangTagDTO.getHangTagIngredients(), it-> StrUtil.isBlank(it.getId()));
+		if (CollUtil.isNotEmpty(hangTagIngredients)) {
+			hangTagIngredients.forEach(it-> {
+				it.setHangTagId(id);
+				it.insertInit();
+			});
+			hangTagIngredientService.saveOrUpdateBatch(hangTagIngredients);
+		}
 
 		/**
 		 * 当存在品名时同步到配色
