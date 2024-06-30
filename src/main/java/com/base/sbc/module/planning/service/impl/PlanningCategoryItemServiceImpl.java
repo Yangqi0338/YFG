@@ -225,9 +225,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         List<String> result = new ArrayList<>();
         //ED 取E
-        if (StrUtil.equals(brand, "6")) {
+        /*if (StrUtil.equals(brand, "6")) {
             brand = "1";
-        }
+        }*/
         String qx = brand + year.substring(year.length() - 2) + season + category;
         for (int i = 0; i < count; i++) {
             result.add(qx + String.format("%0" + length + "d", ++maxNo));

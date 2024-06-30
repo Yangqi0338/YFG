@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -934,6 +935,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
          * 不加流水号查询大货款号的最大流水号
          * */
         styleNo = styleNoFront + (aLong + index) + isLuxury;
+
+
+        //region ED品牌大货款号特殊处理
+        if ("6".equals(brand)) {
+            styleNo = createEDStyleNo(style.getOldDesignNo(),year,season,brand, isLuxury, category, yearOn, styleNo,style.getMonth(),aLong + index);
+            return styleNo;
+        }
+        //endregion
+
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {
             String maxMark = "0";
@@ -952,6 +962,57 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         return styleNo;
     }
+    /**
+     *
+     * @param designNo 设计款号
+     * @param year 年份
+     * @param season 季节
+     * @param brand 品牌
+     * @param isLuxury 是否高奢标识
+     * @param category 品类
+     * @param yearOn 年份转义后的字母
+     * @param styleNo 大货款号空字符串（进来设置为空）
+     * @param month 月份
+     * @param aLong 该大货款的设计款下有几个大货款
+     * @return
+     */
+    @NotNull
+    private static String createEDStyleNo(String designNo, String year, String season, String brand, String isLuxury, String category, String yearOn, String styleNo, String month, Long aLong) {
+            yearOn = getYearOn(year);
+            String years = year.substring(year.length() - 2);
+            /*拼接的设计款号（用于获取流水号）*/
+            String joint = brand + years + season + category;
+            designNo = designNo.replaceAll(joint, "");
+            String regEx = "[^0-9]";
+            Pattern p = Pattern.compile(regEx);
+            Matcher m = p.matcher(designNo);
+            String designNoSeq = m.replaceAll("").trim();
+            designNoSeq = designNoSeq.substring(designNoSeq.length() - 3, designNoSeq.length());
+            styleNo = "1";
+            styleNo += yearOn;
+            String monthStr = "";
+            monthStr = String.valueOf(month);
+            if ("10".equals(month)) {
+                monthStr = "A";
+            } else if ("11".equals(month)) {
+                monthStr = "B";
+            } else if ("12".equals(month)) {
+                monthStr = "C";
+            }else{
+                monthStr = monthStr.replace("0","");
+            }
+            styleNo+=monthStr;
+            styleNo +="9";
+            styleNo += category;
+            //设计款的流水位
+            styleNo += designNoSeq;
+            //统计该大货款设计款下的大货款个数
+            styleNo += aLong;
+            styleNo += isLuxury;
+            return styleNo;
+    }
+
+
 
 
     /**
@@ -983,12 +1044,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     /**
+     * 查询波段中的月份
+     *
+     * @param bandName
+     * @param s
+     * @return
+     */
+    public String getMonth(String bandName, String s) {
+        String month = bandName.replace(s, "");
+        if (!month.matches("[1-9]")) {
+            month = "10".equals(month) ? "A" : "11".equals(month) ? "B" : "12".equals(month) ? "C" : "";
+        }
+        return month;
+    }
+
+    /**
      * 年份 初始值从2019开始为A依次往后推 超过26年份为A1
      *
      * @param year
      * @return
      */
-    public String getYearOn(String year) {
+    public static String getYearOn(String year) {
         if (StrUtil.equals(year, "2099")) {
             return "99";
         }
@@ -1005,21 +1081,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             yearOn = String.valueOf(c1) + (year1 - initial) / 26;
         }
         return yearOn;
-    }
-
-    /**
-     * 查询波段中的月份
-     *
-     * @param bandName
-     * @param s
-     * @return
-     */
-    public String getMonth(String bandName, String s) {
-        String month = bandName.replace(s, "");
-        if (!month.matches("[1-9]")) {
-            month = "10".equals(month) ? "A" : "11".equals(month) ? "B" : "12".equals(month) ? "C" : "";
-        }
-        return month;
     }
 
     /**
