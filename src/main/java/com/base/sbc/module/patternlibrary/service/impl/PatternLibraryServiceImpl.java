@@ -21,6 +21,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -1095,7 +1096,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 BigDecimal useStyleNum = new BigDecimal(style.getUseStyleNum());
                 BigDecimal count = new BigDecimal(allCount);
                 BigDecimal hundred = new BigDecimal("100");
-                patternLibrary.setPatternLibraryUtilization(String.valueOf(useStyleNum.multiply(hundred).divide(count, 2, RoundingMode.CEILING)));
+                patternLibrary.setPatternLibraryUtilization(BigDecimalUtil.dividePercentage(useStyleNum, count, 2, RoundingMode.CEILING).toString());
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
                 patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
                 patternLibrary.setPlanningSeasonName(style.getPlanningSeasonName());
