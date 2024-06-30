@@ -176,7 +176,7 @@
             <if test="dto.getColumnMap().containsKey('sd')">
                 left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
             </if>
-            <if test="dto.getColumnMap().containsKey('ssc')">
+            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
                 left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
             </if>
             <if test="dto.getColumnMap().containsKey('sp')">
@@ -336,7 +336,7 @@
             <if test="dto.getColumnMap().containsKey('sd')">
                 left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
             </if>
-            <if test="dto.getColumnMap().containsKey('ssc')">
+            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
                 left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
             </if>
             <if test="dto.getColumnMap().containsKey('sp')">
