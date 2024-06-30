@@ -780,17 +780,17 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 , PackBomVersion::getId);
         if (StrUtil.isNotBlank(bomVersionId)) {
             // 获取物料清单id
-            List<String> packBomIdList = packBomService.listOneField(new LambdaQueryWrapper<PackBom>()
+            List<String> materialIdList = packBomService.listOneField(new LambdaQueryWrapper<PackBom>()
                             .eq(PackBom::getBomVersionId, bomVersionId)
                             .eq(PackBom::getForeignId, detail.getId())
                             .eq(PackBom::getPackType, detail.getPackType())
-                    , PackBom::getId);
-            if (CollUtil.isNotEmpty(packBomIdList)) {
+                    , PackBom::getMaterialId);
+            if (CollUtil.isNotEmpty(materialIdList)) {
                 // 获取动态表值
                 String highVal = fieldValService.findOneField(new LambdaQueryWrapper<FieldVal>()
                         .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.MATERIAL)
                         .eq(FieldVal::getFieldName, "fabric_value")
-                        .in(FieldVal::getForeignId, packBomIdList)
+                        .in(FieldVal::getForeignId, materialIdList)
                         .eq(FieldVal::getVal, "JZ001")
                 , FieldVal::getValName);
                 vo.setHighValStr(highVal);
