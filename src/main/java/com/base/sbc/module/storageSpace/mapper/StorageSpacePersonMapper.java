@@ -12,6 +12,7 @@ import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,6 +29,8 @@ public interface StorageSpacePersonMapper extends BaseMapper<StorageSpacePerson>
     List<String> selectOwnerIds();
 
     List<StorageSpacePersonVo> listQueryMaterialPage(StorageSpacePersonDto dto);
+
+    Long getAllocationSpace(@Param("parentSpaceId") String parentSpaceId);
 // 自定义方法区 不替换的区域【other_start】
 
 

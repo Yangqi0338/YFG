@@ -41,6 +41,17 @@
          -->
     </select>
 
+
+    <select id="getAllocationSpace" resultType="java.lang.Long">
+
+        select SUM(tt.spaceSize) from (select
+                           CASE when owner_space is not null  then owner_space
+                                else init_space
+                               end as spaceSize
+                       from t_storage_space_person where del_flag = '0' and parent_space_id = #{parentSpaceId}) as tt;
+
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
 

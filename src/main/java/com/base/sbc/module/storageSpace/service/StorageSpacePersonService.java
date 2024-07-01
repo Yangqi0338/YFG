@@ -9,8 +9,7 @@ package com.base.sbc.module.storageSpace.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.storageSpace.dto.StorageSpacePersonDto;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
-import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
-import com.github.pagehelper.PageInfo;
+import com.base.sbc.module.storageSpace.vo.StorageSpacePersonBo;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ import java.util.List;
  * @version 1.0  
  */
 public interface StorageSpacePersonService extends BaseService<StorageSpacePerson>{
-    PageInfo<StorageSpacePersonVo> listQueryPage(StorageSpacePersonDto dto);
+    StorageSpacePersonBo listQueryPage(StorageSpacePersonDto dto);
 
     Boolean personUpdate(List<StorageSpacePerson> list);
 

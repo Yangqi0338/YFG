@@ -23,10 +23,10 @@ import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.base.sbc.module.storageSpace.mapper.StorageSpacePersonMapper;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
 import com.base.sbc.module.storageSpace.service.StorageSpaceService;
+import com.base.sbc.module.storageSpace.vo.StorageSpacePersonBo;
 import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +69,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PageInfo<StorageSpacePersonVo> listQueryPage(StorageSpacePersonDto dto) {
+    public StorageSpacePersonBo listQueryPage(StorageSpacePersonDto dto) {
 
         if (StringUtils.isEmpty(dto.getStorageType())){
             throw new OtherException("存储类型不能为空");
@@ -94,7 +94,10 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 //        qw.lambda().like(StringUtils.isNotBlank(dto.getInitSpace()),StorageSpacePerson::getInitSpace,dto.getInitSpace());
 //        qw.lambda().like(StringUtils.isNotBlank(dto.getMagnification()),StorageSpacePerson::getMagnification,dto.getMagnification());
 //        list(qw);
-        return page.toPageInfo();
+        StorageSpacePersonBo storageSpacePersonBo = new StorageSpacePersonBo();
+        storageSpacePersonBo.setPageInfo(page.toPageInfo());
+        storageSpacePersonBo.setAllocationSpace(baseMapper.getAllocationSpace(storageSpace.getId()));
+        return storageSpacePersonBo;
     }
 
     @Override
