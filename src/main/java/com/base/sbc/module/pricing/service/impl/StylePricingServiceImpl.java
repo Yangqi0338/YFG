@@ -6,10 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
@@ -38,7 +34,11 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -53,7 +53,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -67,10 +67,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：款式定价 service类
@@ -215,6 +226,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         dto.setColumnMap(columnMap);
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
+
+        if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("sd.") ) {
+            columnMap.put("sd", "design_no");
+        }
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
