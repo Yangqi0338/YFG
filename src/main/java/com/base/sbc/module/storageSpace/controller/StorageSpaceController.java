@@ -12,8 +12,7 @@ import com.base.sbc.module.storageSpace.entity.StorageSpace;
 import com.base.sbc.module.storageSpace.entity.StorageSpacePerson;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
 import com.base.sbc.module.storageSpace.service.StorageSpaceService;
-import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
-import com.github.pagehelper.PageInfo;
+import com.base.sbc.module.storageSpace.vo.StorageSpacePersonBo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -84,7 +83,7 @@ public class StorageSpaceController {
     @GetMapping("personListQueryPage")
     @ApiOperation(value = "获取个人空间列表", notes = "获取个人空间列表")
     public ApiResult personListQueryPage(StorageSpacePersonDto dto){
-        PageInfo<StorageSpacePersonVo> page = storageSpacePersonService.listQueryPage(dto);
+        StorageSpacePersonBo page = storageSpacePersonService.listQueryPage(dto);
         return  ApiResult.success("查询成功",page);
     }
 
