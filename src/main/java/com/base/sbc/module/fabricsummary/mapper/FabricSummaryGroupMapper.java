@@ -26,6 +26,8 @@ import java.util.List;
 @Mapper
 public interface FabricSummaryGroupMapper extends BaseMapper<FabricSummaryGroup> {
     List<String> getGroupIds(@Param(Constants.WRAPPER) BaseQueryWrapper<String> qw);
+
+    List<FabricSummaryGroup> getFabricSummaryGroupList(@Param(Constants.WRAPPER) BaseQueryWrapper<FabricSummaryGroup> qw);
 // 自定义方法区 不替换的区域【other_start】
 
 
