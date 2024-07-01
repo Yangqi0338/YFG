@@ -58,11 +58,6 @@ public class TaskAssignmentRecords extends BaseDataEntity<String> {
     @ApiModelProperty(value = "触发菜单（产品季总览，技术中心看板）")
     private String triggerMenu;
     /**
-     * 启用状态（ 0-未启用 1-启用）
-     */
-    @ApiModelProperty(value = "启用状态（ 0-未启用 1-启用）")
-    private String enableFlag;
-    /**
      * 成功状态（0-失败 1-成功）
      */
     @ApiModelProperty(value = "成功状态（0-失败 1-成功）")

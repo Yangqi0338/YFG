@@ -507,6 +507,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "c.planning_season_id", dto.getPlanningSeasonId());
         //月份
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "c.month", dto.getMonth());
+        // 企划坑位 ID
+        qw.eq(StrUtil.isNotBlank(dto.getProductCategoryItemId()), "c.id", dto.getProductCategoryItemId());
         //波段
         if (StringUtils.isNotEmpty(dto.getBandCode())){
             String[] fruitArray = dto.getBandCode().split(",");

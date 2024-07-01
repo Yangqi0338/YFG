@@ -58,5 +58,7 @@ public class ProductCategoryItemSearchDto extends Page {
     private String sdStatus;
     @ApiModelProperty(value = "特别需求:(1是,0否)")
     private String specialNeedsFlag;
+    @ApiModelProperty(value = "企划坑位 ID")
+    private String productCategoryItemId;
 
 }

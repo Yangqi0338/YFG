@@ -33,5 +33,6 @@ public class ResultConstant {
     public static final String PLEASE_CHOOSE_TRIGGER_MENU = "请选择触发菜单！";
     public static final String TRIGGER_MENU_DOES_NOT_EXIST = "触发菜单不存在！";
     public static final String ENABLE_DISABLED_STATUS_ERROR = "启用/禁用状态错误！";
+    public static final String CANT_REMOVE_ENABLE_TASK = "无法删除启用中的任务！";
 
 }

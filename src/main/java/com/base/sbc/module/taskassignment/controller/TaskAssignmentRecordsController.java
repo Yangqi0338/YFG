@@ -9,6 +9,7 @@ package com.base.sbc.module.taskassignment.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.taskassignment.constants.ResultConstant;
+import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.service.TaskAssignmentRecordsService;
@@ -50,7 +51,7 @@ public class TaskAssignmentRecordsController {
      */
     @ApiOperation(value = "根据任务分配 ID 查询触发记录列表分页")
     @PostMapping("/queryTaskAssignmentRecordsPage")
-    public ApiResult<PageInfo<TaskAssignmentRecordsVO>> queryTaskAssignmentRecordsPage(@RequestBody TaskAssignmentRecordsDTO queryTaskAssignmentRecords) {
+    public ApiResult<PageInfo<TaskAssignmentRecordsVO>> queryTaskAssignmentRecordsPage(@RequestBody QueryTaskAssignmentRecordsDTO queryTaskAssignmentRecords) {
         PageInfo<TaskAssignmentRecordsVO> taskAssignmentRecordsPageInfo = taskAssignmentRecordsService.queryTaskAssignmentRecordsPage(queryTaskAssignmentRecords);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, taskAssignmentRecordsPageInfo);
     }

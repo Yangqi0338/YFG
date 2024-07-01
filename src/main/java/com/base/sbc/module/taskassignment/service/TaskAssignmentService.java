@@ -8,10 +8,13 @@ package com.base.sbc.module.taskassignment.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.entity.TaskAssignment;
 import com.base.sbc.module.taskassignment.vo.TaskAssignmentVO;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：任务分配 service类
@@ -51,7 +54,7 @@ public interface TaskAssignmentService extends BaseService<TaskAssignment> {
      * @param queryTaskAssignment 查询条件
      * @return 任务分配列表分页
      */
-    PageInfo<TaskAssignmentVO> queryTaskAssignmentPage(TaskAssignmentDTO queryTaskAssignment);
+    PageInfo<TaskAssignmentVO> queryTaskAssignmentPage(QueryTaskAssignmentDTO queryTaskAssignment);
 
     /**
      * 根据任务分配 ID 查询任务分配详情
@@ -69,4 +72,18 @@ public interface TaskAssignmentService extends BaseService<TaskAssignment> {
      */
     Boolean enableDisableTaskAssignment(TaskAssignmentDTO enableDisableTaskAssignment);
 
+    /**
+     * 查询任务分配筛选条件
+     *
+     * @param queryTaskAssignment 查询条件
+     * @return 筛选条件
+     */
+    List<TaskAssignmentVO> queryTaskAssignmentFilterCriteria(TaskAssignmentDTO queryTaskAssignment);
+
+    /**
+     * 执行启用任务
+     *
+     * @param runTaskAssignment 执行时查询条件
+     */
+    void runTaskAssignment(TaskAssignmentDTO runTaskAssignment);
 }

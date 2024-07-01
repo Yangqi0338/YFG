@@ -7,6 +7,7 @@
 package com.base.sbc.module.taskassignment.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.entity.TaskAssignmentRecords;
 import com.base.sbc.module.taskassignment.vo.TaskAssignmentRecordsVO;
@@ -25,7 +26,7 @@ public interface TaskAssignmentRecordsService extends BaseService<TaskAssignment
      * @param queryTaskAssignmentRecords 查询条件
      * @return 触发记录列表分页
      */
-    PageInfo<TaskAssignmentRecordsVO> queryTaskAssignmentRecordsPage(TaskAssignmentRecordsDTO queryTaskAssignmentRecords);
+    PageInfo<TaskAssignmentRecordsVO> queryTaskAssignmentRecordsPage(QueryTaskAssignmentRecordsDTO queryTaskAssignmentRecords);
 
 
 }

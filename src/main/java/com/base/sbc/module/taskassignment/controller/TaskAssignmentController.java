@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.taskassignment.constants.ResultConstant;
+import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.entity.TaskAssignment;
 import com.base.sbc.module.taskassignment.service.TaskAssignmentService;
@@ -20,12 +21,15 @@ import com.base.sbc.module.taskassignment.vo.TaskAssignmentVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.ast.Assign;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：任务分配 Controller类
@@ -53,8 +57,8 @@ public class TaskAssignmentController {
     @ApiOperation(value = "保存任务分配信息")
     @PostMapping("/saveTaskAssignment")
     public ApiResult<String> saveTaskAssignment(@RequestBody @Validated TaskAssignmentDTO saveTaskAssignment) {
-        taskAssignmentService.saveTaskAssignment(saveTaskAssignment);
-        return ApiResult.success();
+        Boolean saveTaskAssignmentStatus = taskAssignmentService.saveTaskAssignment(saveTaskAssignment);
+        return ApiResult.status(saveTaskAssignmentStatus);
     }
 
     /**
@@ -66,8 +70,8 @@ public class TaskAssignmentController {
     @ApiOperation(value = "删除任务分配信息")
     @PostMapping("/removeTaskAssignment")
     public ApiResult<String> removeTaskAssignment(String taskAssignmentId) {
-        taskAssignmentService.removeTaskAssignment(taskAssignmentId);
-        return ApiResult.success();
+        Boolean removeTaskAssignmentStatus = taskAssignmentService.removeTaskAssignment(taskAssignmentId);
+        return ApiResult.status(removeTaskAssignmentStatus);
     }
 
     /**
@@ -79,8 +83,8 @@ public class TaskAssignmentController {
     @ApiOperation(value = "更新任务分配信息")
     @PostMapping("/updateTaskAssignment")
     public ApiResult<String> updateTaskAssignment(@RequestBody @Validated TaskAssignmentDTO updateTaskAssignment) {
-        taskAssignmentService.updateTaskAssignment(updateTaskAssignment);
-        return ApiResult.success();
+        Boolean updateTaskAssignmentStatus = taskAssignmentService.updateTaskAssignment(updateTaskAssignment);
+        return ApiResult.status(updateTaskAssignmentStatus);
     }
 
     /**
@@ -91,7 +95,7 @@ public class TaskAssignmentController {
      */
     @ApiOperation(value = "查询任务分配列表分页")
     @PostMapping("/queryTaskAssignmentPage")
-    public ApiResult<PageInfo<TaskAssignmentVO>> queryTaskAssignmentPage(@RequestBody TaskAssignmentDTO queryTaskAssignment) {
+    public ApiResult<PageInfo<TaskAssignmentVO>> queryTaskAssignmentPage(@RequestBody QueryTaskAssignmentDTO queryTaskAssignment) {
         PageInfo<TaskAssignmentVO> taskAssignmentPageInfo = taskAssignmentService.queryTaskAssignmentPage(queryTaskAssignment);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, taskAssignmentPageInfo);
     }
@@ -105,8 +109,8 @@ public class TaskAssignmentController {
     @ApiOperation(value = "根据任务分配 ID 查询任务分配详情")
     @PostMapping("/queryTaskAssignmentDetail")
     public ApiResult<TaskAssignmentVO> queryTaskAssignmentDetail(String taskAssignmentId) {
-        taskAssignmentService.queryTaskAssignmentDetail(taskAssignmentId);
-        return ApiResult.success();
+        TaskAssignmentVO taskAssignment = taskAssignmentService.queryTaskAssignmentDetail(taskAssignmentId);
+        return ApiResult.data(taskAssignment);
     }
 
     /**
@@ -118,8 +122,22 @@ public class TaskAssignmentController {
     @ApiOperation(value = "启用/禁用任务分配信息")
     @PostMapping("/enableDisableTaskAssignment")
     public ApiResult<String> enableDisableTaskAssignment(@RequestBody TaskAssignmentDTO enableDisableTaskAssignment) {
-        taskAssignmentService.enableDisableTaskAssignment(enableDisableTaskAssignment);
-        return ApiResult.success();
+        Boolean enableDisableTaskAssignmentStatus = taskAssignmentService.enableDisableTaskAssignment(enableDisableTaskAssignment);
+        return ApiResult.status(enableDisableTaskAssignmentStatus);
+    }
+
+    /**
+     * 查询任务分配筛选条件
+     *
+     * @param queryTaskAssignment 查询条件
+     * @return 筛选条件
+     */
+    @ApiOperation(value = "查询任务分配筛选条件")
+    @PostMapping("/queryTaskAssignmentFilterCriteria")
+    public ApiResult<List<TaskAssignmentVO>> queryTaskAssignmentFilterCriteria(@RequestBody TaskAssignmentDTO queryTaskAssignment) {
+        List<TaskAssignmentVO> taskAssignmentList = taskAssignmentService.queryTaskAssignmentFilterCriteria(queryTaskAssignment);
+        return ApiResult.data(taskAssignmentList);
+
     }
 
 }

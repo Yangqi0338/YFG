@@ -14,6 +14,8 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.taskassignment.constants.ResultConstant;
+import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentDTO;
+import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentRecordsDTO;
 import com.base.sbc.module.taskassignment.entity.TaskAssignmentRecords;
 import com.base.sbc.module.taskassignment.enums.TriggerMenuEnum;
@@ -39,7 +41,7 @@ public class TaskAssignmentRecordsServiceImpl extends BaseServiceImpl<TaskAssign
 
     @Override
     public PageInfo<TaskAssignmentRecordsVO> queryTaskAssignmentRecordsPage(
-            TaskAssignmentRecordsDTO queryTaskAssignmentRecords) {
+            QueryTaskAssignmentRecordsDTO queryTaskAssignmentRecords) {
         if (ObjectUtil.isEmpty(queryTaskAssignmentRecords)
                 || ObjectUtil.isEmpty(queryTaskAssignmentRecords.getTaskAssignmentId())) {
             throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
@@ -52,7 +54,7 @@ public class TaskAssignmentRecordsServiceImpl extends BaseServiceImpl<TaskAssign
             throw new OtherException("「" + triggerMenu + "」" + ResultConstant.TRIGGER_MENU_DOES_NOT_EXIST);
         }
         PageHelper.startPage(
-                queryTaskAssignmentRecords.getPage().getPageNum(), queryTaskAssignmentRecords.getPage().getPageSize());
+                queryTaskAssignmentRecords.getPageNum(), queryTaskAssignmentRecords.getPageSize());
         LambdaQueryWrapper<TaskAssignmentRecords> taskAssignmentRecordsLambdaQueryWrapper = new LambdaQueryWrapper<>();
         taskAssignmentRecordsLambdaQueryWrapper
                 .eq(TaskAssignmentRecords::getTaskAssignmentId, queryTaskAssignmentRecords.getTaskAssignmentId())
