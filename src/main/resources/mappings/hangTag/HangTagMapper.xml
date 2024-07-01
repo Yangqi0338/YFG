@@ -562,15 +562,11 @@
                     <if test="dto.getColumnMap().containsKey('ps')">
                         LEFT JOIN t_pack_info_status ps ON ( tpi.id = ps.foreign_id AND ps.del_flag = '0' )
                     </if>
-                    <if test="dto.getColumnMap().containsKey('tsd') and !dto.getColumnMap().containsKey('tbmt')">
+                    <if test="dto.getColumnMap().containsKey('tsd')">
                         LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id AND tsd.del_flag = '0')
                     </if>
                     <if test="dto.getColumnMap().containsKey('ht')">
                         LEFT JOIN t_hang_tag ht ON ( tpi.design_no = ht.bulk_style_no AND ht.del_flag = '0')
-                    </if>
-                    <if test="dto.getColumnMap().containsKey('tbmt')">
-                        LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id AND tsd.del_flag = '0')
-                        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('tsp')">
                         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
@@ -578,18 +574,14 @@
                 </when>
                 <otherwise>
                     t_style_color tssc
-                    <if test="dto.getColumnMap().containsKey('tsd') and !dto.getColumnMap().containsKey('tbmt')">
+                    <if test="dto.getColumnMap().containsKey('tsd')">
                         LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('ht')">
                         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
                     </if>
-                    <if test="dto.getColumnMap().containsKey('tpi')  and !dto.getColumnMap().containsKey('tbmt')">
+                    <if test="dto.getColumnMap().containsKey('tpi') and !dto.getColumnMap().containsKey('tsp')">
                         LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
-                    </if>
-                    <if test="dto.getColumnMap().containsKey('tbmt')">
-                        LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
-                        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('tsp')">
                         LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
@@ -621,6 +613,7 @@
         tsd.style_type AS styleType,
         tsd.devt_type_name AS produceTypeName,
         tsd.style_type_name AS styleTypeName,
+        tsd.size_range AS modelType,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
         tsd.brand AS brand,
@@ -641,7 +634,6 @@
                 tssc.historical_data historicalData,
             </otherwise>
         </choose>
-        tbmt.model_Type AS modelType,
         ht.product_name AS productName,
         ht.product_code AS productCode,
         tsd.prod_category_name,
@@ -665,10 +657,8 @@
 
             </otherwise>
         </choose>
-        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
         <where>
-
             <if test="dto.selectType == null or dto.selectType == ''">
                 tssc.del_flag = 0
                 AND tssc.company_code = #{dto.companyCode}
@@ -676,16 +666,12 @@
             <if test="dto.style != null and dto.style != ''">
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
-
             <if test="dto.secondPackagingFormCode != null and dto.secondPackagingFormCode != ''">
                 AND ht.second_packaging_form_code = #{dto.secondPackagingFormCode}
             </if>
-
             <if test="dto.packagingFormCode != null and dto.packagingFormCode != ''">
                 AND ht.packaging_form_code = #{dto.packagingFormCode}
             </if>
-
-
             <if test="null != dto.bandNames and dto.bandNames.length > 0">
                 AND  tssc.band_code IN
                 <foreach collection="dto.bandNames" item="i" separator="," open="(" close=")">
@@ -696,9 +682,7 @@
             <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
                 AND tsd.planning_season_id = #{dto.planningSeasonId}
             </if>
-
             <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
-
                 AND
                 (
                     <foreach collection="dto.bulkStyleNos" item="item" index="index" separator="or">
@@ -709,22 +693,18 @@
             <if test="dto.ingredient != null and dto.ingredient != ''">
                 AND ht.ingredient like concat('%',#{dto.ingredient},'%')
             </if>
-
-
             <if test="null != dto.productCodes and dto.productCodes.length > 0">
                 AND  ht.product_code IN
                 <foreach collection="dto.productCodes" item="i" separator="," open="(" close=")">
                     #{i}
                 </foreach>
             </if>
-
             <if test="null != dto.prodCategorys and dto.prodCategorys.length > 0">
                 AND  tsd.prod_category IN
                 <foreach collection="dto.prodCategorys" item="i" separator="," open="(" close=")">
                     #{i}
                 </foreach>
             </if>
-
             <if test="dto.status != null and dto.status != ''">
                 <choose>
                     <when test="dto.status == 0">
@@ -782,15 +762,11 @@
                     <if test="dto.getColumnMap().containsKey('ps')">
                         LEFT JOIN t_pack_info_status ps ON ( tpi.id = ps.foreign_id AND ps.del_flag = '0' )
                     </if>
-                    <if test="dto.getColumnMap().containsKey('tsd') and !dto.getColumnMap().containsKey('tbmt')">
+                    <if test="dto.getColumnMap().containsKey('tsd')">
                         LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id AND tsd.del_flag = '0')
                     </if>
                     <if test="dto.getColumnMap().containsKey('ht')">
                         LEFT JOIN t_hang_tag ht ON ( tpi.design_no = ht.bulk_style_no AND ht.del_flag = '0')
-                    </if>
-                    <if test="dto.getColumnMap().containsKey('tbmt')">
-                        LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id AND tsd.del_flag = '0')
-                        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('tsp')">
                         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
@@ -798,18 +774,14 @@
                 </when>
                 <otherwise>
                     t_style_color tssc
-                    <if test="dto.getColumnMap().containsKey('tsd') and !dto.getColumnMap().containsKey('tbmt')">
+                    <if test="dto.getColumnMap().containsKey('tsd'))">
                         LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('ht')">
                         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
                     </if>
-                    <if test="dto.getColumnMap().containsKey('tpi')  and !dto.getColumnMap().containsKey('tbmt')">
+                    <if test="dto.getColumnMap().containsKey('tpi'))  and !dto.getColumnMap().containsKey('tsp')">
                         LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
-                    </if>
-                    <if test="dto.getColumnMap().containsKey('tbmt')">
-                        LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
-                        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('tsp')">
                         LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
@@ -850,7 +822,6 @@
 
             </otherwise>
         </choose>
-        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
         <where>
             <if test="dto.selectType == null or dto.selectType == ''">
@@ -874,7 +845,6 @@
                     #{i}
                 </foreach>
             </if>
-
             <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
                 AND tsd.planning_season_id = #{dto.planningSeasonId}
             </if>
