@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 
 /**
@@ -94,10 +95,9 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 //        qw.lambda().like(StringUtils.isNotBlank(dto.getInitSpace()),StorageSpacePerson::getInitSpace,dto.getInitSpace());
 //        qw.lambda().like(StringUtils.isNotBlank(dto.getMagnification()),StorageSpacePerson::getMagnification,dto.getMagnification());
 //        list(qw);
-        StorageSpacePersonBo storageSpacePersonBo = new StorageSpacePersonBo();
-        storageSpacePersonBo.setPageInfo(page.toPageInfo());
-        storageSpacePersonBo.setAllocationSpace(baseMapper.getAllocationSpace(storageSpace.getId()));
-        return storageSpacePersonBo;
+        StorageSpacePersonBo pageVo = BeanUtil.copyProperties(page.toPageInfo(),StorageSpacePersonBo.class);
+        pageVo.setAllocationSpace(baseMapper.getAllocationSpace(storageSpace.getId()));
+        return pageVo;
     }
 
     @Override
