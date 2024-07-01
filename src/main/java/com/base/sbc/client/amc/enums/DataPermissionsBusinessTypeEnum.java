@@ -70,6 +70,7 @@ public enum DataPermissionsBusinessTypeEnum {
 
     work_log("work_log","工作小账"),
     PATTERN_LIBRARY("t_pattern_library","版型库"),
+    fabricSummaryList("fabricSummaryList", "面料详单"),
     ;
     private final String k;
     private final String v;
