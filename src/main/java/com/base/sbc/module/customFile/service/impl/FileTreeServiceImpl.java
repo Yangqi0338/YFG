@@ -302,22 +302,17 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         materialQueryDto.setPageSize(5);
         materialQueryDto.setCollect(collect);
         list.forEach(item ->{
+            List<String> byAllFileIds = getByAllFileIds(item.getId());
+
             if ( !collect ){
-                List<String> byAllFileIds = getByAllFileIds(item.getId());
                 item.setFileCount(materialService.getFileCount(userId,"0".equals(item.getType()) ? null : byAllFileIds));
                 item.setFileSize("0".equals(item.getType()) ? 0L : materialService.getFileSize(userId,byAllFileIds));
-
-            }
-            materialQueryDto.setCreateId(collect ? null : userId);
-            materialQueryDto.setUserId(collect ? userId : null);
-            materialQueryDto.setCompanyFlag(collect ? null : "0");
-            if (collect){
-                materialQueryDto.setCollectFolderId("0".equals(item.getType()) ? null : item.getId());
             }else {
-                materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
+                item.setFileCount(materialCollectService.getCollectFileCount(userId,"0".equals(item.getType()) ? null : byAllFileIds));
             }
-
-
+            materialQueryDto.setCreateId(userId);
+            materialQueryDto.setCompanyFlag(collect ? null : "0");
+            materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
             item.setDataList(materialService.listImgQuery(materialQueryDto));
         });
     }

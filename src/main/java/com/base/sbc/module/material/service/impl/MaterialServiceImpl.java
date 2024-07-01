@@ -112,12 +112,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (materialQueryDto.isCollect()) {
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
-            qc.eq("user_id", materialQueryDto.getUserId());
-            qc.eq(StringUtils.isNotBlank(materialQueryDto.getCollectFolderId()),"folder_id",materialQueryDto.getCollectFolderId());
+            qc.eq("user_id", StringUtils.isNotEmpty(materialQueryDto.getUserId()) ? materialQueryDto.getUserId() : materialQueryDto.getCreateId());
+
+            if (StringUtils.isNotEmpty(materialQueryDto.getFolderId())){
+                qc.in("folder_id",StringUtils.convertList(materialQueryDto.getFolderId()));
+            }
             List<MaterialCollect> materialCollects = materialCollectService.list(qc);
             for (MaterialCollect materialCollect : materialCollects) {
                 collectSet.add(materialCollect.getMaterialId());
             }
+            materialQueryDto.setCreateId(null);
+            materialQueryDto.setFolderId(null);
         }
 
         //标签筛选条件

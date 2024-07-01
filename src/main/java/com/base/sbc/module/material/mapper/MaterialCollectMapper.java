@@ -18,4 +18,6 @@ public interface MaterialCollectMapper extends BaseMapper<MaterialCollect> {
      * 根据传入的素材id列表查询对应收藏的数量
      */
     List<Map<String,Integer>> numList(@Param("materialIds")List<String> materialIds);
+
+    Long getCollectFileCount(@Param("userId")String userId, @Param("fileIds")List<String> byAllFileIds);
 }

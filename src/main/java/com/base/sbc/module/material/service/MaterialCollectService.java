@@ -20,4 +20,6 @@ public interface MaterialCollectService extends IService<MaterialCollect> {
     Boolean checkFolderRelation(List<String> ids);
 
     void mergeFolderReplace(String id, List<String> byMergeFolderIds);
+
+    Long getCollectFileCount(String userId, List<String> byAllFileIds);
 }

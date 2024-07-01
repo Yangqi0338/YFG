@@ -47,4 +47,9 @@ public class MaterialCollectServiceImpl extends ServiceImpl<MaterialCollectMappe
         uw.lambda().set(MaterialCollect::getFolderId,id);
         update(uw);
     }
+
+    @Override
+    public Long getCollectFileCount(String userId, List<String> byAllFileIds) {
+        return this.getBaseMapper().getCollectFileCount(userId,byAllFileIds);
+    }
 }
