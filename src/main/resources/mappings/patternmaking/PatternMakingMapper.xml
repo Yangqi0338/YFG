@@ -13,7 +13,7 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="technologyCenterTaskList"
+     <select id="technologyCenterTaskList"
             resultType="com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo">
         SELECT
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
@@ -68,7 +68,9 @@
             p.revision_comments,
             p.receive_sample_date,
             p.pattern_designer_name,
-            p.receive_reason
+            p.receive_reason,
+            p.pattern_no,
+            p.sample_type
         </if>
         FROM
         t_pattern_making p,

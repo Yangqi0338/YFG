@@ -566,7 +566,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
+    public PageInfo<TechnologyCenterTaskVo> technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
         BaseQueryWrapper qw = new BaseQueryWrapper();
 
         QueryGenerator.initQueryWrapperByMap(qw,dto);
