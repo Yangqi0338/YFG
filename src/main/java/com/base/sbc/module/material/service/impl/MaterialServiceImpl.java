@@ -499,7 +499,8 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
     @Override
     public Long getFileSize(String userId, List<String> folderIds) {
-        return baseMapper.getFileSize(userId,folderIds);
+        Long fileSize = baseMapper.getFileSize(userId, folderIds);
+        return null == fileSize ? 0L : fileSize;
     }
 
     @Override
