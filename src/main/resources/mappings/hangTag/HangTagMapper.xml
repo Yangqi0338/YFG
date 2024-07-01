@@ -780,7 +780,7 @@
                     <if test="dto.getColumnMap().containsKey('ht')">
                         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
                     </if>
-                    <if test="dto.getColumnMap().containsKey('tpi'))  and !dto.getColumnMap().containsKey('tsp')">
+                    <if test="dto.getColumnMap().containsKey('tpi') and !dto.getColumnMap().containsKey('tsp')">
                         LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
                     </if>
                     <if test="dto.getColumnMap().containsKey('tsp')">
