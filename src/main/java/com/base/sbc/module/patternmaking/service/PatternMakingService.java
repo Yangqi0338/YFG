@@ -156,6 +156,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto);
 
+    PageInfo<PatternMakingTaskListVo> patternMakingTaskFOBList(PatternMakingTaskSearchDto dto);
+
     /**
      * 设置顺序
      *

@@ -298,7 +298,6 @@ public class PatternMakingController {
         return patternMakingService.sampleBoardList(dto);
     }
 
-
     @ApiOperation(value = "导出", notes = "")
     @GetMapping("/deriveExcel")
     @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)

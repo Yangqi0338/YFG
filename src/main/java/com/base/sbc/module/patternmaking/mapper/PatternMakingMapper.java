@@ -41,6 +41,7 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
     List<PatternDesignSampleTypeQtyVo> getPatternDesignSampleTypeCount(@Param(Constants.WRAPPER) QueryWrapper pmQw);
 
     List<PatternMakingTaskListVo> patternMakingTaskList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<PatternMakingTaskListVo> patternMakingTaskFOBList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<SampleBoardVo> sampleBoardList(@Param(Constants.WRAPPER) QueryWrapper qw);
 

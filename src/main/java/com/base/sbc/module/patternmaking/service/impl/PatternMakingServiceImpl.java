@@ -43,6 +43,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -160,7 +161,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.eq("style_id", styleId);
+        qw.eq("m.style_id", styleId);
         qw.eq("m.del_flag", BaseGlobal.NO);
         qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
@@ -863,6 +864,85 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return objects.toPageInfo();
     }
 
+    @Override
+    public PageInfo<PatternMakingTaskListVo> patternMakingTaskFOBList(PatternMakingTaskSearchDto dto) {
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+//        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        qw.eq("p.historical_data", "0");
+        qw.andLike(dto.getSearch(), "s.design_no", "p.code");
+        qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
+        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
+        qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
+        qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
+        qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "s.supplier_id", dto.getSupplierId());
+        // FOB
+        if (StrUtil.equals(dto.getDevtType(), ProductionType.FOB.getCode())) {
+            qw.eq( "p.design_send_status", dto.getDesignSendStatus());
+        } else {
+            qw.eq( "p.design_send_status", "1");
+        }
+        if (StrUtil.isNotBlank(dto.getUserType())){
+            switch (dto.getUserType()) {
+                case "0":
+                    qw.ne("p.pattern_design_id", getUserId());
+                    break;
+                case "3":
+                    qw.eq("p.pattern_design_id", getUserId());
+                    break;
+                default:
+            }
+        }
+        //手机端
+        if (StrUtil.equals(dto.getIsApp(), BasicNumber.ONE.getNumber())) {
+            //判断是否是样衣组长
+            List<String> deptId = amcFeignService.getUserDepByUserIdUserType(getUserId(), BasicNumber.TWO.getNumber());
+            if (CollUtil.isNotEmpty(deptId)) {
+                qw.in("p.pattern_room_id", deptId);
+            } else {
+                userAuthQw(dto, qw);
+            }
+        } else {
+            userAuthQw(dto, qw);
+        }
+
+
+        qw.in(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", StrUtil.split(dto.getPatternStatus(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", StrUtil.split(dto.getCuttingStatus(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", StrUtil.split(dto.getSewingStatus(), CharUtil.COMMA));
+        qw.eq(StrUtil.isNotBlank(dto.getBreakOffPattern()), "p.break_off_pattern", dto.getBreakOffPattern());
+        qw.eq(StrUtil.isNotBlank(dto.getSuspend()), "p.suspend", dto.getSuspend());
+        qw.eq(StrUtil.isNotBlank(dto.getBreakOffSample()), "p.break_off_sample", dto.getBreakOffSample());
+        qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        qw.in("p.disable_flag", BaseGlobal.NO);
+        if (StrUtil.isNotBlank(dto.getIsBlackList())) {
+            if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
+                // 只查询黑单
+                qw.eq("p.urgency", "0");
+            } else {
+                // 排除黑单
+                qw.ne("p.urgency", "0");
+
+            }
+        }
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderByDesc("p.create_date");
+            qw.orderByAsc("p.sort");
+        }
+
+        Page<PatternMakingTaskListVo> objects = PageHelper.startPage(dto);
+        List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskFOBList(qw);
+        // 设置图片
+        stylePicUtils.setStylePic(list, "stylePic");
+        // 设置节点状态
+        nodeStatusService.setNodeStatus(list);
+        return objects.toPageInfo();
+    }
+
     private static void userAuthQw(PatternMakingTaskSearchDto dto, BaseQueryWrapper qw) {
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getCutterId()), "p.cutter_id", dto.getCutterId());
@@ -1485,7 +1565,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')  order by start_date desc"
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }*/
-
+        if (StrUtil.isNotBlank(dto.getDevtType())) {
+            qw.eq("s.devt_type", dto.getDevtType());
+        }
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK());
         if(!StringUtils.isBlank(dto.getDeriveflag())){
