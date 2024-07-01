@@ -774,7 +774,7 @@
                 </when>
                 <otherwise>
                     t_style_color tssc
-                    <if test="dto.getColumnMap().containsKey('tsd'))">
+                    <if test="dto.getColumnMap().containsKey('tsd')">
                         LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
                     </if>
                     <if test="dto.getColumnMap().containsKey('ht')">
