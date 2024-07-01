@@ -311,7 +311,13 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
             materialQueryDto.setCreateId(collect ? null : userId);
             materialQueryDto.setUserId(collect ? userId : null);
             materialQueryDto.setCompanyFlag(collect ? null : "0");
-            materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
+            if (collect){
+                materialQueryDto.setCollectFolderId("0".equals(item.getType()) ? null : item.getId());
+            }else {
+                materialQueryDto.setFolderId("0".equals(item.getType()) ? null : item.getId());
+            }
+
+
             item.setDataList(materialService.listImgQuery(materialQueryDto));
         });
     }

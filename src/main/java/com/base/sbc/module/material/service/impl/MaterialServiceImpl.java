@@ -113,7 +113,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
             qc.eq("user_id", materialQueryDto.getUserId());
-            qc.eq(StringUtils.isNotBlank(materialQueryDto.getCollectFolderId()),"folderId",materialQueryDto.getCollectFolderId());
+            qc.eq(StringUtils.isNotBlank(materialQueryDto.getCollectFolderId()),"folder_id",materialQueryDto.getCollectFolderId());
             List<MaterialCollect> materialCollects = materialCollectService.list(qc);
             for (MaterialCollect materialCollect : materialCollects) {
                 collectSet.add(materialCollect.getMaterialId());
