@@ -432,8 +432,6 @@ public class PatternMaking extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "供应商")
     private String supplierId;
-    @ApiModelProperty(value = "供应商名称")
-    private String supplierName;
     @ApiModelProperty(value = "patternMaking生产类型")
     private String patternMakingDevtType;
 

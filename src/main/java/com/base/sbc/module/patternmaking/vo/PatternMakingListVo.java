@@ -39,6 +39,8 @@ public class PatternMakingListVo extends PatternMaking {
     private String sdPatDiff;
     @ApiModelProperty(value = "样衣打版难度")
     private String sdPatDiffName;
+    @ApiModelProperty(value = "供应商名称")
+    private String supplierName;
     @Override
     public String getPatDiff() {
         return Optional.ofNullable(patDiff).orElse(sdPatDiff);
