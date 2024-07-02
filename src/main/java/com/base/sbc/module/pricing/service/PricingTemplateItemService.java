@@ -36,6 +36,13 @@ public interface PricingTemplateItemService extends BaseService<PricingTemplateI
     List<PricingTemplateItemVO> getByPricingTemplateId(String pricingTemplateId, String userCompany);
 
     /**
+     * 通过模板id获取显示及有排序的字段
+     *
+     * @param pricingTemplateId
+     * @return
+     */
+    List<PricingTemplateItemVO> getByPricingTemplateId(String pricingTemplateId);
+    /**
      * 删除
      *
      * @param pricingTemplateId

@@ -6,12 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingTemplateItemDTO;
@@ -49,6 +52,24 @@ public class PricingTemplateItemServiceImpl extends BaseServiceImpl<PricingTempl
         queryWrapper.eq("company_code", userCompany);
         queryWrapper.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL).lambda();
         return pricingTemplateItemMapper.getByPricingTemplateId(pricingTemplateId, userCompany);
+    }
+
+    /**
+     * 通过模板id获取显示及有排序的字段
+     *
+     * @param pricingTemplateId
+     * @return
+     */
+    @Override
+    public List<PricingTemplateItemVO> getByPricingTemplateId(String pricingTemplateId) {
+        BaseQueryWrapper<PricingTemplateItem> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("pricing_template_id", pricingTemplateId);
+        queryWrapper.eq("company_code", getCompanyCode());
+        queryWrapper.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        queryWrapper.isNotNullStr("sort");
+        queryWrapper.orderByDesc("sort");
+        List<PricingTemplateItem> pricingTemplateItems = baseMapper.selectList(queryWrapper);
+        return BeanUtil.copyToList(pricingTemplateItems,PricingTemplateItemVO.class);
     }
 
     @Override

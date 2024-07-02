@@ -67,10 +67,19 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      * @param foreignId
      * @return
      */
-   boolean createPackPricing( String styleId,String foreignId);
+    PackPricing createPackPricing( String styleId,String foreignId);
 
 
     PackPricing getByForeignIdOne(String foreignId, String packType);
+
+    /**
+     * 重新计算核价中的JSON
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    boolean calculatePricingJson(String foreignId, String packType);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -114,6 +114,25 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
         return pricingTemplateVO;
     }
 
+    /**
+     * 通过id查询核价模板详情
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public PricingTemplateVO getDetailsById(String id) {
+        if (!this.exists(id)) throw new OtherException("无效的核价模板");
+        PricingTemplate pricingTemplate = super.getById(id);
+        if (Objects.isNull(pricingTemplate)) {
+            throw new BusinessException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        PricingTemplateVO pricingTemplateVO = new PricingTemplateVO();
+        BeanUtils.copyProperties(pricingTemplate, pricingTemplateVO);
+        pricingTemplateVO.setPricingTemplateItems(pricingTemplateItemService.getByPricingTemplateId(id));
+        return pricingTemplateVO;
+    }
+
     @Transactional
     @Override
     public String save(PricingTemplateDTO pricingTemplateDTO, String userCompany) {

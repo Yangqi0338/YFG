@@ -408,6 +408,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         colorQw.eq("bom_version_id", version.getId());
         packBomColorService.addAndUpdateAndDelList(packBomColorList, colorQw, true);
         packBomVo.setPackBomColorVoList(BeanUtil.copyToList(packBomColorList, PackBomColorVo.class));
+        /*操作计算*/
+        packPricingService.calculatePricingJson(dto.getForeignId(),dto.getPackType());
         return packBomVo;
     }
 
@@ -1326,6 +1328,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (CollUtil.isNotEmpty(packBomColorList)) {
             packBomColorService.saveBatch(packBomColorList);
         }
+        /*操作计算*/
+        packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(),dtoList.get(0).getPackType());
         return true;
     }
 
@@ -1473,6 +1477,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(3, RoundingMode.HALF_UP);
     }
 
+    @Override
     public Map<String, BigDecimal> calculateCosts(List<String> foreignIdList, String packType) {
         Map<String, BigDecimal> map = new HashMap<>();
         //查询当前启用版本

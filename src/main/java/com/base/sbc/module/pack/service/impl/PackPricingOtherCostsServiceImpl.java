@@ -23,6 +23,7 @@ import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper;
 import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.beust.jcommander.internal.Lists;
@@ -56,6 +57,10 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Autowired
+    private  PackPricingService packPricingService;
+
 // 自定义方法区 不替换的区域【other_start】
 
     @Override
@@ -103,6 +108,8 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     public Boolean batchOtherCosts(List<PackPricingOtherCostsDto> dto) {
         List<PackPricingOtherCosts> list =BeanUtil.copyToList(dto,PackPricingOtherCosts.class);
         saveOrUpdateBatch(list);
+        /*重新计算*/
+        packPricingService.calculatePricingJson(dto.get(0).getForeignId(),dto.get(0).getPackType());
         return true;
     }
 
