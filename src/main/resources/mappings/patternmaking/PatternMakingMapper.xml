@@ -358,7 +358,7 @@
         from t_pattern_making m
                  left join t_style d on (m.style_id = d.id)
                  left join t_pattern_library tpl on (tpl.style_id = d.id and tpl.del_flag = '0')
-                 left join t_basicsdatum_supplier tbs on (m.supplier_id = tbs.id and tpl.del_flag = '0')
+                 left join t_basicsdatum_supplier tbs on (m.supplier_code = tbs.id and tpl.del_flag = '0')
                  ${ew.customSqlSegment}
     </select>
 
