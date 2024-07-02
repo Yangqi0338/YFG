@@ -163,7 +163,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("m.style_id", styleId);
         qw.eq("m.del_flag", BaseGlobal.NO);
-        qw.eq("m.pattern_making_devt_type", patternMakingDevtType);
+        if (StrUtil.equals(ProductionType.FOB.getCode(), patternMakingDevtType)) {
+            qw.eq("m.pattern_making_devt_type", patternMakingDevtType);
+        } else {
+            qw.and(item -> item.eq("m.pattern_making_devt_type", patternMakingDevtType).or().isNull("m.pattern_making_devt_type"));
+        }
         qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
         if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
