@@ -102,8 +102,7 @@ public class PatternMakingController {
     @ApiOperation(value = "通过款式设计id查询")
     @GetMapping("/findBySampleDesignId")
     public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(styleId)款式设计id不能为空") String styleId) {
-        List<PatternMakingListVo> list = patternMakingService.findBySampleDesignId(styleId);
-        return list;
+        return patternMakingService.findBySampleDesignId(styleId);
     }
 
     @ApiOperation(value = "打版指令明细", notes = "通过id查询")

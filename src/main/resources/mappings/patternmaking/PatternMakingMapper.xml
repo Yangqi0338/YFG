@@ -340,12 +340,14 @@
         select  id,code,pattern_no as patternNo,pattern_design_name as patternDesignName,pattern_designer_name AS patternDesignerName
         from t_pattern_making ${ew.customSqlSegment}
     </select>
+
     <select id="nsCount" resultType="java.util.Map">
         select CONCAT(node, '-', status) as nodeStatus, count(1) as total
         from t_pattern_making ${ew.customSqlSegment}
         group by node, status
 
     </select>
+
     <select id="findBySampleDesignId" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
         select m.*, d.product_sizes,
                d.pat_diff as sd_pat_diff,

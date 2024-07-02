@@ -163,7 +163,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("m.style_id", styleId);
         qw.eq("m.del_flag", BaseGlobal.NO);
-        qw.orderBy(true, true , "create_date");
+
+        qw.orderBy(true, true, "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
         if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
             // 根据款查询对应套版款的可否改版信息并设置
