@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -26,6 +27,7 @@ import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.entity.PricingTemplateItem;
@@ -301,6 +303,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
         List<PricingTemplateItemVO> pricingTemplateItems = pricingTemplateVO.getPricingTemplateItems();
         Map<String, Object> resultMap = new HashMap<>();
+        /*拿模板中的字段数据*/
         if (CollUtil.isNotEmpty(pricingTemplateItems)) {
             resultMap = pricingTemplateItems.stream()
                     .collect(Collectors.toMap(PricingTemplateItemVO::getName, PricingTemplateItemVO::getDefaultNum));
@@ -309,8 +312,19 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
         packCommonSearchDto.setPackType(packType);
         packCommonSearchDto.setForeignId(foreignId);
+        /*计算各项的值*/
         Map<String, BigDecimal> map = calculateCosts(packCommonSearchDto);
+        /*生成新的json map*/
         resultMap.putAll(map);
+/*        PackBomPageSearchDto packBomPageSearchDto = new PackBomPageSearchDto();
+        packBomPageSearchDto.setPackType(packType);
+        packBomPageSearchDto.setForeignId(foreignId);
+        List<PackBomVo> list = packBomService.pageInfo(packBomPageSearchDto).getList();
+        if(CollUtil.isNotEmpty(list)){
+            List<BigDecimal> collect = list.stream().map(PackBomVo::getCost).collect(Collectors.toList());
+            resultMap.put("costPrice", collect.stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+        }*/
         resultMap.put("costPrice", map.get("物料费"));
         resultMap.put("pricingTemplateId", packPricing.getPricingTemplateId());
         resultMap.put("pricingTemplateName", pricingTemplateVO.getTemplateName());
