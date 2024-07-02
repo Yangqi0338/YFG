@@ -25,6 +25,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -60,6 +61,10 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
@@ -80,6 +85,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -139,6 +145,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Autowired
     private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
 
+    @Autowired
+    @Lazy
+    private PatternLibraryService patternLibraryService;
+
+    @Autowired
+    @Lazy
+    private PatternLibraryTemplateService patternLibraryTemplateService;
+
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -147,14 +161,35 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("style_id", styleId);
         qw.eq("m.del_flag", BaseGlobal.NO);
-        qw.orderBy(true, true, "create_date");
+        qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
+        if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
+            // 根据款查询对应套版款的可否改版信息并设置
+            Style styleInfo = styleService.getById(styleId);
+            if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {
+                PatternLibrary patternLibrary = patternLibraryService.getById(styleInfo.getRegisteringId());
+                if (ObjectUtil.isNotEmpty(patternLibrary) && ObjectUtil.isNotEmpty(patternLibrary.getTemplateCode())) {
+                    PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
+                            new LambdaQueryWrapper<PatternLibraryTemplate>()
+                                    .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
+                    );
+                    if (ObjectUtil.isNotEmpty(patternLibraryTemplate)) {
+                        for (PatternMakingListVo patternMakingListVo : patternMakingListVos) {
+                            if (ObjectUtil.isEmpty(patternMakingListVo.getPatternType())) {
+                                patternMakingListVo.setPatternType(patternLibraryTemplate.getPatternType());
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return patternMakingListVos;
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public PatternMaking savePatternMaking(PatternMakingDto dto) {
+        checkRequiredParam(dto);
         Style style = styleService.getById(dto.getStyleId());
         if (style == null) {
             throw new OtherException("款式设计不存在");
@@ -210,6 +245,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         save(patternMaking);
 
         return patternMaking;
+    }
+
+    private void checkRequiredParam(PatternMakingDto dto) {
+        if (!StrUtil.equals("拍照样", dto.getSampleType()) && !StrUtil.equals("产前样", dto.getSampleType())) {
+            if (StrUtil.isEmpty(dto.getIngredient())) {
+                throw new OtherException("面料成分为空");
+            }
+        }
     }
 
     @Override
@@ -294,6 +337,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
 
+
+    private PatternMakingScoreVo sampleBoardScore(BaseQueryWrapper<SampleBoardVo> qw ) {
+        return getBaseMapper().sampleBoardScore(qw);
+
+    }
+
     @Override
     public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
 
@@ -340,6 +389,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
         NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.set("node", enumNodeStatus2.getNode());
         uw.set("status", enumNodeStatus2.getStatus());
@@ -348,6 +398,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
         PatternMaking patternMaking = getById(dto.getId());
+        // 根据款查询对应套版款的可否改版信息并设置
+        Style styleInfo = styleService.getById(patternMaking.getStyleId());
+        if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {
+            PatternLibrary patternLibrary = patternLibraryService.getById(styleInfo.getRegisteringId());
+            if (ObjectUtil.isNotEmpty(patternLibrary) && ObjectUtil.isNotEmpty(patternLibrary.getTemplateCode())) {
+                PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
+                        new LambdaQueryWrapper<PatternLibraryTemplate>()
+                                .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
+                );
+                if (ObjectUtil.isNotEmpty(patternLibraryTemplate)) {
+                    uw.set("pattern_type", patternLibraryTemplate.getPatternType());
+                }
+            }
+        }
         uw.lambda().set(PatternMaking::getSampleFinishNum, patternMaking.getRequirementNum())
                 .set(PatternMaking::getCutterFinishNum, patternMaking.getRequirementNum());
         update(uw);
@@ -721,7 +785,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
         BaseQueryWrapper qw = new BaseQueryWrapper();
 //        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
-        qw.eq("p.historical_data", "0");
+//        qw.eq("p.historical_data", "0");
         qw.andLike(dto.getSearch(), "s.design_no", "p.code");
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
@@ -1337,7 +1401,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+    public PatternMakingCommonPageSearchVo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
 
@@ -1416,14 +1480,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     throw new OtherException("带图片最多只能导出3000条");
                 }
             }
-
-            return objects.toPageInfo();
+            return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
 
         //region 列头漏斗过滤
         if (isColumnHeard) {
-            return objects.toPageInfo();
+            return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
         //endregion
 
@@ -1438,7 +1501,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
-        return objects.toPageInfo();
+        PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
+        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+        return pageVo;
     }
 
     /**
@@ -1652,6 +1717,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setSglKittingDate(new Date());
         byId.setStitcherRemark(dto.getStitcherRemark());
         byId.setKittingReason(dto.getKittingReason());
+        byId.setKittingReasonName(dto.getKittingReasonName());
         // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);

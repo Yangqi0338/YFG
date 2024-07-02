@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.material.mapper.MaterialLabelMapper">
+
+    <select id="linkageQuery" resultType="com.base.sbc.module.material.vo.MaterialChildren">
+        select
+            label_name as label , label_name as 'value'
+        from t_material_label tml
+        where
+        del_flag = '0'
+        and label_name like  concat('%',#{search},'%')
+        <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+            and material_id in
+            (select id from t_material tm where status = '2' and tm.del_flag = '0' and tm.material_category_id in
+            <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            )
+        </if>
+        group by  label_name
+    </select>
+</mapper>

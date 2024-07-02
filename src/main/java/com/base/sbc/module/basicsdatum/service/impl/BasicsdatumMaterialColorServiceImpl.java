@@ -60,6 +60,16 @@ public class BasicsdatumMaterialColorServiceImpl
 		super.update(updateWrapper);
 	}
 
+	@Override
+	public List<BasicsdatumMaterialColor> getBasicsdatumMaterialColorCodeList(String materialCode, String colorCode) {
+		QueryWrapper<BasicsdatumMaterialColor> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda().eq(BasicsdatumMaterialColor::getMaterialCode,materialCode);
+		queryWrapper.lambda().eq(BasicsdatumMaterialColor::getColorCode,colorCode);
+		queryWrapper.lambda().eq(BasicsdatumMaterialColor::getDelFlag,"0");
+		queryWrapper.lambda().eq(BasicsdatumMaterialColor::getStatus,"0");
+		return list(queryWrapper);
+	}
+
 
 // 自定义方法区 不替换的区域【other_end】
 

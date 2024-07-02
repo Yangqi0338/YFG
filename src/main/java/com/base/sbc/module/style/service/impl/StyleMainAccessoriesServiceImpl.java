@@ -42,6 +42,21 @@ public class StyleMainAccessoriesServiceImpl extends BaseServiceImpl<StyleMainAc
     }
 
     /**
+     * 获取配饰下的主款配饰
+     *
+     * @param styleColorIds
+     * @param isTrim
+     * @return
+     */
+    @Override
+    public List<StyleMainAccessories> styleMainAccessoriesListBatch(List<String> styleColorIds, String isTrim) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("style_color_id", styleColorIds);
+        queryWrapper.eq(StrUtil.isNotBlank(isTrim), "is_trim", isTrim);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
      * 清除主款或配饰
      *
      * @param styleColorId

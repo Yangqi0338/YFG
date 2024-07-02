@@ -115,8 +115,7 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 		if(StrUtil.isNotBlank(userCompany.getUserId()) && !"0".equals(userCompany.getUserId())){
 			ApiResult<List<VirtualDept>> virtualDeptByUserId = amcService.getVirtualDeptByUserId(userCompany.getUserId());
 			List<VirtualDept> data = virtualDeptByUserId.getData();
-			String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
-			userCompany.setVirtualDeptIds(ids);
+			userCompany.setVirtualDeptIds(data.stream().map(VirtualDept::getId).collect(Collectors.toList()));
 		}
 
 		companyUserInfo.set(userCompany);

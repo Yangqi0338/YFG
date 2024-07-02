@@ -2,14 +2,15 @@ package com.base.sbc.module.task.vo;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 
 /**
@@ -134,4 +135,7 @@ public class FlowTaskDto implements Serializable {
      */
     @ApiModelProperty("中类")
     private String prodCategory2ndName;
+
+    @ApiModelProperty("名称")
+    private String name;
 }

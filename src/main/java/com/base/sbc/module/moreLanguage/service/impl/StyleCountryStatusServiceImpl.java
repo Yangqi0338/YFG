@@ -10,9 +10,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -24,7 +22,6 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
@@ -46,11 +43,9 @@ import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
-import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
@@ -66,10 +61,8 @@ import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Functions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.select.Collector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -81,10 +74,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -283,15 +274,16 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         }
     }
 
-    private BaseLambdaQueryWrapper<StyleCountryStatus> buildGroupQueryWrapper(MoreLanguageStatusQueryDto statusQueryDto){
+    private BaseQueryWrapper<StyleCountryStatus> buildGroupQueryWrapper(MoreLanguageStatusQueryDto statusQueryDto) {
         // 根据更新时间和id进行排序,根据款号进行分组,根据条件进行筛选,仅返回款号
         BaseLambdaQueryWrapper<StyleCountryStatus> queryWrapper = new BaseLambdaQueryWrapper<StyleCountryStatus>()
                 .notEmptyIn(codeFunc, statusQueryDto.getCountryCode())
-                .notEmptyIn(statusFunc, statusQueryDto.getStatus())
                 .between(updateDateFunc, statusQueryDto.getConfirmTime())
                 .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNo());
         queryWrapper.select(bulkStyleNoFunc).orderByDesc(updateDateFunc).orderByAsc(idFunc).groupBy(bulkStyleNoFunc);
-        return queryWrapper;
+        BaseQueryWrapper<StyleCountryStatus> unwrapWrapper = queryWrapper.unwrap();
+        unwrapWrapper.notEmptyIn("tscs.status", statusQueryDto.getStatus());
+        return unwrapWrapper;
 
     }
 
@@ -299,7 +291,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     @EditPermission(type = DataPermissionsBusinessTypeEnum.styleCountryStatus)
     public PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto) {
         // 查询分组后的状态款号列表
-        BaseQueryWrapper<StyleCountryStatus> qw = buildGroupQueryWrapper(statusQueryDto).unwrap();
+        BaseQueryWrapper<StyleCountryStatus> qw = buildGroupQueryWrapper(statusQueryDto);
         QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,statusQueryDto);
         Page<StyleCountryStatus> page = statusQueryDto.startPage();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleCountryStatus.getK(), "ts.");

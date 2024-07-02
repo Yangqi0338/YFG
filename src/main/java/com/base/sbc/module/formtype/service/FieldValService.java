@@ -34,6 +34,8 @@ public interface FieldValService extends BaseService<FieldVal> {
      */
     List<FieldVal> list(String foreignId, String dataGroup);
 
+    List<FieldVal> list(List<String> foreignIds, String dataGroup);
+
     /**
      * 保存
      *
@@ -44,6 +46,15 @@ public interface FieldValService extends BaseService<FieldVal> {
      */
     boolean save(String foreignId, String dataGroup, List<FieldVal> fieldVals);
 
+    /**
+     * 批量保存
+     *
+     * @param foreignIds
+     * @param dataGroup
+     * @param fieldVals
+     * @return
+     */
+    boolean saveBatch(List<String> foreignIds, String dataGroup, List<FieldVal> fieldVals);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

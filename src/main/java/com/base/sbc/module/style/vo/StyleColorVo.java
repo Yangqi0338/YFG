@@ -8,12 +8,14 @@ package com.base.sbc.module.style.vo;
 
 import com.base.sbc.config.vo.EditPermissionReturnVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Optional;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.Date;
-import java.util.Optional;
 
 /**
  * 类描述：样衣-款式配色 Vo类
@@ -494,5 +496,13 @@ public class StyleColorVo extends EditPermissionReturnVo {
      * 产品季
      */
     private String planningSeason;
+
+    private String channel;
+
+    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
+    private String wagesConfirm;
+
+    @ApiModelProperty(value = "计控实际成本")
+    private BigDecimal controlPlanCost;
 
 }

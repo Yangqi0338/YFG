@@ -27,6 +27,13 @@ public class PushRecordsDto extends BaseDto {
     private PushRespStatus nePushStatus;
     @JsonIgnore
     private String pushCount;
-
+    @JsonIgnore
+    private String responseStatusCode;
+    @JsonIgnore
+    private String businessCode;
+    @JsonIgnore
+    private String type;
+    @JsonIgnore
+    private String createId;
 
 }

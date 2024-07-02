@@ -140,7 +140,16 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 switch (type) {
                     /*创意素材库图/附件 t_material.pic_url*/
                     case "sourceMaterial":
-                        objectName =  "SourceMaterial/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        StringBuilder sourceMaterialPath = new StringBuilder();
+                        sourceMaterialPath.append("SourceMaterial").append("/");
+                        if (StringUtils.isNotEmpty(code)){
+                            List<String> list = StringUtils.convertList(code);
+                            for (String s : list) {
+                                sourceMaterialPath.append(s).append("/");
+                            }
+                        }
+
+                        objectName =   sourceMaterialPath.toString()  + System.currentTimeMillis() + "." + extName;
                         break;
                     /*商品企划图 t_planning_category_item.style_pic */
                     case "planning":
@@ -201,6 +210,14 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         }
                         objectName =  "Material/" + basicsdatumMaterial.getYearName() + "/" + basicsdatumMaterial.getSeasonName() + "/" + basicsdatumMaterial.getMaterialCode() + "." + extName;
                         break;
+                    /* 版型库文件 */
+                    case "patternLibraryFile":
+                        objectName = "Pattern/" + code + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
+                    /* 版型库图片 */
+                    case "patternLibraryPic":
+                        objectName = "PatternImage/" + code + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
                     /*调料管理 面料、辅料图片上传 */
                     case "fabricAtactiform":
                         objectName = "Seasoning/Accessories/" + System.currentTimeMillis() + "." + extName;
@@ -208,7 +225,6 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case "ingredientsAtactiform":
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
                         break;
-
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                 }

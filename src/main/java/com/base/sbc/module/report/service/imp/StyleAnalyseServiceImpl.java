@@ -87,8 +87,7 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         fieldValQueryWrapper.in(FieldVal::getForeignId, styleIdList);
         fieldValQueryWrapper.eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
-        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? o.getVal() : o.getValName(), (v1, v2) -> v1)));
-
+        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? StrUtil.isEmpty(o.getVal()) ? "" : o.getVal() : o.getValName(), (v1, v2) -> v1)));
         for (StyleAnalyseVo styleAnalyseVo : list) {
             if (fieldValMap.containsKey(styleAnalyseVo.getId())) {
                 Map<String, String> map = fieldValMap.get(styleAnalyseVo.getId());
@@ -148,10 +147,10 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         fieldValQueryWrapper.in(FieldVal::getForeignId, styleColorIdList);
         fieldValQueryWrapper.eq(FieldVal::getDataGroup, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
-        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? o.getVal() : o.getValName(), (v1, v2) -> v1)));
+        Map<String, Map<String, String>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId, Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isEmpty(o.getValName()) ? StrUtil.isEmpty(o.getVal()) ? "" : o.getVal() : o.getValName(), (v1, v2) -> v1)));
         for (StyleAnalyseVo styleAnalyseVo : list) {
-            if (fieldValMap.containsKey(styleAnalyseVo.getId())) {
-                Map<String, String> map = fieldValMap.get(styleAnalyseVo.getId());
+            if (fieldValMap.containsKey(styleAnalyseVo.getStyleColorId())) {
+                Map<String, String> map = fieldValMap.get(styleAnalyseVo.getStyleColorId());
                 styleAnalyseVo.setDynamicColumn(map);
             }
         }

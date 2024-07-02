@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.List;
+
 /**
  * 类描述：资料包-公共筛选条件
  *
@@ -35,5 +37,15 @@ public class PackCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "不能使用(0否,1是")
     private String unusableFlag;
+
+    @ApiModelProperty(value = "主数据id集合")
+    private List<String> foreignIdList;
+
+    @ApiModelProperty(value = "版本id集合")
+    private List<String> bomVersionIdList;
+
+
+
+
 
 }

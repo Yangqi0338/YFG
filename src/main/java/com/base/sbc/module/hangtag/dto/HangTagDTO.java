@@ -248,6 +248,11 @@ public class HangTagDTO {
     @ApiModelProperty(value = "样衣工名称")
     private String sampleMakerName;
     /**
+     * 温馨提示编码
+     */
+    @ApiModelProperty(value = "洗标与温馨提示编码")
+    private String lavationReminderCode;
+    /**
      * 温馨提示
      */
     @ApiModelProperty(value = "温馨提示")

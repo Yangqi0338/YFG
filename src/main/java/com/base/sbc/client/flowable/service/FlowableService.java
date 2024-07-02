@@ -57,6 +57,8 @@ public class FlowableService {
 
     public static final String ORDER_MARKING = "款式打标-下单阶段审批";
 
+    public static final String PATTERN_LIBRARY_APPROVAL = "版型库审批";
+
     @Autowired
     FlowableFeignService flowableFeignService;
 

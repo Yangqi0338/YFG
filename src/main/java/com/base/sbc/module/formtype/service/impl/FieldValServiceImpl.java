@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.formtype.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -46,6 +47,17 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
         return list(fvQw);
     }
 
+    @Override
+    public List<FieldVal> list(List<String> foreignIds, String dataGroup) {
+        if (StrUtil.isEmpty(dataGroup) || CollUtil.isEmpty(foreignIds)) {
+            return new ArrayList<>();
+        }
+        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+        fvQw.in("foreign_id", foreignIds);
+        fvQw.eq("data_group", dataGroup);
+        return list(fvQw);
+    }
+
     @Transactional(rollbackFor = {Exception.class})
     @Override
     public boolean save(String foreignId, String dataGroup, List<FieldVal> fieldVals) {
@@ -64,7 +76,29 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
         return true;
     }
 
+    @Transactional(rollbackFor = {Exception.class})
+    @Override
+    public boolean saveBatch(List<String> foreignIds, String dataGroup, List<FieldVal> fieldVals) {
+        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+        List<FieldVal> saveFieldVal = new ArrayList<>();
+        for (String foreignId : foreignIds) {
+            if (CollUtil.isNotEmpty(fieldVals)) {
+                for (FieldVal fieldVal : fieldVals) {
+                    FieldVal fieldValCopy = BeanUtil.copyProperties(fieldVal, FieldVal.class);
+                    fieldValCopy.setId(null);
+                    fieldValCopy.setDataGroup(dataGroup);
+                    fieldValCopy.setForeignId(foreignId);
+                    saveFieldVal.add(fieldValCopy);
+                }
+            }
+        }
+        fvQw.in("foreign_id", foreignIds);
+        fvQw.eq("data_group", dataGroup);
+        this.remove(fvQw);
 
+        this.saveBatch(saveFieldVal);
+        return true;
+    }
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 }

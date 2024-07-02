@@ -96,7 +96,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             }
         }
         queryWrapper.likeList(StrUtil.isNotBlank(dto.getModelTypeCode()),"model_type_code",StringUtils.convertList(dto.getModelTypeCode()));
-        queryWrapper.orderByAsc("sort");
+        queryWrapper.orderByAsc("code");
         /*查询尺码数据*/
         List<BasicsdatumSize> basicsdatumSizeList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumSize> pageInfo = new PageInfo<>(basicsdatumSizeList);
@@ -262,11 +262,11 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
     public Map<String,String> getSizeName(String ids) {
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.in("id",StringUtils.convertList(ids));
-        queryWrapper.orderByAsc("sort");
+        queryWrapper.orderByAsc("code");
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-           basicsdatumSizeList = basicsdatumSizeList.stream().sorted(Comparator.comparing(BasicsdatumSize::getCode).reversed()).collect(Collectors.toList());
+           basicsdatumSizeList = basicsdatumSizeList.stream().sorted(Comparator.comparing(BasicsdatumSize::getCode)).collect(Collectors.toList());
 
 //           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
 //           List<String> name =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());

@@ -31,6 +31,7 @@ public interface StyleMainAccessoriesService extends BaseService<StyleMainAccess
   List<StyleMainAccessories> styleMainAccessoriesList(String styleColorId,String isTrim);
 
 
+    List<StyleMainAccessories> styleMainAccessoriesListBatch(List<String> styleColorIds, String isTrim);
 
     /**
      * 清除主款或配饰

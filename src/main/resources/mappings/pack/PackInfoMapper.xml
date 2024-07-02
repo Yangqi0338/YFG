@@ -200,6 +200,64 @@
         </if>
     </select>
 
-
+    <select id="selectFabricSummaryStyle" parameterType="com.base.sbc.module.sample.dto.FabricSummaryV2Dto" resultType="com.base.sbc.module.sample.vo.FabricSummaryInfoVo">
+        select
+            tsc.style_no,
+            tsc.planning_season_id,
+            tpi.style_id,
+            tsc.style_color_pic,
+            tsc.style_color_pic as style_color_pic_url,
+            tsc.color_name,
+            tsc.color_specification,
+            tsc.colour_library_id,
+            tsc.color_code,
+            tsc.design_no,
+            tsc.seat_design_no,
+            tsc.band_code,
+            tsc.band_name,
+            tsc.planning_category_item_id,
+            tsc.sender_designer_id,
+            tsc.sender_designer_name,
+            tsc.color_crash,
+            tsc.remarks,
+            ts.style_pic,
+            ts.style_pic as style_pic_url,
+            ts.pattern_design_id,
+            ts.pattern_design_name,
+            tpb.part_code,
+            tpb.part_name,
+            tpb.unit_use,
+            tpb.id as bom_id,
+            tpb.material_code,
+            tpb.material_code_name,
+            tpb.material_name,
+            tpb.material_id,
+            tpb.supplier_name ,
+            tpb.supplier_material_code as supplier_fabric_code,
+            tpb.supplier_id,
+            ts.season_name,
+            ts.year_name,
+            tpb.design_verify,
+            tpb.design_verify_date,
+            tpb.color as material_color,
+            tpb.color_code as material_colorCode,
+            tpb.part_code,
+            tpb.part_name,
+            tpb.collocation_code,
+            tpb.collocation_name
+        from
+            t_pack_info tpi
+                left join t_style_color tsc on tpi.style_color_id = tsc.id
+                left join t_style ts on ts.id = tsc.style_id
+                left join t_pack_bom_version tpbv on tpi.id = tpbv.foreign_id and tpbv.status = '1' and tpbv.pack_type = 'packDesign'
+                left join t_pack_bom tpb on tpb.bom_version_id = tpbv.id
+        where
+            tpi.del_flag = '0' and tsc.del_flag = '0'
+          and  ts.del_flag = '0' and  tpbv.del_flag = '0' and  tpb.del_flag = '0'
+          and tpi.style_color_id is not null and tpb.id is not null
+          <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+          </if>
+    </select>
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

@@ -14,8 +14,6 @@ import com.base.sbc.module.orderbook.vo.*;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageInfo;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,6 +28,11 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      * @return  分页结果
      */
     OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto);
+
+    /**
+     * 订货本批量编辑
+     */
+    void updateBatchOrderBookDetail(List<OrderBookDetail> orderBookDetailList);
 
     List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, Integer... judgeGroup);
 
@@ -99,4 +102,14 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean similarStyleBinding(OrderBookDetailSaveDto dto);
 
     List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto);
+
+    List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto);
+
+    /**
+     * 根据款式号获取，改款式的总投产
+     * @return
+     */
+    String getByStyleNoTotalProduction(String styleNo);
+
+
 }

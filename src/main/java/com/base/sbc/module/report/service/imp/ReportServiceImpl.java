@@ -23,7 +23,6 @@ import com.base.sbc.module.style.service.LatestCommissioningDateService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -71,7 +70,7 @@ public class ReportServiceImpl implements ReportService {
             throw new OtherException("请输入大货款号或年份参数查询！");
         }
 
-        qw.notEmptyIn("t.bulk_style_no", bulkStyleNos);
+        qw.likeList("t.bulk_style_no", bulkStyleNos);
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("t.create_date");
@@ -183,7 +182,7 @@ public class ReportServiceImpl implements ReportService {
         List<String> bulkStyleNos = dto.getBulkStyleNos();
         String year = dto.getYear();
         String season = dto.getSeason();
-        qw.notEmptyIn("tsc.style_no", bulkStyleNos);
+        qw.likeList("tsc.style_no", bulkStyleNos);
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);

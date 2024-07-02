@@ -13,6 +13,8 @@ import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
@@ -37,6 +39,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto);
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(MaterialColumnHeadDto dto);
+
+	List<FieldManagementVo> queryCoefficient(BasicsdatumMaterialPageVo pageVo);
 
 	BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
 
@@ -73,6 +77,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode);
 
 	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
+	void exportBasicsdatumNewMaterial(HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException;
 
 	void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException;
 
@@ -169,6 +174,23 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
+
+    /**
+	 * 通过物料编码获取来源 和成分
+	 *
+	 * @param materialCode
+	 * @return
+	 */
+	BasicsdatumMaterial getMaterialByCode(String materialCode);
+
+	/**
+	 * 获取物料颜色
+	 * @param materialCode
+	 * @return
+	 */
+	List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode);
+
+	FabricSummary getMaterialSummaryInfo(String materialCode);
 
 	/**
 	 * 修改

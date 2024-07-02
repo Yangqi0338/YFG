@@ -250,9 +250,9 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "主物料：按筛选条件导出")
     @GetMapping("/exportBasicsdatumMaterial")
-    public void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto)
+    public void exportBasicsdatumMaterial(HttpServletResponse response, MaterialColumnHeadDto dto)
             throws Exception {
-        basicsdatumMaterialService.exportBasicsdatumMaterial(response, dto);
+        basicsdatumMaterialService.exportBasicsdatumNewMaterial(response, dto);
     }
 
     @ApiOperation(value = "物料BOM：按筛选条件导出")

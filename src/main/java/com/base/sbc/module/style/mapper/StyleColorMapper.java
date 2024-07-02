@@ -10,14 +10,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.module.style.vo.DemandOrderSkcVo;
-import com.base.sbc.module.style.vo.StyleColorAgentVo;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
-import org.apache.ibatis.annotations.Mapper;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.vo.*;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -49,6 +46,13 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      */
     List<StyleColorVo> styleColorList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
+    /**
+     * 查询款式设计
+     *
+     * @return
+     */
+    List<Style> pageBySampleDesign(@Param(Constants.WRAPPER) BaseQueryWrapper<Style> qw);
+
 
     /**
      * 查询配色列表
@@ -57,6 +61,13 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      * @return
      */
     List<StyleColorVo> colorList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    /**
+     * 大货款列表
+     * @param qw
+     * @return
+     */
+    List<CompleteStyleVo> pageCompleteStyle(@Param(Constants.WRAPPER) QueryWrapper qw );
 
     /**
      * 修改所有引用的大货款号
@@ -91,6 +102,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      * @return
      */
     List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
+
+    List<StyleColor> getStyleMainAccessoriesNoSendFlag(@Param("ids") List<String> ids);
 
     List<StyleMarkingCheckVo> markingCheckPage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 

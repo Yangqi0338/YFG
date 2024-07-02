@@ -39,11 +39,9 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -57,7 +55,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
-import com.base.sbc.module.basicsdatum.service.impl.BasicsdatumModelTypeServiceImpl;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -87,7 +84,6 @@ import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
-import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
@@ -127,11 +123,11 @@ import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.codehaus.jackson.node.NullNode;
+import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,18 +137,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -308,6 +303,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		} else {
 			hangTagListVOS = hangTagMapper.queryList1(hangTagDTO, qw);
 		}
+
+		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
+		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
+		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
+		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
+		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
 
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
@@ -812,12 +813,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (HangTagStatusEnum.FINISH == e.getStatus()) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
-					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
-							&&
-							HangTagStatusEnum.DESIGN_CHECK != updateStatus
-					) {
-						throw new OtherException("存在待提交数据，请先提交");
-					}
+                    if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
+                            &&
+                            HangTagStatusEnum.DESIGN_CHECK != updateStatus
+                    ) {
+						if (!(ObjectUtil.isNotEmpty(e.getProductName())&&
+								ObjectUtil.isNotEmpty(e.getQualityGrade())&&
+								ObjectUtil.isNotEmpty(e.getSaftyTitle())&&
+								ObjectUtil.isNotEmpty(e.getPackagingForm())&&
+								ObjectUtil.isNotEmpty(e.getPackagingBagStandard())&&
+								ObjectUtil.isNotEmpty(e.getIngredient())&&
+								ObjectUtil.isNotEmpty(e.getFabricDetails())&&
+								ObjectUtil.isNotEmpty(e.getWarmTips()))) {
+							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+						}
+                    }
 					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
 							&&
 							HangTagStatusEnum.TECH_CHECK != updateStatus
@@ -1585,17 +1595,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PRINT:
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
-				tagPrinting.setC8_APPBOM_StorageReq(null);
+//				tagPrinting.setC8_APPBOM_StorageReq(null);
 				String bulkStyleNo = tagPrinting.getStyleCode();
+				MoreLanguageTagPrinting sourcePrinting = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+				MoreLanguageTagPrinting zhPrinting = HANG_TAG_CV.copyMyself(sourcePrinting);
+				zhPrinting.setLanguageCode("ZH");
+				zhPrinting.setLanguageName("中文");
+				zhPrinting.setTranslateApproved(true);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
-					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
+					LinkedList<MoreLanguageTagPrinting> tagPrintingList = new LinkedList<>();
 					sameCodeList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getPropertiesNameLength).reversed());
 					// 获取所有的语言
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
-						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+						MoreLanguageTagPrinting printing = HANG_TAG_CV.copyMyself(sourcePrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
 
 						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
@@ -1608,6 +1623,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
+							zhPrinting.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
 							if (!MoreLanguageProperties.checkInternal(languageCode)) {
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
@@ -1631,6 +1647,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}
 							}
 							printing.setLanguageName(languageVO.getLanguageName());
+							printing.setLanguageCode(languageVO.getLanguageCode());
 						}
 
 						// 全部审核完才为true，所以直接判断吊牌状态即可
@@ -1639,6 +1656,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						));
 						tagPrintingList.add(printing);
 					});
+					// 检查cnCheck
+					if (MoreLanguageProperties.chineseComparison && tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
+                        tagPrintingList.addFirst(zhPrinting);
+					}
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
 				});
 				return tagPrintingResultList;

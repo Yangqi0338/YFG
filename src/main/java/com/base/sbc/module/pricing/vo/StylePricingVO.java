@@ -198,6 +198,12 @@ public class StylePricingVO {
     @ApiModelProperty(value = "预计销售价")
     @Excel(name = "预计销售价", numFormat = "#.###",type = 10,orderNum = "20")
     private BigDecimal expectedSalesPrice;
+
+    /** 工时部确认工价 0.否、1.是 */
+    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
+    @Excel(name = "工时部确认工价", replace = {"是_1", "否_0","否_null"},orderNum = "22")
+    private String wagesConfirm;
+
     /**
      * 计控实际成本
      */
@@ -210,9 +216,6 @@ public class StylePricingVO {
      */
     @ApiModelProperty(value = "计控实际成本")
     private BigDecimal controlPlanCost;
-    /** 工时部确认工价 0.否、1.是 */
-    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
-    private String wagesConfirm;
     /**
      * 是否计控成本确认
      */

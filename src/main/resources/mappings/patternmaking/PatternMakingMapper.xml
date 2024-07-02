@@ -162,7 +162,7 @@
         and p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
         and s.del_flag &lt;&gt; '1'
-
+        AND (p.historical_data != '1' or (p.historical_data = '1' and p.design_send_date>= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) ))
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -201,6 +201,7 @@
             p.cutter_finish_num,
             p.sgl_kitting,
             p.kitting_reason,
+            p.kitting_reason_name,
             p.stitcher_remark,
             p.stitcher,
             s.technician_name,
@@ -886,7 +887,8 @@
         SELECT
         sum(p.sample_making_score) as sampleMakingScoreSum,
         sum(p.sample_making_quality_score) as sampleMakingQualityScoreSum,
-        sum(p.pattern_making_score) as patternMakingScoreSum
+        sum(p.pattern_making_score) as patternMakingScoreSum,
+        sum(p.requirement_num) as requirementNum
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )

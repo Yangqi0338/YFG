@@ -82,6 +82,8 @@ public interface BasicsdatumLavationReminderService extends BaseService<Basicsda
         */
         Boolean startStopBasicsdatumLavationReminder( StartStopDto startStopDto);
 
+        Boolean copyById(String id);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

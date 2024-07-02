@@ -233,6 +233,11 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "货期")
     private String deliveryTime;
     /**
+     * 辅料货期
+     */
+    @ApiModelProperty(value = "辅料货期")
+    private String subDeliveryTime;
+    /**
      * 库存面料米数
      */
     @ApiModelProperty(value = "库存面料米数")
@@ -496,6 +501,16 @@ public class OrderBookDetail extends BaseDataEntity<String> {
 
         offlineJsonObject.putAll(onlineJsonObject);
         return JSON.toJSONString(offlineJsonObject);
+    }
+
+    public JSONObject getCommissioningSizeTotalJsonObject(){
+        //线下
+        JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(this.offlineCommissioningSize)).orElse(new JSONObject());
+        //线上
+        JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(this.onlineCommissioningSize)).orElse(new JSONObject());
+
+        offlineJsonObject.putAll(onlineJsonObject);
+        return offlineJsonObject;
     }
 
 }

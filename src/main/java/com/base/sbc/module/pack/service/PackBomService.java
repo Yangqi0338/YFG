@@ -14,11 +14,11 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
-import com.base.sbc.module.sample.dto.FabricSummaryDTO;
-import com.base.sbc.module.sample.vo.FabricSummaryVO;
-import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +88,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
     boolean unusableChange(String id, String unusableFlag);
 
     BigDecimal calculateCosts(PackCommonSearchDto dto);
+    Map<String, BigDecimal> calculateCosts(List<String> foreignIdList, String packType);
 
     List<PackBom> getListByVersionId(String versionId, String unusableFlag);
 
@@ -195,4 +196,80 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @return
      */
     List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto);
+
+    /**
+     * BOM使用物料列表
+     * @param bomFabricDto
+     * @param isPictureShow 是否图片展示
+     * @return
+     */
+    PageInfo<BomFabricVo> bomFabricList(BomFabricDto bomFabricDto, boolean isPictureShow);
+
+    /**
+     * 保存物料汇总添加
+     * @param feedSummarySaveDTO
+     * @return
+     */
+    boolean saveFabricSummary(FabricSummarySaveDTO feedSummarySaveDTO);
+
+    /**
+     * 物料汇总列表
+     * @param dto
+     * @return
+     */
+    PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto);
+
+    /**
+     * 物料汇总修改
+     * @param dto
+     * @return
+     */
+    FabricStyleUpdateResultVo updateFabricSummary(FabricSummaryV2Dto dto);
+
+    /**
+     * 面料款式列表
+     * @param dto
+     * @return
+     */
+    PageInfo<FabricStyleVo> fabricStyleList(FabricStyleDto dto);
+
+    /**
+     * 添加物料汇总款式
+     * @param dto
+     * @return
+     */
+    boolean saveFabricSummaryStyle(FabricSummaryStyleSaveDto dto);
+
+    /**
+     * 修改物料汇总款式
+     * @param
+     * @return
+     */
+    FabricStyleUpdateResultVo updateFabricSummaryStyle(FabricSummaryStyleDto fabricSummaryStyleDto);
+
+    /**
+     * 删除物料汇总款式
+     * @param id
+     * @return
+     */
+    boolean deleteFabricSummaryStyle(String id);
+
+    void fabricSummaryExcel( HttpServletResponse response, FabricSummaryV2Dto dto);
+
+    /**
+     * 面料汇总删除
+     * @param dtoList
+     * @return
+     */
+    boolean deleteFabricSummary(String dtoList);
+
+    NeedUpdateVo ifNeedUpdate(String id);
+
+    boolean fabricSummarySync(String id);
+
+    PageInfo<FabricStyleGroupVo> fabricSummaryGroup(FabricSummaryGroupDto dto);
+
+    void fabricSummaryExcelExport(HttpServletResponse response, FabricSummaryV2Dto dto);
+
+    boolean designAffirm(PackBomVo dto);
 }

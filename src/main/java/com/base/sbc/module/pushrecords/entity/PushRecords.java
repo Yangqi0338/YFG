@@ -67,6 +67,10 @@ public class PushRecords extends BaseDataEntity<String> {
     /** 推送次数，记录推送尝试的次数，用于追踪推送的重试情况 */
     @ApiModelProperty(value = "推送次数，记录推送尝试的次数，用于追踪推送的重试情况"  )
     private Integer pushCount;
+
+    private String businessId;
+
+    private String businessCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
     public PushRecords(HttpResp httpResp) {

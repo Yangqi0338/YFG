@@ -114,4 +114,11 @@ public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSuppl
          * @return boolean
          */
         ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList, Map<String, Map<String, String>> dictMap);
+
+        /**
+         * 根据供应商code获取数据
+         * @param supplierCode
+         * @return
+         */
+        List<BasicsdatumSupplier> getBySupplierId(String supplierCode);
 }

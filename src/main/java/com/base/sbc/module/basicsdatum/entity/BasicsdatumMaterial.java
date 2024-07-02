@@ -51,12 +51,18 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setStockUnit(stockUnitCode);
 		smpMaterialDto.setMaterialSource(materialSourceName);
 		smpMaterialDto.setSecondLevelCategory(category2Code);
+		smpMaterialDto.setSecondLevelCategoryName(category2Name);
 		smpMaterialDto.setThirdLevelCategory(category3Code);
+		smpMaterialDto.setThirdLevelCategoryName(category3Name);
 		smpMaterialDto.setSeasonYear(year);
 		smpMaterialDto.setSeasonQuarter(seasonName);
 		smpMaterialDto.setSeasonQuarterId(season);
 		smpMaterialDto.setSeasonBrand(brandName);
 		smpMaterialDto.setSeasonBrandId(brand);
+		smpMaterialDto.setMaterialCategory(materialCategory);
+		smpMaterialDto.setMaterialCategoryName(materialCategoryName);
+		smpMaterialDto.setWidthGroup(widthGroup);
+		smpMaterialDto.setWidthGroupName(widthGroupName);
 		smpMaterialDto.setKilogramsAndMeters(kgMNum==null ? BigDecimal.valueOf(0) : kgMNum);
 		smpMaterialDto.setDeveloper(devName);
 		smpMaterialDto.setBuyer(purchaseName);
@@ -79,6 +85,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setEmbryonicCycle(embryonicCycle);
 		smpMaterialDto.setEmbryonicFreeCycle(embryonicFreeCycle);
 		smpMaterialDto.setReplenishmentProductionCycle(replenishmentProductionCycle);
+		smpMaterialDto.setSpecification(specification);
 		smpMaterialDto.setDensity(density);
 		smpMaterialDto.setIsProtection(isProtection);
 		smpMaterialDto.setTranslate(translate);
@@ -89,8 +96,24 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setFabricPropertyType(fabricPropertyType);
 		smpMaterialDto.setFabricPropertyTypeName(fabricPropertyTypeName);
 		smpMaterialDto.setAuxiliaryMaterial(auxiliaryMaterial);
-
-
+		smpMaterialDto.setCheckBillCode(checkBillCode);
+		smpMaterialDto.setCheckCompany(checkCompany);
+		smpMaterialDto.setCheckCompanyName(checkCompanyName);
+		smpMaterialDto.setCheckResult(checkResult);
+		smpMaterialDto.setCheckDate(checkDate);
+		smpMaterialDto.setCheckValidDate(checkValidDate);
+		smpMaterialDto.setCheckItems(checkItems);
+		smpMaterialDto.setCheckOrderUserId(checkOrderUserId);
+		smpMaterialDto.setCheckOrderUserName(checkOrderUserName);
+		smpMaterialDto.setCheckFileUrl(checkFileUrl);
+		smpMaterialDto.setFabricDifficultyScore(fabricDifficultyScore);
+		smpMaterialDto.setFabricDifficultyScoreName(fabricDifficultyScoreName);
+		smpMaterialDto.setFabricEvaluation(fabricEvaluation);
+		smpMaterialDto.setRiskDescription(riskDescription);
+		smpMaterialDto.setTotalInventory(totalInventory);
+		smpMaterialDto.setInventoryAvailability(inventoryAvailability);
+		smpMaterialDto.setFabricDifficultyName(fabricDifficultyName);
+		smpMaterialDto.setRemarks(remarks);
 		try {
 			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
 		}catch (Exception ignored){}

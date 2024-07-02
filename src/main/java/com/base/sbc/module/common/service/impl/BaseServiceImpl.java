@@ -24,6 +24,7 @@ import com.base.sbc.config.annotation.QueryField;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -68,7 +69,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     private JdbcTemplate jdbcTemplate;
 
     @Resource
-    private OperaLogService operaLogService;
+    public OperaLogService operaLogService;
 
     /**
      * 获取企业编码
@@ -83,8 +84,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return userUtils.getUserCompany().getUserId();
     }
 
-    public String getVirtualDetpIds() {
-        return userUtils.getUserCompany().getVirtualDeptIds();
+    public String getVirtualDeptIds() {
+        List<String> virtualDeptIds = userUtils.getUserCompany().getVirtualDeptIds();
+        if (virtualDeptIds.size() > 1) throw new OtherException("!当前操作人非法存在于两个及以上的虚拟部门!");
+        return virtualDeptIds.get(0);
     }
 
     public String getUserName() {
