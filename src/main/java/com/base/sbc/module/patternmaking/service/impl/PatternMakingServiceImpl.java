@@ -251,7 +251,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     private void checkRequiredParam(PatternMakingDto dto) {
-        if (!StrUtil.equals(ProductionType.CMT.getCode(), dto.getPatternMakingDevtType())) {
+        if (StrUtil.equals(ProductionType.CMT.getCode(), dto.getPatternMakingDevtType())) {
             if (!StrUtil.equals("拍照样", dto.getSampleType()) && !StrUtil.equals("产前样", dto.getSampleType())) {
                 if (StrUtil.isEmpty(dto.getIngredient())) {
                     throw new OtherException("面料成分为空");
