@@ -33,7 +33,7 @@
         <if test="ownerName != null and ownerName != ''">
             and tssp.owner_name like concat('%',#{ownerName},'%')
         </if>
-        order by tssp.update_date desc
+        order by tssp.owner_space  desc
         <!--
              select * from t_storage_space_person tssp
              left join (select create_id, sum(file_size) from t_material tm where tm.del_flag = '0' and tm.status != '2' group by tm.create_id) tmcopy on tssp.owner_id = tmcopy.create_id

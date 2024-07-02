@@ -41,6 +41,7 @@ import javax.annotation.Resource;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 
 /**
  * 类描述：个人空间划分 service类
@@ -83,7 +84,6 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             //检查用户在权限的变动
             checkMaterialUploadPermissionUpdate(storageSpace);
             baseMapper.listQueryMaterialPage(dto);
-
         }
 
 //        QueryWrapper<StorageSpacePerson> qw = new QueryWrapper<>();
@@ -123,23 +123,41 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         if (null == storageSpace){
             throw new OtherException("存储空间不存在");
         }
-        QueryWrapper<StorageSpacePerson> qw = new QueryWrapper<>();
-        qw.lambda().eq(StorageSpacePerson::getParentSpaceId,storageSpace.getId());
-        qw.lambda().eq(StorageSpacePerson::getDelFlag,"0");
-        qw.lambda().eq(StorageSpacePerson::getOwnerId,userId);
-        qw.lambda().last("limit 1");
-        StorageSpacePerson spacePerson = getOne(qw);
+        StorageSpacePerson spacePerson = getUserStorageSpacePerson(storageSpace,userId);
         if (null == spacePerson){
-            return;
+            throw new OtherException("可用空间不足请检查配置空间");
+        }
+        if (StringUtils.isEmpty(spacePerson.getInitSpace()) && StringUtils.isEmpty(spacePerson.getOwnerSpace())){
+            throw new OtherException("个人可用空间已被清理，请重新分配空间");
         }
         long ownSpacer = StringUtils.isEmpty(spacePerson.getOwnerSpace()) ?
                 Long.parseLong(spacePerson.getInitSpace()) : Long.parseLong(spacePerson.getOwnerSpace());
-
         if (needSpacer > ownSpacer * 1073741824){
             throw new OtherException("个人可用空间不足，请扩容个人空间");
         }
 
     }
+
+    private StorageSpacePerson getUserStorageSpacePerson(StorageSpace storageSpace, String userId){
+        StorageSpacePerson spacePerson = getByUserId(storageSpace.getId(),userId);
+        if (null != spacePerson){
+            return spacePerson;
+        }
+        //不存在，查询
+        List<UserCompany> byMenuUrlUser = amcService.getByMenuUrlUser("pdm:materialLibrary:myMaterial:btn:systemUpload");
+        if (CollUtil.isEmpty(byMenuUrlUser)){
+            return null;
+        }
+        List<UserCompany> userCompanyList = byMenuUrlUser.stream().filter(item -> userId.equals(item.getId())).collect(Collectors.toList());
+        if (CollUtil.isEmpty(userCompanyList)){
+           return null;
+        }
+        addStorageSpacePersonInfo(userCompanyList,storageSpace);
+        return getByUserId(storageSpace.getId(),userId);
+
+    }
+
+
 
 
     private void checkMaterialUploadPermissionUpdate(StorageSpace storageSpace) {
@@ -177,9 +195,23 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         if (CollUtil.isEmpty(list)){
             return;
         }
+        //已分配的空间
+        Long allocationSpace = baseMapper.getAllocationSpace(storageSpace.getId());
+        //剩余空间
+        long freeSpace = Opt.ofNullable(storageSpace.getTotalSpace()).map(Long::parseLong).orElse(0L) - Opt.ofNullable(allocationSpace).map(item ->item).orElse(0L);
+        if (freeSpace <= 0L){
+            return;
+        }
+
         List<StorageSpacePerson> personList = Lists.newArrayList();
         IdGen idGen = new IdGen();
-        list.forEach(item ->{
+
+        for (UserCompany item : list) {
+            freeSpace = freeSpace - Opt.ofNullable(storageSpace.getTotalSpace()).map(Long::parseLong).orElse(0L);
+            if (freeSpace < 0L){
+                saveBatch(personList);
+                return;
+            }
             StorageSpacePerson storageSpacePerson = new StorageSpacePerson();
             storageSpacePerson.setOwnerId(item.getId());
             storageSpacePerson.setOwnerName(item.getName());
@@ -190,10 +222,8 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             storageSpacePerson.setId(idGen.nextIdStr());
             storageSpacePerson.insertInit();
             personList.add(storageSpacePerson);
-        });
-
+        }
         saveBatch(personList);
-
 
     }
 
@@ -207,6 +237,15 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             isCheckUpdate = !"0".equals(o.toString());
         }
         return isCheckUpdate;
+    }
+
+    private StorageSpacePerson getByUserId(String parentSpaceId, String userId){
+        QueryWrapper<StorageSpacePerson> qw = new QueryWrapper<>();
+        qw.lambda().eq(StorageSpacePerson::getParentSpaceId,parentSpaceId);
+        qw.lambda().eq(StorageSpacePerson::getDelFlag,"0");
+        qw.lambda().eq(StorageSpacePerson::getOwnerId,userId);
+        qw.lambda().last("limit 1");
+        return getOne(qw);
     }
 
 // 自定义方法区 不替换的区域【other_start】

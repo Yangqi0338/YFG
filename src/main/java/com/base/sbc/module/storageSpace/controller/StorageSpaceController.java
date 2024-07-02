@@ -122,7 +122,8 @@ public class StorageSpaceController {
         }
         UpdateWrapper<StorageSpacePerson> uw = new UpdateWrapper<>();
         uw.lambda().in(StorageSpacePerson::getId,idList);
-        uw.lambda().set(StorageSpacePerson::getDelFlag,"1");
+        uw.lambda().set(StorageSpacePerson::getInitSpace,null);
+        uw.lambda().set(StorageSpacePerson::getOwnerSpace,null);
         boolean result = storageSpacePersonService.update(uw);
         return  result ? ApiResult.success("删除成功") : ApiResult.error("删除失败",500);
     }

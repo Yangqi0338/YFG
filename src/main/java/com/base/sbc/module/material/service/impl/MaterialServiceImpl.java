@@ -10,6 +10,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -257,13 +258,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         //查询引用数量
         List<Map<String, Integer>> maps = planningCategoryItemMaterialService.numList(ids);
         //获取用户头像
-        Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
+        Map<String, UserCompany> userAvatarMap = amcFeignService.getUserAvatarAndUserName(CollUtil.join(userIds, ","));
 
         // 获取素材库功能名称
         Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds, ","), "功能");
 
         for (MaterialVo materialVo : materialAllDtolist) {
-            materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()));
+            if (null != userAvatarMap.get(materialVo.getCreateId())){
+                materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()).getAliasUserAvatar());
+                materialVo.setUserName(userAvatarMap.get(materialVo.getCreateId()).getUsername());
+            }
+
             materialVo.setMaterialCategoryName(Optional.ofNullable(materialCategoryNames.get(materialVo.getMaterialCategoryId())).orElse(materialVo.getMaterialCategoryName()));
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();
