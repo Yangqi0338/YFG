@@ -161,6 +161,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIP
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
@@ -345,7 +346,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								e.setStatus(HangTagStatusEnum.QC_CHECK);
 								break;
 							case "翻译确认":
-								e.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
+								e.setStatus(TRANSLATE_CHECK);
 								break;
 							default:
 								break;
@@ -767,12 +768,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 如果当前是部分确认,且部分确认,仅当部分确认
 		if (HangTagStatusEnum.PART_TRANSLATE_CHECK == updateStatus) {
 			List<HangTag> partCheckTranslateList = hangTags.stream()
-					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
+					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
 //				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
 //				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
 
-				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
+				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
 					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
@@ -825,17 +826,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.QC_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.TRANSLATE_CHECK != updateStatus) {
+							TRANSLATE_CHECK != updateStatus) {
 						throw new OtherException("存在待品控确认数据，请先品控确认");
 					}
-					if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
+					if (TRANSLATE_CHECK == e.getStatus()
 							&&
 							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
 						throw new OtherException("存在待翻译确认数据，请先翻译确认");
 					}
 					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.FINISH != updateStatus) {
+							!Arrays.asList(TRANSLATE_CHECK, HangTagStatusEnum.FINISH).contains(updateStatus)) {
 						throw new OtherException("存在部分翻译数据，请先全部翻译确认");
 					}
 				}catch (OtherException ex) {
@@ -848,10 +849,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
 			hangTag.setStatus(updateStatus);
-			if (updateStatus.lessThan(HangTagStatusEnum.TRANSLATE_CHECK)) {
+			if (updateStatus.lessThan(TRANSLATE_CHECK)) {
 				hangTag.setConfirmDate(null);
-			}else if (updateStatus == HangTagStatusEnum.TRANSLATE_CHECK) {
+			}else if (updateStatus == TRANSLATE_CHECK) {
 				hangTag.setConfirmDate(new Date());
+				hangTag.setTranslateConfirmDate(null);
 			}else {
 				hangTag.setTranslateConfirmDate(new Date());
 			}
@@ -861,6 +863,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds().stream().map(it-> new HangTagLog(updateStatus.getText(), it)).collect(Collectors.toList()));
 
 		HangTagDeliverySCMStatusEnum type;
+		int confirmStatus = 1;
 		switch (updateStatus) {
 			case TECH_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM;
@@ -870,12 +873,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				break;
 			case TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM;
-				break;
-            default:
+				if (hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.MULTI_CHECK) {
+					break;
+				}
+			case PART_TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
+				confirmStatus = 0;
+				break;
+			default:
+				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
+				break;
 		}
 
-		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,confirmStatus);
 		// 貌似无用, checkType前端不传
 		if (HangTagStatusCheckEnum.QC_CHECK == hangTagUpdateStatusDTO.getCheckType()) {
 			// 发送审批

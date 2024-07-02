@@ -256,6 +256,11 @@ public class StylePricingController extends BaseController {
         if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
             type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
         }
+
+        //是否工时部工价确认
+        if(StrUtil.equals(dto.getWagesConfirm(),BaseGlobal.YES)){
+            type = HangTagDeliverySCMStatusEnum.WORKING_HOUR_CONFIRM;
+        }
         smpService.tagConfirmDates(list,type,1);
 
         /*吊牌确认下发*/

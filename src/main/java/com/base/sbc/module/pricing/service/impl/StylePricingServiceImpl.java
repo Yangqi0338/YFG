@@ -532,6 +532,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     } else if (null != stylePricingSaveDTO.getControlHangtagConfirm() && "0".equals(stylePricingSaveDTO.getControlHangtagConfirm())) {
                         //是否计控吊牌确认
                         smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM, 0);
+                    } else if (null != stylePricingSaveDTO.getWagesConfirm() && "0".equals(stylePricingSaveDTO.getWagesConfirm())) {
+                        //是否工时部工价确认
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.WORKING_HOUR_CONFIRM, 0);
                     }
                     //endregion
 
@@ -562,6 +565,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         updateWrapper.in(StylePricing::getId, ids);
 
         update(updateWrapper);
+
+        smpService.tagConfirmDates(ids, HangTagDeliverySCMStatusEnum.STYLE_PRICING_LIST_CANCEL, 0);
+
+
     }
 
     /**

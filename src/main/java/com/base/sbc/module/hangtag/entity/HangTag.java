@@ -56,6 +56,7 @@ public class HangTag extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "翻译确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date translateConfirmDate;
     /** 款式 */
     @ApiModelProperty(value = "款式"  )
