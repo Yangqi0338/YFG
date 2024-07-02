@@ -6,15 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -45,16 +38,30 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * 类描述：ES订货本 service类
@@ -116,9 +123,10 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         List<String> packId = list.stream().map(EsOrderBookItemVo::getPackId).distinct().collect(Collectors.toList());
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setCompanyCode(getCompanyCode());
-        QueryWrapper<Object> queryWrapper = new QueryWrapper<>().in("p.id", packId);
+        BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.in("p.id", packId);
         List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
-        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true);
+        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true, true);
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getPackId())) {

@@ -6,16 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.text.StrJoiner;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -125,9 +123,7 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import lombok.RequiredArgsConstructor;
-import org.codehaus.jackson.node.NullNode;
-import org.springframework.util.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,9 +133,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,13 +153,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
-import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
-import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：吊牌表 service类
@@ -288,7 +290,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		qw.notEmptyLike("ht.ingredient", hangTagDTO.getIngredient());
 		qw.notEmptyIn("ht.product_code", hangTagDTO.getProductCode());
 		qw.notEmptyEq("ht.status", hangTagDTO.getStatus());
-		qw.notEmptyIn("ht.product_code", hangTagDTO.getConfirmDate());
 		qw.notEmptyIn("tssc.band_code", hangTagDTO.getBandName());
 		qw.likeList("tssc.style_no", hangTagDTO.getBulkStyleNo());
 		if (YesOrNoEnum.YES.getValueStr().equals(hangTagDTO.getLikeQueryFlag())) {
