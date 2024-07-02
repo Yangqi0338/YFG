@@ -27,6 +27,10 @@ public interface NodeStatusConfigService extends BaseService<NodeStatusConfig> {
      * 打版节点配置 key
      */
     String PATTERN_MAKING_NODE_STATUS = "PATTERN_MAKING_NODE_STATUS";
+    /**
+     * 打版节点配置(FOB) key
+     */
+    String PATTERN_MAKING_NODE_STATUS_FOB = "PATTERN_MAKING_NODE_STATUS_FOB";
 
     /**
      * 产前样配置 key

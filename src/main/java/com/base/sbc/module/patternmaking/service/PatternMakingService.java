@@ -48,7 +48,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param styleId
      * @return
      */
-    List<PatternMakingListVo> findBySampleDesignId(String styleId);
+    List<PatternMakingListVo> findBySampleDesignId(String styleId, String patternMakingDevtType);
 
     /**
      * 保存
@@ -285,7 +285,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     List prmDataOverview(String time);
 
-    JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId);
+    JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId, String devtType);
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 

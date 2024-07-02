@@ -101,8 +101,8 @@ public class PatternMakingController {
 
     @ApiOperation(value = "通过款式设计id查询")
     @GetMapping("/findBySampleDesignId")
-    public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(styleId)款式设计id不能为空") String styleId) {
-        return patternMakingService.findBySampleDesignId(styleId);
+    public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(styleId)款式设计id不能为空") String styleId, String patternMakingDevtType) {
+        return patternMakingService.findBySampleDesignId(styleId, patternMakingDevtType);
     }
 
     @ApiOperation(value = "打版指令明细", notes = "通过id查询")
@@ -357,9 +357,9 @@ public class PatternMakingController {
             @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "dataId", value = "打版id", required = false, dataType = "String", paramType = "query"),
     })
-    public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
+    public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId, String devtType) {
         GroupUser userBy = userUtils.getUserBy(user);
-        JSONObject nodeStatusConfig = patternMakingService.getNodeStatusConfig(userBy, node, status, dataId);
+        JSONObject nodeStatusConfig = patternMakingService.getNodeStatusConfig(userBy, node, status, dataId, devtType);
         // 打版管理-样衣任务-是否显示裁剪开始、完成列表
         if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.PATTERN_MAKING_SAMPLE_CROPPING_SWITCH.getKeyCode())) {
             nodeStatusConfig.remove(EnumNodeStatus.GARMENT_CUTTING_STARTED.getStatus());

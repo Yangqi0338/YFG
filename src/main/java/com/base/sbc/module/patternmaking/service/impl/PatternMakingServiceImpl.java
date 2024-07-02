@@ -159,12 +159,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private final ReentrantLock lock = new ReentrantLock();
 
     @Override
-    public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
+    public List<PatternMakingListVo> findBySampleDesignId(String styleId, String patternMakingDevtType) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("m.style_id", styleId);
         qw.eq("m.del_flag", BaseGlobal.NO);
-
-        qw.orderBy(true, true, "create_date");
+        qw.eq("m.pattern_making_devt_type", patternMakingDevtType);
+        qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
         if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
             // 根据款查询对应套版款的可否改版信息并设置
@@ -1783,13 +1783,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId) {
+    public JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId, String devtType) {
         if (StrUtil.isNotBlank(dataId)) {
             PatternMaking bean = getById(dataId);
             JSONObject config = nodeStatusService.getNodeNextAndAuth(user, bean, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
             return config;
         }
-        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, node, status);
+
+        return nodeStatusService.getNodeStatusConfig(StrUtil.equals("FOB", devtType) ? NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS_FOB : NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, node, status);
     }
 
     @Override
