@@ -332,6 +332,13 @@ public class StyleColorController {
         return styleColorService.mangoExeclImport(list, isUpdate);
     }
 
+    @ApiOperation(value = "mango吊牌信息导入Excel")
+    @PostMapping("/mangoHangTagImportExcel")
+    public ApiResult importMangHangTagExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        List<MangoHangTagExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoHangTagExeclDto.class, new ImportParams());
+        return styleColorService.mangoHangTagExeclImport(list);
+    }
+
     @ApiOperation(value = "mango数据导出Excel")
     @GetMapping("/exportAgentExcel")
     public void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto querySampleStyleColorDto) throws Exception {
