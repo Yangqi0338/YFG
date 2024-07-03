@@ -676,6 +676,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where status = '4'");
             */
             queryWrapper.isNotNullStr("tsc.style_no");
+            queryWrapper.notIn("tsc.defective_no",Arrays.asList("-9","-10","-11","-ZC"));
         }
         if(StrUtil.isNotBlank(queryDto.getDesignMarkingStatus())){
             if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getDesignMarkingStatus())) {
@@ -4294,6 +4295,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         qw.in("prod_category1st", prodCategory1sts);
         qw.in("prod_category", prodCategorys);
         qw.in("prod_category2nd", prodCategory2nds);
+        qw.eq("tpd.del_flag", BaseGlobal.NO);
         List<PlanningDimensionalityVo> planningDimensionalities = planningDimensionalityMapper.getMaterialCoefficient(qw);
         //按照产品季+渠道+大类+品类+中类 分组
         Map<String, List<PlanningDimensionalityVo>> dimensionalityMap = planningDimensionalities.stream().collect(Collectors.groupingBy(
@@ -4306,6 +4308,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         qw.in("prod_category1st", prodCategory1sts);
         qw.in("prod_category", prodCategorys);
         qw.isNullStr("prod_category2nd");
+        qw.eq("tpd.del_flag", BaseGlobal.NO);
         List<PlanningDimensionalityVo> planningDimensionalities1 = planningDimensionalityMapper.getMaterialCoefficient(qw);
         //按照产品季+渠道+大类+品类 分组
         Map<String, List<PlanningDimensionalityVo>> dimensionalityMap1 = planningDimensionalities1.stream().collect(Collectors.groupingBy(
