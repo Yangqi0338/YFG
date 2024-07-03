@@ -273,7 +273,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     continue;
                 }
                 if (linkKeyword.contains(iSqlSegment) && isFinish) {
-                    if (iSqlSegment == SqlKeyword.AND) {
+                    if (iSqlSegment == SqlKeyword.AND && (!lastElement) && !normal.get(i+1).getSqlSegment().contains("REGEXP")) {
                         // 若下一个的前缀和之前一
                         if ((i+1) != normalSize) {
                             String[] split = normal.get(i+1).getSqlSegment().split(Pattern.quote(StringPool.DOT));
