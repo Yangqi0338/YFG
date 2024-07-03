@@ -114,6 +114,14 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             saveOrUpdateOperaLog(dto, one, genOperaLogEntity(one, "修改"));
             BeanUtil.copyProperties(dto, one, "id");
             updateById(one);
+            Map<String,Object> map = new HashMap<>();
+            /*获取前端传入的税率计算*/
+            if (StrUtil.isNotBlank(one.getCalcItemVal())) {
+                JSONObject jsonObject = JSONObject.parseObject(one.getCalcItemVal());
+                map.put("税率",jsonObject.get("税率"));
+                map.put("pricingTemplateId",one.getPricingTemplateId());
+            }
+            calculatePricingJson(one.getForeignId(),one.getPackType(),map);
         }
         return BeanUtil.copyProperties(one, PackPricingVo.class);
     }
@@ -292,16 +300,33 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     /**
      * 重新计算核价中的JSON
+     *
      * @param foreignId
      * @param packType
      * @return
      */
     @Override
-//    @Async
     public boolean calculatePricingJson(String foreignId, String packType) {
+        return calculatePricingJson(foreignId,packType,new HashMap<>());
+    }
+
+    /**
+     * 重新计算核价中的JSON
+     * @param foreignId
+     * @param packType
+     * * @param fields 可修改字段
+     * @return
+     */
+    @Override
+//    @Async
+    public boolean calculatePricingJson(String foreignId, String packType,Map<String,Object> fieldsMap) {
         PackPricing packPricing = get(foreignId, packType);
         if (StrUtil.isEmpty(packPricing.getPricingTemplateId())) {
             throw new OtherException("请选择一个模板");
+        }
+        /*修改模板*/
+        if(fieldsMap.containsKey("pricingTemplateId")){
+            packPricing.setPricingTemplateId(fieldsMap.get("pricingTemplateId").toString());
         }
         PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId(),getCompanyCode());
 
@@ -312,10 +337,17 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             resultMap = pricingTemplateItems.stream()
                     .collect(Collectors.toMap(PricingTemplateItemVO::getName, PricingTemplateItemVO::getDefaultNum));
         }
-
         PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
         packCommonSearchDto.setPackType(packType);
         packCommonSearchDto.setForeignId(foreignId);
+        /*替换json中的数据*/
+        if(CollUtil.isNotEmpty(fieldsMap)){
+            resultMap.putAll(fieldsMap);
+        }else if (StrUtil.isNotBlank(packPricing.getCalcItemVal())){
+            /*使用数据库的数据计算*/
+            Map map = JSONObject.parseObject(packPricing.getCalcItemVal(), Map.class);
+            resultMap.putAll(map);
+        }
         /*计算各项的值*/
         Map<String, BigDecimal> map = calculateCosts(packCommonSearchDto);
         /*生成新的json map*/
