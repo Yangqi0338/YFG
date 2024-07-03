@@ -829,14 +829,25 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             userAuthQw(dto, qw);
         }
 
-
         qw.in(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", StrUtil.split(dto.getPatternStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", StrUtil.split(dto.getCuttingStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", StrUtil.split(dto.getSewingStatus(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getBreakOffPattern()), "p.break_off_pattern", dto.getBreakOffPattern());
         qw.eq(StrUtil.isNotBlank(dto.getSuspend()), "p.suspend", dto.getSuspend());
         qw.eq(StrUtil.isNotBlank(dto.getBreakOffSample()), "p.break_off_sample", dto.getBreakOffSample());
-        qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        // FOB
+        if (StrUtil.equals(dto.getDevtType(), ProductionType.FOB.getCode())) {
+            if (dto.getStatus().equals("已下发")) {
+                // 已下发,未收样
+                qw.eq( "p.design_send_status", "1");
+                qw.ne("receive_sample", "0");
+            } else {
+                qw.eq("receive_sample", "1");
+            }
+
+        } else {
+            qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        }
         qw.in("p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
@@ -889,8 +900,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // FOB
         if (StrUtil.equals(dto.getDevtType(), ProductionType.FOB.getCode())) {
             qw.eq( "p.design_send_status", dto.getDesignSendStatus());
-        } else {
-            qw.eq( "p.design_send_status", "1");
         }
         if (StrUtil.isNotBlank(dto.getUserType())){
             switch (dto.getUserType()) {
