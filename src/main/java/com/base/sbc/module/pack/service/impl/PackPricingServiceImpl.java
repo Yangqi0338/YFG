@@ -15,6 +15,7 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.annotation.DistributedLock;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -101,6 +102,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
+    @DistributedLock(key = "'saveByDto'+#dto.foreignId")
     public PackPricingVo saveByDto(PackPricingDto dto) {
         PackPricing one = get(dto.getForeignId(), dto.getPackType());
         if (one == null) {
