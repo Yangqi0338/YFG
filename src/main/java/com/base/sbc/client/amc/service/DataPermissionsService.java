@@ -1,8 +1,7 @@
 package com.base.sbc.client.amc.service;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -17,18 +16,27 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisAmcUtils;
 import com.base.sbc.config.redis.RedisUtils;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import javax.annotation.Resource;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 
 @Component
 public class DataPermissionsService {
@@ -97,7 +105,7 @@ public class DataPermissionsService {
         Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
-
+//(xxx and (xxx or xxx`))
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
