@@ -721,7 +721,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 排序
         // 未下发 按下发时间排序
         if (StrUtil.equals(BasicNumber.ZERO.getNumber(), dto.getStatus())) {
-            dto.setOrderBy("planning_finish_date is null ,planning_finish_date asc , create_date asc ");
+            dto.setOrderBy("planning_finish_date is null ,planning_finish_date desc , create_date desc ");
         }
         // 已经开款 按审核时间(开款时间)
         else if (StrUtil.equals(BasicNumber.ONE.getNumber(), dto.getStatus())) {
