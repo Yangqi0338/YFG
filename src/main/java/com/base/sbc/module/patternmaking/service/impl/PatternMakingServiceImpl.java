@@ -840,7 +840,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (dto.getStatus().equals("已下发")) {
                 // 已下发,未收样
                 qw.eq( "p.design_send_status", "1");
-                qw.ne("receive_sample", "0");
+                qw.ne("receive_sample", "1");
             } else {
                 qw.eq("receive_sample", "1");
             }
