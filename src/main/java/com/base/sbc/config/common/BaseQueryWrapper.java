@@ -1,29 +1,15 @@
 package com.base.sbc.config.common;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.text.StrJoiner;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
 import com.baomidou.mybatisplus.core.conditions.SharedString;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.segments.ColumnSegment;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
 import com.baomidou.mybatisplus.core.enums.SqlKeyword;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang.math.IntRange;
+
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -37,7 +23,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.joining;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author 卞康
@@ -313,7 +305,12 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     map.put(key, joiner);
                     handlerNum.set(1);
                 } else {
-                    joiner.add(sqlSegment);
+                    if (StrUtil.isNotBlank(sqlSegment) && sqlSegment.contains("1=0")){
+                        joiner.add(SqlKeyword.AND+" "+sqlSegment);
+                    }else {
+                        joiner.add(sqlSegment);
+                    }
+
                     handlerNum.incrementAndGet();
                 }
             }

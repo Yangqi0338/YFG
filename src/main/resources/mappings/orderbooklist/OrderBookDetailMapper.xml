@@ -116,7 +116,7 @@
                 and ${ ew.getSqlByAlias('tpi')})
             </if>
             <if test="ew.hasAlias('tobl')">
-                and ${ ew.getSqlByAlias('tobl').contains("1=0")? ' 1=0' : ew.getSqlByAlias('tobl')}
+                and ${ew.getSqlByAlias('tobl')}
             </if>
         </where>
     </select>
