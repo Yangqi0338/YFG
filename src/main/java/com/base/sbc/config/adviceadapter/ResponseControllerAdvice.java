@@ -95,6 +95,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         try {
             this.preHttpLog(request,response, apiResult);
         }catch (Exception e){
+            this.preHttpLog(request,response, body);
             e.printStackTrace();
         }
 

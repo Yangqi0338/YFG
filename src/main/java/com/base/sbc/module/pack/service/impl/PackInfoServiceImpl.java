@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
@@ -58,6 +59,9 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -229,6 +233,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Autowired
     @Lazy
     private SmpService smpService;
+
+    @Resource
+    private FieldValService fieldValService;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -766,6 +773,31 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 BeanUtil.copyProperties(tag, vo);
             }
         }
+        // 获取versionId
+        String bomVersionId = packBomVersionService.findOneField(new LambdaQueryWrapper<PackBomVersion>()
+                        .eq(PackBomVersion::getForeignId, detail.getId())
+                        .eq(PackBomVersion::getPackType, detail.getPackType())
+                        .orderByDesc(PackBomVersion::getVersion)
+                , PackBomVersion::getId);
+        if (StrUtil.isNotBlank(bomVersionId)) {
+            // 获取物料清单id
+            List<String> materialIdList = packBomService.listOneField(new LambdaQueryWrapper<PackBom>()
+                            .eq(PackBom::getBomVersionId, bomVersionId)
+                            .eq(PackBom::getForeignId, detail.getId())
+                            .eq(PackBom::getPackType, detail.getPackType())
+                    , PackBom::getMaterialId);
+            if (CollUtil.isNotEmpty(materialIdList)) {
+                // 获取动态表值
+                String highVal = fieldValService.findOneField(new LambdaQueryWrapper<FieldVal>()
+                        .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.MATERIAL)
+                        .eq(FieldVal::getFieldName, "fabric_value")
+                        .in(FieldVal::getForeignId, materialIdList)
+                        .eq(FieldVal::getVal, "JZ001")
+                , FieldVal::getValName);
+                vo.setHighValStr(highVal);
+            }
+        }
+
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(stylePicUtils.getStyleUrl(vo.getStylePic()));
         }
@@ -838,6 +870,21 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             throw new OtherException("生成工艺文件失败");
         }
 
+    }
+
+
+    @Override
+    public Pair<String, com.alibaba.fastjson2.JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto) {
+        GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
+        String devtType = vo.getDevtType();
+        Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        Map<String, Map<String, String>> proccessStyleMap = ccmFeignService.getDictInfoToMap("Process-Style");
+        boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        boolean ctBasicPage = proccessStyleMap.containsKey("Process-Style") &&proccessStyleMap.get("Process-Style").containsKey("CBasicPage") ;
+        vo.setCtBasicPage(ctBasicPage);
+        vo.setFob(fob);
+        vo.setDevtType(fob ? "FOB" : devtType);
+        return Pair.of("ftl/process.html.ftl",vo.dataModel());
     }
 
 

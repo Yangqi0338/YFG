@@ -465,6 +465,10 @@
                     <td class="bold">下单时间</td>
                     <td>${placeOrderDateStr}</td>
                 </tr>
+                <tr>
+                    <td class="gb bold">面料价值</td>
+                    <td class="gb">${highValStr}</td>
+                </tr>
 
             </table>
         </td>

@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import cn.hutool.core.lang.Pair;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -201,6 +203,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
 
     GenTechSpecPdfFile queryGenTechSpecPdfFile(GroupUser groupUser, PackCommonSearchDto dto);
+
+    Pair<String, JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto);
 
     CopyItemsVo copyItems(GroupUser user, PackCopyDto dto);
 
