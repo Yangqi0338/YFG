@@ -12,12 +12,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotBlank;
 
 /**
  * 类描述：任务分配 实体类
@@ -36,6 +32,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 品牌
      */
+    @NotEmpty(message = "请选择品牌")
     @ApiModelProperty(value = "品牌 code")
     private String brand;
     /**
@@ -46,6 +43,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 虚拟部门 ID
      */
+    @NotEmpty(message = "请选择虚拟部门")
     @ApiModelProperty(value = "虚拟部门 ID")
     private String virtualDeptId;
     /**
@@ -56,7 +54,8 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 大类 code
      */
-    @ApiModelProperty(value = "大类 code")
+    @NotEmpty(message = "请选择大类")
+    @ApiModelProperty(value = "大类code")
     private String prodCategory1st;
     /**
      * 大类名称
@@ -66,7 +65,8 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 品类 code
      */
-    @ApiModelProperty(value = "品类 code")
+    @NotEmpty(message = "请选择品类")
+    @ApiModelProperty(value = "品类code")
     private String prodCategory;
     /**
      * 品类名称
@@ -76,7 +76,8 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 中类 code
      */
-    @ApiModelProperty(value = "中类 code")
+    @NotEmpty(message = "请选择中类")
+    @ApiModelProperty(value = "中类code")
     private String prodCategory2nd;
     /**
      * 中类名称
@@ -86,7 +87,8 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 小类 code
      */
-    @ApiModelProperty(value = "小类 code")
+    @NotEmpty(message = "请选择小类")
+    @ApiModelProperty(value = "小类code")
     private String prodCategory3rd;
     /**
      * 小类名称
@@ -96,6 +98,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 用户 ID（取值范围是属于这个虚拟部门下面的）
      */
+    @NotEmpty(message = "请选择用户")
     @ApiModelProperty(value = "用户 ID（取值范围是属于这个虚拟部门下面的）")
     private String userId;
     /**
@@ -106,6 +109,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）
      */
+    @NotEmpty(message = "请选择触发菜单")
     @ApiModelProperty(value = "触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）")
     private String triggerMenus;
     /**
