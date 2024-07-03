@@ -340,13 +340,13 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
         packCommonSearchDto.setPackType(packType);
         packCommonSearchDto.setForeignId(foreignId);
+        /*原有数据库的数据*/
+       if(StrUtil.isNotBlank(packPricing.getCalcItemVal())){
+           resultMap.putAll(JSONObject.parseObject(packPricing.getCalcItemVal(), Map.class));
+       }
         /*替换json中的数据*/
         if(CollUtil.isNotEmpty(fieldsMap)){
             resultMap.putAll(fieldsMap);
-        }else if (StrUtil.isNotBlank(packPricing.getCalcItemVal())){
-            /*使用数据库的数据计算*/
-            Map map = JSONObject.parseObject(packPricing.getCalcItemVal(), Map.class);
-            resultMap.putAll(map);
         }
         /*计算各项的值*/
         Map<String, BigDecimal> map = calculateCosts(packCommonSearchDto);
