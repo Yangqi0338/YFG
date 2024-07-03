@@ -331,7 +331,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         resultMap.put("pricingTemplateId", packPricing.getPricingTemplateId());
         resultMap.put("pricingTemplateName", pricingTemplateVO.getTemplateName());
         resultMap.put("currencyCode", "");
-        resultMap.put("成本价", countTotalPrice(foreignId, StrUtil.equals(packType, PackUtils.PACK_TYPE_DESIGN) ? BaseGlobal.NO : BaseGlobal.YES, 2));
+        resultMap.put("成本价", countTotalPrice(foreignId, StrUtil.equals(packType, PackUtils.PACK_TYPE_DESIGN) ? BaseGlobal.YES : "", 2));
         packPricing.setCalcItemVal(JSONObject.toJSONString(resultMap));
         baseMapper.updateById(packPricing);
         return true;
