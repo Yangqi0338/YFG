@@ -54,24 +54,6 @@ public class PricingTemplateItemServiceImpl extends BaseServiceImpl<PricingTempl
         return pricingTemplateItemMapper.getByPricingTemplateId(pricingTemplateId, userCompany);
     }
 
-    /**
-     * 通过模板id获取显示及有排序的字段
-     *
-     * @param pricingTemplateId
-     * @return
-     */
-    @Override
-    public List<PricingTemplateItemVO> getByPricingTemplateId(String pricingTemplateId) {
-        BaseQueryWrapper<PricingTemplateItem> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("pricing_template_id", pricingTemplateId);
-        queryWrapper.eq("company_code", getCompanyCode());
-        queryWrapper.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        queryWrapper.isNotNullStr("sort");
-        queryWrapper.orderByDesc("sort");
-        List<PricingTemplateItem> pricingTemplateItems = baseMapper.selectList(queryWrapper);
-        return BeanUtil.copyToList(pricingTemplateItems,PricingTemplateItemVO.class);
-    }
-
     @Override
     public void delByPricingTemplateId(String pricingTemplateId, String userCompany) {
         LambdaUpdateWrapper<PricingTemplateItem> wrapper = new LambdaUpdateWrapper<PricingTemplateItem>()

@@ -1329,7 +1329,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             packBomColorService.saveBatch(packBomColorList);
         }
         /*操作计算*/
-        packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(),dtoList.get(0).getPackType());
+        packPricingService.calculatePricingJson(version.getForeignId(),version.getPackType());
         return true;
     }
 
@@ -1432,6 +1432,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if(StrUtil.equals(byId.getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(byId.getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(byId.getForeignId(),totalCost);
         }
+        /*操作计算*/
+        packPricingService.calculatePricingJson(byId.getForeignId(),byId.getPackType());
         return true;
     }
 
@@ -1687,6 +1689,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if(StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(packBomList.get(0).getForeignId(),totalCost);
         }
+        /*重新计算价格*/
+        packPricingService.calculatePricingJson(packBomList.get(0).getForeignId(),packBomList.get(0).getPackType());
         return true;
     }
 

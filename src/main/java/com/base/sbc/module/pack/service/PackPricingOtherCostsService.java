@@ -61,6 +61,13 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
      * @return
      */
     boolean createCostDetail(String dict,String foreignId,String packType);
+
+    /**
+     * 其他费用外协加工费-删除
+     * @param id
+     * @return
+     */
+    boolean  delOtherCosts(String id);
 // 自定义方法区 不替换的区域【other_end】
 
 

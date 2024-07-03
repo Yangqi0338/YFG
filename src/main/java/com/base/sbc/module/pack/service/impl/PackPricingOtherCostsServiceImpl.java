@@ -182,6 +182,22 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         return true;
     }
 
+    /**
+     * 其他费用外协加工费-删除
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean delOtherCosts(String id) {
+        PackPricingOtherCosts packPricingOtherCosts = baseMapper.selectById(id);
+        if(ObjectUtil.isEmpty(packPricingOtherCosts)){
+            throw new OtherException("id错误");
+        }
+        baseMapper.deleteById(packPricingOtherCosts.getId());
+        packPricingService.calculatePricingJson(packPricingOtherCosts.getForeignId(),packPricingOtherCosts.getPackType());
+        return true;
+    }
 
 
     @Override

@@ -46,15 +46,6 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
      */
     PricingTemplateVO getDetailsById(String id, String userCompany);
 
-
-
-    /**
-     * 通过id查询核价模板详情
-     *
-     * @param id
-     * @return
-     */
-    PricingTemplateVO getDetailsById(String id);
     /**
      * 保存
      *

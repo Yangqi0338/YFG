@@ -39,6 +39,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import org.apache.commons.lang3.StringUtils;
 import org.nfunk.jep.JEP;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -294,12 +295,13 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
      * @return
      */
     @Override
+//    @Async
     public boolean calculatePricingJson(String foreignId, String packType) {
         PackPricing packPricing = get(foreignId, packType);
         if (StrUtil.isEmpty(packPricing.getPricingTemplateId())) {
             throw new OtherException("请选择一个模板");
         }
-        PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId());
+        PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId(),getCompanyCode());
 
         List<PricingTemplateItemVO> pricingTemplateItems = pricingTemplateVO.getPricingTemplateItems();
         Map<String, Object> resultMap = new HashMap<>();
@@ -329,7 +331,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         resultMap.put("pricingTemplateId", packPricing.getPricingTemplateId());
         resultMap.put("pricingTemplateName", pricingTemplateVO.getTemplateName());
         resultMap.put("currencyCode", "");
-        resultMap.put("成本价", countTotalPrice(foreignId, StrUtil.equals(packType, PackUtils.PACK_TYPE_DESIGN) ? BaseGlobal.YES : BaseGlobal.NO, 2));
+        resultMap.put("成本价", countTotalPrice(foreignId, StrUtil.equals(packType, PackUtils.PACK_TYPE_DESIGN) ? BaseGlobal.NO : BaseGlobal.YES, 2));
         packPricing.setCalcItemVal(JSONObject.toJSONString(resultMap));
         baseMapper.updateById(packPricing);
         return true;
