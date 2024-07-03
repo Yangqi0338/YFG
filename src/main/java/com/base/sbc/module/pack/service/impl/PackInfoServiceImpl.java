@@ -821,22 +821,29 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
         try {
             // 校验重量体积是否有填写
-            PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
-            String weight = packTechPackaging.getWeight();
-            String volume = packTechPackaging.getVolume();
-            String stackedVolume = packTechPackaging.getStackedVolume();
-            String packagingFormName = packTechPackaging.getPackagingFormName();
-            if (ObjectUtils.isEmpty(weight) || !(new BigDecimal(weight).compareTo(BigDecimal.ZERO) > 0)) {
-                throw new OtherException("请先填写重量！");
-            }
-            if (ObjectUtils.isEmpty(volume) || !(new BigDecimal(volume).compareTo(BigDecimal.ZERO) > 0)) {
-                throw new OtherException("请先计算体积！");
-            }
-            if (ObjectUtil.isNotEmpty(packagingFormName) && "叠装".equals(packagingFormName)) {
-                if (ObjectUtils.isEmpty(stackedVolume) || !(new BigDecimal(stackedVolume).compareTo(BigDecimal.ZERO) > 0)) {
-                    throw new OtherException("请先计算叠装体积！");
+            String value = ccmFeignService.queryCompanySettingData("product_type_check");
+            if (StrUtil.isNotBlank(value)) {
+                PackInfo packInfo = getById(dto.getForeignId());
+                if (CollUtil.newArrayList(value.split(",")).contains(packInfo.getDevtType())) {
+                    PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+                    String weight = packTechPackaging.getWeight();
+                    String volume = packTechPackaging.getVolume();
+                    String stackedVolume = packTechPackaging.getStackedVolume();
+                    String packagingFormName = packTechPackaging.getPackagingFormName();
+                    if (ObjectUtils.isEmpty(weight) || !(new BigDecimal(weight).compareTo(BigDecimal.ZERO) > 0)) {
+                        throw new OtherException("请先填写重量！");
+                    }
+                    if (ObjectUtils.isEmpty(volume) || !(new BigDecimal(volume).compareTo(BigDecimal.ZERO) > 0)) {
+                        throw new OtherException("请先计算体积！");
+                    }
+                    if (ObjectUtil.isNotEmpty(packagingFormName) && "叠装".equals(packagingFormName)) {
+                        if (ObjectUtils.isEmpty(stackedVolume) || !(new BigDecimal(stackedVolume).compareTo(BigDecimal.ZERO) > 0)) {
+                            throw new OtherException("请先计算叠装体积！");
+                        }
+                    }
                 }
             }
+
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName() + fileName);
             // 将文件id保存到状态表
