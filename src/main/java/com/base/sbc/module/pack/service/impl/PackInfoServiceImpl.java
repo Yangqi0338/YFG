@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
@@ -869,6 +870,21 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             throw new OtherException("生成工艺文件失败");
         }
 
+    }
+
+
+    @Override
+    public Pair<String, com.alibaba.fastjson2.JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto) {
+        GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
+        String devtType = vo.getDevtType();
+        Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        Map<String, Map<String, String>> proccessStyleMap = ccmFeignService.getDictInfoToMap("Process-Style");
+        boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        boolean ctBasicPage = proccessStyleMap.containsKey("Process-Style") &&proccessStyleMap.get("Process-Style").containsKey("CBasicPage") ;
+        vo.setCtBasicPage(ctBasicPage);
+        vo.setFob(fob);
+        vo.setDevtType(fob ? "FOB" : devtType);
+        return Pair.of("ftl/process.html.ftl",vo.dataModel());
     }
 
 
