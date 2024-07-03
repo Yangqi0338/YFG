@@ -53,12 +53,13 @@ public class TaskAssignmentRecordsServiceImpl extends BaseServiceImpl<TaskAssign
         if (ObjectUtil.isEmpty(TriggerMenuEnum.checkValue(triggerMenu))) {
             throw new OtherException("「" + triggerMenu + "」" + ResultConstant.TRIGGER_MENU_DOES_NOT_EXIST);
         }
-        PageHelper.startPage(
-                queryTaskAssignmentRecords.getPageNum(), queryTaskAssignmentRecords.getPageSize());
+        PageHelper.startPage(queryTaskAssignmentRecords.getPageNum(), queryTaskAssignmentRecords.getPageSize());
         LambdaQueryWrapper<TaskAssignmentRecords> taskAssignmentRecordsLambdaQueryWrapper = new LambdaQueryWrapper<>();
+
         taskAssignmentRecordsLambdaQueryWrapper
                 .eq(TaskAssignmentRecords::getTaskAssignmentId, queryTaskAssignmentRecords.getTaskAssignmentId())
                 .eq(TaskAssignmentRecords::getTriggerMenu, queryTaskAssignmentRecords.getTriggerMenu());
+
         List<TaskAssignmentRecords> taskAssignmentRecordsList = list(taskAssignmentRecordsLambdaQueryWrapper);
         PageInfo<TaskAssignmentRecords> taskAssignmentRecordsPageInfo = new PageInfo<>(taskAssignmentRecordsList);
         PageInfo<TaskAssignmentRecordsVO> newTaskAssignmentRecordsPageInfo = new PageInfo<>();

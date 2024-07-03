@@ -75,10 +75,15 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.ChartBarVo;
+import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
+import com.base.sbc.module.taskassignment.enums.TriggerMenuEnum;
+import com.base.sbc.module.taskassignment.service.TaskAssignmentService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,6 +107,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Autowired
     PlanningSeasonService planningSeasonService;
+    @Autowired
+    @Lazy
+    TaskAssignmentService taskAssignmentService;
 
     @Autowired
     PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
@@ -868,9 +876,30 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         seatUw.in("status", BasicNumber.ZERO.getNumber(), "-1");
         seatUw.in("id", seatIds);
         update(seatUw);
+
+        // 产品季总览自动任务
+        List<PlanningCategoryItem> planningCategoryItemList = listByIds(seatIds);
+        for (PlanningCategoryItem planningCategoryItem : planningCategoryItemList) {
+            TaskAssignmentDTO taskAssignmentDTO = getTaskAssignmentDTO(planningCategoryItem);
+            taskAssignmentService.runTaskAssignment(taskAssignmentDTO);
+        }
+
         /*发送消息*/
         messageUtils.seatSendMessage(seatIds,"",baseController.getUser());
         return true;
+    }
+
+    private static TaskAssignmentDTO getTaskAssignmentDTO(PlanningCategoryItem planningCategoryItem) {
+        TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
+        taskAssignmentDTO.setDataId(planningCategoryItem.getId());
+        taskAssignmentDTO.setBrand(planningCategoryItem.getBrand());
+        taskAssignmentDTO.setVirtualDeptId(planningCategoryItem.getSendDeptId());
+        taskAssignmentDTO.setProdCategory1st(planningCategoryItem.getProdCategory1st());
+        taskAssignmentDTO.setProdCategory(planningCategoryItem.getProdCategory());
+        taskAssignmentDTO.setProdCategory2nd(planningCategoryItem.getProdCategory2nd());
+        taskAssignmentDTO.setProdCategory3rd(planningCategoryItem.getProdCategory3rd());
+        taskAssignmentDTO.setTriggerMenu(TriggerMenuEnum.CPJZL.getValue());
+        return taskAssignmentDTO;
     }
 
     @Override

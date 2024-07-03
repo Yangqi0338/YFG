@@ -94,8 +94,8 @@ public class TaskAssignmentController {
      * @return 任务分配列表分页
      */
     @ApiOperation(value = "查询任务分配列表分页")
-    @PostMapping("/queryTaskAssignmentPage")
-    public ApiResult<PageInfo<TaskAssignmentVO>> queryTaskAssignmentPage(@RequestBody QueryTaskAssignmentDTO queryTaskAssignment) {
+    @GetMapping("/queryTaskAssignmentPage")
+    public ApiResult<PageInfo<TaskAssignmentVO>> queryTaskAssignmentPage(QueryTaskAssignmentDTO queryTaskAssignment) {
         PageInfo<TaskAssignmentVO> taskAssignmentPageInfo = taskAssignmentService.queryTaskAssignmentPage(queryTaskAssignment);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, taskAssignmentPageInfo);
     }
@@ -107,7 +107,7 @@ public class TaskAssignmentController {
      * @return 任务分配详情
      */
     @ApiOperation(value = "根据任务分配 ID 查询任务分配详情")
-    @PostMapping("/queryTaskAssignmentDetail")
+    @GetMapping("/queryTaskAssignmentDetail")
     public ApiResult<TaskAssignmentVO> queryTaskAssignmentDetail(String taskAssignmentId) {
         TaskAssignmentVO taskAssignment = taskAssignmentService.queryTaskAssignmentDetail(taskAssignmentId);
         return ApiResult.data(taskAssignment);
@@ -127,12 +127,12 @@ public class TaskAssignmentController {
     }
 
     /**
-     * 查询任务分配筛选条件
+     * 查询任务分配筛选条件（暂时废弃，使用列头筛选）
      *
      * @param queryTaskAssignment 查询条件
      * @return 筛选条件
      */
-    @ApiOperation(value = "查询任务分配筛选条件")
+    @ApiOperation(value = "查询任务分配筛选条件（暂时废弃，使用列头筛选）")
     @PostMapping("/queryTaskAssignmentFilterCriteria")
     public ApiResult<List<TaskAssignmentVO>> queryTaskAssignmentFilterCriteria(@RequestBody TaskAssignmentDTO queryTaskAssignment) {
         List<TaskAssignmentVO> taskAssignmentList = taskAssignmentService.queryTaskAssignmentFilterCriteria(queryTaskAssignment);

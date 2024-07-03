@@ -7,6 +7,7 @@
 package com.base.sbc.module.taskassignment.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.module.taskassignment.entity.TaskAssignment;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,7 +28,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("任务分配列表分页入参")
 @Validated
-public class QueryTaskAssignmentDTO extends Page {
+public class QueryTaskAssignmentDTO  extends QueryFieldDto {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,43 +36,43 @@ public class QueryTaskAssignmentDTO extends Page {
      * 品牌
      */
     @ApiModelProperty(value = "品牌 code")
-    private String brands;
+    private String brand;
 
     /**
      * 虚拟部门 ID
      */
     @ApiModelProperty(value = "虚拟部门 ID")
-    private String virtualDeptIds;
+    private String virtualDeptId;
 
     /**
      * 大类 code
      */
     @ApiModelProperty(value = "大类 code")
-    private String prodCategory1sts;
+    private String prodCategory1st;
 
     /**
      * 品类 code
      */
     @ApiModelProperty(value = "品类 code")
-    private String prodCategorys;
+    private String prodCategory;
 
     /**
      * 中类 code
      */
     @ApiModelProperty(value = "中类 code")
-    private String prodCategory2nds;
+    private String prodCategory2nd;
 
     /**
      * 小类 code
      */
     @ApiModelProperty(value = "小类 code")
-    private String prodCategory3rds;
+    private String prodCategory3rd;
 
     /**
      * 用户 ID（取值范围是属于这个虚拟部门下面的）
      */
     @ApiModelProperty(value = "用户 ID（取值范围是属于这个虚拟部门下面的）")
-    private String userIds;
+    private String userId;
 
     /**
      * 触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）

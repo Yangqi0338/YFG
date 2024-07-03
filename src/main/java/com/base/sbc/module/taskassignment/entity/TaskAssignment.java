@@ -36,7 +36,6 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 品牌
      */
-    @NotBlank(message = "品牌不能为空")
     @ApiModelProperty(value = "品牌 code")
     private String brand;
     /**
@@ -47,18 +46,16 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 虚拟部门 ID
      */
-    @NotBlank(message = "虚拟部门不能为空")
     @ApiModelProperty(value = "虚拟部门 ID")
     private String virtualDeptId;
     /**
      * 虚拟部门名称
      */
-    @ApiModelProperty(value = "")
+    @ApiModelProperty(value = "虚拟部门名称")
     private String virtualDeptName;
     /**
      * 大类 code
      */
-    @NotBlank(message = "大类不能为空")
     @ApiModelProperty(value = "大类 code")
     private String prodCategory1st;
     /**
@@ -69,7 +66,6 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 品类 code
      */
-    @NotBlank(message = "品类不能为空")
     @ApiModelProperty(value = "品类 code")
     private String prodCategory;
     /**
@@ -80,7 +76,6 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 中类 code
      */
-    @NotBlank(message = "中类不能为空")
     @ApiModelProperty(value = "中类 code")
     private String prodCategory2nd;
     /**
@@ -91,7 +86,6 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 小类 code
      */
-    @NotBlank(message = "小类不能为空")
     @ApiModelProperty(value = "小类 code")
     private String prodCategory3rd;
     /**
@@ -102,7 +96,6 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 用户 ID（取值范围是属于这个虚拟部门下面的）
      */
-    @NotBlank(message = "用户不能为空")
     @ApiModelProperty(value = "用户 ID（取值范围是属于这个虚拟部门下面的）")
     private String userId;
     /**
@@ -113,7 +106,6 @@ public class TaskAssignment extends BaseDataEntity<String> {
     /**
      * 触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）
      */
-    @NotBlank(message = "触发菜单不能为空")
     @ApiModelProperty(value = "触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）")
     private String triggerMenus;
     /**

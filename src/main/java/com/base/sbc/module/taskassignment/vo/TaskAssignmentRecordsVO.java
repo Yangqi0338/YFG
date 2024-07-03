@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.taskassignment.entity.TaskAssignment;
 import com.base.sbc.module.taskassignment.entity.TaskAssignmentRecords;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
@@ -23,5 +24,11 @@ import lombok.EqualsAndHashCode;
 public class TaskAssignmentRecordsVO extends TaskAssignmentRecords {
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 数量
+	 */
+	@ApiModelProperty("数量")
+	private Integer count;
 
 }

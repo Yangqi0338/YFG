@@ -8,10 +8,13 @@ package com.base.sbc.module.taskassignment.vo;
 
 import com.base.sbc.module.taskassignment.entity.TaskAssignment;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：任务分配返回值
+ *
  * @author XHTE
  * @create 2024/6/27
  */
@@ -20,6 +23,18 @@ import lombok.EqualsAndHashCode;
 @ApiModel("任务分配返回值")
 public class TaskAssignmentVO extends TaskAssignment {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 列头筛选数量
+     */
+    @ApiModelProperty("列头筛选数量")
+    private Integer groupCount;
+
+    /**
+     * 触发记录数量
+     */
+    @ApiModelProperty("触发记录数量")
+    private Integer triggerNum;
 
 }

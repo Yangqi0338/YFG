@@ -13,9 +13,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.GeneralFlagEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
 import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
@@ -24,10 +27,13 @@ import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.dto.SeatSendDto;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.taskassignment.constants.ResultConstant;
 import com.base.sbc.module.taskassignment.dto.QueryTaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
@@ -37,17 +43,22 @@ import com.base.sbc.module.taskassignment.enums.TriggerMenuEnum;
 import com.base.sbc.module.taskassignment.mapper.TaskAssignmentMapper;
 import com.base.sbc.module.taskassignment.service.TaskAssignmentRecordsService;
 import com.base.sbc.module.taskassignment.service.TaskAssignmentService;
+import com.base.sbc.module.taskassignment.vo.TaskAssignmentRecordsVO;
 import com.base.sbc.module.taskassignment.vo.TaskAssignmentVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.select.Evaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：任务分配 service类
@@ -62,6 +73,9 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
     @Autowired
     @Lazy
     private PlanningCategoryItemService planningCategoryItemService;
+    @Autowired
+    @Lazy
+    private StyleService styleService;
     @Autowired
     @Lazy
     private PatternMakingService patternMakingService;
@@ -126,50 +140,29 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
     @Override
     public PageInfo<TaskAssignmentVO> queryTaskAssignmentPage(QueryTaskAssignmentDTO queryTaskAssignment) {
         PageHelper.startPage(queryTaskAssignment.getPageNum(), queryTaskAssignment.getPageSize());
-        LambdaQueryWrapper<TaskAssignment> taskAssignmentQueryWrapper = new LambdaQueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getBrands())) {
-            String[] brand = queryTaskAssignment.getBrands().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getBrand, CollUtil.newArrayList(brand));
+        BaseQueryWrapper<TaskAssignmentVO> taskAssignmentQueryWrapper = new BaseQueryWrapper<>();
+        boolean flag = QueryGenerator.initQueryWrapperByMap(taskAssignmentQueryWrapper, queryTaskAssignment);
+        List<TaskAssignmentVO> taskAssignmentList = baseMapper.queryTaskAssignmentPage(taskAssignmentQueryWrapper, queryTaskAssignment);
+        if (flag) {
+            return new PageInfo<>(taskAssignmentList);
         }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getVirtualDeptIds())) {
-            String[] virtualDeptId = queryTaskAssignment.getVirtualDeptIds().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getVirtualDeptId, CollUtil.newArrayList(virtualDeptId));
-        }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getProdCategory1sts())) {
-            String[] prodCategory1st = queryTaskAssignment.getProdCategory1sts().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getProdCategory1st, CollUtil.newArrayList(prodCategory1st));
-        }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getProdCategorys())) {
-            String[] prodCategory = queryTaskAssignment.getProdCategorys().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getProdCategory, CollUtil.newArrayList(prodCategory));
-        }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getProdCategory2nds())) {
-            String[] prodCategory2nd = queryTaskAssignment.getProdCategory2nds().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getProdCategory2nd, CollUtil.newArrayList(prodCategory2nd));
-        }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getProdCategory3rds())) {
-            String[] prodCategory3rd = queryTaskAssignment.getProdCategory3rds().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getProdCategory3rd, CollUtil.newArrayList(prodCategory3rd));
-        }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getUserIds())) {
-            String[] userId = queryTaskAssignment.getUserIds().split(",");
-            taskAssignmentQueryWrapper.in(TaskAssignment::getUserId, CollUtil.newArrayList(userId));
-        }
-        if (ObjectUtil.isNotEmpty(queryTaskAssignment.getTriggerMenus())) {
-            taskAssignmentQueryWrapper.and(item -> {
-                for (String triggerMenu : queryTaskAssignment.getTriggerMenus().split(",")) {
-                    item.or().like(TaskAssignment::getTriggerMenus, triggerMenu);
-                }
-            });
-        }
-        List<TaskAssignment> taskAssignmentList = list(taskAssignmentQueryWrapper);
-        PageInfo<TaskAssignment> taskAssignmentPageInfo = new PageInfo<>(taskAssignmentList);
-        PageInfo<TaskAssignmentVO> newTaskAssignmentPageInfo = new PageInfo<>();
-        BeanUtil.copyProperties(taskAssignmentPageInfo, newTaskAssignmentPageInfo);
         if (ObjectUtil.isNotEmpty(taskAssignmentList)) {
-            newTaskAssignmentPageInfo.setList(BeanUtil.copyToList(taskAssignmentList, TaskAssignmentVO.class));
+            List<String> askAssignmentIdList
+                    = taskAssignmentList.stream().map(TaskAssignmentVO::getId).collect(Collectors.toList());
+            List<TaskAssignmentRecordsVO> taskAssignmentRecordsList = baseMapper.queryTaskAssignmentRecordsCount(askAssignmentIdList);
+            Map<String, Integer> map = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(taskAssignmentRecordsList)) {
+                map = taskAssignmentRecordsList
+                        .stream().collect(
+                                Collectors.toMap(TaskAssignmentRecordsVO::getTaskAssignmentId
+                                        , TaskAssignmentRecordsVO::getCount));
+            }
+            for (TaskAssignmentVO taskAssignmentVO : taskAssignmentList) {
+                Integer count = map.get(taskAssignmentVO.getId());
+                taskAssignmentVO.setTriggerNum(ObjectUtil.isEmpty(count) ? 0 : count);
+            }
         }
-        return newTaskAssignmentPageInfo;
+        return new PageInfo<>(taskAssignmentList);
     }
 
     @Override
@@ -258,43 +251,56 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
 
     @Override
     public void runTaskAssignment(TaskAssignmentDTO queryTaskAssignment) {
-        if (ObjectUtil.isEmpty(TriggerMenuEnum.checkValue(queryTaskAssignment.getTriggerMenus()))) {
-            throw new OtherException(ResultConstant.TRIGGER_MENU_DOES_NOT_EXIST);
-        }
         // 当前触发菜单
         String triggerMenu = queryTaskAssignment.getTriggerMenu();
+        if (ObjectUtil.isEmpty(TriggerMenuEnum.checkValue(queryTaskAssignment.getTriggerMenu()))) {
+            throw new OtherException(ResultConstant.TRIGGER_MENU_DOES_NOT_EXIST);
+        }
+        String brand = queryTaskAssignment.getBrand();
+        String virtualDeptId = queryTaskAssignment.getVirtualDeptId();
+        String prodCategory1st = queryTaskAssignment.getProdCategory1st();
+        String prodCategory = queryTaskAssignment.getProdCategory();
+        String prodCategory2nd = queryTaskAssignment.getProdCategory2nd();
+        String prodCategory3rd = queryTaskAssignment.getProdCategory3rd();
+        if (ObjectUtil.isEmpty(brand)
+                || ObjectUtil.isEmpty(virtualDeptId)
+                || ObjectUtil.isEmpty(prodCategory1st)
+                || ObjectUtil.isEmpty(prodCategory)
+                || ObjectUtil.isEmpty(prodCategory2nd)
+                || ObjectUtil.isEmpty(prodCategory3rd)) {
+            return;
+        }
         // 根据「品牌/虚拟部门（发送部门）/大类/品类/中类/小类/触发菜单」找到合适的任务分配
         LambdaQueryWrapper<TaskAssignment> taskAssignmentLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        taskAssignmentLambdaQueryWrapper.eq(TaskAssignment::getBrand, queryTaskAssignment.getBrand()).eq(TaskAssignment::getVirtualDeptId, queryTaskAssignment.getVirtualDeptId()).eq(TaskAssignment::getProdCategory1st, queryTaskAssignment.getProdCategory1st()).eq(TaskAssignment::getProdCategory, queryTaskAssignment.getProdCategory()).eq(TaskAssignment::getProdCategory2nd, queryTaskAssignment.getProdCategory2nd()).eq(TaskAssignment::getProdCategory3rd, queryTaskAssignment.getProdCategory3rd()).like(TaskAssignment::getTriggerMenus, triggerMenu);
+        taskAssignmentLambdaQueryWrapper.eq(TaskAssignment::getBrand, brand)
+                .eq(TaskAssignment::getVirtualDeptId, virtualDeptId)
+                .eq(TaskAssignment::getProdCategory1st, prodCategory1st)
+                .eq(TaskAssignment::getProdCategory, prodCategory)
+                .eq(TaskAssignment::getProdCategory2nd, prodCategory2nd)
+                .eq(TaskAssignment::getProdCategory3rd, prodCategory3rd)
+                .like(TaskAssignment::getTriggerMenus, triggerMenu)
+                .eq(TaskAssignment::getEnableFlag, GeneralFlagEnum.YES);
         TaskAssignment taskAssignment = getOne(taskAssignmentLambdaQueryWrapper);
-        if (ObjectUtil.isEmpty(taskAssignment)) {
-            if (triggerMenu.equals(TriggerMenuEnum.JSZXKB.getValue())) {
-                log.error("款式「{}」/样板号「{}」/打版类型「{}」未找到合适任务！", queryTaskAssignment.getDesignNo(), queryTaskAssignment.getPatternNo(), queryTaskAssignment.getSampleTypeName());
-            } else if (triggerMenu.equals(TriggerMenuEnum.CPJZL.getValue())) {
-                log.error("款式「{}」未找到合适任务！", queryTaskAssignment.getDesignNo());
-            } else {
-                log.error("触发菜单「{}」不存在！", triggerMenu);
-            }
-        } else {
+        if (ObjectUtil.isNotEmpty(taskAssignment)) {
             if (triggerMenu.equals(TriggerMenuEnum.JSZXKB.getValue())) {
                 // 技术中心看板
-                TaskAssignmentRecords taskAssignmentRecords = technicalCenterKanbanTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment.getUserId());
+                TaskAssignmentRecords taskAssignmentRecords = technicalCenterKanbanTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment);
                 // 触发菜单增加记录
-                if (ObjectUtil.isNotEmpty(taskAssignmentRecords)) {
+                if (taskAssignmentRecords != null) {
                     // 设置任务分配 ID
                     taskAssignmentRecords.setTaskAssignmentId(taskAssignment.getId());
                     // 设置触发菜单
-                    taskAssignmentRecords.setTriggerMenu(TriggerMenuEnum.JSZXKB.getValue());
+                    taskAssignmentRecords.setTriggerMenu(triggerMenu);
                     taskAssignmentRecordsService.save(taskAssignmentRecords);
                 }
             } else if (triggerMenu.equals(TriggerMenuEnum.CPJZL.getValue())) {
-                TaskAssignmentRecords taskAssignmentRecords = productSeasonTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment.getUserId());
+                TaskAssignmentRecords taskAssignmentRecords = productSeasonTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment);
                 // 触发菜单增加记录
-                if (ObjectUtil.isNotEmpty(taskAssignmentRecords)) {
+                if (taskAssignmentRecords != null) {
                     // 设置任务分配 ID
                     taskAssignmentRecords.setTaskAssignmentId(taskAssignment.getId());
                     // 设置触发菜单
-                    taskAssignmentRecords.setTriggerMenu(TriggerMenuEnum.CPJZL.getValue());
+                    taskAssignmentRecords.setTriggerMenu(triggerMenu);
                     taskAssignmentRecordsService.save(taskAssignmentRecords);
                 }
             } else {
@@ -306,63 +312,85 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
     /**
      * 技术中心看板触发操作
      *
-     * @param dataId 数据 ID
-     * @param userId 用户 ID
+     * @param dataId         数据 ID
+     * @param taskAssignment 任务分配信息
      */
-    private TaskAssignmentRecords technicalCenterKanbanTriggerOperation(String dataId, String userId) {
+    private TaskAssignmentRecords technicalCenterKanbanTriggerOperation(String dataId, TaskAssignment taskAssignment) {
         // 初始化触发记录数据
         TaskAssignmentRecords taskAssignmentRecords = new TaskAssignmentRecords();
-        // 先查询技术中心看板数据
-        TechnologyCenterTaskSearchDto technologyCenterTaskSearchDto = new TechnologyCenterTaskSearchDto();
-        technologyCenterTaskSearchDto.setPatternMakingId(dataId);
-        PageInfo<TechnologyCenterTaskVo> technologyCenterTaskVoPageInfo = patternMakingService.technologyCenterTaskList(technologyCenterTaskSearchDto);
-        // 没查询到 直接返回
-        if (ObjectUtil.isEmpty(technologyCenterTaskVoPageInfo) || ObjectUtil.isEmpty(technologyCenterTaskVoPageInfo.getList())) {
+        // 先查询打版指令数据
+        PatternMaking patternMaking = patternMakingService.getById(dataId);
+        if (ObjectUtil.isEmpty(patternMaking)) {
             return null;
         }
-        // 拿到产品季总览数据
-        TechnologyCenterTaskVo technologyCenterTask = technologyCenterTaskVoPageInfo.getList().get(0);
-        taskAssignmentRecords.setDesignNo(technologyCenterTask.getDesignNo());
-        taskAssignmentRecords.setPatternNo(technologyCenterTask.getPatternNo());
-        taskAssignmentRecords.setSampleType(technologyCenterTask.getSampleType());
-        taskAssignmentRecords.setSampleTypeName(technologyCenterTask.getSampleTypeName());
-        String planningSeasonId = technologyCenterTask.getPlanningSeasonId();
+        Style style = styleService.getById(patternMaking.getStyleId());
+        if (ObjectUtil.isEmpty(style)) {
+            return null;
+        }
+        taskAssignmentRecords.setDesignNo(style.getDesignNo());
+        taskAssignmentRecords.setPatternNo(patternMaking.getPatternNo());
+        taskAssignmentRecords.setSampleType(patternMaking.getSampleType());
+        taskAssignmentRecords.setSampleTypeName(patternMaking.getSampleTypeName());
+        String planningSeasonId = patternMaking.getPlanningSeasonId();
 
         // 查询版师 判断版师是否符合产品季总览的使用
         List<UserCompany> userCompanyList = amcFeignService.getTeamUserListByPost(planningSeasonId, "版师");
-        UserCompany userCompany = userCompanyList.stream().filter(Item -> Item.getUserId().equals(userId)).findFirst().orElse(new UserCompany());
-        if (ObjectUtil.isEmpty(userCompany)) {
+        UserCompany userCompany = userCompanyList.stream().filter(Item -> Item.getUserId().equals(taskAssignment.getUserId())).findFirst().orElse(null);
+        if (userCompany == null) {
             // 任务分配的用户不是当前产品季的版师
             PlanningSeason planningSeason = planningSeasonService.getById(planningSeasonId);
-            String triggerResult = "当前任务分配人员「" + userCompany.getUsername() + "」不是产品季「" + planningSeason.getName() + "」下的版师";
+            String triggerResult = "当前任务分配人员「" + taskAssignment.getUserName() + "」不是产品季「" + planningSeason.getName() + "」下的版师";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
             taskAssignmentRecords.setTriggerResult(triggerResult);
             log.error(triggerResult);
             return taskAssignmentRecords;
         }
-        technologyCenterTask.setPatternDesignId(technologyCenterTask.getPatternDesignId());
-        technologyCenterTask.setPatternDesignName(technologyCenterTask.getPatternDesignerName());
-
-        if (!patternMakingService.updateById(BeanUtil.copyProperties(technologyCenterTask, PatternMaking.class))) {
+        patternMaking.setPatternDesignId(taskAssignment.getUserId());
+        patternMaking.setPatternDesignName(taskAssignment.getUserName());
+        if (!patternMakingService.updateById(patternMaking)) {
             String triggerResult = "技术中心看板数据自动更新失败";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
             taskAssignmentRecords.setTriggerResult(triggerResult);
             log.error("设计款「{}」/打版类型「{}」/样版号「{}」{}",
-                    technologyCenterTask.getDesignNo(),
-                    technologyCenterTask.getSampleTypeName(),
-                    technologyCenterTask.getPatternNo(),
+                    style.getDesignNo(),
+                    patternMaking.getSampleTypeName(),
+                    patternMaking.getPatternNo(),
                     triggerResult);
             return taskAssignmentRecords;
         }
         // 技术中心看板自动下发
-        try {
-            patternMakingService.prmSendBatch(CollUtil.newArrayList(BeanUtil.copyProperties(technologyCenterTask, SetPatternDesignDto.class)));
-        } catch (Exception e) {
-            String triggerResult = "技术中心看板数据自动更新数据成功，但自动下发失败，失败原因：" + e.getMessage();
+        TechnologyCenterTaskSearchDto technologyCenterTaskSearchDto = new TechnologyCenterTaskSearchDto();
+        technologyCenterTaskSearchDto.setPatternMakingId(dataId);
+        PageInfo<TechnologyCenterTaskVo> technologyCenterTaskVoPageInfo = patternMakingService.technologyCenterTaskList(technologyCenterTaskSearchDto);
+        // 没查询到
+        if (ObjectUtil.isEmpty(technologyCenterTaskVoPageInfo) || ObjectUtil.isEmpty(technologyCenterTaskVoPageInfo.getList())) {
+            String triggerResult = "技术中心看板数据自动更新数据成功，但自动下发失败，失败原因：下发数据不存在";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
             taskAssignmentRecords.setTriggerResult(triggerResult);
-            log.error("设计款「{}」{}", technologyCenterTask.getDesignNo(), triggerResult);
+            log.error("设计款「{}」/打版类型「{}」/样版号「{}」{}",
+                    style.getDesignNo(),
+                    patternMaking.getSampleTypeName(),
+                    patternMaking.getPatternNo(),
+                    triggerResult);
             return taskAssignmentRecords;
+        }
+        // 拿到产品季总览数据
+        TechnologyCenterTaskVo technologyCenterTask = technologyCenterTaskVoPageInfo.getList().get(0);
+        if ("0".equals(technologyCenterTask.getPrmSendStatus())) {
+            // 如果没有下发再进行下发
+            try {
+                patternMakingService.prmSendBatch(CollUtil.newArrayList(BeanUtil.copyProperties(technologyCenterTask, SetPatternDesignDto.class)));
+            } catch (Exception e) {
+                String triggerResult = "技术中心看板数据自动更新数据成功，但自动下发失败，失败原因：" + (e.getMessage() == null ? e.toString() : e.getMessage());
+                taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
+                taskAssignmentRecords.setTriggerResult(triggerResult);
+                log.error("设计款「{}」/打版类型「{}」/样版号「{}」{}",
+                        style.getDesignNo(),
+                        patternMaking.getSampleTypeName(),
+                        patternMaking.getPatternNo(),
+                        triggerResult);
+                return taskAssignmentRecords;
+            }
         }
 
         // 最后返回了 就是成功了
@@ -374,51 +402,47 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
     /**
      * 产品季总览触发操作
      *
-     * @param dataId 数据 ID
-     * @param userId 用户 ID
+     * @param dataId         数据 ID
+     * @param taskAssignment 任务分配信息
      */
-    private TaskAssignmentRecords productSeasonTriggerOperation(String dataId, String userId) {
+    private TaskAssignmentRecords productSeasonTriggerOperation(String dataId, TaskAssignment taskAssignment) {
         // 初始化触发记录数据
         TaskAssignmentRecords taskAssignmentRecords = new TaskAssignmentRecords();
         // 先查询产品季总览数据
-        ProductCategoryItemSearchDto productCategoryItemSearchDto = new ProductCategoryItemSearchDto();
-        productCategoryItemSearchDto.setProductCategoryItemId(dataId);
-        PageInfo<PlanningSeasonOverviewVo> productCategoryItem = planningCategoryItemService.findProductCategoryItem(productCategoryItemSearchDto);
-        // 没查询到 直接返回
-        if (ObjectUtil.isEmpty(productCategoryItem) || ObjectUtil.isEmpty(productCategoryItem.getList())) {
+        PlanningCategoryItem planningCategoryItem = planningCategoryItemService.getById(dataId);
+        if (ObjectUtil.isEmpty(planningCategoryItem)) {
             return null;
         }
-
-        // 拿到产品季总览数据
-        PlanningSeasonOverviewVo planningCategoryItem = productCategoryItem.getList().get(0);
         taskAssignmentRecords.setDesignNo(planningCategoryItem.getDesignNo());
         String planningSeasonId = planningCategoryItem.getPlanningSeasonId();
 
         // 查询设计师 判断设计师是否符合产品季总览的使用
         List<UserCompany> userCompanyList = amcFeignService.getTeamUserListByPost(planningSeasonId, "设计师");
-        UserCompany userCompany = userCompanyList.stream().filter(Item -> Item.getUserId().equals(userId)).findFirst().orElse(new UserCompany());
-        if (ObjectUtil.isEmpty(userCompany)) {
+        UserCompany userCompany = userCompanyList.stream().filter(Item -> Item.getUserId().equals(taskAssignment.getUserId())).findFirst().orElse(null);
+        if (userCompany == null) {
             // 任务分配的用户不是当前产品季的设计师
             PlanningSeason planningSeason = planningSeasonService.getById(planningSeasonId);
-            String triggerResult = "当前任务分配人员「" + userCompany.getUsername() + "」不是产品季「" + planningSeason.getName() + "」下的设计师";
+            String triggerResult = "当前任务分配人员「" + taskAssignment.getUserName() + "」不是产品季「" + planningSeason.getName() + "」下的设计师";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
             taskAssignmentRecords.setTriggerResult(triggerResult);
             log.error(triggerResult);
             return taskAssignmentRecords;
         } else if (ObjectUtil.isEmpty(userCompany.getUserCode())) {
             // 任务分配的用户没有设计师代码
-            String triggerResult = "当前任务分配人员「" + userCompany.getUsername() + "」未完善设计师代码";
+            String triggerResult = "当前任务分配人员「" + taskAssignment.getUserName() + "」未完善设计师代码";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
             taskAssignmentRecords.setTriggerResult(triggerResult);
             log.error(triggerResult);
             return taskAssignmentRecords;
         }
+
+        planningCategoryItem.setId(planningCategoryItem.getId());
         planningCategoryItem.setPlanningFinishDate(new Date());
         planningCategoryItem.setDemandFinishDate(new Date());
-        planningCategoryItem.setTaskLevel("1");
+        planningCategoryItem.setTaskLevel("10");
         planningCategoryItem.setTaskLevelName("常规");
-        planningCategoryItem.setDesignerId(userCompany.getUserId());
-        planningCategoryItem.setDesigner("常规");
+        planningCategoryItem.setDesignerId(taskAssignment.getUserId());
+        planningCategoryItem.setDesigner(taskAssignment.getUserName() + "," + userCompany.getUserCode());
         if (!planningCategoryItemService.updateById(planningCategoryItem)) {
             String triggerResult = "产品季总览数据自动更新失败";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
@@ -426,17 +450,35 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
             log.error("设计款「{}」{}", planningCategoryItem.getDesignNo(), triggerResult);
             return taskAssignmentRecords;
         }
+
         // 产品季总览自动下发
-        try {
-            planningCategoryItemService.send(CollUtil.newArrayList(BeanUtil.copyProperties(planningCategoryItem, SeatSendDto.class)));
-        } catch (Exception e) {
-            String triggerResult = "产品季总览数据自动更新数据成功，但自动下发失败，失败原因：" + e.getMessage();
+        // 模拟前端查询列表数据
+        ProductCategoryItemSearchDto productCategoryItemSearchDto = new ProductCategoryItemSearchDto();
+        productCategoryItemSearchDto.setProductCategoryItemId(dataId);
+        PageInfo<PlanningSeasonOverviewVo> productCategoryItem = planningCategoryItemService.findProductCategoryItem(productCategoryItemSearchDto);
+        // 没查询到
+        if (ObjectUtil.isEmpty(productCategoryItem) || ObjectUtil.isEmpty(productCategoryItem.getList())) {
+            String triggerResult = "产品季总览数据自动更新数据成功，但自动下发失败，失败原因：下发数据不存在";
             taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
             taskAssignmentRecords.setTriggerResult(triggerResult);
             log.error("设计款「{}」{}", planningCategoryItem.getDesignNo(), triggerResult);
             return taskAssignmentRecords;
         }
 
+        // 拿到产品季总览数据 进行下发操作
+        PlanningSeasonOverviewVo planningSeasonOverview = productCategoryItem.getList().get(0);
+        if ("0".equals(planningSeasonOverview.getStatus())) {
+            // 如果没有下发再进行下发
+            try {
+                planningCategoryItemService.send(CollUtil.newArrayList(BeanUtil.copyProperties(planningSeasonOverview, SeatSendDto.class)));
+            } catch (Exception e) {
+                String triggerResult = "产品季总览数据自动更新数据成功，但自动下发失败，失败原因：" + (e.getMessage() == null ? e.toString() : e.getMessage());
+                taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
+                taskAssignmentRecords.setTriggerResult(triggerResult);
+                log.error("设计款「{}」{}", planningCategoryItem.getDesignNo(), triggerResult);
+                return taskAssignmentRecords;
+            }
+        }
         // 最后返回了 就是成功了
         taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.YES.getCode());
         taskAssignmentRecords.setTriggerResult("任务执行成功");
