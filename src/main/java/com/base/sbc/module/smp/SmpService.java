@@ -1016,16 +1016,16 @@ public class SmpService {
             //bomMaterials.add(bomMaterial);
             //smpBomDto.setBomMaterials(bomMaterials);
 
+
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()).eq("bom_version_id",packBom.getBomVersionId()))) {
                 packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
-                if (basicsdatumSize != null) {
+                if (basicsdatumSize != null && style.getSizeCodes().contains(basicsdatumSize.getCode())) {
                     smpSizeQty.setPSizeCode(basicsdatumSize.getCode());
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
-
                     sizeQtyList.add(smpSizeQty);
                 }
                 //校验物料规格 是否存在于t_basicsdatum_material_width表中
