@@ -299,7 +299,6 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                         if (keySplit.length > 1) {
                             String newKey = keySplit[0];
                             keySet.add(newKey);
-
                         }
                     }
                     //是权限列表有多个别名
@@ -312,6 +311,9 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                         }
                     }
                     joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
+                    if (StrUtil.isNotBlank(joiner.toString()) &&!joiner.toString().endsWith(SqlKeyword.AND.name())){
+                        joiner.add(SqlKeyword.AND.name());
+                    }
                     joiner.add(sqlSegment);
                     map.put(key, joiner);
                     handlerNum.set(1);
@@ -331,9 +333,14 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                            if (keySet.size() > 1){
                                key = "permission";
                            }else {
-                               key = keySet.iterator().next();
+                               if (CollUtil.isNotEmpty(keySet)){
+                                   key = keySet.iterator().next();
+                               }
                            }
                            joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
+                           if (StrUtil.isNotBlank(joiner.toString()) &&!joiner.toString().endsWith(SqlKeyword.AND.name())){
+                               joiner.add(SqlKeyword.AND.name());
+                           }
                            joiner.add(sqlSegment);
                            map.put(key, joiner);
                            handlerNum.set(1);
