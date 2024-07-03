@@ -184,7 +184,7 @@
         <if test="ew.hasAlias('sd')">
             and
             EXISTS(
-            select id from t_style tsd where sd.id = p.foreign_id
+            select id from t_style sd where sd.id = p.foreign_id
             and ${ ew.getSqlByAlias('sd')}
             )
         </if>
