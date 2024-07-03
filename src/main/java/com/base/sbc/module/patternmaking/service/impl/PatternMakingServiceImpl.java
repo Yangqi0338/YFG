@@ -1406,10 +1406,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
 
         //region 临时注释 2024-01-29
-        if(StringUtils.isNotBlank(dto.getOrderBy())){
-            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
-        }else {
-            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+        //当按照动态列增强查询时，不按照此排序逻辑
+        if(!isColumnHeard){
+            if(StringUtils.isNotBlank(dto.getOrderBy())){
+                dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
+            }else {
+                dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+            }
         }
 
         /*if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
