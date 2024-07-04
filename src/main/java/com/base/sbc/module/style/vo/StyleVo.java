@@ -102,6 +102,12 @@ public class StyleVo extends Style {
     private String correctStyleDate;
 
     /**
+     * 样衣图片集合
+     */
+    @ApiModelProperty(value = "样衣图片集合")
+    private List<String> samplePicList;
+
+    /**
      * 自定义款图上传配置 1开启
      */
     private Boolean customStylePicUploadOpen;
