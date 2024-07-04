@@ -3712,9 +3712,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     @Transactional
     public ApiResult importMarkingOrder(List<Map<String, Object>> readAll) {
-        if(readAll.size() > 40){
+        /*if(readAll.size() > 40){
             throw new OtherException("导入数据不能超过40条");
-        }
+        }*/
         //大货款号清单
         List<String> styleNos = new ArrayList<>();
         //大货款号对应的动态字段，用于后续检查字段是否符合 大货款号对应的企划需求管理
