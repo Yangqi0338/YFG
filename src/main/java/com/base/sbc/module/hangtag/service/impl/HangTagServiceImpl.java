@@ -802,14 +802,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                             &&
                             HangTagStatusEnum.DESIGN_CHECK != updateStatus
                     ) {
-						if (!(ObjectUtil.isNotEmpty(e.getProductName())&&
-								ObjectUtil.isNotEmpty(e.getQualityGrade())&&
-								ObjectUtil.isNotEmpty(e.getSaftyTitle())&&
-								ObjectUtil.isNotEmpty(e.getPackagingForm())&&
-								ObjectUtil.isNotEmpty(e.getPackagingBagStandard())&&
-								ObjectUtil.isNotEmpty(e.getIngredient())&&
-								ObjectUtil.isNotEmpty(e.getFabricDetails())&&
-								ObjectUtil.isNotEmpty(e.getWarmTips()))) {
+						if (!(StrUtil.isNotEmpty(e.getProductName().trim())&&
+								StrUtil.isNotEmpty(e.getQualityGrade().trim())&&
+								StrUtil.isNotEmpty(e.getSaftyTitle().trim())&&
+								StrUtil.isNotEmpty(e.getPackagingForm().trim())&&
+								StrUtil.isNotEmpty(e.getPackagingBagStandard().trim())&&
+								StrUtil.isNotEmpty(e.getIngredient().trim())&&
+								StrUtil.isNotEmpty(e.getFabricDetails().trim())&&
+								StrUtil.isNotEmpty(e.getWashingMaterialRemarks().trim())&&
+								StrUtil.isNotEmpty(e.getWashingMaterialRemarksName().trim())&&
+								StrUtil.isNotEmpty(e.getWashingCode().trim())&&
+								StrUtil.isNotEmpty(e.getWashingLabelName().trim())&&
+								StrUtil.isNotEmpty(e.getWarmTips().trim()))) {
 							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 						}
                     }
