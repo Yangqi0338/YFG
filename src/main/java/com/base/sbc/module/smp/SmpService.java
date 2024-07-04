@@ -398,6 +398,9 @@ public class SmpService {
                     if(collect1.containsKey(fieldBusinessSystemVo.getFieldName())){
                         FieldManagementVo fieldManagementVo = collect1.get(fieldBusinessSystemVo.getFieldName());
                         GoodsDynamicFieldDto goodsDynamicFieldDto = BeanUtil.copyProperties(fieldManagementVo, GoodsDynamicFieldDto.class);
+                        if(StrUtil.isEmpty(goodsDynamicFieldDto.getValName()) && StrUtil.isNotEmpty(goodsDynamicFieldDto.getVal())){
+                            goodsDynamicFieldDto.setValName(goodsDynamicFieldDto.getVal());
+                        }
                         goodsDynamicFieldDtos1.add(goodsDynamicFieldDto);
                     }
                 }
