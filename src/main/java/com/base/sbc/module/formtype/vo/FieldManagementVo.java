@@ -132,6 +132,5 @@ public class FieldManagementVo {
 
     List<FieldOptionConfigVo> configVoList;
 
-    private String foreignId;
 
 }

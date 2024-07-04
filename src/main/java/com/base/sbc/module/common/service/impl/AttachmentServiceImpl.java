@@ -69,17 +69,6 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         return getBaseMapper().findByFId(foreignId, type, null);
     }
 
-    /**
-     * 通过fid 查询
-     *
-     * @param foreignId
-     * @return
-     */
-    @Override
-    public List<AttachmentVo> findByforeignIds(List<String> foreignId, String type) {
-        return getBaseMapper().findByFIds(foreignId, type, null);
-    }
-
     @Override
     public List<AttachmentVo> findByforeignIdTypeLikeStart(String foreignId, String typeLikeStart) {
         return getBaseMapper().findByFId(foreignId, null, typeLikeStart);

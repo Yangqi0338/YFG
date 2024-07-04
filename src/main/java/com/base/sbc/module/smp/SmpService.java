@@ -3,6 +3,7 @@ package com.base.sbc.module.smp;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -74,9 +75,7 @@ import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.planning.entity.PlanningDimensionality;
-import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
-import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -87,9 +86,7 @@ import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.smp.impl.SaleProductIntoService;
 import com.base.sbc.module.style.entity.*;
-import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.*;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -220,10 +217,6 @@ public class SmpService {
 
     @Autowired
     private FieldBusinessSystemService fieldBusinessSystemService;
-    @Autowired
-    private StyleColorMapper styleColorMapper;
-    @Autowired
-    private PlanningDimensionalityMapper planningDimensionalityMapper;
 
     @Resource
     public OperaLogService operaLogService;
@@ -285,6 +278,10 @@ public class SmpService {
         List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
         Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
 
+        //查询动态字段
+        List<FieldVal> fieldValList = fieldValService.list(styleColorIds, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+
         //添加配色指定面料下发 huangqiang
         QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("style_color_id", styleColorIds);
@@ -292,107 +289,7 @@ public class SmpService {
         List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
         Map<String, List<StyleSpecFabric>> styleSpecFabricMap = styleSpecFabricList.stream().collect(Collectors.groupingBy(StyleSpecFabric::getStyleColorId));
 
-        //查询动态字段
-        List<FieldVal> fieldValList = fieldValService.list(styleColorIds, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
-
-        //批量查询动态字段，FieldManagementVo
-        //根据大货款号查询所有数据
-        List<StyleColorVo> styleColors1 = styleColorMapper.colorList(new QueryWrapper<>().in("tsc.id", styleColorIds));
-        Map<String, StyleColorVo> styleColorMap = new HashMap<>();
-        List<String> planningSeasonIds = new ArrayList<>();
-        List<String> channels = new ArrayList<>();
-        List<String> prodCategory1sts = new ArrayList<>();
-        List<String> prodCategorys = new ArrayList<>();
-        List<String> prodCategory2nds = new ArrayList<>();
-        for (StyleColorVo styleColor : styleColors1) {
-            styleColorMap.put(styleColor.getStyleNo(),styleColor);
-            if(!planningSeasonIds.contains(styleColor.getPlanningSeasonId()))
-                planningSeasonIds.add(styleColor.getPlanningSeasonId());
-            if(!channels.contains(styleColor.getChannel()))
-                channels.add(styleColor.getChannel());
-            if(!prodCategory1sts.contains(styleColor.getProdCategory1st()))
-                prodCategory1sts.add(styleColor.getProdCategory1st());
-            if(!prodCategorys.contains(styleColor.getProdCategory()))
-                prodCategorys.add(styleColor.getProdCategory());
-            if(!prodCategory2nds.contains(styleColor.getProdCategory2nd()))
-                prodCategory2nds.add(styleColor.getProdCategory2nd());
-        }
-
-        //查询维度数据，判断修改的字段是否超出配置范围
-        //先按照中类查询一遍，如果中类取不到，则按照品类取
-        BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
-        qw.eq("coefficient_flag",BaseGlobal.YES);
-        qw.in("planning_season_id", planningSeasonIds);
-        qw.in("channel", channels);
-        qw.in("prod_category1st", prodCategory1sts);
-        qw.in("prod_category", prodCategorys);
-        qw.in("prod_category2nd", prodCategory2nds);
-        List<PlanningDimensionalityVo> planningDimensionalities = planningDimensionalityMapper.getMaterialCoefficient(qw);
-        //按照产品季+渠道+大类+品类+中类 分组
-        Map<String, List<PlanningDimensionalityVo>> dimensionalityMap = planningDimensionalities.stream().collect(Collectors.groupingBy(
-                o -> o.getPlanningSeasonId() + "_" + o.getChannel() + "_" + o.getProdCategory1st()+"_"+o.getProdCategory()+"_"+o.getProdCategory2nd()));
-        //按照品类查询一遍
-        qw = new BaseQueryWrapper<>();
-        qw.eq("coefficient_flag",BaseGlobal.YES);
-        qw.in("planning_season_id", planningSeasonIds);
-        qw.in("channel", channels);
-        qw.in("prod_category1st", prodCategory1sts);
-        qw.in("prod_category", prodCategorys);
-        qw.isNullStr("prod_category2nd");
-        List<PlanningDimensionalityVo> planningDimensionalities1 = planningDimensionalityMapper.getMaterialCoefficient(qw);
-        //按照产品季+渠道+大类+品类 分组
-        Map<String, List<PlanningDimensionalityVo>> dimensionalityMap1 = planningDimensionalities1.stream().collect(Collectors.groupingBy(
-                o -> o.getPlanningSeasonId() + "_" + o.getChannel() + "_" + o.getProdCategory1st()+"_"+o.getProdCategory()));
-
-        //批量查询资料包信息
-        List<String> boms = styleColors.stream().map(StyleColor::getBom).filter(StrUtil::isNotEmpty).distinct().collect(Collectors.toList());
-        List<PackInfoListVo> packInfoList = packInfoService.queryByQw(new QueryWrapper<PackInfo>().in("code", boms).in("pack_type", Arrays.asList(PackUtils.PACK_TYPE_DESIGN, PackUtils.PACK_TYPE_BIG_GOODS)));
-        Map<String, PackInfoListVo> packInfoMap = packInfoList.stream().collect(Collectors.toMap(o -> o.getCode() + "_" + o.getPackType(),o->o,(v1,v2)->v1));
-
-        //批量查询款式 这里要先用资料包里面的设计款id去查，再用大货里面的设计款id去查，历史代码就是这么写的，俺也不明白
-        List<String> styleIds = packInfoList.stream().map(PackInfoListVo::getStyleId).collect(Collectors.toList());
-        styleIds.addAll(styleColors.stream().map(StyleColor::getStyleId).collect(Collectors.toList()));
-        styleIds = styleIds.stream().distinct().collect(Collectors.toList());
-        List<Style> styles = styleService.listByIds(styleIds);
-        Map<String, Style> styleMap = styles.stream().collect(Collectors.toMap(Style::getId, o -> o, (v1, v2) -> v1));
-
-        //批量查询款式图片
-        List<AttachmentVo> byForeignIds = attachmentService.findByforeignIds(styleIds, AttachmentTypeConstant.STYLE_MASTER_DATA_PIC);
-        Map<String, List<AttachmentVo>> byForeignIdMap = byForeignIds.stream().collect(Collectors.groupingBy(AttachmentVo::getForeignId));
-
-        //批量查询人员
-        ArrayList<String> list = new ArrayList<>();
-        styles.forEach(o->{
-            list.add(o.getDesignerId());
-            list.add(o.getTechnicianId());
-            list.add(o.getPatternDesignId());
-        });
-        Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
-
-        //批量查询 增加二检包装形式
-        List<String> styleNoList = styleColors.stream().map(StyleColor::getStyleNo).filter(StrUtil::isNotEmpty).distinct().collect(Collectors.toList());
-        QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper<>();
-        hangTagQueryWrapper.in("bulk_style_no",styleNoList);
-        hangTagQueryWrapper.eq("del_flag","0");
-        List<HangTag> hangTagList = hangTagService.list(hangTagQueryWrapper);
-        Map<String, HangTag> hangTagMap = hangTagList.stream().collect(Collectors.toMap(HangTag::getBulkStyleNo, o -> o, (v1, v2) -> v1));
-
-        //工艺说明
-        QueryWrapper<PackTechSpec> packTechSpecQueryWrapper = new QueryWrapper<PackTechSpec>()
-                .select("foreign_id")
-                .eq("pack_type", "packBigGoods").in("foreign_id", styleIds).eq("spec_type", "外辅工艺");
-        List<PackTechSpec> packTechSpecList = packTechSpecService.list(packTechSpecQueryWrapper);
-        Map<String, Long> packTechSpecMap = packTechSpecList.stream().collect(Collectors.groupingBy(PackTechSpec::getForeignId, Collectors.counting()));
-
-        //查询尺码信息
-        List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list();
-        Map<String, BasicsdatumSize> basicsdatumSizeMap = basicsdatumSizeList.stream().collect(Collectors.toMap(BasicsdatumSize::getCode, o -> o, (v1, v2) -> v1));
-
-
-        //开始组装数据
         for (StyleColor styleColor : styleColors) {
-            long l = System.currentTimeMillis();
             if (mainAccessoriesListMap.containsKey(styleColor.getId())) {
                 List<StyleMainAccessories> mainAccessoriesList = mainAccessoriesListMap.get(styleColor.getId());
                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
@@ -418,19 +315,19 @@ public class SmpService {
                     throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
                 }
             }
-            PackInfoListVo packInfo = packInfoMap.get(styleColor.getBom()+"_"+("0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
+            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo!=null){
                 //产前样查询 拿最早的工艺部接收正确样时间
                 List<PreProductionSampleTask> sampleTaskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()).orderByAsc("tech_receive_date"));
+//                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
                 if (CollUtil.isNotEmpty(sampleTaskList)){
                     smpGoodsDto.setTechReceiveDate(sampleTaskList.get(0).getTechReceiveDate());
                     smpGoodsDto.setProcessDepartmentDate(sampleTaskList.get(0).getProcessDepartmentDate());
                 }
-                //最开始这里就是这么写的
-                style = styleMap.get(packInfo.getStyleId());
+                style = styleService.getById(packInfo.getStyleId());
                 if (style==null){
-                    style= styleMap.get(styleColor.getStyleId());
+                    style= styleService.getById(styleColor.getStyleId());
                 }
             }
 
@@ -459,7 +356,7 @@ public class SmpService {
             //}
 
             // 款式图片
-            List<AttachmentVo> stylePicList = byForeignIdMap.getOrDefault(style.getId(), new ArrayList<>());
+            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.STYLE_MASTER_DATA_PIC);
             List<String> imgList = new ArrayList<>();
             for (AttachmentVo attachmentVo : stylePicList) {
                 imgList.add(attachmentVo.getUrl());
@@ -478,6 +375,12 @@ public class SmpService {
             String technicianId = style.getTechnicianId();
             String patternDesignId = style.getPatternDesignId();
 
+            ArrayList<String> list = new ArrayList<>();
+            list.add(designerId);
+            list.add(technicianId);
+            list.add(patternDesignId);
+
+            Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
             smpGoodsDto.setDesignerId(usernamesByIds.get(designerId));
             smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
             smpGoodsDto.setYear(style.getYearName());
@@ -492,6 +395,7 @@ public class SmpService {
             smpGoodsDto.setUniqueCode(styleColor.getWareCode());
             smpGoodsDto.setBandName(map.get(styleColor.getBandCode()));
 
+            //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
             List<GoodsDynamicFieldDto> goodsDynamicFieldDtos = new ArrayList<>();
 
             //动态字段
@@ -501,30 +405,13 @@ public class SmpService {
             //目标系统
             smpGoodsDto.setYshBusinessSystem(yshBusinessSystem);
 
-
-            StyleColorVo styleColorVo = styleColorMap.get(styleColor.getStyleNo());
-
-            String key = styleColorVo.getPlanningSeasonId() + "_" + styleColorVo.getChannel() + "_" + styleColorVo.getProdCategory1st() + "_" + styleColorVo.getProdCategory();
-            //获取该款的动态字段
-            List<PlanningDimensionalityVo> dimensionalities = new ArrayList<>();
-            if(dimensionalityMap.containsKey(key + "_" + styleColorVo.getProdCategory2nd())){
-                dimensionalities = dimensionalityMap.get(key + "_" + styleColorVo.getProdCategory2nd());
-            }else if(dimensionalityMap1.containsKey(key)){
-                dimensionalities = dimensionalityMap1.get(key);
-            }
-            List<FieldVal> fvList = fieldValMap.getOrDefault(styleColor.getId(),new ArrayList<>());
-            Map<String, FieldVal> valMap = fvList.stream().collect(Collectors.toMap(FieldVal::getFieldName, v -> v, (a, b) -> b));
-            List<FieldManagementVo> fieldManagementVoList = BeanUtil.copyToList(dimensionalities,FieldManagementVo.class);
-            if (CollUtil.isNotEmpty(fieldManagementVoList)) {
-                for (FieldManagementVo vo : fieldManagementVoList) {
-                    vo.setFieldId(vo.getId());
-                    vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getId).orElse(null));
-                    vo.setVal(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(null));
-                    vo.setValName(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getValName).orElse(null));
-                    vo.setSelected(valMap.containsKey(vo.getFieldName()));
-                }
-
-            }
+            DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+            BeanUtil.copyProperties(style, dto);
+            dto.setId(style.getId());
+            dto.setForeignId(styleColor.getId());
+            dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabels(dto);
+            //List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             Map<String, FieldManagementVo> collect1 = fieldManagementVoList.stream().collect(Collectors.toMap(FieldManagementVo::getFieldName, o -> o, (v1, v2) -> v1));
 
             Map<String,List<GoodsDynamicFieldDto>>  goodsDynamicFieldMap = new HashMap<>();
@@ -608,11 +495,13 @@ public class SmpService {
             smpGoodsDto.setGoodsDynamicFieldList(goodsDynamicFieldDtos);
 
             //查询下单阶段动态字段  取 水洗字段和自主研发版型字段
-            if(valMap.containsKey("plateType")){
-                smpGoodsDto.setPlateType(valMap.get("plateType").getVal());
+            List<FieldVal> fvList = fieldValMap.getOrDefault(styleColor.getId(),new ArrayList<>());
+            Map<String, String> oldFvMap = fvList.stream().collect(CollectorUtil.toMap(FieldVal::getFieldName, FieldVal::getVal,(a, b) -> b));
+            if(oldFvMap.containsKey("plateType")){
+                smpGoodsDto.setPlateType(oldFvMap.get("plateType"));
             }
-            if(valMap.containsKey("GarmentWash")){
-                smpGoodsDto.setGarmentWash(valMap.get("GarmentWash").getVal());
+            if(oldFvMap.containsKey("GarmentWash")){
+                smpGoodsDto.setGarmentWash(oldFvMap.get("GarmentWash"));
             }
 
             //生产类型
@@ -640,7 +529,7 @@ public class SmpService {
             smpGoodsDto.setStyleCode(style.getDesignNo());
 
             //工艺说明
-            long count = packTechSpecMap.getOrDefault(style.getId(), 0L);
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
 
@@ -739,8 +628,7 @@ public class SmpService {
                     throw new OtherException("尺码不能为空");
                 }
             }
-
-            List<BasicsdatumSize> basicsdatumSizes = sizeCodes.stream().map(basicsdatumSizeMap::get).collect(Collectors.toList());
+            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
 
 
             List<SmpSize> smpSizes = new ArrayList<>();
@@ -764,7 +652,12 @@ public class SmpService {
 
 
             //region 增加二检包装形式
-            HangTag hangTag = hangTagMap.get(styleColor.getStyleNo());
+            //
+            QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper();
+            hangTagQueryWrapper.eq("bulk_style_no",styleColor.getStyleNo());
+            hangTagQueryWrapper.eq("del_flag","0");
+            hangTagQueryWrapper.last("limit 1");
+            HangTag hangTag = hangTagService.getOne(hangTagQueryWrapper);
             if (hangTag != null) {
                 smpGoodsDto.setSecondPackagingForm(hangTag.getSecondPackagingForm());
                 smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
@@ -791,7 +684,6 @@ public class SmpService {
             }
             //endregion
 
-            System.out.println(i+"执行一条用时-接口前用时："+(System.currentTimeMillis() - l));
             // if (true){
             //     return null;
             // }
@@ -811,7 +703,6 @@ public class SmpService {
                 styleColor.setScmSendFlag("2");
             }
             styleColorService.updateById(styleColor);
-            System.out.println(i+"执行一条用时："+(System.currentTimeMillis() - l));
         }
         return i;
     }
