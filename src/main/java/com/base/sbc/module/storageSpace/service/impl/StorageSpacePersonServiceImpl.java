@@ -27,6 +27,7 @@ import com.base.sbc.module.storageSpace.vo.StorageSpacePersonBo;
 import com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,11 +81,13 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 
         StorageSpace storageSpace = storageSpaceService.getByStorageType(dto.getStorageType());
         dto.setParentSpaceId(storageSpace.getId());
-        Page<StorageSpacePersonVo> page = PageHelper.startPage(dto);
+        PageInfo<StorageSpacePersonVo> pageInfo   = new PageInfo<>();
         if ("1".equals(storageSpace.getStorageType())){
             //检查用户在权限的变动
             checkMaterialUploadPermissionUpdate(storageSpace);
+            Page<StorageSpacePersonVo> page = PageHelper.startPage(dto);
             baseMapper.listQueryMaterialPage(dto);
+            pageInfo= page.toPageInfo();
         }
 
 //        QueryWrapper<StorageSpacePerson> qw = new QueryWrapper<>();
@@ -96,7 +99,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
 //        qw.lambda().like(StringUtils.isNotBlank(dto.getInitSpace()),StorageSpacePerson::getInitSpace,dto.getInitSpace());
 //        qw.lambda().like(StringUtils.isNotBlank(dto.getMagnification()),StorageSpacePerson::getMagnification,dto.getMagnification());
 //        list(qw);
-        StorageSpacePersonBo pageVo = BeanUtil.copyProperties(page.toPageInfo(),StorageSpacePersonBo.class);
+        StorageSpacePersonBo pageVo = BeanUtil.copyProperties(pageInfo,StorageSpacePersonBo.class);
         pageVo.setAllocationSpace(baseMapper.getAllocationSpace(storageSpace.getId()));
         return pageVo;
     }
@@ -217,7 +220,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         IdGen idGen = new IdGen();
 
         for (UserCompany item : list) {
-            freeSpace = freeSpace - Opt.ofNullable(storageSpace.getTotalSpace()).map(Long::parseLong).orElse(0L);
+            freeSpace = freeSpace - Opt.ofNullable(storageSpace.getInitSpace()).map(Long::parseLong).orElse(0L);
             if (freeSpace < 0L){
                 saveBatch(personList);
                 return;
@@ -229,7 +232,9 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             storageSpacePerson.setParentSpaceId(storageSpace.getId());
             storageSpacePerson.setOwnerSpace(storageSpace.getInitSpace());
             storageSpacePerson.setId(idGen.nextIdStr());
-            storageSpacePerson.insertInit();
+            storageSpacePerson.createInit();
+            storageSpacePerson.setUpdateName("");
+            storageSpacePerson.setUpdateId("1");
             personList.add(storageSpacePerson);
         }
         saveBatch(personList);

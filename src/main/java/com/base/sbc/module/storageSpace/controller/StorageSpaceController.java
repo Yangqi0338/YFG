@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +98,7 @@ public class StorageSpaceController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改个人空间", notes = "修改个人空间")
     public ApiResult personUpdate(List<StorageSpacePerson> list){
+        checkPersonUpdate(list);
         Boolean result = storageSpacePersonService.personUpdate(list);
         return  result ? ApiResult.success("修改成功") : ApiResult.error("修改失败",500);
     }
@@ -132,6 +134,21 @@ public class StorageSpaceController {
         return  result ? ApiResult.success("删除成功") : ApiResult.error("删除失败",500);
     }
 
+    private void checkPersonUpdate(List<StorageSpacePerson> list) {
+        if (CollUtil.isEmpty(list)){
+            return;
+        }
+        for (StorageSpacePerson storageSpacePerson : list) {
+            //暂时只有素材库，不区分
+            //获取已用空间大小
+            Long fileSize = materialService.getFileSize(storageSpacePerson.getOwnerId(), null);
+            Long ownerSpaceSize = Opt.ofBlankAble(storageSpacePerson.getOwnerSpace()).map(Long::parseLong).orElse(0L);
+            if (fileSize > ownerSpaceSize*1073741824){
+                throw new OtherException("修改后的空间大小不能低于已使用的内存空间!");
+            }
 
+        }
+
+    }
 
 }

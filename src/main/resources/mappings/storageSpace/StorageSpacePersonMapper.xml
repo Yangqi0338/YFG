@@ -19,6 +19,10 @@
         where
         del_flag = '0' and parent_space_id = #{parentSpaceId}
 
+        <if test="search != null and search != ''">
+            and (tssp.user_name like concat('%',#{search},'%') or tssp.user_name like concat('%',#{search},'%') )
+        </if>
+
         <if test="ownerSpace != null and ownerSpace != ''">
             and tssp.owner_space like concat('%',#{ownerSpace},'%')
         </if>

@@ -34,5 +34,4 @@ public class StorageSpacePersonDto extends Page {
     /** 空间所属人姓名 */
     @ApiModelProperty(value = "空间所属人姓名"  )
     private String ownerName;
-
 }

@@ -28,11 +28,11 @@ public class MaterialSpaceInfoVo {
         if (null == fileSize){
             return null;
         }
-        if (fileSize > 1073741824){
+        if (fileSize >= 1073741824){
             return Math.ceil((double) fileSize / 1073741824) + "GB";
         }
 
-        if (fileSize > 1048576){
+        if (fileSize >= 1048576){
             return Math.ceil((double) fileSize / 1048576) + "MB";
         }
         return Math.ceil((double) fileSize / 1024) + "KB";

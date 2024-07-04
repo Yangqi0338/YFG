@@ -6,18 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
+
 import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 
-import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import lombok.Data;
 
 /**
  * @author 卞康
@@ -232,5 +233,13 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
         this.setCreateId(t.getCreateId());
         this.setCreateName(t.getCreateName());
         this.setDelFlag(t.getDelFlag());
+    }
+
+    public void createInit() {
+        UserCompany userCompany = companyUserInfo.get();
+        this.createDate = new Date();
+        this.createId = userCompany.getUserId();
+        this.createName = userCompany.getAliasUserName();
+        this.delFlag=BaseGlobal.DEL_FLAG_NORMAL;
     }
 }
