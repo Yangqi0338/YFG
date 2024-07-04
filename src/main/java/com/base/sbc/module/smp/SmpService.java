@@ -63,6 +63,7 @@ import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
@@ -97,6 +98,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -223,12 +225,34 @@ public class SmpService {
     @Autowired
     private PlanningDimensionalityMapper planningDimensionalityMapper;
 
+    @Resource
+    public OperaLogService operaLogService;
+
     public Integer goods(String[] ids) {
         return goods(ids,null,null);
     }
 
     public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
         return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null);
+    }
+
+    @Async
+    public void goodsAsync(String[] ids, String targetBusinessSystem, String yshBusinessSystem) {
+        List<String> msg = new ArrayList<>();
+        StringBuffer sbMsg1 = new StringBuffer();
+        int i =goods(ids,targetBusinessSystem,yshBusinessSystem,1,msg);
+        if (ids.length == i) {
+            sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条");
+        } else {
+            sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条,失败：").append(ids.length - i).append("条;失败原因如下:").append(String.join(";", msg));
+        }
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setType("导入-下发");
+        operaLogEntity.setDocumentId("导入下发结果");
+        operaLogEntity.setName("款式打标-批量导入修改");
+        operaLogEntity.setDocumentName("导入结果");
+        operaLogEntity.setContent(sbMsg1.toString());
+        operaLogService.save(operaLogEntity);
     }
 
     /**

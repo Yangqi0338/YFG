@@ -3984,23 +3984,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         String[] idsUpdate = updateFieldValList.stream().map(FieldVal::getForeignId).distinct().toArray(String[]::new);
 
-        if(idsUpdate.length > 0){
-            //推送下游系统
-            try{
-                List<String> msg = new ArrayList<>();
-                int i = smpService.goods(idsUpdate,"BCS",null,1,msg);
-                if (idsUpdate.length == i) {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条");
-                } else {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条;失败原因如下:").append(String.join(";", msg));
-                }
-            }catch (Exception e){
-                log.error("批量修改下单阶段字段,下发下游系统失败",e);
-                sbMsg1.append("下发下游系统失败:").append(e.getMessage());
-            }
-        }
-
-
         //保存修改记录
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setType("导入");
@@ -4011,6 +3994,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         updateLogs.add(operaLogEntity);
         operaLogService.saveBatch(updateLogs);
 
+
+        if(idsUpdate.length > 0){
+            //推送下游系统
+            smpService.goodsAsync(idsUpdate,"BCS",null);
+        }
 
         return ApiResult.success(sbMsg1.toString());
     }
