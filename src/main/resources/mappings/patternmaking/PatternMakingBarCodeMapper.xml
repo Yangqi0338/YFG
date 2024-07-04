@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.patternmaking.mapper.PatternMakingBarCodeMapper">
+    <!--
+        
+        创建人：your name
+        邮箱：your email
+        创建时间：2024-7-3 15:56:26
+        版本号：1.0
+      -->
+
+    <select id="findPage" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo">
+        SELECT tpmbc.*,
+               ts.design_no,
+               tpm.pattern_no,
+               tpm.sample_type_name,
+               tpm.pat_seq_name,
+               ts.year_name,
+               ts.season_name,
+               ts.brand_name
+        FROM t_pattern_making_bar_code tpmbc
+                 LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
+                 LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
+        where tpmbc.del_flag = '0'
+            ${ew.customSqlSegment}
+    </select>
+
+</mapper>
