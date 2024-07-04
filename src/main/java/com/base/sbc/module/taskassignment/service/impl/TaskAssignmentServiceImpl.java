@@ -379,7 +379,12 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
         if ("0".equals(technologyCenterTask.getPrmSendStatus())) {
             // 如果没有下发再进行下发
             try {
-                patternMakingService.prmSendBatch(CollUtil.newArrayList(BeanUtil.copyProperties(technologyCenterTask, SetPatternDesignDto.class)));
+                // 自动下发到打板管理
+                SetPatternDesignDto setPatternDesignDto = new SetPatternDesignDto();
+                setPatternDesignDto.setId(patternMaking.getId());
+                setPatternDesignDto.setPatternDesignId(style.getPatternDesignId());
+                setPatternDesignDto.setPatternDesignName(style.getPatternDesignName());
+                patternMakingService.prmSend(setPatternDesignDto);
             } catch (Exception e) {
                 String triggerResult = "技术中心看板数据自动更新数据成功，但自动下发失败，失败原因：" + (e.getMessage() == null ? e.toString() : e.getMessage());
                 taskAssignmentRecords.setSuccessFlag(GeneralFlagEnum.NO.getCode());
