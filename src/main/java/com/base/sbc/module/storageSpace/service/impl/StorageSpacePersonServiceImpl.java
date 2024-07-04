@@ -151,6 +151,12 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         return Objects.isNull(byUserId) ? 0L : Opt.ofBlankAble(byUserId.getOwnerSpace()).map(Long::parseLong).orElse(0L);
     }
 
+    @Override
+    public Long getAllocationSpace(String parentSpaceId) {
+        Long allocationSpace = baseMapper.getAllocationSpace(parentSpaceId);
+        return Opt.ofNullable(allocationSpace).map(item ->item).orElse(0L);
+    }
+
     private StorageSpacePerson getUserStorageSpacePerson(StorageSpace storageSpace, String userId){
         StorageSpacePerson spacePerson = getByUserId(storageSpace.getId(),userId);
         if (null != spacePerson){

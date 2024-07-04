@@ -30,6 +30,8 @@ public interface StorageSpacePersonService extends BaseService<StorageSpacePerso
 
     Long getPersonSpace(String userId, String storageType );
 
+    Long getAllocationSpace( String parentSpaceId);
+
 
 
 // 自定义方法区 不替换的区域【other_start】

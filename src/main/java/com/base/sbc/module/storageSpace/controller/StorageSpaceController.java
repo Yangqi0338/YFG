@@ -74,6 +74,10 @@ public class StorageSpaceController {
             throw new OtherException("可以设置的最大初始空间为： "+byId.getMaxInitSpace()+"GB");
         }
 
+        if (Long.parseLong(dto.getTotalSpace()) < storageSpacePersonService.getAllocationSpace(byId.getId())){
+            throw new OtherException("总空间大小不能小于已分配的空间大小");
+        }
+
         boolean b = storageSpaceService.updateById(dto);
         if (b){
             OperaLogEntity operaLogEntity = new OperaLogEntity();
@@ -89,6 +93,7 @@ public class StorageSpaceController {
     @GetMapping("personListQueryPage")
     @ApiOperation(value = "获取个人空间列表", notes = "获取个人空间列表")
     public ApiResult personListQueryPage(StorageSpacePersonDto dto){
+
         StorageSpacePersonBo page = storageSpacePersonService.listQueryPage(dto);
         return  ApiResult.success("查询成功",page);
     }
@@ -97,7 +102,7 @@ public class StorageSpaceController {
     @PutMapping("personUpdate")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改个人空间", notes = "修改个人空间")
-    public ApiResult personUpdate(List<StorageSpacePerson> list){
+    public ApiResult personUpdate(@RequestBody List<StorageSpacePerson> list){
         checkPersonUpdate(list);
         Boolean result = storageSpacePersonService.personUpdate(list);
         return  result ? ApiResult.success("修改成功") : ApiResult.error("修改失败",500);
