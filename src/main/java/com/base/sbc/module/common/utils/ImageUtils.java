@@ -1,6 +1,7 @@
 package com.base.sbc.module.common.utils;
 
 
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -26,7 +27,7 @@ public class ImageUtils {
      * @param file
      * @return java.io.File
      */
-    public static MultipartFile compressImage(MultipartFile file) {
+    public static MultipartFile compressImage(MultipartFile file,Integer uploadImgMix) {
         long time = System.currentTimeMillis();
         File targetFile = null;
         File newFile = null;
@@ -43,6 +44,9 @@ public class ImageUtils {
             outputStream.close();
             //file转MultipartFile
             newFile = new File(path);
+            if (checkFileSize(newFile.length(),uploadImgMix,"M")){
+                throw new OtherException("图片压缩后，大小超出最大限制："+uploadImgMix+"M");
+            }
             FileInputStream inputStream = new FileInputStream(newFile);
             MultipartFile multipartFile = new MockMultipartFile(imageName, imageName, StringUtils.isNotBlank(contentType) ? contentType :
                     ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
