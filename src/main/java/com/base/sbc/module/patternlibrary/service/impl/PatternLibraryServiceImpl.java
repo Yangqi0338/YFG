@@ -982,6 +982,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
         patternLibraryBrand.setBrand(style.getBrand());
         patternLibraryBrand.setBrandName(style.getBrandName());
+        patternLibrary.setPatternLibraryBrandList(CollUtil.newArrayList(patternLibraryBrand));
         // 图片信息 图获取该设计款拍照图（待定） > 大货图（款式配色的图片） > 设计图
         // 先获取款式配色信息
         List<StyleColor> styleColorList = styleColorService.list(
