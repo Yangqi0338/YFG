@@ -279,7 +279,7 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
                 .eq(TaskAssignment::getProdCategory2nd, prodCategory2nd)
                 .eq(TaskAssignment::getProdCategory3rd, prodCategory3rd)
                 .like(TaskAssignment::getTriggerMenus, triggerMenu)
-                .eq(TaskAssignment::getEnableFlag, GeneralFlagEnum.YES);
+                .eq(TaskAssignment::getEnableFlag, GeneralFlagEnum.YES.getCode());
         TaskAssignment taskAssignment = getOne(taskAssignmentLambdaQueryWrapper);
         if (ObjectUtil.isNotEmpty(taskAssignment)) {
             if (triggerMenu.equals(TriggerMenuEnum.JSZXKB.getValue())) {
@@ -467,7 +467,7 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
 
         // 拿到产品季总览数据 进行下发操作
         PlanningSeasonOverviewVo planningSeasonOverview = productCategoryItem.getList().get(0);
-        if ("0".equals(planningSeasonOverview.getStatus())) {
+        if ("1".equals(planningSeasonOverview.getStatus())) {
             // 如果没有下发再进行下发
             try {
                 planningCategoryItemService.send(CollUtil.newArrayList(BeanUtil.copyProperties(planningSeasonOverview, SeatSendDto.class)));
