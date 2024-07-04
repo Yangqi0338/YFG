@@ -68,6 +68,11 @@ public class StorageSpaceController {
     @ApiOperation(value = "空间设置更新", notes = "空间设置更新")
     public ApiResult storageSpaceUpdate(@RequestBody StorageSpace dto){
         StorageSpace byId = storageSpaceService.getById(dto.getId());
+
+        if (StringUtils.isNotEmpty(dto.getInitSpace()) && Long.parseLong(byId.getMaxInitSpace()) < Long.parseLong(dto.getInitSpace())){
+            throw new OtherException("可以设置的最大初始空间为： "+byId.getMaxInitSpace()+"GB");
+        }
+
         boolean b = storageSpaceService.updateById(dto);
         if (b){
             OperaLogEntity operaLogEntity = new OperaLogEntity();
@@ -122,7 +127,6 @@ public class StorageSpaceController {
         }
         UpdateWrapper<StorageSpacePerson> uw = new UpdateWrapper<>();
         uw.lambda().in(StorageSpacePerson::getId,idList);
-        uw.lambda().set(StorageSpacePerson::getInitSpace,null);
         uw.lambda().set(StorageSpacePerson::getOwnerSpace,null);
         boolean result = storageSpacePersonService.update(uw);
         return  result ? ApiResult.success("删除成功") : ApiResult.error("删除失败",500);

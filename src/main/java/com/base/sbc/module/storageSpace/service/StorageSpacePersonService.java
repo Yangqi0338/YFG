@@ -28,6 +28,8 @@ public interface StorageSpacePersonService extends BaseService<StorageSpacePerso
 
     void checkPersonSpacer(long needSpacer, String storageType, String userId);
 
+    Long getPersonSpace(String userId, String storageType );
+
 
 
 // 自定义方法区 不替换的区域【other_start】

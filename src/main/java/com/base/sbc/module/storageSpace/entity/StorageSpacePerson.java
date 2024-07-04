@@ -37,15 +37,9 @@ public class StorageSpacePerson extends BaseDataEntity<String> {
     /** 父空间id */
     @ApiModelProperty(value = "父空间id"  )
     private String parentSpaceId;
-    /** 初始划分空间大小(单位：GB) */
-    @ApiModelProperty(value = "初始划分空间大小(单位：GB)"  )
-    private String initSpace;
     /** 拥有的空间大小(单位：GB) */
     @ApiModelProperty(value = "拥有的空间大小(单位：GB)"  )
     private String ownerSpace;
-    /** 倍率 */
-    @ApiModelProperty(value = "倍率"  )
-    private String magnification;
     /** 空间所属人id */
     @ApiModelProperty(value = "空间所属人id"  )
     private String ownerId;

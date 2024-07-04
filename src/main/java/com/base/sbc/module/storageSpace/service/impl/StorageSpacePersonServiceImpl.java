@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -127,15 +128,24 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         if (null == spacePerson){
             throw new OtherException("可用空间不足请检查配置空间");
         }
-        if (StringUtils.isEmpty(spacePerson.getInitSpace()) && StringUtils.isEmpty(spacePerson.getOwnerSpace())){
+        if ( StringUtils.isEmpty(spacePerson.getOwnerSpace())){
             throw new OtherException("个人可用空间已被清理，请重新分配空间");
         }
-        long ownSpacer = StringUtils.isEmpty(spacePerson.getOwnerSpace()) ?
-                Long.parseLong(spacePerson.getInitSpace()) : Long.parseLong(spacePerson.getOwnerSpace());
+        long ownSpacer = StringUtils.isEmpty(spacePerson.getOwnerSpace()) ? 0L : Long.parseLong(spacePerson.getOwnerSpace());
         if (needSpacer > ownSpacer * 1073741824){
             throw new OtherException("个人可用空间不足，请扩容个人空间");
         }
 
+    }
+
+    @Override
+    public Long getPersonSpace(String userId, String storageType) {
+        StorageSpace storageSpace = storageSpaceService.getByStorageType(storageType);
+        if (null == storageSpace){
+            throw new OtherException("存储空间不存在");
+        }
+        StorageSpacePerson byUserId = getByUserId(storageSpace.getId(),userId);
+        return Objects.isNull(byUserId) ? 0L : Opt.ofBlankAble(byUserId.getOwnerSpace()).map(Long::parseLong).orElse(0L);
     }
 
     private StorageSpacePerson getUserStorageSpacePerson(StorageSpace storageSpace, String userId){
@@ -217,8 +227,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             storageSpacePerson.setOwnerName(item.getName());
             storageSpacePerson.setUserName(item.getUsername());
             storageSpacePerson.setParentSpaceId(storageSpace.getId());
-            storageSpacePerson.setInitSpace(storageSpace.getInitSpace());
-            storageSpacePerson.setMagnification(storageSpace.getInitMagnification());
+            storageSpacePerson.setOwnerSpace(storageSpace.getInitSpace());
             storageSpacePerson.setId(idGen.nextIdStr());
             storageSpacePerson.insertInit();
             personList.add(storageSpacePerson);

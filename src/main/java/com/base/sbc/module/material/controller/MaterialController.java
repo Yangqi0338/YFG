@@ -28,6 +28,7 @@ import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialLinkageVo;
+import com.base.sbc.module.material.vo.MaterialSpaceInfoVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
@@ -365,6 +366,17 @@ public class MaterialController extends BaseController {
         return ApiResult.success("更新成功");
     }
 
+
+    @GetMapping("/spaceUsage")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "空间使用情况", notes = "空间使用情况")
+    public ApiResult spaceUsage(){
+        String userId = userUtils.getUserCompany().getUserId();
+        MaterialSpaceInfoVo materialSpaceInfoVo = new MaterialSpaceInfoVo();
+        materialSpaceInfoVo.setUsageSpaceSize(materialService.getFileSize(userId, null));
+        materialSpaceInfoVo.setTotalSpaceSize(storageSpacePersonService.getPersonSpace(userId, "1"));
+        return ApiResult.success("更新成功",materialSpaceInfoVo);
+    }
 
 
     private void checkMaterial(List<Material> list, String type) {

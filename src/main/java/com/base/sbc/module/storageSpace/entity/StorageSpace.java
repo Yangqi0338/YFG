@@ -7,6 +7,7 @@
 package com.base.sbc.module.storageSpace.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 
 import io.swagger.annotations.ApiModel;
@@ -27,11 +28,11 @@ import lombok.EqualsAndHashCode;
 @ApiModel("存储空间 StorageSpace")
 public class StorageSpace extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 总空间大小(单位：GB) */
@@ -40,11 +41,17 @@ public class StorageSpace extends BaseDataEntity<String> {
     /** 初始划分空间大小(单位：GB) */
     @ApiModelProperty(value = "初始划分空间大小(单位：GB)"  )
     private String initSpace;
-    /** 初始倍率 */
-    @ApiModelProperty(value = "初始倍率"  )
-    private String initMagnification;
+
     /** 存储类型：1:素材库相关 */
     @ApiModelProperty(value = "存储类型：1:素材库相关"  )
     private String storageType;
+
+    @ApiModelProperty(value = "最大初始划分空间大小(单位：GB)"  )
+    private String maxInitSpace;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+    public static void main(String[] args) {
+        IdGen idGen = new IdGen();
+        System.out.println(idGen.nextIdStr());
+    }
 }
