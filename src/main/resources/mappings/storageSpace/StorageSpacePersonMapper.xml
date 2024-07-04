@@ -18,15 +18,11 @@
         t_storage_space_person tssp
         where
         del_flag = '0' and parent_space_id = #{parentSpaceId}
-        <if test="initSpace != null and initSpace != ''">
-            and tssp.init_space like concat('%',#{initSpace},'%')
-        </if>
+
         <if test="ownerSpace != null and ownerSpace != ''">
             and tssp.owner_space like concat('%',#{ownerSpace},'%')
         </if>
-        <if test="magnification != null and magnification != ''">
-            and tssp.magnification like concat('%',#{magnification},'%')
-        </if>
+
         <if test="userName != null and userName != ''">
             and tssp.user_name like concat('%',#{userName},'%')
         </if>
@@ -46,7 +42,7 @@
 
         select SUM(tt.spaceSize) from (select
                            CASE when owner_space is not null  then owner_space
-                                else init_space
+                                else 0
                                end as spaceSize
                        from t_storage_space_person where del_flag = '0' and parent_space_id = #{parentSpaceId}) as tt;
 
