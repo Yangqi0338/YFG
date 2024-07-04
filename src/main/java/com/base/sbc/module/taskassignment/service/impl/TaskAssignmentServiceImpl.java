@@ -282,18 +282,19 @@ public class TaskAssignmentServiceImpl extends BaseServiceImpl<TaskAssignmentMap
                 .eq(TaskAssignment::getEnableFlag, GeneralFlagEnum.YES.getCode());
         TaskAssignment taskAssignment = getOne(taskAssignmentLambdaQueryWrapper);
         if (ObjectUtil.isNotEmpty(taskAssignment)) {
-            if (triggerMenu.equals(TriggerMenuEnum.JSZXKB.getValue())) {
-                // 技术中心看板
-                TaskAssignmentRecords taskAssignmentRecords = technicalCenterKanbanTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment);
-                // 触发菜单增加记录
-                if (taskAssignmentRecords != null) {
-                    // 设置任务分配 ID
-                    taskAssignmentRecords.setTaskAssignmentId(taskAssignment.getId());
-                    // 设置触发菜单
-                    taskAssignmentRecords.setTriggerMenu(triggerMenu);
-                    taskAssignmentRecordsService.save(taskAssignmentRecords);
-                }
-            } else if (triggerMenu.equals(TriggerMenuEnum.CPJZL.getValue())) {
+            // if (triggerMenu.equals(TriggerMenuEnum.JSZXKB.getValue())) {
+            // // 技术中心看板
+            // TaskAssignmentRecords taskAssignmentRecords = technicalCenterKanbanTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment);
+            // // 触发菜单增加记录
+            // if (taskAssignmentRecords != null) {
+            //     // 设置任务分配 ID
+            //     taskAssignmentRecords.setTaskAssignmentId(taskAssignment.getId());
+            //     // 设置触发菜单
+            //     taskAssignmentRecords.setTriggerMenu(triggerMenu);
+            //     taskAssignmentRecordsService.save(taskAssignmentRecords);
+            // }
+            // }
+            if (triggerMenu.equals(TriggerMenuEnum.CPJZL.getValue())) {
                 TaskAssignmentRecords taskAssignmentRecords = productSeasonTriggerOperation(queryTaskAssignment.getDataId(), taskAssignment);
                 // 触发菜单增加记录
                 if (taskAssignmentRecords != null) {

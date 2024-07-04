@@ -110,7 +110,7 @@ public class TaskAssignment extends BaseDataEntity<String> {
      * 触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）
      */
     @NotEmpty(message = "请选择触发菜单")
-    @ApiModelProperty(value = "触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板）")
+    @ApiModelProperty(value = "触发菜单，可多选，多选逗号分隔（产品季总览，技术中心看板（废弃））")
     private String triggerMenus;
     /**
      * 启用状态（ 0-未启用 1-启用）

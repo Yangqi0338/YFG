@@ -55,7 +55,7 @@ public class TaskAssignmentRecords extends BaseDataEntity<String> {
     /**
      * 触发菜单（产品季总览，技术中心看板）
      */
-    @ApiModelProperty(value = "触发菜单（产品季总览，技术中心看板）")
+    @ApiModelProperty(value = "触发菜单（产品季总览，技术中心看板（废弃））")
     private String triggerMenu;
     /**
      * 成功状态（0-失败 1-成功）

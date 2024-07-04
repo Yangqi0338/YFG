@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public enum TriggerMenuEnum {
 
-    CPJZL("产品季总览"),
-    JSZXKB( "技术中心看板");
+    CPJZL("产品季总览");
+    // JSZXKB( "技术中心看板");
 
     private String value;
 

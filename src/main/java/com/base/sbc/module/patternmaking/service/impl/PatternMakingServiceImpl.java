@@ -468,8 +468,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         styleService.update(sdUw);
 
         // 技术看板自动任务
-        TaskAssignmentDTO taskAssignmentDTO = getTaskAssignmentDTO(patternMaking, style);
-        taskAssignmentService.runTaskAssignment(taskAssignmentDTO);
+        // TaskAssignmentDTO taskAssignmentDTO = getTaskAssignmentDTO(patternMaking, style);
+        // taskAssignmentService.runTaskAssignment(taskAssignmentDTO);
 
         /*发送消息*/
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
@@ -486,18 +486,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
 
-    private TaskAssignmentDTO getTaskAssignmentDTO(PatternMaking patternMaking, Style style) {
-        TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
-        taskAssignmentDTO.setDataId(patternMaking.getId());
-        taskAssignmentDTO.setBrand(style.getBrand());
-        taskAssignmentDTO.setVirtualDeptId(patternMaking.getPatternRoomId());
-        taskAssignmentDTO.setProdCategory1st(style.getProdCategory1st());
-        taskAssignmentDTO.setProdCategory(style.getProdCategory());
-        taskAssignmentDTO.setProdCategory2nd(style.getProdCategory2nd());
-        taskAssignmentDTO.setProdCategory3rd(style.getProdCategory3rd());
-        taskAssignmentDTO.setTriggerMenu(TriggerMenuEnum.JSZXKB.getValue());
-        return taskAssignmentDTO;
-    }
+    // private TaskAssignmentDTO getTaskAssignmentDTO(PatternMaking patternMaking, Style style) {
+    //     TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
+    //     taskAssignmentDTO.setDataId(patternMaking.getId());
+    //     taskAssignmentDTO.setBrand(style.getBrand());
+    //     taskAssignmentDTO.setVirtualDeptId(patternMaking.getPatternRoomId());
+    //     taskAssignmentDTO.setProdCategory1st(style.getProdCategory1st());
+    //     taskAssignmentDTO.setProdCategory(style.getProdCategory());
+    //     taskAssignmentDTO.setProdCategory2nd(style.getProdCategory2nd());
+    //     taskAssignmentDTO.setProdCategory3rd(style.getProdCategory3rd());
+    //     taskAssignmentDTO.setTriggerMenu(TriggerMenuEnum.JSZXKB.getValue());
+    //     return taskAssignmentDTO;
+    // }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
