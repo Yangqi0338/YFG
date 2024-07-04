@@ -374,7 +374,8 @@ public class MaterialController extends BaseController {
         String userId = userUtils.getUserCompany().getUserId();
         MaterialSpaceInfoVo materialSpaceInfoVo = new MaterialSpaceInfoVo();
         materialSpaceInfoVo.setUsageSpaceSize(materialService.getFileSize(userId, null));
-        materialSpaceInfoVo.setTotalSpaceSize(storageSpacePersonService.getPersonSpace(userId, "1"));
+        Long personSpace = storageSpacePersonService.getPersonSpace(userId, "1");
+        materialSpaceInfoVo.setTotalSpaceSize(personSpace*1073741824);
         return ApiResult.success("更新成功",materialSpaceInfoVo);
     }
 
