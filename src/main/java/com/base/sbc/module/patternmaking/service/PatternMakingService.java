@@ -411,10 +411,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     /**
      * 获取到设计款下面的样衣
+     *
      * @param styleId
+     * @param patternMakingDevtType
      * @return
      */
-    List<PatternMakingVo> getSampleDressBydesignNo(String styleId);
+    List<PatternMakingVo> getSampleDressBydesignNo(String styleId, String patternMakingDevtType);
 
     /**
      * 是否参考样衣

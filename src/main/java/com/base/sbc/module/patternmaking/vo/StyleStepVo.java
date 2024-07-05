@@ -47,7 +47,13 @@ public class StyleStepVo {
                 .orElse(null);
     }
 
-    ;
+    /** 生产模式 */
+    @ApiModelProperty(value = "生产模式"  )
+    private String devtType;
+    /** 生产模式名称 */
+    @ApiModelProperty(value = "生产模式名称"  )
+    private String devtTypeName;
+
     @ApiModelProperty(value = "打版指令进度列表")
     private List<PatternMakingStepVo> patternMakingSteps;
 

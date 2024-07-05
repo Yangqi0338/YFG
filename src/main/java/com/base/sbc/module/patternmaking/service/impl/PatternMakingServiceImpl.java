@@ -325,13 +325,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * 获取到设计款下面的样衣
      *
      * @param styleId
+     * @param patternMakingDevtType
      * @return
      */
     @Override
-    public List<PatternMakingVo> getSampleDressBydesignNo(String styleId) {
+    public List<PatternMakingVo> getSampleDressBydesignNo(String styleId, String patternMakingDevtType) {
         BaseQueryWrapper<PatternMaking> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("style_id",styleId);
         queryWrapper.isNotNullStr("sample_bar_code");
+        if(StrUtil.isNotEmpty(patternMakingDevtType)){
+            //如果是FOB类型查询，需要判断 有审样通过的数据
+            queryWrapper.exists("select 1 from t_pattern_making_bar_code tpmbc where tpmbc.head_id = t_pattern_making.id and tpmbc.status = '1'");
+        }
         List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
         List<PatternMakingVo> list = CopyUtil.copy(makingList,PatternMakingVo.class);
         return list;
