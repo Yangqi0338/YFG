@@ -382,6 +382,12 @@ public class HangTagVO extends HangTag {
     @ApiModelProperty(value = "成分集合")
     private List<HangTagIngredient> hangTagIngredients;
 
+    /**
+     * 查询类型
+     */
+    @ApiModelProperty(value = "查询类型")
+    private String selectType;
+
     public String getStylePic() {
         if (StrUtil.isNotBlank(styleColorPic)) {
             return styleColorPic;

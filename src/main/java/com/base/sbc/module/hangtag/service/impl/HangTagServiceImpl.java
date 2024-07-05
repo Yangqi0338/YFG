@@ -388,6 +388,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 			});
 		}
+		if ("quote".equals(hangTagDTO.getSelectType())) {
+			hangTagListVOS.removeIf(it-> it.getBulkStyleNo().equals(hangTagDTO.getBulkStyleNo()));
+		}
 
 		return new PageInfo<>(hangTagListVOS);
 	}
@@ -430,9 +433,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if ("quote".equals(selectType)) {
 			List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
 					.eq(HangTagIngredient::getHangTagId, hangTagVO.getId()));
-			list.forEach(it-> it.setId(null));
 			hangTagVO.setHangTagIngredients(list);
 		}
+		hangTagVO.setSelectType(selectType);
 
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
@@ -622,8 +625,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<HangTagIngredient> hangTagIngredients = CollUtil.filter(hangTagDTO.getHangTagIngredients(), it-> StrUtil.isBlank(it.getId()));
 		if (CollUtil.isNotEmpty(hangTagIngredients)) {
 			hangTagIngredients.forEach(it-> {
+				if ("quote".equals(hangTagDTO.getSelectType())) {
+					it.insertInit();
+				}
 				it.setHangTagId(id);
-				it.insertInit();
+				it.updateInit();
 			});
 			hangTagIngredientService.saveOrUpdateBatch(hangTagIngredients);
 		}
