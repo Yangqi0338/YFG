@@ -9,9 +9,11 @@ package com.base.sbc.module.formtype.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldManagement;
+import com.base.sbc.module.formtype.entity.Option;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,8 @@ public interface FieldManagementMapper extends BaseMapper<FieldManagement> {
 
   @MapKey("COLUMN_NAME")
   List<Map<String,String>> getTableMessage(String coding);
+
+  List<Option> getOptionList(@Param("ids") List<String> ids);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

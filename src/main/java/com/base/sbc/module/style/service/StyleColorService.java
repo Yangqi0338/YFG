@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式-款式配色 service类
@@ -295,6 +296,13 @@ public interface StyleColorService extends BaseService<StyleColor> {
     ApiResult mangoExeclImport(List<MangoStyleColorExeclDto> list,Boolean isUpdate);
 
     /**
+     * Mango吊牌信息Execl导入模板下载
+     * @param list
+     * @return
+     */
+    ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list);
+
+    /**
      * 根据大货款获取设计师，版师，样衣工信息
      *
      * @param styleNo
@@ -329,4 +337,6 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentControl(String id);
 
     void agentUnControl(String id);
+
+    ApiResult importMarkingOrder(List<Map<String, Object>> readAll);
 }

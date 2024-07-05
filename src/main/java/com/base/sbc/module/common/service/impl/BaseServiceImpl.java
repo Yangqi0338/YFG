@@ -72,7 +72,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     private JdbcTemplate jdbcTemplate;
 
     @Resource
-    private OperaLogService operaLogService;
+    public OperaLogService operaLogService;
 
     /**
      * 获取企业编码

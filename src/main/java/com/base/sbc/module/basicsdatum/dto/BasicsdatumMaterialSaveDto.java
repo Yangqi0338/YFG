@@ -1,20 +1,17 @@
 package com.base.sbc.module.basicsdatum.dto;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -384,5 +381,8 @@ public class BasicsdatumMaterialSaveDto {
 
 	@ApiModelProperty(value = "是否战略备料(0是，1否)")
 	private String isStrategic;
+
+	@ApiModelProperty(value = "物料库动态字段")
+	List<FieldVal> fieldValList;
 
 }

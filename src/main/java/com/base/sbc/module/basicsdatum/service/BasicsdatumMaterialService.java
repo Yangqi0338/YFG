@@ -14,6 +14,7 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
@@ -38,6 +39,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto);
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(MaterialColumnHeadDto dto);
+
+	List<FieldManagementVo> queryCoefficient(BasicsdatumMaterialPageVo pageVo);
 
 	BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
 

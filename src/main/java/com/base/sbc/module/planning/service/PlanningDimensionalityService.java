@@ -16,7 +16,6 @@ import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：企划-维度表 service类
@@ -75,6 +74,10 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      */
    boolean templateReference(DimensionLabelsSearchDto dto);
     List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto);
+
+    List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto);
+
+    List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

@@ -219,26 +219,54 @@ public class SmpService {
         return goods(ids,null,null);
     }
 
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
+        return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null);
+    }
+
     /**
      * 商品主数据下发
      */
-    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem,Integer type,List<String> msg) {
         int i = 0;
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
         if (CollUtil.isEmpty(styleColors)) {
             return i;
         }
-        for (StyleColor styleColor : styleColors) {
+        /*for (StyleColor styleColor : styleColors) {
             //判断是否是旧系统数据
             if ("1".equals(styleColor.getHistoricalData())) {
                 // throw new OtherException("旧系统数据不允许下发");
             }
-        }
+        }*/
+        List<String> styleColorIds = styleColors.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+
+        //批量查询配饰款
+        List<StyleMainAccessories> styleMainAccessories = styleMainAccessoriesService.styleMainAccessoriesListBatch(styleColorIds, null);
+        Map<String, List<StyleMainAccessories>> mainAccessoriesListMap = styleMainAccessories.stream().collect(Collectors.groupingBy(StyleMainAccessories::getStyleColorId));
+
+        //查询品牌字典
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
+        Map<String, String> map = dictInfoToMap.get("C8_Band");
+
+        //这里读取各个系统的动态字段配置
+        List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
+        Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
+
+        //查询动态字段
+        List<FieldVal> fieldValList = fieldValService.list(styleColorIds, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+
+        //添加配色指定面料下发 huangqiang
+        QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("style_color_id", styleColorIds);
+        queryWrapper.eq("del_flag","0");
+        List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
+        Map<String, List<StyleSpecFabric>> styleSpecFabricMap = styleSpecFabricList.stream().collect(Collectors.groupingBy(StyleSpecFabric::getStyleColorId));
 
         for (StyleColor styleColor : styleColors) {
-            List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(), null);
-            if (CollUtil.isNotEmpty(mainAccessoriesList)) {
+            if (mainAccessoriesListMap.containsKey(styleColor.getId())) {
+                List<StyleMainAccessories> mainAccessoriesList = mainAccessoriesListMap.get(styleColor.getId());
                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
                 String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
                 if (StringUtils.equals(styleColor.getIsTrim(), BaseGlobal.NO)) {
@@ -254,7 +282,13 @@ public class SmpService {
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
             //吊牌价为空或者等于0
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
-                throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                if(type != null && type == 1){
+                    //不抛出异常  保存到msg中
+                    msg.add(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                    continue;
+                }else{
+                    throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                }
             }
             PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
@@ -334,9 +368,6 @@ public class SmpService {
             smpGoodsDto.setTargetCost(style.getProductCost());
             smpGoodsDto.setShapeName(style.getPlateType());
             smpGoodsDto.setUniqueCode(styleColor.getWareCode());
-
-            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
-            Map<String, String> map = dictInfoToMap.get("C8_Band");
             smpGoodsDto.setBandName(map.get(styleColor.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
@@ -348,15 +379,12 @@ public class SmpService {
             smpGoodsDto.setTargetBusinessSystem(targetBusinessSystem);
             //目标系统
             smpGoodsDto.setYshBusinessSystem(yshBusinessSystem);
-            //这里读取各个系统的动态字段配置
-            List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
-            Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
 
             DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
             BeanUtil.copyProperties(style, dto);
             dto.setId(style.getId());
-            dto.setForeignId(style.getId());
-            dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            dto.setForeignId(styleColor.getId());
+            dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
             List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabels(dto);
             //List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             Map<String, FieldManagementVo> collect1 = fieldManagementVoList.stream().collect(Collectors.toMap(FieldManagementVo::getFieldName, o -> o, (v1, v2) -> v1));
@@ -442,10 +470,7 @@ public class SmpService {
             smpGoodsDto.setGoodsDynamicFieldList(goodsDynamicFieldDtos);
 
             //查询下单阶段动态字段  取 水洗字段和自主研发版型字段
-            List<FieldVal> fvList = fieldValService.list(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-            if(CollUtil.isEmpty(fvList)){
-                fvList = fieldValService.list(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            }
+            List<FieldVal> fvList = fieldValMap.getOrDefault(styleColor.getId(),new ArrayList<>());
             Map<String, String> oldFvMap = fvList.stream().collect(CollectorUtil.toMap(FieldVal::getFieldName, FieldVal::getVal,(a, b) -> b));
             if(oldFvMap.containsKey("plateType")){
                 smpGoodsDto.setPlateType(oldFvMap.get("plateType"));
@@ -570,7 +595,13 @@ public class SmpService {
             //smpGoodsDto.setSalesGroup(null);
             List<String> sizeCodes = StringUtils.convertList(style.getSizeCodes());
             if (sizeCodes.isEmpty()){
-                throw new OtherException("尺码不能为空");
+                if(type != null && type == 1){
+                    //不抛出异常  保存到msg中
+                    msg.add(styleColor.getStyleNo()+"尺码不能为空");
+                    continue;
+                }else{
+                    throw new OtherException("尺码不能为空");
+                }
             }
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
 
@@ -591,11 +622,7 @@ public class SmpService {
             smpGoodsDto.setItemList(smpSizes);
 
             //region 添加配色指定面料下发 huangqiang
-            QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("style_color_id",styleColor.getId());
-            queryWrapper.eq("del_flag","0");
-            List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
-            smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
+            smpGoodsDto.setStyleSpecFabricList(styleSpecFabricMap.getOrDefault(styleColor.getId(),new ArrayList<>()));
             //endregion
 
 
@@ -651,7 +678,6 @@ public class SmpService {
                 styleColor.setScmSendFlag("2");
             }
             styleColorService.updateById(styleColor);
-
         }
         return i;
     }
@@ -679,6 +705,8 @@ public class SmpService {
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
 
+            /*List<FieldManagementVo> fieldManagementVos = basicsdatumMaterialService.queryCoefficient(BeanUtil.copyProperties(basicsdatumMaterial, BasicsdatumMaterialPageVo.class));
+            smpMaterialDto.setDynamicFieldList(fieldManagementVos);*/
 
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();

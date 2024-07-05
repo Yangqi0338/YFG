@@ -10,6 +10,8 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -42,6 +44,7 @@ import javax.xml.transform.Result;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式-款式配色 Controller类
@@ -329,6 +332,13 @@ public class StyleColorController {
         return styleColorService.mangoExeclImport(list, isUpdate);
     }
 
+    @ApiOperation(value = "mango吊牌信息导入Excel")
+    @PostMapping("/mangoHangTagImportExcel")
+    public ApiResult importMangHangTagExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        List<MangoHangTagExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoHangTagExeclDto.class, new ImportParams());
+        return styleColorService.mangoHangTagExeclImport(list);
+    }
+
     @ApiOperation(value = "mango数据导出Excel")
     @GetMapping("/exportAgentExcel")
     public void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto querySampleStyleColorDto) throws Exception {
@@ -419,5 +429,15 @@ public class StyleColorController {
         styleColorService.updateById(styleColor);
         return ApiResult.success("修改成功");
     }
+
+    @ApiOperation(value = "导入Excel批量修改下单阶段动态字段")
+    @PostMapping("/importMarkingOrder")
+    public ApiResult importMarkingOrder(@RequestParam("file") MultipartFile file) throws Exception {
+        ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
+        List<Map<String,Object>> readAll = reader.readAll();
+
+        return styleColorService.importMarkingOrder(readAll);
+    }
+
 }
 
