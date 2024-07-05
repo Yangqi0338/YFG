@@ -6,12 +6,12 @@ import lombok.Data;
  * @Create : 2024/7/4 18:41
  **/
 @Data
-public class ResponseResultBo<T> {
+public class ResponseResultBo {
 
     private String msg;
 
     private Integer code;
 
-    T data;
+    Object data;
 
 }
