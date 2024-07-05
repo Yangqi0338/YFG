@@ -426,6 +426,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagVO.setWarmTipsDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_WARM_TIPS_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
 		}
 
+		// 如果是引用查询 加多一个成分查询
+		if ("quote".equals(selectType)) {
+			List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+					.eq(HangTagIngredient::getHangTagId, hangTagVO.getId()));
+			list.forEach(it-> it.setId(null));
+			hangTagVO.setHangTagIngredients(list);
+		}
+
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (pack != null) {
@@ -463,13 +471,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
 			hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
 					.findFirst().map(BasicBaseDict::getName).orElse(""));
-		}
-		// 如果是引用查询 加多一个成分查询
-		if ("quote".equals(selectType)) {
-			List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
-					.eq(HangTagIngredient::getHangTagId, hangTagVO.getId()));
-			list.forEach(it-> it.setId(null));
-			hangTagVO.setHangTagIngredients(list);
 		}
 
 		return hangTagVO;
