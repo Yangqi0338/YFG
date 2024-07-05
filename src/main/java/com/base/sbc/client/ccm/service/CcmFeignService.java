@@ -360,6 +360,20 @@ public class CcmFeignService {
     }
 
     /**
+     * 通过编码获取系统参数值
+     * @param code
+     * @return
+     */
+    public String queryCompanySettingData(String code) {
+        String resultStr = ccmService.getCompanySettingData(code);
+        JSONObject jsonObject = JSON.parseObject(resultStr);
+        if (Objects.isNull(jsonObject.getJSONObject("data")) || !jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            return "";
+        }
+        return jsonObject.getJSONObject("data").getString("value");
+    }
+
+    /**
      * 查询所有单位列表，可根据类型筛选
      * @param type 类型
      *
