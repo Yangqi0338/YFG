@@ -11,10 +11,17 @@ import com.base.sbc.module.replay.dto.ReplayRatingFabricDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingPatternDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingSaveDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO;
+import com.base.sbc.module.replay.dto.ReplayRatingTransferDTO;
 import com.base.sbc.module.replay.entity.ReplayRating;
+import com.base.sbc.module.replay.vo.ReplayRatingBulkWarnVO;
+import com.base.sbc.module.replay.vo.ReplayRatingPageVO;
 import com.base.sbc.module.replay.vo.ReplayRatingQO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
+import com.base.sbc.module.replay.vo.ReplayRatingYearQO;
+import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：基础资料-复盘评分 service类
@@ -29,7 +36,7 @@ public interface ReplayRatingService extends BaseService<ReplayRating> {
 
 // 自定义方法区 不替换的区域【other_start】
 
-    PageInfo<? extends ReplayRatingVO> queryPageInfo(ReplayRatingQO dto);
+    ReplayRatingPageVO<? extends ReplayRatingVO> queryPageInfo(ReplayRatingQO dto);
 
     String doSave(ReplayRatingSaveDTO replayRatingSaveDTO);
 
@@ -38,6 +45,14 @@ public interface ReplayRatingService extends BaseService<ReplayRating> {
     ReplayRatingPatternDTO getPatternById(String styleColorId);
 
     ReplayRatingFabricDTO getFabricById(String styleColorId);
+
+    PageInfo<ReplayRatingYearVO> yearListByStyleNo(ReplayRatingYearQO replayRatingYearQO);
+
+    String transferPatternLibrary(ReplayRatingTransferDTO transferDTO);
+
+    List<ReplayRatingBulkWarnVO> bulkWarnMsg(String bulkStyleNo);
+
+    void exportExcel(ReplayRatingQO qo);
 
 // 自定义方法区 不替换的区域【other_end】
 

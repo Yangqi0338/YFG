@@ -1,12 +1,10 @@
 package com.base.sbc.config.common.base;
 
 import cn.hutool.core.lang.Opt;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.pagehelper.PageHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.poi.ss.formula.functions.T;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -86,6 +84,10 @@ public class Page implements Serializable {
     }
 
     public <E> com.github.pagehelper.Page<E> startPage(){
-        return PageHelper.startPage(this.getPageNum(), this.getPageSize());
+        return startPage(true);
+    }
+
+    public <E> com.github.pagehelper.Page<E> startPage(boolean countCal) {
+        return PageHelper.startPage(this.getPageNum(), this.getPageSize(), countCal);
     }
 }

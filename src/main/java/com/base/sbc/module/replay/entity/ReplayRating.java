@@ -7,6 +7,7 @@
 package com.base.sbc.module.replay.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
@@ -35,6 +36,36 @@ public class ReplayRating extends BaseDataExtendEntity {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /** 廓形编码 */
+    @ApiModelProperty(value = "廓形编码")
+    @ExtendField
+    private String silhouetteCode;
+
+    /** 廓形 */
+    @ApiModelProperty(value = "廓形")
+    @ExtendField
+    private String silhouetteName;
+
+    /**
+     * 面料成分
+     */
+    @ApiModelProperty(value = "面料成分")
+    @ExtendField
+    private String fabricComposition;
+
+    /**
+     * 色系编码
+     */
+    @ApiModelProperty(value = "色系编码")
+    @ExtendField
+    private String colorSystemCode;
+
+    /**
+     * 色系
+     */
+    @ApiModelProperty(value = "色系")
+    @ExtendField
+    private String colorSystem;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

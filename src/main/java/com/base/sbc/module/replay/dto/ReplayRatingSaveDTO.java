@@ -7,22 +7,26 @@
 package com.base.sbc.module.replay.dto;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.json.JSONUtil;
+import com.base.sbc.config.JacksonExtendHandler;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingDetailDimensionType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingDetailType;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.replay.entity.ReplayRating;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.base.sbc.module.replay.entity.ReplayRatingDetail;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
@@ -42,22 +46,37 @@ public class ReplayRatingSaveDTO extends ReplayRating {
     @ApiModelProperty(value = "详情map")
     private Map<ReplayRatingDetailType, ReplayRatingDetailList> detailListMap;
 
-    @JsonAnyGetter
+    @JsonIgnore
     public Map<ReplayRatingDetailType, ReplayRatingDetailList> getDetailListMap() {
         if (MapUtil.isEmpty(detailListMap))
-            detailListMap = Arrays.stream(ReplayRatingDetailType.values()).collect(CommonUtils.toKeyMap(ReplayRatingDetailList::new));
+            detailListMap = Arrays.stream(ReplayRatingDetailType.values()).collect(CommonUtils.toKeyMap((it) -> new ReplayRatingDetailList(it, getType())));
         return detailListMap;
     }
 
+    @Override
+    public Map<Object, Object> decorateWebMap() {
+        Map<Object, Object> map = super.decorateWebMap();
+        map.putAll(getDetailListMap().keySet().stream().collect(Collectors.toMap(ReplayRatingDetailType::getCode, detailListMap::get)));
+        return map;
+    }
+
     @JsonAnySetter
-    public void setDetailListMap(String key, Object obj) {
+    public void docrateWebDTO(String key, Object obj) {
         getDetailListMap().forEach((replayRatingDetailType, replayRatingDetailListDTO) -> {
             if (replayRatingDetailType.getCode().equals(key) && obj.getClass().isAssignableFrom(ReplayRatingDetailList.class)) {
-                String jsonStr = JSONUtil.toJsonStr(obj);
-                List<ReplayRatingDetailDTO> list = JSONUtil.toList(jsonStr, ReplayRatingDetailDTO.class);
-                getDetailListMap().put(replayRatingDetailType, new ReplayRatingDetailList(list));
-            } else {
-                this.getExtend().put(key, obj);
+                List<?> list = (List<?>) obj;
+                ReplayRatingDetailList detailList = new ReplayRatingDetailList();
+                list.forEach(it -> {
+                    try {
+                        ObjectMapper objectMapper = JacksonExtendHandler.getObjectMapper();
+                        ReplayRatingDetailDTO bean = objectMapper.readValue(objectMapper.writeValueAsString(it), ReplayRatingDetailDTO.class);
+                        bean.setType(replayRatingDetailType);
+                        detailList.add(bean);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                getDetailListMap().put(replayRatingDetailType, detailList);
             }
         });
     }
@@ -66,12 +85,18 @@ public class ReplayRatingSaveDTO extends ReplayRating {
         return getDetailListMap().get(ReplayRatingDetailType.NEXT_IMPROVE).improveDimensionList();
     }
 
+    @Override
     public YesOrNoEnum getReplayFlag() {
-        return YesOrNoEnum.findByValue(getDetailListMap().containsKey(ReplayRatingDetailType.RATING) || getDetailListMap().containsKey(ReplayRatingDetailType.NEXT_IMPROVE));
+        return YesOrNoEnum.findByValue(isDetailInput(ReplayRatingDetailType.RATING) || isDetailInput(ReplayRatingDetailType.NEXT_IMPROVE));
     }
 
+    @Override
     public YesOrNoEnum getRatingFlag() {
-        return YesOrNoEnum.findByValue(getDetailListMap().containsKey(ReplayRatingDetailType.RATING));
+        return YesOrNoEnum.findByValue(isDetailInput(ReplayRatingDetailType.RATING));
+    }
+
+    private boolean isDetailInput(ReplayRatingDetailType detailType) {
+        return getDetailListMap().getOrDefault(detailType, new ReplayRatingDetailList()).stream().anyMatch(ReplayRatingDetail::isInput);
     }
 
 

@@ -20,6 +20,9 @@
         tsc.band_code,
         tsc.band_name,
         ts.id as styleId,
+        ts.style_pic,
+        ts.brand,
+        ts.brand_name,
         ts.prod_category1st,
         ts.prod_category1st_name,
         ts.prod_category,
@@ -42,6 +45,14 @@
         from t_style_color tsc
         left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = 'style'
         left join t_style ts on ts.id = tsc.style_id
+        where tsc.del_flag = '0'
+        <if test="qo.materialCode != null and qo.materialCode != ''">
+            and EXISTS(
+                select 1 from t_pack_bom tpb left join t_pack_info tpi ON tpi.id = tpb.foreign_id
+                where tpb.pack_type = 'packBigGoods' and tpb.del_flag = '0' AND tpb.status = '1' AND tpb.material_code = #{qo.materialCode}
+                and tpi.style_color_id = tsc.id and tpi.del_flag = '0'
+            )
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -52,49 +63,116 @@
         tsc.design_no,
         tsc.style_no as bulkStyleNo,
         tsc.style_color_pic,
-        tsc.plan_season_id,
+        tsc.planning_season_id,
         tsc.band_code,
         tsc.band_name,
         ts.id as styleId,
-        ts.prod_category1st
+        ts.style_pic,
+        ts.brand,
+        ts.brand_name,
+        ts.prod_category1st,
         ts.prod_category1st_name,
         ts.prod_category,
         ts.prod_category_name,
         ts.prod_category2nd,
         ts.prod_category2nd_name,
         ts.prod_category3rd,
-        ts.prod_category3rd_name
-        trr.id as replayRatingId,
-        trr.type as replayRatingType,
-        trr.replay_status
+        ts.prod_category3rd_name,
+        ts.registering_id,
+        ts.registering_no,
+        tpl.id as patternLibraryId,
+        tpl.code as patternLibraryCode,
+        tpl.template_code,
+        tpl.template_name,
+        trr.*
     </sql>
 
-    <select id="queryPatternList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
+    <select id="queryPatternList" resultType="com.base.sbc.module.replay.vo.ReplayRatingPatternVO">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            <include refid="queryPatternListField"/>
+        </if>
+        from t_style_color tsc
+        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = 'pattern'
+        left join t_style ts on ts.id = tsc.style_id
+        left join t_pattern_library tpl on tpl.style_id = ts.id AND tpl.del_flag = '0'
+
+        where tsc.del_flag = '0'
+        <if test="qo.silhouette != null and qo.silhouette != ''">
+            and EXISTS(
+                select 1 from t_field_val tfv where tfv.foreign_id = ts.id AND tfv.del_flag = '0'
+                    AND tfv.data_group = #{qo.groupName}
+                    AND tfv.field_explain = #{qo.fieldExplain}
+                    AND tfv.val = #{qo.silhouette}
+            )
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
     </select>
 
-    <sql id="queryColorListField">
-        tsc.id as styleColorId,
-        tsc.design_no,
-        tsc.style_no as bulkStyleNo,
-        tsc.style_color_pic,
-        tsc.plan_season_id,
-        tsc.band_code,
-        tsc.band_name,
-        ts.id as styleId,
-        ts.prod_category1st
-        ts.prod_category1st_name,
-        ts.prod_category,
-        ts.prod_category_name,
-        ts.prod_category2nd,
-        ts.prod_category2nd_name,
-        ts.prod_category3rd,
-        ts.prod_category3rd_name
-        trr.id as replayRatingId,
-        trr.type as replayRatingType,
-        trr.replay_status
+    <sql id="queryFabricListField">
+        tpb.id as bomId,
+        tpb.bom_version_id,
+        tpb.material_id,
+        tpb.material_code,
+        tpb.ingredient,
+        tpb.translate_code,
+        tpb.translate,
+        group_concat(distinct tbmc.color_name separator '\n') as color,
+        group_concat(distinct tbmc.color_code) as colorCode,
+        tpb.bulk_unit_use,
+        tpb.supplier_id,
+        tpb.supplier_name,
+        tpb.unit_code,
+        tpi.id as packInfoId,
+        tpi.style_color_id as styleColorId,
+        tpi.planning_season_id,
+        tpi.prod_category1st,
+        tpi.prod_category1st_name,
+        tpi.prod_category,
+        tpi.prod_category_name,
+        tpi.prod_category2nd,
+        tpi.prod_category2nd_name,
+        tpi.prod_category3rd,
+        tpi.prod_category3rd_name,
+        tpi.style_no as bulkStyleNo,
+        tpi.style_id,
+        tpi.design_no,
+        ts.brand,
+        ts.brand_name,
+        ts.band_code,
+        ts.band_name,
+        ts.style_pic,
+        trr.*
     </sql>
 
-    <select id="queryFabricList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
+    <select id="queryFabricList" resultType="com.base.sbc.module.replay.vo.ReplayRatingFabricVO">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            <include refid="queryFabricListField"/>
+        </if>
+        from t_pack_bom tpb
+        LEFT JOIN t_pack_info tpi ON tpb.foreign_id = tpi.id and tpi.del_flag = '0'
+        LEFT JOIN t_basicsdatum_material_color tbmc ON tpb.material_code = tbmc.material_code and tbmc.del_flag = '0'
+        LEFT JOIN t_style ts ON tpi.foreign_id = ts.id AND ts.del_flag = '0'
+        LEFT JOIN t_replay_rating trr ON trr.foreign_id = tpb.material_id AND trr.type = 'fabric' AND trr.del_flag = '0'
+        where
+        tpb.material_code is not null
+        and tpb.pack_type = 'packBigGoods'
+        and tpb.del_flag = '0'
+        AND tpb.status = '1'
+        AND EXISTS (select 1 from t_basicsdatum_material tbm where tpb.material_id = tbm.id AND tbm.del_flag = '0' AND tbm.category1_code = 'C4241')
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

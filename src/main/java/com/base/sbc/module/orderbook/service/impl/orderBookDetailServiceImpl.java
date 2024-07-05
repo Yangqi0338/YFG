@@ -37,8 +37,6 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.*;
-import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -69,7 +67,6 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
@@ -384,7 +381,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                         List<PackBom> packBoms1 = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
                         for (PackBom packBom : packBoms1) {
                             if ("1".equals(packBom.getMainFlag())) {
-                                orderBookDetailVo.setFabricState(packBom.getStatus());
+                                orderBookDetailVo.setFabricState(packBom.getStatus().getValueStr());
                                 // orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
                                 // orderBookDetailVo.setFabricFactoryName(packBom.getSupplierName());
 //                                QueryWrapper<BasicsdatumMaterialColor> basicsdatumMaterialColorQueryWrapper = new QueryWrapper<>();
@@ -641,7 +638,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 );
                 if (packBom != null ) {
                     if (StrUtil.isNotBlank(dto.getFabricState())) {
-                        packBom.setStatus(dto.getFabricState());
+                        packBom.setStatus(YesOrNoEnum.findByValue(dto.getFabricState()));
                         packBomService.updateById(packBom);
                     }
 
@@ -1427,6 +1424,25 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("tsc.style_no",styleNo);
         return baseMapper.getByStyleNoTotalProductionList(queryWrapper);
+    }
+
+    @Override
+    public Map<String, Integer> patternSuccessCountMap(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("ts.id", dto.getStyleId());
+        queryWrapper.notEmptyIn("ts.registering_no", dto.getRegisteringNo());
+        queryWrapper.notEmptyIn("ts.registering_id", dto.getRegisteringId());
+        queryWrapper.eq("tobd.order_status", OrderBookDetailOrderStatusEnum.ORDER);
+        if (StrUtil.isBlank(dto.getGroupBy())) {
+            dto.setGroupBy("ts.id");
+        }
+
+        List<Map<String, Object>> countMapList = baseMapper.patternSuccessCountMap(queryWrapper, dto);
+        HashMap<String, Integer> result = new HashMap<>();
+        countMapList.forEach(map -> {
+            result.put(map.get("mapKey").toString(), Integer.valueOf(map.get("count").toString()));
+        });
+        return result;
     }
 
     /**

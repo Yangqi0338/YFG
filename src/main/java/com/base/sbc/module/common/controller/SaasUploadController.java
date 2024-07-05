@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.FilesUtils;
@@ -17,7 +18,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
@@ -40,7 +47,7 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
-    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, String type, String code) {
+    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, UploadFileType type, String code) {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
         CommonUtils.isImage(file.getOriginalFilename(), true);
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file, type, code);
@@ -91,7 +98,7 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file, String type, String code) throws Throwable {
+    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file, UploadFileType type, String code) throws Throwable {
         if (file == null || file.getSize() == 0) {
             throw new OtherException("上传文件为空");
         }

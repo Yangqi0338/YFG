@@ -17,6 +17,7 @@ public class ProcessDatabasePageDto extends BaseDto {
     private String type;
     @ApiModelProperty(value = "类型")
     private String processName;
+    private String processNameList;
     private String processType;
     private String description;
     private String createName;

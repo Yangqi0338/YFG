@@ -31,7 +31,7 @@ public enum ReplayRatingLevelEnum {
     private final String text;
 
     ReplayRatingLevelEnum(String text) {
-        String code = this.name().toLowerCase();
+        String code = this.name();
         this.code = StrUtil.toCamelCase(code);
         this.text = text;
     }

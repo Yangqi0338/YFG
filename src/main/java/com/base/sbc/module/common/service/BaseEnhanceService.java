@@ -34,7 +34,7 @@ public interface BaseEnhanceService<T> {
         return BaseEnhanceService.warnMsg.get();
     }
 
-    default T decorateResult(Optional<T> opt, T defaultValue) {
+    default <V> V decorateResult(Optional<V> opt, V defaultValue) {
         String msg = getWarnMsg();
         if (msg != null) {
             removeMsg();

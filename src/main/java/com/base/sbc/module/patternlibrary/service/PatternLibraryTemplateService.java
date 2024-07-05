@@ -1,6 +1,6 @@
 package com.base.sbc.module.patternlibrary.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplateDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
@@ -12,7 +12,7 @@ import com.github.pagehelper.PageInfo;
  * @author xhte
  * @create 2024-03-22
  */
-public interface PatternLibraryTemplateService extends IService<PatternLibraryTemplate> {
+public interface PatternLibraryTemplateService extends BaseService<PatternLibraryTemplate> {
 
     /**
      * 版型库-模板表列表

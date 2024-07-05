@@ -6,9 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.dto;
 
+import cn.hutool.core.collection.CollUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,14 +28,31 @@ public class ReplayConfigDetailDTO {
 
     /** 今年 */
     @ApiModelProperty(value = "今年")
+    @Size(min = 4, message = "必须填写完所有季节的时间范围")
     private List<ReplayConfigTimeDTO> thisYear;
 
     /** 去年 */
     @ApiModelProperty(value = "去年")
+    @Size(min = 4, message = "必须填写完所有季节的时间范围")
     private List<ReplayConfigTimeDTO> lastYear;
 
     /** 前年 */
     @ApiModelProperty(value = "前年")
+    @Size(min = 4, message = "必须填写完所有季节的时间范围")
     private List<ReplayConfigTimeDTO> beforeYear;
+
+    public List<String> getTitleList() {
+        List<String> list = new ArrayList<>();
+        if (CollUtil.isNotEmpty(beforeYear)) {
+            list.add("前年");
+        }
+        if (CollUtil.isNotEmpty(lastYear)) {
+            list.add("去年");
+        }
+        if (CollUtil.isNotEmpty(thisYear)) {
+            list.add("今年");
+        }
+        return list;
+    }
 
 }

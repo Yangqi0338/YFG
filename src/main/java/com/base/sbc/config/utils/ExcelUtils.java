@@ -44,15 +44,29 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -546,6 +560,13 @@ public class ExcelUtils {
         }
 
         return excelEntity;
+    }
+
+    public static void exportExcelByTableCode(List<?> list, String name, QueryFieldDto queryFieldDto) throws IOException {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attributes == null) return;
+        exportExcelByTableCode(list, name, attributes.getResponse(), queryFieldDto);
     }
 
     public static void exportExcelByTableCode(List<?> list, String name, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {

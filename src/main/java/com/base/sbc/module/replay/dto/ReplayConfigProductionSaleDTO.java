@@ -6,15 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.dto;
 
-import com.base.sbc.client.ccm.entity.BasicBaseDict;
-import com.base.sbc.module.replay.entity.ReplayConfig;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 /**
  * 类描述：基础资料-复盘管理 实体类
@@ -26,18 +22,24 @@ import java.util.stream.Collectors;
  * @date 创建时间：2024-6-3 18:43:08
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-public class ReplayConfigDTO extends ReplayConfig {
+public class ReplayConfigProductionSaleDTO {
 
-    public ReplayConfigDTO(BasicBaseDict baseDict) {
-        super();
-        this.setBrand(baseDict.getValue());
-        this.setBrandName(baseDict.getName());
+    /** 投产量 */
+    @ApiModelProperty(value = "投产量")
+    private BigDecimal production;
+
+    /** 销售量 */
+    @ApiModelProperty(value = "销售量")
+    private BigDecimal sale;
+
+    /** 产销比 */
+    @ApiModelProperty(value = "产销比")
+    public String getProductionSaleRate() {
+        return BigDecimalUtil.dividePercentage(production, sale) + "%";
     }
 
-    @Override
-    public void decorateMapByDetail(Map<Object, Object> map, String key, List<?> objects) {
-        map.put(key, objects.stream().map(Object::toString).collect(Collectors.joining("\n")));
+
+    public ReplayConfigProductionSaleDTO plus(ReplayConfigProductionSaleDTO mathContext) {
+        return this;
     }
 }

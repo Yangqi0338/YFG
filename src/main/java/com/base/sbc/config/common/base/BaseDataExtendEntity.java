@@ -23,6 +23,7 @@ import org.apache.ibatis.type.TypeHandler;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 @Data
 public class BaseDataExtendEntity extends BaseDataEntity<String> {
 
-    private static List<Field> declaredFields;
+    private static Map<Class<?>, List<Field>> declaredFieldMap = new HashMap<>();
     private static Class<? extends TypeHandler> typeHandlerClass;
     /** 扩展字段 */
     @JsonIgnore
@@ -58,8 +59,8 @@ public class BaseDataExtendEntity extends BaseDataEntity<String> {
     }
 
     @JsonAnyGetter
-    public Map<String, String> decorateWebMap() {
-        Map<String, String> map = new HashMap<>();
+    public Map<Object, Object> decorateWebMap() {
+        Map<Object, Object> map = new HashMap<>();
         Field[] declaredFields = ReflectUtil.getFields(this.getClass());
         List<Field> handlerFieldList = Arrays.stream(declaredFields).filter(it -> it.isAnnotationPresent(ExtendField.class)).collect(Collectors.toList());
         if (handlerFieldList.isEmpty()) return map;
@@ -75,26 +76,31 @@ public class BaseDataExtendEntity extends BaseDataEntity<String> {
         return map;
     }
 
-    public void decorateMapByDetail(Map<String, String> map, String pre, Object obj) throws IllegalAccessException {
+    public void decorateMapByDetail(Map<Object, Object> map, String pre, Object obj) throws IllegalAccessException {
         if (obj != null) {
-            Field[] declaredFields = ReflectUtil.getFields(obj.getClass());
-            for (Field declaredField : declaredFields) {
-                declaredField.setAccessible(true);
-                // 先只支持List和普通
-                String key = pre + StrUtil.upperFirst(declaredField.getName());
-                if (declaredField.getType().isAssignableFrom(List.class)) {
-                    List<?> objects = (List<?>) declaredField.get(obj);
-                    if (CollUtil.isNotEmpty(objects)) {
-                        this.decorateMapByDetail(map, key, objects);
+            Class<?> clazz = obj.getClass();
+            if (obj instanceof CharSequence) {
+                map.put(pre, obj.toString());
+            } else {
+                Field[] declaredFields = ReflectUtil.getFields(clazz);
+                for (Field declaredField : declaredFields) {
+                    declaredField.setAccessible(true);
+                    // 先只支持List和普通
+                    String key = pre + StrUtil.upperFirst(declaredField.getName());
+                    if (declaredField.getType().isAssignableFrom(List.class)) {
+                        List<?> objects = (List<?>) declaredField.get(obj);
+                        if (CollUtil.isNotEmpty(objects)) {
+                            this.decorateMapByDetail(map, key, objects);
+                        }
+                    } else {
+                        map.put(key, declaredField.get(obj).toString());
                     }
-                } else {
-                    map.put(key, declaredField.get(obj).toString());
                 }
             }
         }
     }
 
-    public void decorateMapByDetail(Map<String, String> map, String pre, List<?> objects) throws IllegalAccessException {
+    public void decorateMapByDetail(Map<Object, Object> map, String pre, List<?> objects) throws IllegalAccessException {
         for (Object object : objects) {
             decorateMapByDetail(map, pre, object);
         }
@@ -102,9 +108,11 @@ public class BaseDataExtendEntity extends BaseDataEntity<String> {
 
     public void build() {
         if (MapUtil.isEmpty(this.extend)) return;
-        if (declaredFields == null) {
+        List<Field> declaredFields = declaredFieldMap.getOrDefault(this.getClass(), new ArrayList<>());
+        if (CollUtil.isEmpty(declaredFields)) {
             declaredFields = Arrays.asList(this.getClass().getDeclaredFields());
             declaredFields.forEach(it -> it.setAccessible(true));
+            declaredFieldMap.put(this.getClass(), declaredFields);
         }
         try {
             for (Map.Entry<String, Object> entry : this.extend.entrySet()) {

@@ -16,7 +16,6 @@
 package com.base.sbc.config;
 
 import com.baomidou.mybatisplus.extension.handlers.AbstractJsonTypeHandler;
-import com.base.sbc.config.exception.OtherException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -49,9 +48,9 @@ public abstract class MybatisPlusExtendHandler extends AbstractJsonTypeHandler<M
 
     public MybatisPlusExtendHandler(Class<?> type) {
         super(type);
-        if (!this.getRawType().getTypeName().equals(type.getTypeName())) {
-            throw new OtherException("使用这个extend处理器,类型仅支持Map<String,Object>");
-        }
+//        if (!this.getRawType().getTypeName().equals(type.getTypeName())) {
+//            throw new OtherException("使用这个extend处理器,类型仅支持Map<String,Object>");
+//        }
     }
 
     public void setStatement(MappedStatement statement) {

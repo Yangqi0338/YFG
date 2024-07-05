@@ -6,13 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.vo;
 
-import com.base.sbc.config.annotation.ExtendField;
-import com.base.sbc.config.enums.business.replay.ReplayRatingLevelEnum;
-import com.base.sbc.config.enums.business.replay.ReplayRatingType;
+import cn.hutool.core.map.MapUtil;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Map;
 
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
@@ -25,26 +26,18 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("基础资料-复盘评分 ReplayRatingVo")
-public class ReplayRatingStyleVO extends ReplayRatingVO {
+@ApiModel("基础资料-分页复盘评分 ReplayRatingPageVO")
+public class ReplayRatingPageVO<T extends ReplayRatingVO> extends PageInfo<T> {
 
-    /** 企划等级 */
-    @ApiModelProperty(value = "企划等级")
-    @ExtendField
-    private ReplayRatingLevelEnum planningLevel;
-    /** 季节等级 */
-    @ApiModelProperty(value = "季节等级")
-    @ExtendField
-    private ReplayRatingLevelEnum seasonLevel;
-    /**
-     * 跳转版型id
-     */
-    @ApiModelProperty(value = "跳转版型id")
-    private String gotoPatternId;
+    private Map<String, String> totalMap;
 
-    @Override
-    public ReplayRatingType getType() {
-        return ReplayRatingType.STYLE;
+    @JsonAnyGetter
+    public Map<String, String> getTotalMap() {
+        return totalMap;
+    }
+
+    public void setTotalMap(Map<String, Object> totalMap) {
+        this.totalMap = MapUtil.map(totalMap, (key, value) -> value.toString());
     }
 
 }

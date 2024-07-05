@@ -13,13 +13,17 @@ import com.base.sbc.module.replay.dto.ReplayRatingFabricDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingPatternDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingSaveDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO;
+import com.base.sbc.module.replay.dto.ReplayRatingTransferDTO;
 import com.base.sbc.module.replay.service.ReplayRatingService;
+import com.base.sbc.module.replay.vo.ReplayRatingBulkWarnVO;
+import com.base.sbc.module.replay.vo.ReplayRatingPageVO;
 import com.base.sbc.module.replay.vo.ReplayRatingQO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
+import com.base.sbc.module.replay.vo.ReplayRatingYearQO;
+import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +31,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * 类描述：基础资料-复盘评分 Controller类
@@ -49,22 +58,21 @@ public class ReplayRatingController extends BaseController {
 
     @ApiOperation(value = "分页查询")
     @GetMapping("queryPageInfo")
-    public ApiResult<PageInfo<? extends ReplayRatingVO>> queryPageInfo(@Validated ReplayRatingQO dto) {
+    public ApiResult<ReplayRatingPageVO<? extends ReplayRatingVO>> queryPageInfo(@Validated ReplayRatingQO dto) {
         return selectSuccess(replayRatingService.queryPageInfo(dto));
     }
 
     @ApiOperation(value = "单款复盘明细")
     @GetMapping("/style/{styleColorId}")
-    public ApiResult<ReplayRatingStyleDTO> getStyleById(@PathVariable("styleColorId") @NotBlank(message = "id不能为空") String styleColorId) {
+    public ApiResult<ReplayRatingStyleDTO> getStyleById(@PathVariable("styleColorId") @NotBlank(message = "大货id不能为空") String styleColorId) {
         return selectSuccess(replayRatingService.getStyleById(styleColorId));
     }
 
     @ApiOperation(value = "版型复盘明细")
-    @GetMapping("/pattern/{id}")
-    public ApiResult<ReplayRatingPatternDTO> getPatternById(@PathVariable("id") @NotBlank(message = "id不能为空") String id) {
-        return selectSuccess(replayRatingService.getPatternById(id));
+    @GetMapping("/pattern/{styleColorId}")
+    public ApiResult<ReplayRatingPatternDTO> getPatternById(@PathVariable("styleColorId") @NotBlank(message = "款式id不能为空") String styleColorId) {
+        return selectSuccess(replayRatingService.getPatternById(styleColorId));
     }
-
 
     @ApiOperation(value = "面料复盘明细")
     @GetMapping("/fabric/{id}")
@@ -80,29 +88,29 @@ public class ReplayRatingController extends BaseController {
     }
 
     @ApiOperation(value = "导出")
-    @PostMapping("exportExcel")
-    @DuplicationCheck
-    public ApiResult<String> exportExcel(@RequestBody ReplayRatingSaveDTO replayRatingSaveDTO) {
-        return updateSuccess(replayRatingService.doSave(replayRatingSaveDTO));
+    @GetMapping("exportExcel")
+    @DuplicationCheck(type = 1, time = 999)
+    public void exportExcel(@Validated ReplayRatingQO qo) {
+        replayRatingService.exportExcel(qo);
     }
 
     @ApiOperation(value = "大货异常信息")
     @GetMapping("bulkWarnMsg")
-    public ApiResult<String> bulkWarnMsg(@RequestBody ReplayRatingSaveDTO replayRatingSaveDTO) {
-        return updateSuccess(replayRatingService.doSave(replayRatingSaveDTO));
+    public ApiResult<List<ReplayRatingBulkWarnVO>> bulkWarnMsg(@RequestParam("bulkStyleNo") String bulkStyleNo) {
+        return selectSuccess(replayRatingService.bulkWarnMsg(bulkStyleNo));
     }
 
     @ApiOperation(value = "转入版型库")
     @PostMapping("transferPatternLibrary")
     @DuplicationCheck
-    public ApiResult<String> transferPatternLibrary(@RequestBody ReplayRatingSaveDTO replayRatingSaveDTO) {
-        return updateSuccess(replayRatingService.doSave(replayRatingSaveDTO));
+    public ApiResult<String> transferPatternLibrary(@RequestBody @Valid ReplayRatingTransferDTO transferDTO) {
+        return updateSuccess(replayRatingService.transferPatternLibrary(transferDTO));
     }
 
     @ApiOperation(value = "历史套版详情/应用款")
     @GetMapping("yearListByStyleNo")
-    public ApiResult<String> yearListByStyleNo(@RequestBody ReplayRatingSaveDTO replayRatingSaveDTO) {
-        return updateSuccess(replayRatingService.doSave(replayRatingSaveDTO));
+    public ApiResult<PageInfo<ReplayRatingYearVO>> yearListByStyleNo(@Valid ReplayRatingYearQO replayRatingYearQO) {
+        return selectSuccess(replayRatingService.yearListByStyleNo(replayRatingYearQO));
     }
 
 }

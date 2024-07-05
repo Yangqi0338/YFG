@@ -7,6 +7,7 @@
 package com.base.sbc.module.replay.vo;
 
 import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.replay.entity.ReplayRating;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("基础资料-复盘评分 ReplayRatingVo")
 public class ReplayRatingVO extends ReplayRating {
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名")
+    private String brandName;
 
     /** 配色Id */
     @ApiModelProperty(value = "配色Id")
@@ -43,6 +50,13 @@ public class ReplayRatingVO extends ReplayRating {
     /** 大货款图 */
     @ApiModelProperty(value = "大货款图")
     private String styleColorPic;
+    /** 款图 */
+    @ApiModelProperty(value = "款图")
+    private String stylePic;
+    /**
+     * 是否可编辑,0：可编辑,1：不可编辑
+     */
+    private Integer isEdit = 0;
 
     /** 产品季id */
     @ApiModelProperty(value = "产品季id")
@@ -101,15 +115,27 @@ public class ReplayRatingVO extends ReplayRating {
     @ApiModelProperty(value = "小类code")
     @JsonIgnore
     private String prodCategory3rdName;
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 
-    public String getCategoryName() {
-        return StrJoiner.of("\n").append(planningSeasonName).append(bandName).append(
-                StrJoiner.of("/").append(prodCategory1stName).append(prodCategoryName).append(prodCategory2ndName).append(prodCategory3rdName)
-        ).toString();
+    public String getStyleColorPic() {
+        return StrUtil.isBlank(styleColorPic) ? stylePic : styleColorPic;
     }
 
     public String getTypeName() {
         return getType().getText();
+    }
+
+    public String getCategoryName() {
+        return categoryNameJoiner().toString();
+    }
+
+    protected StrJoiner categoryNameJoiner() {
+        return StrJoiner.of("\n").setNullMode(StrJoiner.NullMode.IGNORE).append(planningSeasonName).append(bandName).append(
+                StrJoiner.of("/").append(prodCategory1stName).append(prodCategoryName).append(prodCategory2ndName).append(prodCategory3rdName)
+        );
     }
 
 }

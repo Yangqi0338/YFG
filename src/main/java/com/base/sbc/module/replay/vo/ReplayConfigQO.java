@@ -7,6 +7,7 @@
 package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.dto.QueryFieldDto;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -23,5 +24,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ReplayConfigQO extends QueryFieldDto {
 
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名")
+    private String brandName;
 
 }

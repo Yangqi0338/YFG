@@ -128,8 +128,8 @@ public class PackBom extends BaseDataEntity<String> {
     /**
      * 状态:暂未使用
      */
-    @ApiModelProperty(value = "状态:暂未使用")
-    private String status;
+    @ApiModelProperty(value = "状态:暂未使用 (240701开始使用,保持与BomVersion相同状态)")
+    private YesOrNoEnum status;
     /**
      * bom模板id
      */

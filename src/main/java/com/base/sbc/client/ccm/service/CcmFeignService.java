@@ -9,7 +9,13 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.client.ccm.entity.*;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicDictDepend;
+import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
+import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
+import com.base.sbc.client.ccm.entity.BasicUnitConfig;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
@@ -18,7 +24,14 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -263,6 +276,31 @@ public class CcmFeignService {
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             List<BasicCategoryDot> data = JSON.parseArray((JSON.parseObject(jsonObject.get("data").toString()).get("dataTree")).toString(), BasicCategoryDot.class);
             return data;
+        }
+        return null;
+    }
+
+    /**
+     * 查询 品类集合
+     */
+    public BasicCategoryDot getTreeByName(BasicCategoryDot basicCategoryDot, String level) {
+        String code = basicCategoryDot.getValue();
+        String name = basicCategoryDot.getName();
+        String id = basicCategoryDot.getId();
+        String dictInfo;
+        if (StrUtil.isNotBlank(id)) {
+            dictInfo = ccmService.tree(id, null, level);
+        } else if (StrUtil.isNotBlank(code)) {
+            dictInfo = ccmService.basicStructureTreeByCode(code, null, level);
+        } else {
+            dictInfo = ccmService.treeByName(name, null, level);
+        }
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicCategoryDot> data = JSON.parseArray((JSON.parseObject(jsonObject.get("data").toString()).get("dataTree")).toString(), BasicCategoryDot.class);
+            BasicCategoryDot newBasicCategoryDot = BeanUtil.copyProperties(basicCategoryDot, BasicCategoryDot.class);
+            newBasicCategoryDot.setChildren(data);
+            return newBasicCategoryDot;
         }
         return null;
     }

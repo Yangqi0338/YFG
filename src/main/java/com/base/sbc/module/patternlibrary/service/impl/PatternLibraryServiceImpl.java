@@ -18,7 +18,9 @@ import com.base.sbc.client.flowable.service.FlowableFeignService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
@@ -36,7 +38,11 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
-import com.base.sbc.module.patternlibrary.dto.*;
+import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
+import com.base.sbc.module.patternlibrary.dto.ExcelImportDTO;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
+import com.base.sbc.module.patternlibrary.dto.UseStyleDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryBrand;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
@@ -48,7 +54,11 @@ import com.base.sbc.module.patternlibrary.service.PatternLibraryBrandService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryItemService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
-import com.base.sbc.module.patternlibrary.vo.*;
+import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
+import com.base.sbc.module.patternlibrary.vo.EverGreenVO;
+import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
+import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
+import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.smp.SmpService;
@@ -74,7 +84,14 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -370,7 +387,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         );
                         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(
                                 multipartFile,
-                                "patternLibraryPic",
+                                UploadFileType.patternLibraryFile,
                                 patternLibraryDTO.getPatternLibraryBrandList().get(0).getBrandName()
                         );
                         picSampleAttachmentDto.setFileId(attachmentVo.getFileId());
@@ -983,6 +1000,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
         patternLibraryBrand.setBrand(style.getBrand());
         patternLibraryBrand.setBrandName(style.getBrandName());
+        patternLibrary.setPatternLibraryBrandList(Collections.singletonList(patternLibraryBrand));
         // 图片信息 图获取该设计款拍照图（待定） > 大货图（款式配色的图片） > 设计图
         // 先获取款式配色信息
         List<StyleColor> styleColorList = styleColorService.list(
@@ -1250,6 +1268,22 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             }
         }
         return new PatternLibraryTemplate();
+    }
+
+    @Override
+    public Map<String, Integer> patternUseCountMap(UseStyleDTO useStyleDTO) {
+        LambdaQueryWrapper<Style> queryWrapper = new BaseLambdaQueryWrapper<Style>()
+                .notEmptyIn(Style::getSerialStyleId, useStyleDTO.getStyleId())
+                .notEmptyIn(Style::getRegisteringId, useStyleDTO.getPatternLibraryId());
+        List<Map<String, Object>> countMapList = baseMapper.useCountMap(queryWrapper);
+        Map<String, Integer> result = new HashMap<>();
+        countMapList.forEach(map -> {
+            Object object = map.get("registeringId");
+            if (object != null) {
+                result.put(object.toString(), Integer.valueOf(map.get("count").toString()));
+            }
+        });
+        return result;
     }
 
     public void removeEverGreenTreeNode(String patternLibraryId) {

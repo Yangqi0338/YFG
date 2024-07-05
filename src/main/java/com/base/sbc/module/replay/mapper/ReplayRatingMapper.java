@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.replay.entity.ReplayRating;
+import com.base.sbc.module.replay.vo.ReplayRatingFabricVO;
+import com.base.sbc.module.replay.vo.ReplayRatingPatternVO;
+import com.base.sbc.module.replay.vo.ReplayRatingQO;
 import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -29,11 +32,11 @@ import java.util.List;
 public interface ReplayRatingMapper extends BaseMapper<ReplayRating> {
 // 自定义方法区 不替换的区域【other_start】
 
-    List<ReplayRatingStyleVO> queryStyleList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<ReplayRatingStyleVO> queryStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
-    List<ReplayRatingStyleVO> queryPatternList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<ReplayRatingPatternVO> queryPatternList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
-    List<ReplayRatingStyleVO> queryFabricList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<ReplayRatingFabricVO> queryFabricList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
 // 自定义方法区 不替换的区域【other_end】
 }

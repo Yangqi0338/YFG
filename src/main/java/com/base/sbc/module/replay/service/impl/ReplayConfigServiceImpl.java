@@ -10,7 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.replay.dto.ReplayConfigDTO;
@@ -47,24 +47,31 @@ public class ReplayConfigServiceImpl extends BaseServiceImpl<ReplayConfigMapper,
     private CcmFeignService ccmFeignService;
 
     @Override
-    public PageInfo<ReplayConfigDTO> queryPageInfo(ReplayConfigQO dto) {
-        Page<ReplayConfig> page = dto.startPage();
-        BaseQueryWrapper<ReplayConfig> qw = new BaseQueryWrapper<>();
+    public PageInfo<ReplayConfigDTO> queryPageInfo(ReplayConfigQO qo) {
+        Page<ReplayConfig> page = qo.startPage();
+        LambdaQueryWrapper<ReplayConfig> qw = new BaseLambdaQueryWrapper<ReplayConfig>()
+                .notEmptyEq(ReplayConfig::getBrand, qo.getBrand())
+                .notEmptyIn(ReplayConfig::getBrandName, qo.getBrandName());
         List<ReplayConfig> list = this.list(qw);
-        List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(brandDictKey);
-        List<ReplayConfig> extendReplayConfig = dictInfoToList.stream().filter(dict -> list.stream().noneMatch(it -> it.getBrand().equals(dict.getValue()))).map(dict -> {
-            ReplayConfig replayConfig = new ReplayConfig();
-            replayConfig.setBrand(dict.getValue());
-            replayConfig.setBrandName(dict.getName());
-            return replayConfig;
-        }).collect(Collectors.toList());
-        page.getResult().addAll(extendReplayConfig);
+        if (StrUtil.isBlank(qo.getBrand())) {
+            List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(brandDictKey);
+            List<ReplayConfig> extendReplayConfig = dictInfoToList.stream().filter(dict -> list.stream().noneMatch(it -> dict.getValue().equals(it.getBrand()))).map(dict -> {
+                ReplayConfig replayConfig = new ReplayConfig();
+                replayConfig.setBrand(dict.getValue());
+                replayConfig.setBrandName(dict.getName());
+                return replayConfig;
+            }).collect(Collectors.toList());
+            page.getResult().addAll(extendReplayConfig);
+        }
         return REPLAY_CV.copy2DTO(page.toPageInfo());
     }
 
     @Override
-    public ReplayConfigDTO getDetailById(String id) {
-        ReplayConfig replayConfig = this.getById(id);
+    public ReplayConfigDTO getDetailByBrand(String brand) {
+        List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(brandDictKey);
+        BasicBaseDict dict = dictInfoToList.stream().filter(it -> it.getValue().equals(brand)).findFirst().orElseThrow(() -> new OtherException("错误的品牌"));
+        ReplayConfig replayConfig = this.findOne(new LambdaQueryWrapper<ReplayConfig>().eq(ReplayConfig::getBrand, dict.getValue()));
+        if (replayConfig == null) return new ReplayConfigDTO(dict);
         return REPLAY_CV.copy2DTO(replayConfig);
     }
 

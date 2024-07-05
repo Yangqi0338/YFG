@@ -17,11 +17,11 @@ import java.util.Arrays;
  */
 @Getter
 @AllArgsConstructor
-public enum ReplayRatingDetailDimensionType {
+public enum ReplayRatingWarnType {
     /**/
-    PATTERN("版型"),
-    FABRIC("面料"),
-    COLOR("颜色"),
+    FABRIC_CHECK("面料检验单"),
+    FABRIC_PHYSIC("面料理化单"),
+    PRODUCTION_CHECK("生产检验单"),
 
     ;
     /** 编码 */
@@ -30,19 +30,19 @@ public enum ReplayRatingDetailDimensionType {
     /** 文本 */
     private final String text;
 
-    ReplayRatingDetailDimensionType(String text) {
+    ReplayRatingWarnType(String text) {
         String code = this.name().toLowerCase();
         this.code = StrUtil.toCamelCase(code);
         this.text = text;
     }
 
-    public static ReplayRatingDetailDimensionType findByCode(String code) {
-        return Arrays.stream(ReplayRatingDetailDimensionType.values()).filter(it -> it.code.equals(code)).findFirst().orElse(null);
+    public static ReplayRatingWarnType findByCode(String code) {
+        return Arrays.stream(ReplayRatingWarnType.values()).filter(it -> it.code.equals(code)).findFirst().orElse(null);
     }
 
     @JsonValue
-    public String getCode() {
-        return code;
+    public String getText() {
+        return text;
     }
 
     @Override

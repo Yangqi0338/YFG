@@ -44,4 +44,8 @@ public enum ReplayRatingDetailType {
         return code;
     }
 
+    @Override
+    public String toString() {
+        return code;
+    }
 }

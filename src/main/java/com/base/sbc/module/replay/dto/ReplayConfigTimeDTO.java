@@ -6,16 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.dto;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.module.basicsdatum.enums.SeasonEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * 类描述：基础资料-复盘管理 实体类
@@ -27,6 +27,7 @@ import java.util.Date;
  * @date 创建时间：2024-6-3 18:43:08
  */
 @Data
+@NoArgsConstructor
 public class ReplayConfigTimeDTO {
     /** 季节名称 */
     @ApiModelProperty(value = "季节名称")
@@ -36,20 +37,24 @@ public class ReplayConfigTimeDTO {
     @ApiModelProperty(value = "开始月份")
     @DateTimeFormat(pattern = "yyyy年MM月")
     @JsonFormat(pattern = "yyyy年MM月", timezone = "GMT+8")
-    private Date startMonth;
+    private YearMonth startMonth;
 
     /** 结束月份 */
     @ApiModelProperty(value = "结束月份")
     @DateTimeFormat(pattern = "yyyy年MM月")
     @JsonFormat(pattern = "yyyy年MM月", timezone = "GMT+8")
-    private Date endMonth;
+    private YearMonth endMonth;
+
+    public ReplayConfigTimeDTO(SeasonEnum season) {
+        this.season = season;
+    }
 
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月");
         StrJoiner joiner = StrJoiner.of("~");
-        if (startMonth != null) joiner.append(DateUtil.format(startMonth, formatter));
-        if (endMonth != null) joiner.append(DateUtil.format(endMonth, formatter));
+        if (startMonth != null) joiner.append(startMonth.format(formatter));
+        if (endMonth != null) joiner.append(endMonth.format(formatter));
         return season.getName() + ": " + joiner;
     }
 }

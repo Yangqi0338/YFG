@@ -40,7 +40,7 @@ public class ReplayRatingQO extends QueryFieldDto {
 
     /** 波段 */
     @ApiModelProperty(value = "波段")
-    private String bandCode;
+    private String bandName;
 
     /** 大类code */
     @ApiModelProperty(value = "大类code")
@@ -78,6 +78,10 @@ public class ReplayRatingQO extends QueryFieldDto {
     @ApiModelProperty(value = "评分状态：0未评分 1已评分")
     private YesOrNoEnum ratingFlag;
 
+    /** 版型库id */
+    @ApiModelProperty(value = "版型库id")
+    private String registeringId;
+
     /** 套版款号 */
     @ApiModelProperty(value = "套版款号")
     private String registeringNo;
@@ -105,5 +109,15 @@ public class ReplayRatingQO extends QueryFieldDto {
     /** 面料自主研发 */
     @ApiModelProperty(value = "面料自主研发")
     private YesOrNoEnum materialOwnResearchFlag;
+
+    /** 查询总数标志 */
+    @ApiModelProperty(value = "查询总数标志")
+    private YesOrNoEnum findTotalFlag;
+
+    @ApiModelProperty(value = "分组名称")
+    private String groupName;
+
+    @ApiModelProperty(value = "字段说明")
+    private String fieldExplain;
 
 }

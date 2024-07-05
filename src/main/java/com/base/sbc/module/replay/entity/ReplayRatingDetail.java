@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.common.base.BaseDataExtendEntity;
@@ -34,6 +35,11 @@ public class ReplayRatingDetail extends BaseDataExtendEntity {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /** 文件名称 */
+    @ApiModelProperty(value = "文件名称")
+    @ExtendField
+    private String fileName;
+
     /** 文件Url */
     @ApiModelProperty(value = "文件Url")
     @ExtendField
@@ -49,18 +55,23 @@ public class ReplayRatingDetail extends BaseDataExtendEntity {
     @ExtendField
     private String userName;
 
-
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 复盘评分id */
     @ApiModelProperty(value = "复盘评分id")
     private String replayRatingId;
-    /** 评分类型 0评分 1后续改善 */
-    @ApiModelProperty(value = "评分类型 0评分 1后续改善")
+    /** 外键id */
+    @ApiModelProperty(value = "外键id")
+    private String foreignId;
+    /** 外键code */
+    @ApiModelProperty(value = "外键code")
+    private String code;
+    /** 评分类型 rating评分 nextImprove后续改善 */
+    @ApiModelProperty(value = "评分类型 rating评分 nextImprove后续改善")
     private ReplayRatingDetailType type;
-    /** 维度类型 0默认 1版型 2面料 3颜色 */
-    @ApiModelProperty(value = "维度类型 0默认 1版型 2面料 3颜色")
+    /** 维度类型 fabric版型 pattern面料 color颜色 */
+    @ApiModelProperty(value = "维度类型 fabric版型 pattern面料 color颜色")
     private ReplayRatingDetailDimensionType dimensionType;
     /** 描述 */
     @ApiModelProperty(value = "描述")
@@ -81,4 +92,14 @@ public class ReplayRatingDetail extends BaseDataExtendEntity {
     @ApiModelProperty(value = "责任人id")
     private String userId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public boolean isInput() {
+        if (type == ReplayRatingDetailType.RATING) {
+            return level != null;
+        } else if (!StrUtil.isAllBlank(description, followUserId, userId)) {
+            return StrUtil.isAllNotBlank(description, followUserId, userId);
+        } else {
+            return false;
+        }
+    }
 }

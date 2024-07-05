@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 /**
  * 类描述：基础资料-复盘管理 Controller类
  *
@@ -51,15 +53,15 @@ public class ReplayConfigController extends BaseController {
     }
 
     @ApiOperation(value = "明细-通过id查询")
-    @GetMapping("/{id}")
-    public ApiResult<ReplayConfigDTO> getById(@PathVariable("id") String id) {
-        return selectSuccess(replayConfigService.getDetailById(id));
+    @GetMapping("/{brand}")
+    public ApiResult<ReplayConfigDTO> getByBrand(@PathVariable("brand") String brand) {
+        return selectSuccess(replayConfigService.getDetailByBrand(brand));
     }
 
     @ApiOperation(value = "保存")
     @PostMapping("save")
     @DuplicationCheck
-    public ApiResult<String> save(@RequestBody ReplayConfigDTO replayConfigDTO) {
+    public ApiResult<String> save(@RequestBody @Valid ReplayConfigDTO replayConfigDTO) {
         return updateSuccess(replayConfigService.doSave(replayConfigDTO));
     }
 

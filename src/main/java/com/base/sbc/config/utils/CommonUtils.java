@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -365,6 +366,10 @@ public class CommonUtils {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.mapping(mapper, Collectors.toList()));
     }
 
+    public static <T, K, U> Collector<T, ?, Map<K, U>> groupingSingleBy(Function<? super T, ? extends K> classifier, Function<? super List<T>, ? extends U> mapper) {
+        return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.collectingAndThen(Collectors.toList(), mapper::apply));
+    }
+
     public static <T, K> Collector<T, ?, Map<K, T>> toMap(Function<? super T, ? extends K> classifier) {
         return toMap(classifier, Function.identity());
     }
@@ -375,6 +380,16 @@ public class CommonUtils {
 
     public static <T, K, U> Collector<T, ?, Map<K, U>> toMap(Function<? super T, ? extends K> classifier, Function<? super T, ? extends U> mapper) {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.collectingAndThen(Collectors.toList(), value -> mapper.apply(value.get(0))));
+    }
+
+    public static <T, V> Map<V, List<T>> inverse(Map<T, V> map) {
+        final Map<V, List<T>> result = MapUtil.createMap(map.getClass());
+        map.forEach((key, value) -> {
+            List<T> list = result.getOrDefault(value, new ArrayList<>());
+            list.add(key);
+            result.put(value, list);
+        });
+        return result;
     }
 
     public static <T, U extends Enum<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor) {

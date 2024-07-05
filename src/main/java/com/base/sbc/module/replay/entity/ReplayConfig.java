@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.base.sbc.module.replay.dto.ReplayConfigDetailDTO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -35,6 +35,17 @@ public class ReplayConfig extends BaseDataExtendEntity {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名")
+    @ExtendField
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String brandName;
+
+    /** 销售季 */
+    @ApiModelProperty(value = "销售季")
+    @ExtendField
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private ReplayConfigDetailDTO saleSeason;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -44,19 +55,8 @@ public class ReplayConfig extends BaseDataExtendEntity {
     @NotBlank(message = "品牌不能为空")
     private String brand;
 
-    /** 品牌名 */
-    @ApiModelProperty(value = "品牌名")
-    @ExtendField
-    private String brandName;
-
     /** 销售周期 */
     @ApiModelProperty(value = "销售周期")
     private String saleCycle;
-
-    /** 销售季 */
-    @ApiModelProperty(value = "销售季")
-    @ExtendField
-    @JsonIgnore
-    private ReplayConfigDetailDTO saleSeason;
 
 }

@@ -27,7 +27,7 @@ public interface ReplayConfigService extends BaseService<ReplayConfig> {
 
     PageInfo<ReplayConfigDTO> queryPageInfo(ReplayConfigQO dto);
 
-    ReplayConfigDTO getDetailById(String id);
+    ReplayConfigDTO getDetailByBrand(String brand);
 
     String doSave(ReplayConfigDTO replayConfigDTO);
 

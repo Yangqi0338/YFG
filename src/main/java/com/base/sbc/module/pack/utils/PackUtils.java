@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackSize;
@@ -86,7 +87,7 @@ public class PackUtils {
         }
         for (PackBom packBom : bom) {
             packBom.setDelFlag(Opt.ofBlankAble(packBom.getDelFlag()).orElse(BaseGlobal.NO));
-            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(BaseGlobal.YES));
+            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(YesOrNoEnum.YES));
             packBom.setUnusableFlag(Opt.ofBlankAble(packBom.getUnusableFlag()).orElse(BaseGlobal.NO));
             packBom.setScmSendFlag(Opt.ofBlankAble(packBom.getScmSendFlag()).orElse(BaseGlobal.NO));
         }

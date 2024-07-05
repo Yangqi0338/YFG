@@ -26,4 +26,7 @@ public class QueryFieldDto extends Page {
     private String imgFlag;
 
     private List<String> idList;
+
+    // 是否列头匹配
+    private boolean columnGroupSearch;
 }
