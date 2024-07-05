@@ -90,6 +90,8 @@ import com.base.sbc.module.style.service.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -122,6 +124,7 @@ import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HAN
 @Configuration
 public class SmpService {
 
+    private static final Logger log = LoggerFactory.getLogger(SmpService.class);
     private final DataSourceTransactionManager dataSourceTransactionManager;
 
     private final TransactionDefinition transactionDefinition;
@@ -233,13 +236,20 @@ public class SmpService {
     public void goodsAsync(String[] ids, String targetBusinessSystem, String yshBusinessSystem) {
         List<String> msg = new ArrayList<>();
         StringBuffer sbMsg1 = new StringBuffer();
-        int i =goods(ids,targetBusinessSystem,yshBusinessSystem,1,msg);
-        if (ids.length == i) {
-            sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条");
-        } else {
-            sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条,失败：").append(ids.length - i).append("条;失败原因如下:").append(String.join(";", msg));
-        }
         OperaLogEntity operaLogEntity = new OperaLogEntity();
+        try{
+            int i =goods(ids,targetBusinessSystem,yshBusinessSystem,1,msg);
+            if (ids.length == i) {
+                sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条");
+            } else {
+                sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条,失败：").append(ids.length - i).append("条;失败原因如下:").append(String.join(";", msg));
+            }
+        }catch (Exception e){
+            log.error("款式打标下发失败,请手工重推",e);
+            sbMsg1.append("下发失败,请手工重推");
+        }
+
+
         operaLogEntity.setType("导入-下发");
         operaLogEntity.setDocumentId("导入下发结果");
         operaLogEntity.setName("款式打标-批量导入修改");
