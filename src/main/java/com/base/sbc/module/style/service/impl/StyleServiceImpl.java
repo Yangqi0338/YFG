@@ -2153,6 +2153,20 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (detail == null) {
             return null;
         }
+        // 查询样衣图片
+        List<PatternMaking> patternMakingList = patternMakingService.list(
+                new LambdaQueryWrapper<PatternMaking>()
+                        .select(PatternMaking::getSamplePic)
+                        .isNotNull(PatternMaking::getSamplePic)
+                        .ne(PatternMaking::getSamplePic, "")
+                        .eq(PatternMaking::getDelFlag, BaseGlobal.NO)
+                        .eq(PatternMaking::getStyleId, detail.getId())
+        );
+        if (ObjectUtil.isNotEmpty(patternMakingList)) {
+            minioUtils.setObjectUrlToList(patternMakingList, "samplePic");
+            List<String> samplePicList = patternMakingList.stream().map(PatternMaking::getSamplePic).collect(Collectors.toList());
+            detail.setSamplePicList(samplePicList);
+        }
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));
         List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getCompanyCode(), detail.getSizeRange());
@@ -2280,20 +2294,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         // mini 加密
         minioUtils.setObjectUrlToObject(detail, "seatStylePic", "patternPartsPic");
-        // 查询样衣图片
-        List<PatternMaking> patternMakingList = patternMakingService.list(
-                new LambdaQueryWrapper<PatternMaking>()
-                        .select(PatternMaking::getSamplePic)
-                        .isNotNull(PatternMaking::getSamplePic)
-                        .ne(PatternMaking::getSamplePic, "")
-                        .eq(PatternMaking::getDelFlag, BaseGlobal.NO)
-                        .eq(PatternMaking::getStyleId, detail.getId())
-        );
-        if (ObjectUtil.isNotEmpty(patternMakingList)) {
-            minioUtils.setObjectUrlToList(patternMakingList, "samplePic");
-            List<String> samplePicList = patternMakingList.stream().map(PatternMaking::getSamplePic).collect(Collectors.toList());
-            detail.setSamplePicList(samplePicList);
-        }
         return detail;
     }
 
