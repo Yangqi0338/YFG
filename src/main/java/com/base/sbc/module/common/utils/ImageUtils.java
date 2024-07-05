@@ -28,6 +28,12 @@ public class ImageUtils {
      * @return java.io.File
      */
     public static MultipartFile compressImage(MultipartFile file,Integer uploadImgMix) {
+
+        //小于1M的文件不压缩
+        if (!checkFileSize(file.getSize(),1,"M")){
+            return file;
+        }
+
         long time = System.currentTimeMillis();
         File targetFile = null;
         File newFile = null;
@@ -54,6 +60,7 @@ public class ImageUtils {
             return multipartFile;
         }catch (Exception e){
             e.printStackTrace();
+            throw new OtherException(e.getMessage());
         }finally{
             if (targetFile != null){
                 targetFile.delete();
@@ -62,7 +69,7 @@ public class ImageUtils {
                 newFile.delete();
             }
         }
-        return file;
+
     }
 
     /**
