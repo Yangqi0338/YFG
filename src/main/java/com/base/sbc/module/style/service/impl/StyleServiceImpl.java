@@ -2165,7 +2165,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (ObjectUtil.isNotEmpty(patternMakingList)) {
             minioUtils.setObjectUrlToList(patternMakingList, "samplePic");
             List<String> samplePicList = patternMakingList.stream().map(PatternMaking::getSamplePic).collect(Collectors.toList());
-            detail.setSamplePicList(samplePicList);
+            detail.setSamplePics(CollUtil.join(samplePicList, ","));
         }
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));
