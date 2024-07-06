@@ -1593,7 +1593,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PRINT:
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
-				tagPrinting.setC8_APPBOM_StorageReq(null);
+//				tagPrinting.setC8_APPBOM_StorageReq(null);
 				String bulkStyleNo = tagPrinting.getStyleCode();
 				MoreLanguageTagPrinting sourcePrinting = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 				MoreLanguageTagPrinting zhPrinting = HANG_TAG_CV.copyMyself(sourcePrinting);
