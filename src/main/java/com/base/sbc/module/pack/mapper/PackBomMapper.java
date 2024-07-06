@@ -106,6 +106,14 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
     List<PackBomVo> getPackBomPage(PackCommonPageSearchDto packCommonPageSearchDto);
 
     /**
+     * 物料清单批量查询
+     *
+     * @param packCommonPageSearchDto 资料包-公共筛选条件
+     * @return 物料清单
+     */
+    List<PackBom> getPackBomPageList(@Param("packCommonPageSearchDto") PackCommonPageSearchDto packCommonPageSearchDto);
+
+    /**
      * 查询物料下发状态
      * @return
      */

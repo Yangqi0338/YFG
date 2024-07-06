@@ -60,7 +60,7 @@ import java.util.Map;
  */
 @RestController
 @Api(tags = "款式设计相关接口")
-@RequestMapping(value = BaseController.SAAS_URL + "/style", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = BaseController.SAAS_URL +  "/style", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
 public class StyleController extends BaseController {
 

@@ -82,6 +82,13 @@ public class Style extends BaseDataEntity<String> {
     private String planningSeasonId;
 
     /**
+     * 产品季节
+     */
+    @ApiModelProperty(value = "产品季节")
+    @TableField(exist = false)
+    private String planningSeasonName;
+
+    /**
      * 旧产品季节id
      */
     @ApiModelProperty(value = "旧产品季节id")
@@ -565,10 +572,30 @@ public class Style extends BaseDataEntity<String> {
     private String colorCrash;
 
     /**
+     * 版型库id
+     */
+    @ApiModelProperty(value = "版型库id"  )
+    private String registeringId;
+
+
+    /**
+     * 版型库编码
+     */
+    @ApiModelProperty(value = "版型库编码"  )
+    private String registeringNo;
+
+    /**
+     * 套版款 id
+     */
+    @ApiModelProperty(value = "套版款 id"  )
+    private String serialStyleId;
+
+
+    /**
      * 套版款号
      */
     @ApiModelProperty(value = "套版款号"  )
-    private String registeringNo;
+    private String serialStyleNo;
 
     /**
      * RFID标准
@@ -611,5 +638,19 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "大货款号")
     @TableField(exist = false)
     private String bulkyCargoNo;
+
+    /**
+     * 套版款使用率
+     */
+    @ApiModelProperty("套版款使用率")
+    @TableField(exist = false)
+    private String patternLibraryUtilization;
+
+    /**
+     * 使用款记录数量
+     */
+    @ApiModelProperty("使用款记录数量")
+    @TableField(exist = false)
+    private Integer useStyleNum;
 }
 

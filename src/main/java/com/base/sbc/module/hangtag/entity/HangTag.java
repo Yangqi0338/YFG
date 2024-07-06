@@ -56,6 +56,7 @@ public class HangTag extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "翻译确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date translateConfirmDate;
     /** 款式 */
     @ApiModelProperty(value = "款式"  )
@@ -180,6 +181,11 @@ public class HangTag extends BaseDataEntity<String> {
     /** 样衣工名称 */
     @ApiModelProperty(value = "样衣工名称"  )
     private String sampleMakerName;
+    /**
+     * 温馨提示编码
+     */
+    @ApiModelProperty(value = "洗标与温馨提示编码")
+    private String lavationReminderCode;
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
     private String warmTips;
@@ -236,6 +242,15 @@ public class HangTag extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "温馨提示是否换行")
     private YesOrNoEnum warmTipsDefaultWrap;
+
+    /**
+     * 品名翻译
+     */
+    private String productNameTranslate;
+    /**
+     * 颜色编码翻译
+     */
+    private String colorCodeTranslate;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

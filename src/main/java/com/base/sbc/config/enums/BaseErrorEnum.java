@@ -38,9 +38,10 @@ public enum BaseErrorEnum {
 	ERR_ORDER_WITHOUT_SHOP_OR_OTHER(18010,"ERR_ORDER_WITHOUT_SHOP_OR_OTHER"),
 	/** ID不能为空 */
 	ERR_ID_IS_NULL(18014,"ERR_ID_IS_NULL"),
+	/** 下发配饰款未关联大货款*/
+	ERR_ACCESSORIES_NOT_RELATE_MAIN_STYLE(18018,"ERR_ACCESSORIES_NOT_RELATE_MAIN_STYLE"),
 /******************************************************end 业务异常： 1001  -  9999  ***************************************************************/
-	
-	
+
 	
 /******************************************************start 平台通用异常：11001-11999***************************************************************/
 	/** 查询成功   */

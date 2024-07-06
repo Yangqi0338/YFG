@@ -200,7 +200,7 @@ public class StyleColor extends BaseDataEntity<String> {
     private Date designCorrectDate;
     /** 吊牌价 */
     @ApiModelProperty(value = "吊牌价"  )
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+//    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal tagPrice;
     /** 供应商 */
     @ApiModelProperty(value = "供应商"  )

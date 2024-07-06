@@ -1,7 +1,10 @@
 package com.base.sbc.open.controller;
 
 
+import cn.hutool.core.lang.Pair;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioConfig;
@@ -15,16 +18,21 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,6 +115,15 @@ public class OpenTechSpecViewController {
 //        writer.write(html);
 //        writer.flush();
 //        writer.close();
+    }
+
+    @ApiOperation(value = "生成工艺说明文件")
+    @GetMapping("/newPdfHtml")
+    public String genTechSpecFile2Html(Model model, Principal user, @Valid PackCommonSearchDto dto) {
+        GroupUser groupUser = userUtils.getUserBy(user);
+        Pair<String, JSONObject> pair = packInfoService.genTechSpecFile2Html(groupUser, dto);
+        model.addAllAttributes(pair.getValue());
+        return pair.getKey();
     }
 
 }

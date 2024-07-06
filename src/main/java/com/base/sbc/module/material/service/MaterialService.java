@@ -5,6 +5,7 @@ import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
@@ -47,4 +48,17 @@ public interface MaterialService extends BaseService<Material> {
      * @return
      */
     List<AssociationMaterialVo> getAssociationMaterial(List<String> ids);
+
+    List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds);
+
+    /**
+     * 检查是否有关联的数据，true：有关联
+     * @param folderIds
+     * @return
+     */
+    boolean checkFolderRelation(List<String> folderIds);
+
+    long getFileCount(String userId,List<String> folderIds);
+
+    String getFileSize(String userId,List<String> byAllFileIds);
 }

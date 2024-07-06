@@ -376,7 +376,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
                             if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
                                 String seasonCode = seasonalPlanningSaveDto.getSeasonCode();
-                                String s1 = integerStringHashMap.get(j).split("")[0];
+                                String s1 = integerStringHashMap.get(j).replaceAll("\\p{Alpha}.*", "");
                                 if (Integer.parseInt(s1) <10){
                                     s1 ="0"+s1;
                                 }
@@ -463,10 +463,11 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 }
                             }
                         } else{
-                            if (!integerStringHashMap.get(j).matches(pattern)) {
+                            SeasonalPlanningDetails details = new SeasonalPlanningDetails();
+                            String skcCount = integerStringHashMap.get(j);
+                            if (StrUtil.isNotBlank(skcCount) && !skcCount.matches(pattern)) {
                                 return ApiResult.error(integerStringHashMap.get(j) + " 解析异常，请输入正整数", 500);
                             }
-                            SeasonalPlanningDetails details = new SeasonalPlanningDetails();
                             details.setProdCategory1stName(prodCategory1stName);
                             details.setProdCategoryName(prodCategoryName);
                             details.setProdCategory2ndName(prodCategory2ndName);
@@ -486,7 +487,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             details.setLaunchTime(orDefault.getLaunchTime());
                             details.setStyleCategory(orDefault.getStyleCategory());
                             details.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
-                            details.setSkcCount(integerStringHashMap.get(j));
+                            details.setSkcCount(StrUtil.isBlank(skcCount) ? "0" : skcCount);
                             details.setRowIndex(String.valueOf(i));
                             details.setColumnIndex(String.valueOf(j));
                             detailsList.add(details);

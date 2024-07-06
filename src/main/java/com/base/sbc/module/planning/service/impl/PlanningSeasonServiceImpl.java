@@ -145,7 +145,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         if (StrUtil.isEmpty(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningSeason.class);
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
-            bean.setCreateDept(getVirtualDetpIds());
+            bean.setCreateDept(getVirtualDeptIds());
             save(bean);
             if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.ADD_PLANNING_SEASON_DEFAULT_INSERT_TEAM_SWITCH.getKeyCode())) {
                 amcFeignService.seasonSaveDefaultTeam(bean.getId());

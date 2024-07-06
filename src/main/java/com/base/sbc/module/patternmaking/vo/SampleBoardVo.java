@@ -340,6 +340,10 @@ public class SampleBoardVo extends Style {
      * 齐套否 原因
      */
     private String kittingReason;
+    /**
+     * 齐套否 原因名称
+     */
+    private String kittingReasonName;
 
     public String getId() {
         return patternMakingId;

@@ -544,4 +544,37 @@ public class StyleColorAgentVo {
 
     private String hangTagId;
 
+    /**
+     * 质量等级
+     */
+    private String  qualityGrade;
+    /**
+     * 执行标准
+     */
+    private String executeStandard;
+    /**
+     * 安全技术类别
+     */
+    private String saftyType;
+    /**
+     * 成分
+     */
+    private String ingredient;
+    /**
+     * 产地
+     */
+    private String producer;
+    /**
+     * 水洗标路径
+     */
+    private String washingCode;
+    /**
+     * 品名翻译
+     */
+    private String productNameTranslate;
+    /**
+     * 颜色翻译
+     */
+    private String colorCodeTranslate;
+
 }

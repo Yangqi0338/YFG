@@ -141,7 +141,7 @@ public class TagPrinting {
     private String CareSymbols;
 
     /**
-     * 质量登记
+     * 质量等级
      */
     private String QualityClass;
 
@@ -194,6 +194,17 @@ public class TagPrinting {
      * 产地
      */
     private String C8_APPBOM_MadeIn;
+
+    /**
+     * 品名翻译
+     */
+    private String productNameTranslate;
+
+    /**
+     * 颜色翻译
+     */
+    private String colorCodeTranslate;
+
 
     /**
      * 入库时间

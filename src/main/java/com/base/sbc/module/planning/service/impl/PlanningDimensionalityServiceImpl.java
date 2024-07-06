@@ -33,7 +33,6 @@ import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
-import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
@@ -45,10 +44,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -452,6 +447,30 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         }
         List<UpdateDimensionalityDto> updateDimensionalityDtos = BeanUtil.copyToList(dimensionalityList1.getPlanningDimensionalities(), UpdateDimensionalityDto.class);
         return  this.batchSaveDimensionality(updateDimensionalityDtos);
+    }
+
+    @Override
+    public List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto dto) {
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("tpd.prod_category1st",dto.getProdCategory1st());
+        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
+        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
+        queryWrapper.orderByAsc("tpd.group_sort","tpd.sort");
+        List<PlanningDimensionalityVo> coefficientList = baseMapper.getMaterialCoefficient(queryWrapper);
+        return coefficientList;
+    }
+
+    @Override
+    @Transactional
+    public List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList) {
+        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
+        for (PlanningDimensionality planningDimensionality : list) {
+            planningDimensionality.setChannel("");
+            planningDimensionality.setChannelName("");
+            planningDimensionality.setPlanningSeasonId("");
+        }
+        saveOrUpdateBatch(list);
+        return new ArrayList<>();
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

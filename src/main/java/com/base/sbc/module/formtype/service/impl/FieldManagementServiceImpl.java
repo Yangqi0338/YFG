@@ -30,8 +30,6 @@ import com.base.sbc.module.formtype.mapper.OptionMapper;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.patternmaking.entity.WorkLog;
-import com.base.sbc.module.patternmaking.vo.WorkLogVo;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
@@ -150,7 +148,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             }
             queryFieldManagementDto.setFormTypeId(formType.getId());
         }
-        List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
+        List<FieldManagementVo> list = this.getFieldManagementListMapper(queryFieldManagementDto);
         /*
         * 判断字段是否是对象 是对象获取到对象里面的所有字段
         * */
@@ -225,7 +223,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         dto.setCompanyCode(getCompanyCode());
         List<FieldManagementVo> list = new ArrayList<>();
         if(StrUtil.isEmpty(planningSeasonId)){
-            list = baseMapper.getFieldManagementList(dto);
+            list = this.getFieldManagementListMapper(dto);
         }else {
             if(StrUtil.isEmpty(channel)){
                 throw new OtherException("渠道不能为空");
@@ -233,10 +231,34 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             dto.setPlanningSeasonId(planningSeasonId);
             dto.setProdCategory(prodCategory);
             dto.setChannel(channel);
-            list = baseMapper.getFieldManagementList1(dto);
+            list = this.getFieldManagementList1Mapper(dto);
         }
 
         return list;
+    }
+
+    @Override
+    public List<FieldManagementVo> getFieldManagementListMapper(QueryFieldManagementDto dto){
+        List<FieldManagementVo> fieldManagementList = baseMapper.getFieldManagementList(dto);
+        return getFieldManagementVos(fieldManagementList);
+    }
+
+    @Override
+    public List<FieldManagementVo> getFieldManagementList1Mapper(QueryFieldManagementDto dto){
+        List<FieldManagementVo> fieldManagementList = baseMapper.getFieldManagementList1(dto);
+        return getFieldManagementVos(fieldManagementList);
+    }
+
+
+    private List<FieldManagementVo> getFieldManagementVos(List<FieldManagementVo> fieldManagementList) {
+        if(CollUtil.isNotEmpty(fieldManagementList)){
+            List<Option> optionList = baseMapper.getOptionList(fieldManagementList.stream().map(FieldManagementVo::getId).distinct().collect(Collectors.toList()));
+            Map<String, List<Option>> collect = optionList.stream().collect(Collectors.groupingBy(Option::getFieldId));
+            for (FieldManagementVo fieldManagementVo : fieldManagementList) {
+                fieldManagementVo.setOptionList(collect.getOrDefault(fieldManagementVo.getId(),new ArrayList<>()));
+            }
+        }
+        return fieldManagementList;
     }
 
     @Override

@@ -13,7 +13,6 @@ import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.xpath.operations.Bool;
 
 import java.util.HashMap;
 import java.util.List;

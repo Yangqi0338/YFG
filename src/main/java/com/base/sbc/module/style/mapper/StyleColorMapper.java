@@ -61,6 +61,13 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     List<StyleColorVo>  colorList(@Param(Constants.WRAPPER) QueryWrapper qw );
 
     /**
+     * 大货款列表
+     * @param qw
+     * @return
+     */
+    List<CompleteStyleVo> pageCompleteStyle(@Param(Constants.WRAPPER) QueryWrapper qw );
+
+    /**
      * 修改所有引用的大货款号
      * @param styleNo
      * @param nweStyleNo
@@ -91,6 +98,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      * @return
      */
     List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
+
+    List<StyleColor> getStyleMainAccessoriesNoSendFlag(@Param("ids") List<String> ids);
 
     List<StyleMarkingCheckVo> markingCheckPage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 

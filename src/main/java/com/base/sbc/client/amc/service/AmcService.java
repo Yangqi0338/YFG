@@ -10,7 +10,7 @@ import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
 import com.base.sbc.open.entity.SmpUser;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -259,5 +259,15 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/virtualDept/getVirtualDeptByUserId")
     ApiResult<List<VirtualDept>> getVirtualDeptByUserId(@RequestParam("userId") String userId);
+
+    /**
+     * 获取读数据权限
+     *
+     * @param businessType
+     * @return
+     */
+    @GetMapping("/amc/api/token/dataPermissions/getByUserDataPermissionsAll")
+    ApiResult<Map<String,String>> getByUserDataPermissionsAll(@RequestParam("businessType") String businessType,@RequestParam("type") String type
+            ,@RequestParam("userId") String userId,@RequestParam("fieldName") String fieldName);
 
 }

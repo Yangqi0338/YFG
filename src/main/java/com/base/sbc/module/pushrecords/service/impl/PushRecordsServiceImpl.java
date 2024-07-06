@@ -13,15 +13,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.base.sbc.config.common.ApiResult;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pushrecords.dto.PushRecordsDto;
-import com.base.sbc.module.pushrecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
+import com.base.sbc.module.pushrecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpReq;
 import com.base.sbc.module.smp.dto.HttpResp;
@@ -119,14 +119,16 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
 
         pushRecords.setRelatedId(httpReq.getCode());
         pushRecords.setRelatedName(httpReq.getName());
+        pushRecords.setBusinessId(httpReq.getBusinessId());
+        pushRecords.setBusinessCode(httpReq.getBusinessCode());
         pushRecords.setModuleName(httpReq.getModuleName());
         pushRecords.setFunctionName(httpReq.getFunctionName());
         pushRecords.setPushAddress(url);
         pushRecords.setPushContent(httpReq.getData());
         pushRecords.setPushCount(1);
-        for (SmpProperties.SystemEnums systemEnums : SmpProperties.SystemEnums.values()) {
-            if (url.startsWith(systemEnums.getBaseUrl())) {
-                pushRecords.setPushCount(systemEnums.getRetryNum());
+        for (SmpProperties.SystemModuleEnum systemEnum : SmpProperties.SystemModuleEnum.values()) {
+            if (url.startsWith(systemEnum.getUrl())) {
+                pushRecords.setPushCount(systemEnum.getRetryNum());
             }
         }
 
@@ -174,6 +176,39 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         pushRecords.setPushCount(pushRecords.getPushCount() + 1);
         this.updateById(pushRecords);
         return httpResp.isSuccess();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int batchRePushNewLog(List<String> ids) {
+        List<PushRecords> pushRecordsList = this.listByIds(ids);
+        int count = 0;
+        for (PushRecords pushRecords : pushRecordsList) {
+            HttpResp httpResp = restTemplateService.spmPost(pushRecords.getPushAddress(), pushRecords.getPushContent());
+            pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
+            pushRecords.setResponseMessage(httpResp.getMessage());
+            pushRecords.setResponseStatusCode(httpResp.getCode());
+            pushRecords.setPushCount(0);
+            pushRecords.setId(null);
+            if(httpResp.isSuccess()){
+                count++;
+            }
+        }
+        this.saveBatch(pushRecordsList);
+        return count;
+    }
+
+    @Override
+    public void closeStatus(List<String> ids) throws Exception {
+        List<PushRecords> pushRecords = listByIds(ids);
+        long count = pushRecords.stream().filter(o -> !PushRespStatus.FAILURE.equals(o.getPushStatus())).count();
+        if(count > 0){
+            throw new Exception("只能关闭失败的数据");
+        }
+        LambdaUpdateWrapper<PushRecords> updateWrapper = new LambdaUpdateWrapper<PushRecords>()
+                .set(PushRecords::getPushStatus, PushRespStatus.CLOSE)
+                .in(PushRecords::getId, ids);
+        this.update(updateWrapper);
     }
 
 
