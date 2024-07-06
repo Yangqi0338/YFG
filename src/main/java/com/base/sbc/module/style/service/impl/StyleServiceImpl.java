@@ -125,6 +125,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -405,19 +406,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             List<String> styleColorIds = scmSendStyleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(styleColorIds)) {
-                for (String styleColorId : styleColorIds) {
-                    String[] stringArray = new String[]{styleColorId};
-                    PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
-                    publicStyleColorDto.setId(style.getId());
-                    publicStyleColorDto.setSizeRange(style.getSizeRange());
-                    //检查配色数据是否投产，投产了就报错
-                    checkColorSize(publicStyleColorDto);
-                    try {
-                        smpService.goods(stringArray);
-                    } catch (Exception e) {
-                        log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
-                        throw new OtherException("同步SCM失败：" + e.getMessage());
-                    }
+                PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
+                publicStyleColorDto.setId(style.getId());
+                publicStyleColorDto.setSizeRange(style.getSizeRange());
+                //检查配色数据是否投产，投产了就报错
+                checkColorSize(publicStyleColorDto);
+                try {
+                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                } catch (Exception e) {
+                    log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
+                    throw new OtherException("同步SCM失败：" + e.getMessage());
                 }
             }
 
