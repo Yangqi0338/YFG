@@ -24,10 +24,15 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
 	private static final long serialVersionUID = 1L;
 
 	private String designNo;
-	private String patternMo;
+	private String patternNo;
+	private String sampleType;
 	private String sampleTypeName;
 	private String patSeqName;
 	private String yearName;
 	private String seasonName;
 	private String brandName;
+
+	public String getSeason(){
+		return yearName+"-"+seasonName+"-"+brandName;
+	}
 }

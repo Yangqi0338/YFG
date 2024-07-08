@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
@@ -36,6 +37,13 @@ import java.util.List;
 public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMakingBarCodeMapper, PatternMakingBarCode> implements PatternMakingBarCodeService {
 
 
+    private final MinioUtils minioUtils;
+
+    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils) {
+        super();
+        this.minioUtils = minioUtils;
+    }
+
     @Override
     public PageInfo<PatternMakingBarCodeVo> findPage(PatternMakingBarCodeQueryDto dto) {
         Page<Object> objects = PageHelper.startPage(dto);
@@ -47,6 +55,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
         qw.notEmptyEq("tpm.status", dto.getStatus());
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
+        minioUtils.setObjectUrlToList(list,"img");
         return new PageInfo<>(list);
     }
 
@@ -56,7 +65,15 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.eq("tpmbc.bar_code", barCode);
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         if (CollUtil.isNotEmpty(list)) {
-            return list.get(0);
+            PatternMakingBarCodeVo patternMakingBarCodeVo = list.get(0);
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"img");
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg");
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionVideo");
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg1");
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg2");
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg3");
+            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg4");
+            return patternMakingBarCodeVo;
         }
         return null;
     }

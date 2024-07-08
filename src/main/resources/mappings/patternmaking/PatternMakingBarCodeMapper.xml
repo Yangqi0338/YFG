@@ -13,6 +13,7 @@
         SELECT tpmbc.*,
                ts.design_no,
                tpm.pattern_no,
+               tpm.sample_type,
                tpm.sample_type_name,
                tpm.pat_seq_name,
                ts.year_name,
