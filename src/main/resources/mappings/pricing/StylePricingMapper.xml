@@ -21,7 +21,7 @@
         p.design_no as designNo,
         p.style_no as bulkStyleNo,
         sd.product_cost as targetCost,
-        sd.devt_type_name as productionType,
+        ssc.devt_type_name as productionType,
         sd.style_pic as sampleDesignPic,
         sd.style_name as styleName,
 
