@@ -31,6 +31,7 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
 	private String yearName;
 	private String seasonName;
 	private String brandName;
+	private String requirementNum;
 
 	public String getSeason(){
 		return yearName+"-"+seasonName+"-"+brandName;

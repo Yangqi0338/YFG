@@ -18,7 +18,8 @@
                tpm.pat_seq_name,
                ts.year_name,
                ts.season_name,
-               ts.brand_name
+               ts.brand_name,
+               tpm.requirement_num
         FROM t_pattern_making_bar_code tpmbc
                  LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
                  LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
