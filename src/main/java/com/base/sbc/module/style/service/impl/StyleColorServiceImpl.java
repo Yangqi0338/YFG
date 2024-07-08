@@ -3979,7 +3979,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         StringBuffer sbMsg1 = new StringBuffer();
 
-        if(sbMsg.length() > 0){
+        if(readAll.size() != successCount){
             sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条,失败原因如下;").append(sbMsg);
         }else{
             sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条;");
