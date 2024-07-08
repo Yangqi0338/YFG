@@ -70,11 +70,11 @@ public class StorageSpaceController {
     public ApiResult storageSpaceUpdate(@RequestBody StorageSpace dto){
         StorageSpace byId = storageSpaceService.getById(dto.getId());
 
-        if (StringUtils.isNotEmpty(dto.getInitSpace()) && Long.parseLong(byId.getMaxInitSpace()) < Long.parseLong(dto.getInitSpace())){
+        if (StringUtils.isNotEmpty(dto.getInitSpace()) && Double.parseDouble(byId.getMaxInitSpace()) < Double.parseDouble(dto.getInitSpace())){
             throw new OtherException("可以设置的最大初始空间为： "+byId.getMaxInitSpace()+"GB");
         }
 
-        if (Long.parseLong(dto.getTotalSpace()) < storageSpacePersonService.getAllocationSpace(byId.getId())){
+        if (Double.parseDouble(dto.getTotalSpace()) < storageSpacePersonService.getAllocationSpace(byId.getId())){
             throw new OtherException("总空间大小不能小于已分配的空间大小");
         }
 
@@ -147,7 +147,7 @@ public class StorageSpaceController {
             //暂时只有素材库，不区分
             //获取已用空间大小
             Long fileSize = materialService.getFileSize(storageSpacePerson.getOwnerId(), null);
-            Long ownerSpaceSize = Opt.ofBlankAble(storageSpacePerson.getOwnerSpace()).map(Long::parseLong).orElse(0L);
+            double ownerSpaceSize = Opt.ofBlankAble(storageSpacePerson.getOwnerSpace()).map(Double::parseDouble).orElse(0.0);
             if (fileSize > ownerSpaceSize*1073741824){
                 throw new OtherException("修改后的空间大小不能低于已使用的内存空间!");
             }

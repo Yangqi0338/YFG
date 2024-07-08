@@ -152,9 +152,9 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
     }
 
     @Override
-    public Long getAllocationSpace(String parentSpaceId) {
-        Long allocationSpace = baseMapper.getAllocationSpace(parentSpaceId);
-        return Opt.ofNullable(allocationSpace).map(item ->item).orElse(0L);
+    public Double getAllocationSpace(String parentSpaceId) {
+        Double allocationSpace = baseMapper.getAllocationSpace(parentSpaceId);
+        return Opt.ofNullable(allocationSpace).map(item ->item).orElse(0.0);
     }
 
     private StorageSpacePerson getUserStorageSpacePerson(StorageSpace storageSpace, String userId){
@@ -215,9 +215,9 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             return;
         }
         //已分配的空间
-        Long allocationSpace = baseMapper.getAllocationSpace(storageSpace.getId());
+        Double allocationSpace = baseMapper.getAllocationSpace(storageSpace.getId());
         //剩余空间
-        long freeSpace = Opt.ofNullable(storageSpace.getTotalSpace()).map(Long::parseLong).orElse(0L) - Opt.ofNullable(allocationSpace).map(item ->item).orElse(0L);
+        double freeSpace = Opt.ofNullable(storageSpace.getTotalSpace()).map(Double::parseDouble).orElse(0.0) - Opt.ofNullable(allocationSpace).map(item ->item).orElse(0.0);
         if (freeSpace <= 0L){
             return;
         }
@@ -226,7 +226,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         IdGen idGen = new IdGen();
 
         for (UserCompany item : list) {
-            freeSpace = freeSpace - Opt.ofNullable(storageSpace.getInitSpace()).map(Long::parseLong).orElse(0L);
+            freeSpace = freeSpace - Opt.ofNullable(storageSpace.getInitSpace()).map(Double::parseDouble).orElse(0.0);
             if (freeSpace < 0L){
                 saveBatch(personList);
                 return;

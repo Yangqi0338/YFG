@@ -12,6 +12,6 @@ import lombok.Data;
 public class StorageSpacePersonBo  extends PageInfo<StorageSpacePersonVo>{
 
     @ApiModelProperty("分配空间")
-    private Long allocationSpace;
+    private Double allocationSpace;
 
 }

@@ -30,7 +30,7 @@ public interface StorageSpacePersonService extends BaseService<StorageSpacePerso
 
     Long getPersonSpace(String userId, String storageType );
 
-    Long getAllocationSpace( String parentSpaceId);
+    Double getAllocationSpace( String parentSpaceId);
 
 
 

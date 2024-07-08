@@ -30,7 +30,7 @@ public interface StorageSpacePersonMapper extends BaseMapper<StorageSpacePerson>
 
     List<StorageSpacePersonVo> listQueryMaterialPage(StorageSpacePersonDto dto);
 
-    Long getAllocationSpace(@Param("parentSpaceId") String parentSpaceId);
+    Double getAllocationSpace(@Param("parentSpaceId") String parentSpaceId);
 // 自定义方法区 不替换的区域【other_start】
 
 
