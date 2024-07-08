@@ -24,11 +24,11 @@
         CONCAT( tsd.design_no, tsd.style_name ) AS style,
         tsd.id as styleId,
         tpi.id as packInfoId,
-        tsd.devt_type AS produceType,
-        tsd.devt_type AS devtType,
+        tsc.devt_type AS produceType,
+        tsc.devt_type AS devtType,
         tsd.receive_dept_id AS receiveDeptId,
         tsd.style_type AS styleType,
-        tsd.devt_type_name AS produceTypeName,
+        tsc.devt_type_name AS produceTypeName,
         tsd.style_type_name AS styleTypeName,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
@@ -75,6 +75,7 @@
 
             </otherwise>
         </choose>
+        LEFT JOIN t_style_color tsc ON tpi.style_color_id = tsc.id
         LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
         <where>
