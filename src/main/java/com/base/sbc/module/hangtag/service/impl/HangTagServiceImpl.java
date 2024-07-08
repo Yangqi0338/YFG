@@ -801,18 +801,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
 						if (HangTagStatusEnum.TECH_CHECK == updateStatus) {
-							if (!(StrUtil.isNotEmpty(e.getProductName()) &&
-									StrUtil.isNotEmpty(e.getQualityGrade()) &&
-									StrUtil.isNotEmpty(e.getSaftyTitle()) &&
-									StrUtil.isNotEmpty(e.getPackagingForm()) &&
-									StrUtil.isNotEmpty(e.getPackagingBagStandard()) &&
-									StrUtil.isNotEmpty(e.getIngredient()) &&
-									StrUtil.isNotEmpty(e.getFabricDetails()) &&
-									StrUtil.isNotEmpty(e.getWashingMaterialRemarks()) &&
-									StrUtil.isNotEmpty(e.getWashingMaterialRemarksName()) &&
-									StrUtil.isNotEmpty(e.getWashingCode()) &&
-									StrUtil.isNotEmpty(e.getWashingLabelName()) &&
-									StrUtil.isNotEmpty(e.getWarmTips()))) {
+							if (!(StrUtil.isNotBlank(e.getProductName()) &&
+									StrUtil.isNotBlank(e.getQualityGrade()) &&
+									StrUtil.isNotBlank(e.getSaftyTitle()) &&
+									StrUtil.isNotBlank(e.getPackagingForm()) &&
+									StrUtil.isNotBlank(e.getPackagingBagStandard()) &&
+									StrUtil.isNotBlank(e.getIngredient()) &&
+									StrUtil.isNotBlank(e.getFabricDetails()) &&
+									StrUtil.isNotBlank(e.getWashingMaterialRemarks()) &&
+									StrUtil.isNotBlank(e.getWashingMaterialRemarksName()) &&
+									StrUtil.isNotBlank(e.getWashingCode()) &&
+									StrUtil.isNotBlank(e.getWashingLabelName()) &&
+									StrUtil.isNotBlank(e.getWarmTips()))) {
 								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 							}
 						} else {
