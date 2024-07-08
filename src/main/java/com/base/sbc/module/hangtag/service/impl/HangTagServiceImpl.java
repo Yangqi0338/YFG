@@ -28,9 +28,11 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.base.sbc.config.annotation.EditPermission;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.MFunc;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
@@ -125,7 +127,6 @@ import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +136,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -849,15 +851,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 				}
 			}
+
 			HangTag hangTag = new HangTag();
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
 			hangTag.setStatus(updateStatus);
 			if (updateStatus.lessThan(TRANSLATE_CHECK)) {
-				hangTag.setConfirmDate(null);
+				MFunc<HangTag, Date> func = HangTag::getConfirmDate;
+				AutoFillFieldValueConfig.setNull(hangTag.getId(), func);
 			}else if (updateStatus == TRANSLATE_CHECK) {
 				hangTag.setConfirmDate(new Date());
-				hangTag.setTranslateConfirmDate(null);
+				MFunc<HangTag, Date> func = HangTag::getTranslateConfirmDate;
+				AutoFillFieldValueConfig.setNull(hangTag.getId(), func);
 			}else {
 				hangTag.setTranslateConfirmDate(new Date());
 			}
