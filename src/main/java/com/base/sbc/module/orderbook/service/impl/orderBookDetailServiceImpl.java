@@ -1,12 +1,8 @@
 package com.base.sbc.module.orderbook.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ttl.TtlRunnable;
@@ -18,9 +14,11 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.MFunc;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.BasicNumber;
@@ -36,8 +34,6 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.*;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
@@ -69,7 +65,6 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
@@ -110,7 +105,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -122,8 +117,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -147,8 +140,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -1392,6 +1394,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                                 orderBookDetail.setOrderNo(isProductionIn ? pushRecords.getResponseMessage() : "");
                                 orderBookDetail.setIsLock(isProductionIn ? orderBookDetail.getIsLock() : YesOrNoEnum.NO);
                                 orderBookDetail.setCommissioningDate(isProductionIn ? orderBookDetail.getCommissioningDate(): null);
+                                if (null == orderBookDetail.getCommissioningDate()){
+                                    MFunc<OrderBookDetail, Date> func = OrderBookDetail::getCommissioningDate;
+                                    AutoFillFieldValueConfig.setNull(orderBookDetail.getId(), func);
+                                }
+
                             }
                             // 发送信息
                             pushRecords.setRelatedId(orderBookDetail.getOrderBookId());

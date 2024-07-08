@@ -6,12 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.orderbook.entity;
 
-import cn.afterturn.easypoi.excel.annotation.Excel;
-import cn.hutool.core.lang.Opt;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -22,13 +18,16 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEn
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.hutool.core.lang.Opt;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 类描述：订货本 实体类
@@ -72,7 +71,6 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 投产日期
      */
     @ApiModelProperty(value = "投产日期")
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date commissioningDate;
 
 
