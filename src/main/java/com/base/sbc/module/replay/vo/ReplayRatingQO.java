@@ -9,6 +9,7 @@ package com.base.sbc.module.replay.vo;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
+import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -59,11 +60,11 @@ public class ReplayRatingQO extends QueryFieldDto {
 
     /** 企划等级 */
     @ApiModelProperty(value = "企划等级")
-    private ReplayRatingLevelEnum planningLevel;
+    private SluggishSaleLevelEnum planningLevel;
 
     /** 销售等级 */
     @ApiModelProperty(value = "销售等级")
-    private ReplayRatingLevelEnum saleLevel;
+    private SluggishSaleLevelEnum saleLevel;
 
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号")

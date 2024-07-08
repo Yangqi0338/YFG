@@ -8,6 +8,7 @@ package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
+import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -30,11 +31,11 @@ public class ReplayRatingStyleVO extends ReplayRatingVO {
     /** 企划等级 */
     @ApiModelProperty(value = "企划等级")
     @ExtendField
-    private ReplayRatingLevelEnum planningLevel;
+    private SluggishSaleLevelEnum planningLevel;
     /** 季节等级 */
     @ApiModelProperty(value = "季节等级")
     @ExtendField
-    private ReplayRatingLevelEnum seasonLevel;
+    private SluggishSaleLevelEnum seasonLevel;
     /**
      * 跳转版型id
      */
