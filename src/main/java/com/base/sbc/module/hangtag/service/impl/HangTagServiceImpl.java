@@ -815,10 +815,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								StrUtil.isNotEmpty(e.getWarmTips().trim()))) {
 							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 						}
-					}
-                    if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
-                            &&
-                            HangTagStatusEnum.DESIGN_CHECK != updateStatus
+					} else if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
                     ) {
 						throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
                     }
