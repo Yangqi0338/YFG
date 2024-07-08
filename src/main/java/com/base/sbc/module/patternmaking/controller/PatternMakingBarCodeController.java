@@ -49,15 +49,15 @@ public class PatternMakingBarCodeController {
     }
 
     @ApiOperation(value = "明细-通过barCode查询")
-    @GetMapping("/{barCode}")
-    public ApiResult getById(@PathVariable("barCode") String barCode) {
+    @GetMapping("/get")
+    public ApiResult getById(@RequestParam("barCode") String barCode) {
         PatternMakingBarCodeVo byBarCode = patternMakingBarCodeService.getByBarCode(barCode);
         return ApiResult.success("查询成功", byBarCode);
     }
 
     @ApiOperation(value = "解绑-通过barCode查询")
-    @DeleteMapping("/{barCode}")
-    public ApiResult removeById(@PathVariable("barCode") String barCode) {
+    @DeleteMapping("/remove")
+    public ApiResult removeById(@RequestParam("barCode") String barCode) {
         patternMakingBarCodeService.removeByBarCode(barCode);
         return ApiResult.success("解绑成功");
     }
