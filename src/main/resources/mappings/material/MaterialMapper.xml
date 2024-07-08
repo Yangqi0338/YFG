@@ -104,6 +104,12 @@
                 #{item}
             </foreach>
         </if>
+        <if test="descInfosList != null and descInfosList.size > 0">
+            and tm.desc_info in
+            <foreach collection="descInfosList" item="descInfo" separator="," open="(" close=")">
+                #{descInfo}
+            </foreach>
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -117,8 +123,16 @@
         where
         tm.del_flag = '0'
         and material_name like  concat('%',#{search},'%')
+        <if test="status != null and status != ''">
+            and tm.status = #{status}
+        </if>
+        <if test="folderId != null and folderId != ''">
+            and tm.folder_id = #{folderId}
+        </if>
+        <if test="createId != null and createId != ''">
+            and tm.create_id = #{createId}
+        </if>
         <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
-            and tm.status = '2'
             and tm.material_category_id  in
             <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
                 #{id}
@@ -140,5 +154,30 @@
                 #{folderId}
             </foreach>
         </if>
+    </select>
+
+    <select id="linkageDescInfo" resultType="com.base.sbc.module.material.vo.MaterialChildren">
+        select
+        desc_info as label , desc_info as 'value'
+        from t_material tm
+        where
+        tm.del_flag = '0'
+        and tm.desc_info like  concat('%',#{search},'%')
+        <if test="status != null and status != ''">
+            and tm.status = #{status}
+        </if>
+        <if test="folderId != null and folderId != ''">
+            and tm.folder_id = #{folderId}
+        </if>
+        <if test="createId != null and createId != ''">
+            and tm.create_id = #{createId}
+        </if>
+        <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+            and tm.material_category_id  in
+            <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by material_name
     </select>
 </mapper>

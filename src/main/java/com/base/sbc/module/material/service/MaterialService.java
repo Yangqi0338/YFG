@@ -50,7 +50,7 @@ public interface MaterialService extends BaseService<Material> {
      */
     List<AssociationMaterialVo> getAssociationMaterial(List<String> ids);
 
-    List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds);
+    List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds,String folderId, String personQuery);
 
     /**
      * 检查是否有关联的数据，true：有关联

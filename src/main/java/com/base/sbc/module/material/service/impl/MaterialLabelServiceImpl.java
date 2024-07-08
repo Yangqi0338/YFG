@@ -6,10 +6,12 @@ import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.mapper.MaterialLabelMapper;
 import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.vo.MaterialChildren;
+
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
+
+import javax.annotation.Resource;
 
 /**
  * @author 卞康
@@ -41,8 +43,8 @@ public class MaterialLabelServiceImpl extends BaseServiceImpl<MaterialLabelMappe
     }
 
     @Override
-    public List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds) {
-        return this.getBaseMapper().linkageQuery(search, materialCategoryIds);
+    public List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds,String folderId, String status, String createId) {
+        return this.getBaseMapper().linkageQuery(search, materialCategoryIds,folderId, status, createId);
     }
 
     @Override

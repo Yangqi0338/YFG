@@ -197,6 +197,10 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             materialQueryDto.setFolderIdList(StringUtils.convertList(materialQueryDto.getFolderId()));
         }
 
+        if (StringUtils.isNotEmpty(materialQueryDto.getDescInfos())){
+            materialQueryDto.setDescInfoList(StringUtils.convertList(materialQueryDto.getDescInfos()));
+        }
+
         //品牌
         if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
             //获取用户组的品牌权限列表
@@ -466,11 +470,16 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     }
 
     @Override
-    public List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds) {
+    public List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds,String folderId, String personQuery) {
+
+        //personQuery为1的时候，为个人查询
+        String status = Constants.ONE_STR.equals(personQuery) ? null : "2";
+        String createId = Constants.ONE_STR.equals(personQuery) ? userUtils.getUserId() : null;
+
         List<MaterialLinkageVo> list = Lists.newArrayList();
         //素材标签相关
         List<String> materialCategoryIdList = StringUtils.convertList(materialCategoryIds);
-        List<MaterialChildren> labelList = materialLabelService.linkageQuery(search,materialCategoryIdList);
+        List<MaterialChildren> labelList = materialLabelService.linkageQuery(search,materialCategoryIdList,folderId,status,createId);
         if (CollUtil.isNotEmpty(labelList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(labelList);
@@ -478,12 +487,24 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             list.add(materialLinkageVo);
         }
         // 素材名称相关
-        List<MaterialChildren> materialNameList = this.getBaseMapper().linkageQueryName(search,materialCategoryIdList);
+        List<MaterialChildren> materialNameList = this.getBaseMapper().linkageQueryName(search,materialCategoryIdList,folderId,status,createId);
         if (CollUtil.isNotEmpty(materialNameList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(materialNameList);
             materialLinkageVo.setGroup("素材名称");
             list.add(materialLinkageVo);
+        }
+
+        //个人标签相关
+
+        if (Constants.ONE_STR.equals(personQuery)){
+            List<MaterialChildren> descInfoList = this.getBaseMapper().linkageDescInfo(search,materialCategoryIdList,folderId,status,createId);
+            if (CollUtil.isNotEmpty(descInfoList)){
+                MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
+                materialLinkageVo.setChildren(descInfoList);
+                materialLinkageVo.setGroup("个人标签");
+                list.add(materialLinkageVo);
+            }
         }
         return list;
     }

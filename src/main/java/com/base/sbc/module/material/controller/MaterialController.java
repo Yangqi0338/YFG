@@ -322,11 +322,11 @@ public class MaterialController extends BaseController {
      */
     @GetMapping("/linkageQuery")
     @ApiOperation(value = "模糊联动查询", notes = "模糊联动查询")
-    public ApiResult linkageQuery(String search, String materialCategoryIds) {
+    public ApiResult linkageQuery(String search, String materialCategoryIds, String folderId, String personQuery) {
         if (StringUtils.isEmpty(search)){
             return ApiResult.success();
         }
-        List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds);
+        List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds,folderId, personQuery);
         return updateSuccess(list);
     }
 

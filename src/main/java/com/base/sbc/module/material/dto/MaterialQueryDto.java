@@ -117,5 +117,11 @@ public class MaterialQueryDto extends Page {
     @ApiModelProperty(value = "排序")
     private String showSort;
 
+    @ApiModelProperty(value = "个人标签")
+    private String descInfos;
+
+    @ApiModelProperty(value = "个人标签集合")
+    private List<String> descInfoList;
+
     private BaseQueryWrapper ew;
 }
