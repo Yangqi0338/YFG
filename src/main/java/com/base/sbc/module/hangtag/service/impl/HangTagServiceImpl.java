@@ -125,6 +125,7 @@ import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -797,24 +798,29 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (HangTagStatusEnum.FINISH == e.getStatus()) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
+					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
+							&&
+							HangTagStatusEnum.DESIGN_CHECK == updateStatus) {
+						if (!(StrUtil.isNotEmpty(e.getProductName().trim()) &&
+								StrUtil.isNotEmpty(e.getQualityGrade().trim()) &&
+								StrUtil.isNotEmpty(e.getSaftyTitle().trim()) &&
+								StrUtil.isNotEmpty(e.getPackagingForm().trim()) &&
+								StrUtil.isNotEmpty(e.getPackagingBagStandard().trim()) &&
+								StrUtil.isNotEmpty(e.getIngredient().trim()) &&
+								StrUtil.isNotEmpty(e.getFabricDetails().trim()) &&
+								StrUtil.isNotEmpty(e.getWashingMaterialRemarks().trim()) &&
+								StrUtil.isNotEmpty(e.getWashingMaterialRemarksName().trim()) &&
+								StrUtil.isNotEmpty(e.getWashingCode().trim()) &&
+								StrUtil.isNotEmpty(e.getWashingLabelName().trim()) &&
+								StrUtil.isNotEmpty(e.getWarmTips().trim()))) {
+							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+						}
+					}
                     if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
                             &&
                             HangTagStatusEnum.DESIGN_CHECK != updateStatus
                     ) {
-						if (!(StrUtil.isNotEmpty(e.getProductName().trim())&&
-								StrUtil.isNotEmpty(e.getQualityGrade().trim())&&
-								StrUtil.isNotEmpty(e.getSaftyTitle().trim())&&
-								StrUtil.isNotEmpty(e.getPackagingForm().trim())&&
-								StrUtil.isNotEmpty(e.getPackagingBagStandard().trim())&&
-								StrUtil.isNotEmpty(e.getIngredient().trim())&&
-								StrUtil.isNotEmpty(e.getFabricDetails().trim())&&
-								StrUtil.isNotEmpty(e.getWashingMaterialRemarks().trim())&&
-								StrUtil.isNotEmpty(e.getWashingMaterialRemarksName().trim())&&
-								StrUtil.isNotEmpty(e.getWashingCode().trim())&&
-								StrUtil.isNotEmpty(e.getWashingLabelName().trim())&&
-								StrUtil.isNotEmpty(e.getWarmTips().trim()))) {
-							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-						}
+						throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
                     }
 					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
 							&&
