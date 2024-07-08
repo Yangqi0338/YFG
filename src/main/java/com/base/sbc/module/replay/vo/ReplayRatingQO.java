@@ -8,7 +8,6 @@ package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.replay.ReplayRatingLevelEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

@@ -22,9 +22,10 @@ import com.base.sbc.config.constant.ReplayRatingProperties;
 import com.base.sbc.config.enums.UnitConverterEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
-import com.base.sbc.config.enums.business.replay.ReplayRatingLevelEnum;
+import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingWarnType;
+import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -99,6 +100,10 @@ import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearQO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
+import com.base.sbc.module.smp.dto.GoodsSluggishSalesDTO;
+import com.base.sbc.module.smp.dto.GoodsSluggishSalesQO;
+import com.base.sbc.module.smp.entity.GoodsSluggishSales;
+import com.base.sbc.module.smp.mapper.GoodsSluggishSalesMapper;
 import com.base.sbc.module.style.dto.StyleBomSearchDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -134,6 +139,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.BI_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.REPLAY_CV;
 import static com.base.sbc.module.replay.dto.ReplayRatingFabricDTO.FabricMonthDataDto;
 
@@ -211,9 +217,16 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     @Autowired
     private CcmFeignService ccmFeignService;
 
+    @Autowired
+    private GoodsSluggishSalesMapper sluggishSalesMapper;
+
     private static @NotNull BaseQueryWrapper<ReplayRating> buildQueryWrapper(ReplayRatingQO dto) {
         BaseQueryWrapper<ReplayRating> qw = new BaseQueryWrapper<>();
-        qw.notEmptyEq("tsc.planning_season_id", dto.getPlanningSeasonId());
+        if (dto.getType() != ReplayRatingType.FABRIC) {
+            qw.notEmptyEq("ts.planning_season_id", dto.getPlanningSeasonId());
+        } else {
+            qw.notEmptyEq("tsc.planning_season_id", dto.getPlanningSeasonId());
+        }
         qw.notEmptyEq("tsc.band_name", dto.getBandName());
         qw.notEmptyEq("ts.prod_category1st", dto.getProdCategory1st());
         qw.notEmptyEq("ts.prod_category", dto.getProdCategory());
@@ -232,7 +245,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         }
         qw.notEmptyEq("tpb.supplier_id", dto.getSupplierId());
         qw.notEmptyEq("tpl.color", dto.getColorCode());
-        qw.notEmptyEq("tpl.plan_season_id", dto.getMaterialOwnResearchFlag());
+//        qw.notEmptyEq("tpl.plan_season_id", dto.getMaterialOwnResearchFlag());
         return qw;
     }
 
@@ -537,7 +550,13 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             }
         }
 
-        result.setSaleLevelList(findSaleLevelList(saleCycleList));
+        GoodsSluggishSalesQO sluggishSalesQO = new GoodsSluggishSalesQO();
+        sluggishSalesQO.setBulkStyleNo(result.getBulkStyleNo());
+        sluggishSalesQO.setYear(Arrays.stream(ReplayRatingProperties.years).boxed().collect(Collectors.toList()));
+        sluggishSalesQO.setWeekends(result.getSaleLevelWeekends());
+        sluggishSalesQO.setBrand(result.getBrand());
+        result.setSaleLevelList(findSaleLevelList(sluggishSalesQO));
+
         result.setProductionSaleList(findProductionSaleList());
         result.setProductionInfoList(findProductionInfoList());
 
@@ -545,44 +564,105 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     // 销售等级
-    private List<SaleLevelDTO> findSaleLevelList(List<String> saleCycleList) {
-        return Stream.of("等级", "店均/件").map(saleLevelType -> {
-            SaleLevelDTO saleLevelDTO = new SaleLevelDTO();
-            saleLevelDTO.setType(saleLevelType);
-            saleLevelDTO.setSeasonLevel("等级".equals(saleLevelType) ? ReplayRatingLevelEnum.A.getCode() : BigDecimal.ZERO.toString());
-            saleLevelDTO.setWeekendDataMap(saleCycleList.stream().collect(Collectors.toMap(Function.identity(), (it) -> {
-                if ("等级".equals(saleLevelType)) {
-                    ReplayRatingLevelEnum levelEnum = ReplayRatingLevelEnum.S;
-                    if ("4周".equals(it)) {
-                        levelEnum = ReplayRatingLevelEnum.S;
-                    }
-                    if ("8周".equals(it)) {
-                        levelEnum = ReplayRatingLevelEnum.S;
-                    }
-                    if ("12周".equals(it)) {
-                        levelEnum = ReplayRatingLevelEnum.B;
-                    }
-                    return levelEnum;
-                }
-                if ("店均/件".equals(saleLevelType)) {
-                    BigDecimal num = BigDecimal.ZERO;
-                    if ("4周".equals(it)) {
-                        num = num.add(new BigDecimal("2.1"));
-                    }
-                    if ("8周".equals(it)) {
-                        num = num.add(new BigDecimal("3.2"));
-                    }
-                    if ("12周".equals(it)) {
-                        num = num.add(new BigDecimal("4.5"));
-                    }
-                    saleLevelDTO.setSeasonLevel(new BigDecimal(saleLevelDTO.getSeasonLevel()).add(num).toString());
-                    return num;
-                }
-                return "";
-            })));
-            saleLevelDTO.setPlanningLevel(ReplayRatingLevelEnum.S);
-            return saleLevelDTO;
-        }).collect(Collectors.toList());
+    private List<SaleLevelDTO> findSaleLevelList(GoodsSluggishSalesQO sluggishSalesQO) {
+        List<String> saleCycleList = sluggishSalesQO.getWeekends();
+        List<Integer> years = sluggishSalesQO.getYear();
+        List<SaleLevelDTO> list = new ArrayList<>();
+
+        // 转化一下Weekends
+        List<SluggishSaleWeekendsType> weekendsTypeList = new ArrayList<>();
+        if (CollUtil.isNotEmpty(saleCycleList)) {
+            weekendsTypeList.addAll(saleCycleList.stream().map(SluggishSaleWeekendsType::findByText).collect(Collectors.toList()));
+        }
+
+        // 查询销售数据
+        List<GoodsSluggishSales> goodsSluggishSalesList = sluggishSalesMapper.selectList(new BaseLambdaQueryWrapper<GoodsSluggishSales>()
+                .notEmptyIn(GoodsSluggishSales::getBulkStyleNo, sluggishSalesQO.getBulkStyleNo())
+                .notEmptyIn(GoodsSluggishSales::getYear, years)
+                .notEmptyIn(GoodsSluggishSales::getWeekends, weekendsTypeList)
+        );
+        List<GoodsSluggishSalesDTO> salesList = BI_CV.copyList2DTO(goodsSluggishSalesList);
+
+        // 遍历年份
+        for (int year : years) {
+            SaleLevelDTO levelDTO = new SaleLevelDTO();
+            SaleLevelDTO avgDTO = new SaleLevelDTO();
+            list.add(levelDTO);
+            list.add(avgDTO);
+
+            // 获取等级
+            levelDTO.setType(ReplayRatingLevelType.LEVEL);
+//            levelDTO.setSeasonLevel(ReplayRatingLevelEnum.A.getCode());
+//            levelDTO.setPlanningLevel(ReplayRatingLevelEnum.S);
+//            levelDTO.setWeekendDataMap(saleCycleList.stream().collect(Collectors.toMap(Function.identity(), (it) -> {
+//                if ("等级".equals(saleLevelType)) {
+//                    ReplayRatingLevelEnum levelEnum = ReplayRatingLevelEnum.S;
+//                    if ("4周".equals(it)) {
+//                        levelEnum = ReplayRatingLevelEnum.S;
+//                    }
+//                    if ("8周".equals(it)) {
+//                        levelEnum = ReplayRatingLevelEnum.S;
+//                    }
+//                    if ("12周".equals(it)) {
+//                        levelEnum = ReplayRatingLevelEnum.B;
+//                    }
+//                    return levelEnum;
+//                }
+//                if ("店均/件".equals(saleLevelType)) {
+//                    BigDecimal num = BigDecimal.ZERO;
+//                    if ("4周".equals(it)) {
+//                        num = num.add(new BigDecimal("2.1"));
+//                    }
+//                    if ("8周".equals(it)) {
+//                        num = num.add(new BigDecimal("3.2"));
+//                    }
+//                    if ("12周".equals(it)) {
+//                        num = num.add(new BigDecimal("4.5"));
+//                    }
+//                    saleLevelDTO.setSeasonLevel(new BigDecimal(saleLevelDTO.getSeasonLevel()).add(num).toString());
+//                    return num;
+//                }
+//                return "";
+//            })));
+//
+//
+//            avgDTO.setType(ReplayRatingLevelType.AVG);
+//            avgDTO.setSeasonLevel(ReplayRatingLevelEnum.A.getCode());
+//            avgDTO.setWeekendDataMap(saleCycleList.stream().collect(Collectors.toMap(Function.identity(), (it) -> {
+//                if ("等级".equals(saleLevelType)) {
+//                    ReplayRatingLevelEnum levelEnum = ReplayRatingLevelEnum.S;
+//                    if ("4周".equals(it)) {
+//                        levelEnum = ReplayRatingLevelEnum.S;
+//                    }
+//                    if ("8周".equals(it)) {
+//                        levelEnum = ReplayRatingLevelEnum.S;
+//                    }
+//                    if ("12周".equals(it)) {
+//                        levelEnum = ReplayRatingLevelEnum.B;
+//                    }
+//                    return levelEnum;
+//                }
+//                if ("店均/件".equals(saleLevelType)) {
+//                    BigDecimal num = BigDecimal.ZERO;
+//                    if ("4周".equals(it)) {
+//                        num = num.add(new BigDecimal("2.1"));
+//                    }
+//                    if ("8周".equals(it)) {
+//                        num = num.add(new BigDecimal("3.2"));
+//                    }
+//                    if ("12周".equals(it)) {
+//                        num = num.add(new BigDecimal("4.5"));
+//                    }
+//                    saleLevelDTO.setSeasonLevel(new BigDecimal(saleLevelDTO.getSeasonLevel()).add(num).toString());
+//                    return num;
+//                }
+//                return "";
+//            })));
+
+            // 获取店均件
+
+        }
+        return list;
     }
 
     // 生产销售

@@ -1,4 +1,4 @@
-package com.base.sbc.config.enums.business.replay;
+package com.base.sbc.config.enums.business.smp;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
@@ -17,12 +17,13 @@ import java.util.Arrays;
  */
 @Getter
 @AllArgsConstructor
-public enum ReplayRatingLevelEnum {
+public enum SluggishSaleWeekendsType {
     /**/
-    S("S"),
-    A("A"),
-    B("B"),
-    C("C"),
+    N04W("4周"),
+    N08W("8周"),
+    N012W("12周"),
+    N016W("16周"),
+
     ;
     /** 编码 */
     @EnumValue
@@ -30,19 +31,19 @@ public enum ReplayRatingLevelEnum {
     /** 文本 */
     private final String text;
 
-    ReplayRatingLevelEnum(String text) {
-        String code = this.name();
+    SluggishSaleWeekendsType(String text) {
+        String code = this.name().toLowerCase();
         this.code = StrUtil.toCamelCase(code);
         this.text = text;
     }
 
-    public static ReplayRatingLevelEnum findByCode(String code) {
-        return Arrays.stream(ReplayRatingLevelEnum.values()).filter(it -> it.code.equals(code)).findFirst().orElse(null);
+    public static SluggishSaleWeekendsType findByText(String text) {
+        return Arrays.stream(SluggishSaleWeekendsType.values()).filter(it -> it.text.equals(text)).findFirst().orElse(null);
     }
 
     @JsonValue
-    public String getCode() {
-        return code;
+    public String getText() {
+        return text;
     }
 
 }

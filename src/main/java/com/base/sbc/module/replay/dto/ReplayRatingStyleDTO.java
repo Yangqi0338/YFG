@@ -7,8 +7,9 @@
 package com.base.sbc.module.replay.dto;
 
 import cn.hutool.core.text.StrJoiner;
-import com.base.sbc.config.enums.business.replay.ReplayRatingLevelEnum;
+import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
+import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -151,14 +152,14 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
 
         /** 数据类型 */
         @ApiModelProperty(value = "数据类型")
-        private String type;
+        private ReplayRatingLevelType type;
 
         /** 周数据 */
         @ApiModelProperty(value = "周数据")
         private Map<String, Object> weekendDataMap;
         /** 企划等级 */
         @ApiModelProperty(value = "企划等级")
-        private ReplayRatingLevelEnum planningLevel;
+        private SluggishSaleLevelEnum planningLevel;
         /** 季节等级 | 合计 */
         @ApiModelProperty(value = "季节等级 | 合计")
         private String seasonLevel;

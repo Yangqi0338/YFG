@@ -7,7 +7,6 @@
 package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.annotation.ExtendField;
-import com.base.sbc.config.enums.business.replay.ReplayRatingLevelEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

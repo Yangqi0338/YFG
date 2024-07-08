@@ -18,6 +18,7 @@ public class ConvertContext {
     public static OpenConvert OPEN_CV = OpenConvert.INSTANCE;
     public static OrderBookConvert ORDER_BOOK_CV = OrderBookConvert.INSTANCE;
     public static ReplayConvert REPLAY_CV = ReplayConvert.INSTANCE;
+    public static BIConvert BI_CV = BIConvert.INSTANCE;
 
     @Autowired(required = false)
     public void setHangTagCv(HangTagConvert hangTagCv) {
@@ -47,5 +48,10 @@ public class ConvertContext {
     @Autowired(required = false)
     public void setReplayCv(ReplayConvert replayCv) {
         REPLAY_CV = replayCv;
+    }
+
+    @Autowired(required = false)
+    public void setBiCv(BIConvert biCv) {
+        BI_CV = biCv;
     }
 }
