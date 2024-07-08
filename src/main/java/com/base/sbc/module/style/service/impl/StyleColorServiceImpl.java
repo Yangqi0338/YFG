@@ -3809,7 +3809,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //查询已经保存的维度数据集合，方便后续修改使用
         List<FieldVal> list = fieldValService.list(ids, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-        Map<String, Map<String,FieldVal>> styleColorFieldMap = list.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,Collectors.toMap(FieldVal::getFieldId, o->o)));
+        Map<String, Map<String,FieldVal>> styleColorFieldMap = list.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,Collectors.toMap(FieldVal::getFieldId, o->o,(v1,v2)->v1)));
 
         List<FieldVal> updateFieldValList = new ArrayList<>();
 
