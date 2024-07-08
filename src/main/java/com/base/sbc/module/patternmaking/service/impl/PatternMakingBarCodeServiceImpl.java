@@ -9,8 +9,12 @@ package com.base.sbc.module.patternmaking.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import com.base.sbc.module.nodestatus.service.NodeStatusService;
+import com.base.sbc.module.nodestatus.service.impl.NodeStatusServiceImpl;
 import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingBarCodeMapper;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述： service类
@@ -38,10 +43,12 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
 
 
     private final MinioUtils minioUtils;
+    private final NodeStatusService nodeStatusServiceImpl;
 
-    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils) {
+    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl) {
         super();
         this.minioUtils = minioUtils;
+        this.nodeStatusServiceImpl = nodeStatusServiceImpl;
     }
 
     @Override
@@ -105,12 +112,30 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     @Override
     @Transactional
     public void saveMain(PatternMakingBarCode patternMakingBarCode) {
-        LambdaQueryWrapper<PatternMakingBarCode> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PatternMakingBarCode::getHeadId, patternMakingBarCode.getHeadId());
-        queryWrapper.eq(PatternMakingBarCode::getPitSite, patternMakingBarCode.getPitSite());
-        remove(queryWrapper);
+        //删除绑样时间
+        List<PatternMakingBarCode> patternMakingBarCodes = listByCode(patternMakingBarCode.getHeadId(), patternMakingBarCode.getPitSite());
+        if(CollUtil.isNotEmpty(patternMakingBarCodes)){
+            List<String> collect = patternMakingBarCodes.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+            LambdaQueryWrapper<NodeStatus> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(NodeStatus::getDataId, collect);
+            queryWrapper.eq(NodeStatus::getNode,"FOB");
+            queryWrapper.eq(NodeStatus::getStatus,"绑样");
+            nodeStatusServiceImpl.remove(queryWrapper);
+            LambdaQueryWrapper<PatternMakingBarCode> queryWrapper1 = new LambdaQueryWrapper<>();
+            queryWrapper1.eq(PatternMakingBarCode::getHeadId, patternMakingBarCode.getHeadId());
+            queryWrapper1.eq(PatternMakingBarCode::getPitSite, patternMakingBarCode.getPitSite());
+            remove(queryWrapper1);
+        }
 
         saveOrUpdate(patternMakingBarCode);
+        //添加新的绑样时间
+        NodeStatus nodeStatus = new NodeStatus();
+        nodeStatus.setDataId(patternMakingBarCode.getId());
+        nodeStatus.setNode("FOB");
+        nodeStatus.setStatus("绑样");
+        nodeStatus.setStartDate(patternMakingBarCode.getCreateDate());
+        nodeStatus.setEndDate(patternMakingBarCode.getCreateDate());
+        nodeStatusServiceImpl.save(nodeStatus);
 
         baseMapper.saveBarCodeLog(patternMakingBarCode);
     }
@@ -121,6 +146,19 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         queryWrapper.eq(PatternMakingBarCode::getHeadId, headId);
         queryWrapper.eq(PatternMakingBarCode::getPitSite, pitSite);
         return list(queryWrapper);
+    }
+
+    @Override
+    public void status(PatternMakingBarCode patternMakingBarCode) {
+        updateById(patternMakingBarCode);
+        //审样时间
+        NodeStatus nodeStatus = new NodeStatus();
+        nodeStatus.setDataId(patternMakingBarCode.getId());
+        nodeStatus.setNode("FOB");
+        nodeStatus.setStatus("审样");
+        nodeStatus.setStartDate(patternMakingBarCode.getCreateDate());
+        nodeStatus.setEndDate(patternMakingBarCode.getCreateDate());
+        nodeStatusServiceImpl.save(nodeStatus);
     }
 
 

@@ -38,4 +38,6 @@ public interface PatternMakingBarCodeService extends BaseService<PatternMakingBa
     void saveMain(PatternMakingBarCode patternMakingBarCode);
 
     List<PatternMakingBarCode> listByCode(String headId, Integer pitSite);
+
+    void status(PatternMakingBarCode patternMakingBarCode);
 }

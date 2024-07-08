@@ -85,7 +85,7 @@ public class PatternMakingBarCodeController {
     @ApiOperation(value = "状态")
     @PostMapping("/status")
     public ApiResult status(@RequestBody PatternMakingBarCode patternMakingBarCode) {
-        patternMakingBarCodeService.updateById(patternMakingBarCode);
+        patternMakingBarCodeService.status(patternMakingBarCode);
         return ApiResult.success("保存成功");
     }
 

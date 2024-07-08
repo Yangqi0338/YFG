@@ -34,10 +34,10 @@
                                                                  `update_id`, `update_name`, `update_date`, `del_flag`,
                                                                  `company_code`, `suggestion_img1`, `suggestion_img2`,
                                                                  `suggestion_img3`, `suggestion_img4`)
-        VALUES (#{id}, #{head_id}, #{img}, #{status}, #{suggestion}, #{suggestion_img}, #{suggestion_video},
-                #{pit_site}, #{bar_code}, #{create_id}, #{create_name}, #{create_date}, #{update_id}, #{update_name},
-                #{update_date}, #{del_flag}, #{company_code}, #{suggestion_img1}, #{suggestion_img2},
-                #{suggestion_img3}, #{suggestion_img4})
+        VALUES (#{id}, #{headId}, #{img}, #{status}, #{suggestion}, #{suggestionImg}, #{suggestionVideo},
+                #{pitSite}, #{barCode}, #{createId}, #{createName}, #{createDate}, #{updateId}, #{updateName},
+                #{updateDate}, #{delFlag}, #{companyCode}, #{suggestionImg1}, #{suggestionImg2},
+                #{suggestionImg3}, #{suggestionImg4})
     </insert>
 
     <select id="findPageLog" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo">
