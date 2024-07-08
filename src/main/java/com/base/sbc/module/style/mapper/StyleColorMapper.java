@@ -119,7 +119,7 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
 // 自定义方法区 不替换的区域【other_end】
 
-    List<StyleColorVo> styleColorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
+//    List<StyleColorVo> styleColorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<StyleColorVo> colorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
+//    List<StyleColorVo> colorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
 }
