@@ -53,7 +53,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     @Override
     public PatternMakingBarCodeVo getByBarCode(String barCode) {
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
-        qw.eq("tpm.bar_code", barCode);
+        qw.eq("tpmbc.bar_code", barCode);
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         if (CollUtil.isNotEmpty(list)) {
             return list.get(0);

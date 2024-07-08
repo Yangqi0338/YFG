@@ -15,6 +15,7 @@ import com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +36,7 @@ import java.util.List;
 @Api(tags = "")
 @RequestMapping(value = BaseController.SAAS_URL + "/patternMakingBarCode", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
+@RequiredArgsConstructor
 public class PatternMakingBarCodeController {
 
     @Autowired
@@ -69,7 +71,7 @@ public class PatternMakingBarCodeController {
 
     @ApiOperation(value = "明细-通过barCode查询")
     @GetMapping("/check")
-    public ApiResult<List<PatternMakingBarCode>> check(@RequestParam("headId") String headId, @RequestParam("barCode") Integer pitSite) {
+    public ApiResult<List<PatternMakingBarCode>> check(@RequestParam("headId") String headId, @RequestParam("pitSite") Integer pitSite) {
         List<PatternMakingBarCode> byBarCode = patternMakingBarCodeService.listByCode(headId, pitSite);
         return ApiResult.success("查询成功", byBarCode);
     }
