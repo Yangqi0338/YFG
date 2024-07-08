@@ -60,7 +60,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("ts.season_name", dto.getSeasonName());
         qw.notEmptyEq("ts.brand_name", dto.getBrandName());
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
-        qw.notEmptyEq("tpm.status", dto.getStatus());
+        qw.notEmptyEq("tpmbc.status", dto.getStatus());
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         minioUtils.setObjectUrlToList(list,"img");
         return new PageInfo<>(list);
@@ -75,7 +75,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("ts.season_name", dto.getSeasonName());
         qw.notEmptyEq("ts.brand_name", dto.getBrandName());
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
-        qw.notEmptyEq("tpm.status", dto.getStatus());
+        qw.notEmptyEq("tpmbc.status", dto.getStatus());
         qw.eq("tpmbc.bar_code", dto.getBarCode());
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         minioUtils.setObjectUrlToList(list,"img");
