@@ -213,7 +213,7 @@ public class MaterialController extends BaseController {
         qw.lambda().eq(Material::getStatus,"2");
         List<Material> list = materialService.list(qw);
         if (CollUtil.isNotEmpty(list)){
-            List<String> enableFlags = list.stream().map(Material::getEnableFlag).filter(item -> !Constants.ONE_STR.equals(item)).collect(Collectors.toList());
+            List<String> enableFlags = list.stream().map(Material::getEnableFlag).filter(Constants.ONE_STR::equals).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(enableFlags)){
                 return ApiResult.error("已启用的素材，不允许删除！",500);
             }
