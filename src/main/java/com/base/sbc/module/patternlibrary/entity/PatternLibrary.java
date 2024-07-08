@@ -79,11 +79,17 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String styleNos;
 
     /**
-     * 大货款号
+     * 下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）
      */
-    @ApiModelProperty("大货款号")
+    @ApiModelProperty("下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）")
+    private String placeAnOrderStyleNos;
+
+    /**
+     * 款式设计下的大货款号集合，排除后缀为-9|-10|-11|-12|-ZC的数据
+     */
+    @ApiModelProperty("款式设计下的大货款号集合，排除后缀为-9|-10|-11|-12|-ZC的数据")
     @TableField(exist = false)
-    private String styleNo;
+    private String multipleStyleNo;
 
     /**
      * 大类 code

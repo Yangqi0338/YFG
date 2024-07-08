@@ -1096,12 +1096,10 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 patternLibrary.setUseStyleNum(style.getUseStyleNum());
                 BigDecimal useStyleNum = new BigDecimal(style.getUseStyleNum());
                 BigDecimal count = new BigDecimal(allCount);
-                BigDecimal hundred = new BigDecimal("100");
                 patternLibrary.setPatternLibraryUtilization(BigDecimalUtil.dividePercentage(useStyleNum, count, 2, RoundingMode.CEILING).toString());
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
                 patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
                 patternLibrary.setPlanningSeasonName(style.getPlanningSeasonName());
-                patternLibrary.setStyleNo(style.getStyleNo());
                 patternLibrary.setAllProdCategoryNames(
                         (ObjectUtil.isNotEmpty(prodCategory1stName) ? prodCategory1stName : "无") + "/"
                                 + (ObjectUtil.isNotEmpty(prodCategoryName) ? prodCategoryName : "无") + "/"
