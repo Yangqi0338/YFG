@@ -799,7 +799,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
-						if (HangTagStatusEnum.DESIGN_CHECK == updateStatus) {
+						if (HangTagStatusEnum.TECH_CHECK == updateStatus) {
 							if (!(StrUtil.isNotEmpty(e.getProductName().trim()) &&
 									StrUtil.isNotEmpty(e.getQualityGrade().trim()) &&
 									StrUtil.isNotEmpty(e.getSaftyTitle().trim()) &&
