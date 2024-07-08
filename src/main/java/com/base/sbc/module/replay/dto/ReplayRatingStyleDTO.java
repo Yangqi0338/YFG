@@ -10,6 +10,7 @@ import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
+import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -156,7 +157,7 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
 
         /** 周数据 */
         @ApiModelProperty(value = "周数据")
-        private Map<String, Object> weekendDataMap;
+        private Map<SluggishSaleWeekendsType, Object> weekendDataMap;
         /** 企划等级 */
         @ApiModelProperty(value = "企划等级")
         private SluggishSaleLevelEnum planningLevel;
@@ -165,7 +166,7 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
         private String seasonLevel;
 
         @JsonAnyGetter
-        public Map<String, Object> getWeekendDataMap() {
+        public Map<SluggishSaleWeekendsType, Object> getWeekendDataMap() {
             return weekendDataMap;
         }
 

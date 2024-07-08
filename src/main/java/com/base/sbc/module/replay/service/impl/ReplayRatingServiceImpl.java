@@ -25,6 +25,7 @@ import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingWarnType;
+import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -222,7 +223,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     private static @NotNull BaseQueryWrapper<ReplayRating> buildQueryWrapper(ReplayRatingQO dto) {
         BaseQueryWrapper<ReplayRating> qw = new BaseQueryWrapper<>();
-        if (dto.getType() != ReplayRatingType.FABRIC) {
+        if (dto.getType() == ReplayRatingType.FABRIC) {
             qw.notEmptyEq("ts.planning_season_id", dto.getPlanningSeasonId());
         } else {
             qw.notEmptyEq("tsc.planning_season_id", dto.getPlanningSeasonId());
@@ -586,14 +587,24 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         // 遍历年份
         for (int year : years) {
             SaleLevelDTO levelDTO = new SaleLevelDTO();
+            levelDTO.setType(ReplayRatingLevelType.LEVEL);
             SaleLevelDTO avgDTO = new SaleLevelDTO();
+            levelDTO.setType(ReplayRatingLevelType.AVG);
             list.add(levelDTO);
             list.add(avgDTO);
 
+            List<GoodsSluggishSalesDTO> yearSalesList = salesList.stream().filter(it -> it.getYear().equals(year)).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(yearSalesList)) {
+                levelDTO.setPlanningLevel(SluggishSaleLevelEnum.S);
+                levelDTO.setSeasonLevel(SluggishSaleLevelEnum.A.getCode());
+                levelDTO.setWeekendDataMap(weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) -> {
+                    return yearSalesList.stream().filter(it -> it.getWeekends() == weekends).findFirst().map(GoodsSluggishSalesDTO::getLevel).orElse("");
+                })));
+            }
             // 获取等级
-            levelDTO.setType(ReplayRatingLevelType.LEVEL);
+
 //            levelDTO.setSeasonLevel(ReplayRatingLevelEnum.A.getCode());
-//            levelDTO.setPlanningLevel(ReplayRatingLevelEnum.S);
+
 //            levelDTO.setWeekendDataMap(saleCycleList.stream().collect(Collectors.toMap(Function.identity(), (it) -> {
 //                if ("等级".equals(saleLevelType)) {
 //                    ReplayRatingLevelEnum levelEnum = ReplayRatingLevelEnum.S;
