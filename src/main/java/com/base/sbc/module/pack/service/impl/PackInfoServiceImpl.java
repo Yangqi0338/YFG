@@ -28,6 +28,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -1170,6 +1171,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         BeanUtil.copyProperties(dto, packInfoStatus);
         packInfoStatusService.updateById(packInfoStatus);
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public boolean updatePackInfo(PackInfoDto packInfo) {
+        PackInfo oldPackInfo = getById(packInfo.getId());
+        oldPackInfo.setName(packInfo.getName());
+        oldPackInfo.setPatternNo(packInfo.getPatternNo());
+        return updateById(oldPackInfo);
     }
 
     @Override
