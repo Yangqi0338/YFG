@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.smp.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
@@ -36,6 +38,7 @@ public class GoodsSluggishSales implements Serializable {
     /** id */
     @ApiModelProperty(value = "id")
     @TableField("GUID")
+    @TableId(type = IdType.ASSIGN_ID)
     private String id;
 
     /** 货号 */
