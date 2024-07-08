@@ -125,7 +125,6 @@ import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +134,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -270,7 +270,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagDTO.startPage();
 		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
-			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+			if ("quote".equals(hangTagDTO.getSelectType())) {
+				qw.notIn("tssc.style_no", hangTagDTO.getBulkStyleNo());
+			} else {
+				hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+			}
 		}
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
@@ -387,9 +391,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					hangTag.setStatus(HangTagStatusEnum.PART_TRANSLATE_CHECK);
 				}
 			});
-		}
-		if ("quote".equals(hangTagDTO.getSelectType())) {
-			hangTagListVOS.removeIf(it-> it.getBulkStyleNo().equals(hangTagDTO.getBulkStyleNo()));
 		}
 
 		return new PageInfo<>(hangTagListVOS);
@@ -620,19 +621,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
 		hangTagLogService.save(new HangTagLog(OperationDescriptionEnum.SAVE.getV(), id));
-
-		// 保存成分信息
-		List<HangTagIngredient> hangTagIngredients = CollUtil.filter(hangTagDTO.getHangTagIngredients(), it-> StrUtil.isBlank(it.getId()));
-		if (CollUtil.isNotEmpty(hangTagIngredients)) {
-			hangTagIngredients.forEach(it-> {
-				if ("quote".equals(hangTagDTO.getSelectType())) {
-					it.insertInit();
-				}
-				it.setHangTagId(id);
-				it.updateInit();
-			});
-			hangTagIngredientService.saveOrUpdateBatch(hangTagIngredients);
-		}
 
 		/**
 		 * 当存在品名时同步到配色
