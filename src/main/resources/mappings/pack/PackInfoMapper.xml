@@ -177,28 +177,28 @@
                 </if>
     </select>
 
-    <select id="queryByListQw_COUNT" resultType="com.base.sbc.module.pack.vo.PackInfoListVo">
-        select count(0)
-        from t_pack_info p
-        where p.del_flag = '0'
-        <if test="ew.hasAlias('sd')">
-            and
-            EXISTS(
-            select id from t_style sd where sd.id = p.foreign_id
-            and ${ ew.getSqlByAlias('sd')}
-            )
-        </if>
-        <if test="ew.hasAlias('ps')">
-            and
-            EXISTS(
-            select id from t_pack_info_status ps where p.id = ps.foreign_id and IF(sc.bom_status='0',ps.pack_type='packDesign',ps.pack_type='packBigGoods')
-            and ${ ew.getSqlByAlias('ps')}
-            )
-        </if>
-        <if test="ew.hasAlias('p')">
-            and ${ ew.getSqlByAlias('p')}
-        </if>
-    </select>
+<!--    <select id="queryByListQw_COUNT" resultType="com.base.sbc.module.pack.vo.PackInfoListVo">-->
+<!--        select count(0)-->
+<!--        from t_pack_info p-->
+<!--        where p.del_flag = '0'-->
+<!--        <if test="ew.hasAlias('sd')">-->
+<!--            and-->
+<!--            EXISTS(-->
+<!--            select id from t_style sd where sd.id = p.foreign_id-->
+<!--            and ${ ew.getSqlByAlias('sd')}-->
+<!--            )-->
+<!--        </if>-->
+<!--        <if test="ew.hasAlias('ps')">-->
+<!--            and-->
+<!--            EXISTS(-->
+<!--            select id from t_pack_info_status ps where p.id = ps.foreign_id and IF(sc.bom_status='0',ps.pack_type='packDesign',ps.pack_type='packBigGoods')-->
+<!--            and ${ ew.getSqlByAlias('ps')}-->
+<!--            )-->
+<!--        </if>-->
+<!--        <if test="ew.hasAlias('p')">-->
+<!--            and ${ ew.getSqlByAlias('p')}-->
+<!--        </if>-->
+<!--    </select>-->
 
     <select id="selectFabricSummaryStyle" parameterType="com.base.sbc.module.sample.dto.FabricSummaryV2Dto" resultType="com.base.sbc.module.sample.vo.FabricSummaryInfoVo">
         select

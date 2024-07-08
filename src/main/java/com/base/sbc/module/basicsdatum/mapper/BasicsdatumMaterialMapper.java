@@ -11,10 +11,17 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.vo.*;
-import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
+import com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -88,6 +95,6 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	String getCategoryMaxCode(@Param("category3Code") String category3Code);
 // 自定义方法区 不替换的区域【other_end】
 
-	List<BasicsdatumMaterialPageVo> getMaterialSkuList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);
+//	List<BasicsdatumMaterialPageVo> getMaterialSkuList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);
 }
 

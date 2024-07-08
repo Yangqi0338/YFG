@@ -62,7 +62,7 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
 
     HangTagInspectCompany listHangTagInspectCompany(@Param("inspectCompanyId") String inspectCompanyId, @Param("hangTagId") String hangTagId);
 
-    List<HangTagListVO> queryList0_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
-    List<HangTagListVO> queryList1_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+//    List<HangTagListVO> queryList0_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+//    List<HangTagListVO> queryList1_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
 }
 

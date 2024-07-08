@@ -47,6 +47,6 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
 // 自定义方法区 不替换的区域【other_end】
 
 
-    List<StylePricingVO> getStylePricingList_COUNT(@Param("dto") StylePricingSearchDTO dto,
-                                                   @Param(Constants.WRAPPER) BaseQueryWrapper qw);
+//    List<StylePricingVO> getStylePricingList_COUNT(@Param("dto") StylePricingSearchDTO dto,
+//                                                   @Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }
