@@ -60,6 +60,22 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     }
 
     @Override
+    public PageInfo<PatternMakingBarCodeVo> findPageLog(PatternMakingBarCodeQueryDto dto) {
+        Page<Object> objects = PageHelper.startPage(dto);
+        BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
+        qw.andLike(dto.getDesignNo(), "ts.design_no", "tpm.pattern_no");
+        qw.notEmptyEq("ts.year_name", dto.getYearName());
+        qw.notEmptyEq("ts.season_name", dto.getSeasonName());
+        qw.notEmptyEq("ts.brand_name", dto.getBrandName());
+        qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
+        qw.notEmptyEq("tpm.status", dto.getStatus());
+        qw.eq("tpmbc.bar_code", dto.getBarCode());
+        List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
+        minioUtils.setObjectUrlToList(list,"img");
+        return new PageInfo<>(list);
+    }
+
+    @Override
     public PatternMakingBarCodeVo getByBarCode(String barCode) {
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
         qw.eq("tpmbc.bar_code", barCode);
@@ -95,6 +111,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         remove(queryWrapper);
 
         saveOrUpdate(patternMakingBarCode);
+
+        baseMapper.saveBarCodeLog(patternMakingBarCode);
     }
 
     @Override

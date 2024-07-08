@@ -48,6 +48,12 @@ public class PatternMakingBarCodeController {
         return ApiResult.success("查询成功", patternMakingBarCodeService.findPage(dto));
     }
 
+    @ApiOperation(value = "分页查询")
+    @GetMapping("/log")
+    public ApiResult<PageInfo<PatternMakingBarCodeVo>> pageLog(PatternMakingBarCodeQueryDto dto) {
+        return ApiResult.success("查询成功", patternMakingBarCodeService.findPageLog(dto));
+    }
+
     @ApiOperation(value = "明细-通过barCode查询")
     @GetMapping("/get")
     public ApiResult getById(@RequestParam("barCode") String barCode) {

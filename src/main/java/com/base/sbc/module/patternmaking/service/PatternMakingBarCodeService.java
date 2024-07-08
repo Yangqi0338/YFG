@@ -29,6 +29,8 @@ public interface PatternMakingBarCodeService extends BaseService<PatternMakingBa
     PageInfo<PatternMakingBarCodeVo> findPage(PatternMakingBarCodeQueryDto dto);
 
 
+    PageInfo<PatternMakingBarCodeVo> findPageLog(PatternMakingBarCodeQueryDto dto);
+
     PatternMakingBarCodeVo getByBarCode(String barCode);
 
     Boolean removeByBarCode(String barCode);

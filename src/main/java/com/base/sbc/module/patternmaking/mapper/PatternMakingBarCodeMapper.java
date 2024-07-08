@@ -30,4 +30,7 @@ public interface PatternMakingBarCodeMapper extends BaseMapper<PatternMakingBarC
 
     List<PatternMakingBarCodeVo> findPage(@Param(Constants.WRAPPER) BaseQueryWrapper<PatternMakingBarCode> qw);
 
+    List<PatternMakingBarCodeVo> findPageLog(@Param(Constants.WRAPPER) BaseQueryWrapper<PatternMakingBarCode> qw);
+
+    void saveBarCodeLog(PatternMakingBarCode patternMakingBarCode);
 }

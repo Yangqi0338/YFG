@@ -27,4 +27,35 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
     </select>
 
+    <insert id="saveBarCodeLog">
+        INSERT INTO `s_pdm_data`.`t_pattern_making_bar_code_log`(`id`, `head_id`, `img`, `status`, `suggestion`,
+                                                                 `suggestion_img`, `suggestion_video`, `pit_site`,
+                                                                 `bar_code`, `create_id`, `create_name`, `create_date`,
+                                                                 `update_id`, `update_name`, `update_date`, `del_flag`,
+                                                                 `company_code`, `suggestion_img1`, `suggestion_img2`,
+                                                                 `suggestion_img3`, `suggestion_img4`)
+        VALUES (#{id}, #{head_id}, #{img}, #{status}, #{suggestion}, #{suggestion_img}, #{suggestion_video},
+                #{pit_site}, #{bar_code}, #{create_id}, #{create_name}, #{create_date}, #{update_id}, #{update_name},
+                #{update_date}, #{del_flag}, #{company_code}, #{suggestion_img1}, #{suggestion_img2},
+                #{suggestion_img3}, #{suggestion_img4})
+    </insert>
+
+    <select id="findPageLog" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo">
+        SELECT tpmbc.*,
+               ts.design_no,
+               tpm.pattern_no,
+               tpm.sample_type,
+               tpm.sample_type_name,
+               tpm.pat_seq_name,
+               ts.year_name,
+               ts.season_name,
+               ts.brand_name,
+               tpm.requirement_num
+        FROM t_pattern_making_bar_code_log tpmbc
+                 LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
+                 LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
+        where tpmbc.del_flag = '0'
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+    </select>
+
 </mapper>

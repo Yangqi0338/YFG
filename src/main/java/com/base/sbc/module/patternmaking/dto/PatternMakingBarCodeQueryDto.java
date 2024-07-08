@@ -26,4 +26,5 @@ public class PatternMakingBarCodeQueryDto extends Page {
 	private String yearName;
 	private String seasonName;
 	private String brandName;
+	private String barCode;
 }
