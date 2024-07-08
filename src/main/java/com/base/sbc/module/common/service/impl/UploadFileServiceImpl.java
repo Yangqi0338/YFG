@@ -152,7 +152,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     /*创意素材库图/附件 t_material.pic_url*/
                     case "sourceMaterial":
                         StringBuilder sourceMaterialPath = new StringBuilder();
-                        sourceMaterialPath.append("SourceMaterial").append("/");
+                        sourceMaterialPath.append("DesignMaterial").append("/");
                         if (StringUtils.isNotEmpty(code)){
                             List<String> list = StringUtils.convertList(code);
                             for (String s : list) {
