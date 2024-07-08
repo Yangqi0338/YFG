@@ -235,7 +235,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryBrandMap, patternLibraryItemMap, patternLibraryTemplateMap);
 
                 if (ObjectUtil.isNotEmpty(patternLibrary.getParentIds())) {
-                     String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
+                    String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
                     PatternLibrary parent = patternLibraryMap.get(replace);
                     patternLibrary.setTopParentCode(parent.getCode());
                 }
@@ -1400,7 +1400,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                                           PatternLibrary patternLibrary,
                                           Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap,
                                           Map<String, List<PatternLibraryItem>> patternLibraryItemMap,
-                                          Map<String, PatternLibraryTemplate>  patternLibraryTemplateMap) {
+                                          Map<String, PatternLibraryTemplate> patternLibraryTemplateMap) {
         patternLibrary.setPatternLibraryUtilization(patternLibrary.getPatternLibraryUtilization() + "%");
         // 设置版型库模板信息
         PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateMap.get(patternLibrary.getTemplateCode());
