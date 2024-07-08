@@ -104,9 +104,9 @@
                 #{item}
             </foreach>
         </if>
-        <if test="descInfosList != null and descInfosList.size > 0">
+        <if test="descInfoList != null and descInfoList.size > 0">
             and tm.desc_info in
-            <foreach collection="descInfosList" item="descInfo" separator="," open="(" close=")">
+            <foreach collection="descInfoList" item="descInfo" separator="," open="(" close=")">
                 #{descInfo}
             </foreach>
         </if>

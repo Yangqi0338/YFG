@@ -483,7 +483,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (CollUtil.isNotEmpty(labelList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(labelList);
-            materialLinkageVo.setGroup("标签名称");
+            materialLinkageVo.setGroup("公司标签");
             list.add(materialLinkageVo);
         }
         // 素材名称相关
@@ -502,7 +502,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             if (CollUtil.isNotEmpty(descInfoList)){
                 MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
                 materialLinkageVo.setChildren(descInfoList);
-                materialLinkageVo.setGroup("个人标签");
+                materialLinkageVo.setGroup("个人分类");
                 list.add(materialLinkageVo);
             }
         }
