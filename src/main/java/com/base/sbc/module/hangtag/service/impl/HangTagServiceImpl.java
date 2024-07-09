@@ -44,6 +44,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -673,9 +674,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
 						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
 						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-					boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
-					boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
-					boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
+					boolean heightNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeHeight());
+					boolean widthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeWidth());
+					boolean lengthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeLength());
 					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
 							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
 							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
