@@ -2418,6 +2418,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PageInfo<StyleColorVo> pageInfo = getSampleStyleColorList(user, dto);
         List<StyleColorVo> styleColorVoList = pageInfo.getList();
 
+        if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 2000) {
+            throw new OtherException("导出最多只能导出2000条");
+        }
+        if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+            /*导出图片*/
+            stylePicUtils.setStylePic(styleColorVoList, "stylePic", 30);
+        }
+
         //根据查询出维度系数数据
         LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
         if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
