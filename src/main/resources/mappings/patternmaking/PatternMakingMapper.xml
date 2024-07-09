@@ -392,7 +392,6 @@
             p.grading_date,
             s.band_name,
             p.sample_bar_code,
-            p.receive_sample_date,
             s.devt_type_name,
             (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END) as pmStatus,
             p.refer_sample,
@@ -407,6 +406,7 @@
             tbs.supplier as supplierName,
             tpmbc.bar_code,
             tpmbc.img,
+            tpmbc.create_date as receiveSampleDate,
             p.del_flag
         </if>
         FROM
