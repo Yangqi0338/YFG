@@ -3841,7 +3841,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段,如需要,请联系管理员维护;");
                 continue;
             }
-            Map<String, PlanningDimensionalityVo> collect = dimensionalities.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getDimensionalityName, o -> o,(v1,v2)->v1));
+            Map<String, PlanningDimensionalityVo> collect = dimensionalities.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getFieldExplain, o -> o,(v1,v2)->v1));
 
             //获取该款已经保存的下单阶段动态字段
             Map<String,FieldVal> fieldValMap = styleColorFieldMap.getOrDefault(styleColor.getId(),new HashMap<>());
@@ -3923,7 +3923,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             }
                         }
                         Map<String,String> updateLogMap = new HashMap<>();
-                        updateLogMap.put("name",planningDimensionality.getDimensionalityName());
+                        updateLogMap.put("name",planningDimensionality.getFieldExplain());
                         updateLogMap.put("newStr",StrUtil.isEmpty(valName)?value:valName);
                         if(fieldValMap.containsKey(planningDimensionality.getFieldId())){
                             FieldVal fieldVal = fieldValMap.get(planningDimensionality.getFieldId());
@@ -3942,7 +3942,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             fieldVal.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
                             fieldVal.setFieldId(planningDimensionality.getFieldId());
                             fieldVal.setFieldName(planningDimensionality.getFieldName());
-                            fieldVal.setFieldExplain(planningDimensionality.getDimensionalityName());
+                            fieldVal.setFieldExplain(planningDimensionality.getFieldExplain());
                             fieldVal.setVal(value);
                             fieldVal.setValName(valName);
                             fieldVal.insertInit();
