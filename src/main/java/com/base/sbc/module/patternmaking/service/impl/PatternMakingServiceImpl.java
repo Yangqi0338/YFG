@@ -1602,7 +1602,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
             return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
-        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+        List<SampleBoardVo> list;
+        if (StrUtil.isNotBlank(dto.getDevtType()) && "FOB".equals(dto.getDevtType())) {
+            list = getBaseMapper().sampleBoardListFOB(qw);
+        }else {
+            list = getBaseMapper().sampleBoardList(qw);
+        }
 
         //region 列头漏斗过滤
         if (isColumnHeard) {

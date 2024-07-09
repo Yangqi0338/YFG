@@ -45,6 +45,8 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     List<SampleBoardVo> sampleBoardList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
+    List<SampleBoardVo> sampleBoardListFOB(@Param(Constants.WRAPPER) QueryWrapper qw);
+
     /**
      * 导出
      * @param qw

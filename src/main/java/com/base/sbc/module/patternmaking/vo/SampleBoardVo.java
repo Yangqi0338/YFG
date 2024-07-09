@@ -353,4 +353,11 @@ public class SampleBoardVo extends Style {
      * 列头筛选数量
      */
     private Integer groupCount;
+
+    @ApiModelProperty(value = "供应商Id")
+    private String supplierId;
+    @ApiModelProperty(value = "供应商名称")
+    private String supplierName;
+    private String img;
+    private String barCode;
 }
