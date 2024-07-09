@@ -389,6 +389,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 			});
 		}
+		if ("quote".equals(hangTagDTO.getSelectType())) {
+			hangTagListVOS.removeIf(it-> it.getBulkStyleNo().equals(hangTagDTO.getBulkStyleNo()));
+		}
 
 		return new PageInfo<>(hangTagListVOS);
 	}
@@ -426,6 +429,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (hangTagVO.getWarmTipsDefaultWrap() == null) {
 			hangTagVO.setWarmTipsDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_WARM_TIPS_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
 		}
+
+		// 如果是引用查询 加多一个成分查询
+		if ("quote".equals(selectType)) {
+			List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+					.eq(HangTagIngredient::getHangTagId, hangTagVO.getId()));
+			hangTagVO.setHangTagIngredients(list);
+		}
+		hangTagVO.setSelectType(selectType);
 
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
@@ -610,6 +621,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
 		hangTagLogService.save(new HangTagLog(OperationDescriptionEnum.SAVE.getV(), id));
+
+		// 保存成分信息
+		List<HangTagIngredient> hangTagIngredients = CollUtil.filter(hangTagDTO.getHangTagIngredients(), it-> StrUtil.isBlank(it.getId()));
+		if (CollUtil.isNotEmpty(hangTagIngredients)) {
+			hangTagIngredients.forEach(it-> {
+				if ("quote".equals(hangTagDTO.getSelectType())) {
+					it.insertInit();
+				}
+				it.setHangTagId(id);
+				it.updateInit();
+			});
+			hangTagIngredientService.saveOrUpdateBatch(hangTagIngredients);
+		}
 
 		/**
 		 * 当存在品名时同步到配色
