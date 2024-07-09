@@ -76,7 +76,7 @@
         tpl.style_nos,
         tpl.parent_id,
         tpl.parent_ids,
-        group_concat(tsc.style_no) multipleStyleNo
+        group_concat(tsc.style_no) multipleStyleNo,
         ifnull((SELECT
         count( 1 )
         FROM

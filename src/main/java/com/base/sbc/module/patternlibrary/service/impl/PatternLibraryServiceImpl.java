@@ -19,6 +19,8 @@ import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
@@ -33,7 +35,9 @@ import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.*;
@@ -90,6 +94,9 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
     @Autowired
     private MinioUtils minioUtils;
+
+    @Autowired
+    private OrderBookDetailService orderBookDetailService;
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
@@ -996,6 +1003,20 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
+            // 判断已经投产的大货款号 逻辑是 当前大货款是否存在任意一个状态为已下单的订货本详情 orderStatus = 4
+            List<String> styleColorIdList = styleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
+            List<OrderBookDetail> orderBookDetailList = orderBookDetailService.list(
+                    new LambdaQueryWrapper<OrderBookDetail>()
+                            .in(OrderBookDetail::getStyleColorId, styleColorIdList)
+                            .eq(OrderBookDetail::getStatus, OrderBookDetailOrderStatusEnum.ORDER)
+            );
+            if (ObjectUtil.isNotEmpty(orderBookDetailList)) {
+                List<String> styleColorIds = orderBookDetailList.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+                // 说明查到了投产的大货款号
+                List<String> styleNoList = styleColorList.stream().filter(item -> styleColorIds.contains(item.getId())).map(StyleColor::getStyleNo).collect(Collectors.toList());
+                patternLibrary.setPlaceOrderStyleNoList(styleNoList);
+            }
+
             patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
             // 初始化大货的图片 ID-URL 集合
             List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
