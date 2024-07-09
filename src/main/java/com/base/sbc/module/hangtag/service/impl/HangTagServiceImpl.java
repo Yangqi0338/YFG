@@ -44,6 +44,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -126,7 +127,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.formula.functions.T;
-import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,6 +136,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -272,7 +273,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagDTO.startPage();
 		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
-			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+			if ("quote".equals(hangTagDTO.getSelectType())) {
+				qw.notIn("tssc.style_no", hangTagDTO.getBulkStyleNo());
+			} else {
+				hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+			}
 		}
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
@@ -389,9 +394,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					hangTag.setStatus(HangTagStatusEnum.PART_TRANSLATE_CHECK);
 				}
 			});
-		}
-		if ("quote".equals(hangTagDTO.getSelectType())) {
-			hangTagListVOS.removeIf(it-> it.getBulkStyleNo().equals(hangTagDTO.getBulkStyleNo()));
 		}
 
 		return new PageInfo<>(hangTagListVOS);
@@ -623,19 +625,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
 		hangTagLogService.save(new HangTagLog(OperationDescriptionEnum.SAVE.getV(), id));
 
-		// 保存成分信息
-		List<HangTagIngredient> hangTagIngredients = CollUtil.filter(hangTagDTO.getHangTagIngredients(), it-> StrUtil.isBlank(it.getId()));
-		if (CollUtil.isNotEmpty(hangTagIngredients)) {
-			hangTagIngredients.forEach(it-> {
-				if ("quote".equals(hangTagDTO.getSelectType())) {
-					it.insertInit();
-				}
-				it.setHangTagId(id);
-				it.updateInit();
-			});
-			hangTagIngredientService.saveOrUpdateBatch(hangTagIngredients);
-		}
-
 		/**
 		 * 当存在品名时同步到配色
 		 */
@@ -687,9 +676,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
 						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
 						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-					boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
-					boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
-					boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
+					boolean heightNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeHeight());
+					boolean widthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeWidth());
+					boolean lengthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeLength());
 					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
 							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
 							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
