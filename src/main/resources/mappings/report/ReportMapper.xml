@@ -26,7 +26,10 @@
             ts.prod_category3rd_name,
             t.down_content,
             t.ingredient,
-            t.special_spec
+            t.special_spec,
+            t.execute_standard,
+            t.execute_standard_code,
+            t.warm_tips
         </if>
         FROM t_hang_tag t
         LEFT JOIN t_style_color t1 ON t.bulk_style_no = t1.style_no and t1.del_flag = 0
