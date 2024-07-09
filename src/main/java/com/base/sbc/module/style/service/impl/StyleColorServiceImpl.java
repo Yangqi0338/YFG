@@ -2432,6 +2432,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
         Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
 
+        List<Map<String,Object>> dataList = new ArrayList<>();
+        for (StyleColorVo styleColorVo : styleColorVoList) {
+            Map<String, Object> dataMap = JSONObject.parseObject(JSONObject.toJSONString(styleColorVo), Map.class);
+
+            List<FieldVal> fieldValList1 = new ArrayList<>();
+            if (StringUtils.isNotBlank(dto.getMarkingOrderFlag())) {
+                if (fieldValMap.containsKey(styleColorVo.getId())) {
+                    fieldValList1 = fieldValMap.get(styleColorVo.getId());
+                }
+            } else {
+                if (fieldValMap.containsKey(styleColorVo.getStyleId())) {
+                    fieldValList1 = fieldValMap.get(styleColorVo.getStyleId());
+                }
+            }
+
+            for (FieldVal fieldVal : fieldValList1) {
+                String fieldName = fieldVal.getFieldName();
+                String val = StrUtil.isNotBlank(fieldVal.getValName()) ? fieldVal.getValName() : fieldVal.getVal();
+                dataMap.put(fieldName,val);
+            }
+
+            dataList.add(dataMap);
+        }
+
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
@@ -2439,43 +2463,28 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 .build();
 
         try {
-            List<Map<String,Object>> dataList = new ArrayList<>();
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
-                if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
-                    throw new OtherException("带图片导出最多只能导出1500条");
+                CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
+                for (Map<String, Object> styleColorVo : dataList) {
+                    executor.submit(() -> {
+                        try {
+                            if(styleColorVo.get("stylePic") != null){
+                                final String stylePic = styleColorVo.get("stylePic").toString();
+                                styleColorVo.put("stylePic1",HttpUtil.downloadBytes(stylePic));
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
                 }
-                stylePicUtils.setStylePic(styleColorVoList, "stylePic",30);
+                countDownLatch.await();
             }
-            CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
-            for (StyleColorVo styleColorVo : styleColorVoList) {
-                executor.submit(() -> {
-                    Map<String,Object> dataMap = JSONObject.parseObject(JSONObject.toJSONString(styleColorVo), Map.class);
-                    try {
-                        if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                            final String stylePic = styleColorVo.getStylePic();
-                            dataMap.put("stylePic1",HttpUtil.downloadBytes(stylePic));
-                        }
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                    } finally {
-                        //每次减一
-                        countDownLatch.countDown();
-                        log.info(String.valueOf(countDownLatch.getCount()));
-                    }
 
-                    if(fieldValMap.containsKey(styleColorVo.getStyleId())){
-                        List<FieldVal> fieldValList1 = fieldValMap.get(styleColorVo.getStyleId());
-                        for (FieldVal fieldVal : fieldValList1) {
-                            String fieldName = fieldVal.getFieldName();
-                            String val = StrUtil.isNotBlank(fieldVal.getValName()) ? fieldVal.getValName() : fieldVal.getVal();
-                            dataMap.put(fieldName,val);
-                        }
-                    }
-                    dataList.add(dataMap);
-                });
-            }
-            countDownLatch.await();
             String type = "款式打标设计阶段";
             if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
                 type = "款式打标下单阶段";
