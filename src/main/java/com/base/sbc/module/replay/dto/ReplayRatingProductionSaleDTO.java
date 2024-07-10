@@ -81,7 +81,7 @@ public class ReplayRatingProductionSaleDTO implements Serializable {
     /** 产销比 */
     @ApiModelProperty(value = "产销比")
     public String getProductionSaleRate() {
-        return BigDecimalUtil.dividePercentage(production, sale) + "%";
+        return BigDecimalUtil.dividePercentage(getRealSale(), getRealProduction()) + "%";
     }
 
     public Map<String, Object> findMap() {

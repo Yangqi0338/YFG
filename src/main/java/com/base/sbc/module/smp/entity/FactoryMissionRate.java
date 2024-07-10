@@ -41,7 +41,7 @@ public class FactoryMissionRate implements Serializable {
 
     /** 编号 */
     @ApiModelProperty(value = "编号")
-    @TableField("GOODS_NO")
+    @TableField("ORDER_NO")
     private String code;
 
     /** 供应商id */

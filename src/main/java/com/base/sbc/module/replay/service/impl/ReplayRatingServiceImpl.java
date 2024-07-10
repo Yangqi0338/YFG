@@ -8,6 +8,7 @@ package com.base.sbc.module.replay.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ObjectUtil;
@@ -29,6 +30,7 @@ import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -101,12 +103,18 @@ import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearQO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
+import com.base.sbc.module.smp.dto.FactoryMissionRateQO;
 import com.base.sbc.module.smp.dto.GoodsSluggishSalesDTO;
 import com.base.sbc.module.smp.dto.GoodsSluggishSalesQO;
+import com.base.sbc.module.smp.dto.SaleFacQO;
+import com.base.sbc.module.smp.entity.FactoryMissionRate;
 import com.base.sbc.module.smp.entity.GoodsSluggishSales;
+import com.base.sbc.module.smp.entity.SaleFac;
+import com.base.sbc.module.smp.entity.StockSize;
 import com.base.sbc.module.smp.mapper.FactoryMissionRateMapper;
 import com.base.sbc.module.smp.mapper.GoodsSluggishSalesMapper;
 import com.base.sbc.module.smp.mapper.SaleFacMapper;
+import com.base.sbc.module.smp.mapper.StockSizeMapper;
 import com.base.sbc.module.style.dto.StyleBomSearchDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -124,7 +132,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -139,7 +146,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.convert.ConvertContext.BI_CV;
@@ -228,6 +234,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Autowired
     private FactoryMissionRateMapper factoryMissionRateMapper;
+
+    @Autowired
+    private StockSizeMapper stockSizeMapper;
 
     private static @NotNull BaseQueryWrapper<ReplayRating> buildQueryWrapper(ReplayRatingQO dto) {
         BaseQueryWrapper<ReplayRating> qw = new BaseQueryWrapper<>();
@@ -330,13 +339,6 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                         .eq(PatternLibrary::getStyleId, styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList()))
                 , PatternLibrary::getStyleId, PatternLibrary::getId);
         styleVOList.forEach(styleDTO -> {
-            // 为空获取 想要实时就去掉该空判断
-            if (styleDTO.getPlanningLevel() == null) {
-//                        styleDTO.setPlanningLevel();
-            }
-            if (styleDTO.getSeasonLevel() == null) {
-//                        styleDTO.setSaleLevel();
-            }
             // 版型id
             styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
         });
@@ -566,8 +568,13 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         sluggishSalesQO.setBrand(result.getBrand());
         result.setSaleLevelList(findSaleLevelList(sluggishSalesQO));
 
-        result.setProductionSaleList(findProductionSaleList());
-        result.setProductionInfoList(findProductionInfoList());
+        SaleFacQO saleFacQO = new SaleFacQO();
+        saleFacQO.setBulkStyleNo(result.getBulkStyleNo());
+        result.setProductionSaleList(findProductionSaleList(saleFacQO));
+
+        FactoryMissionRateQO factoryMissionRateQO = new FactoryMissionRateQO();
+        factoryMissionRateQO.setBulkStyleNo(result.getBulkStyleNo());
+        result.setProductionInfoList(findProductionInfoList(factoryMissionRateQO));
 
         return result;
     }
@@ -578,6 +585,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         List<Integer> years = sluggishSalesQO.getYear();
         List<SaleLevelDTO> list = new ArrayList<>();
 
+        String bulkStyleNo = sluggishSalesQO.getBulkStyleNo();
+        if (StrUtil.isBlank(bulkStyleNo)) return list;
+
         // 转化一下Weekends
         List<SluggishSaleWeekendsType> weekendsTypeList = new ArrayList<>();
         if (CollUtil.isNotEmpty(saleCycleList)) {
@@ -586,7 +596,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
         // 查询销售数据
         List<GoodsSluggishSales> goodsSluggishSalesList = sluggishSalesMapper.selectList(new BaseLambdaQueryWrapper<GoodsSluggishSales>()
-                .notEmptyIn(GoodsSluggishSales::getBulkStyleNo, sluggishSalesQO.getBulkStyleNo())
+                .notEmptyIn(GoodsSluggishSales::getBulkStyleNo, bulkStyleNo)
                 .notEmptyIn(GoodsSluggishSales::getYear, years)
                 .notEmptyIn(GoodsSluggishSales::getWeekends, weekendsTypeList)
         );
@@ -596,10 +606,10 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         for (int year : years) {
             SaleLevelDTO levelDTO = new SaleLevelDTO();
             levelDTO.setType(ReplayRatingLevelType.LEVEL);
-            levelDTO.setYear(year);
+            levelDTO.setYear(year + "年");
             SaleLevelDTO avgDTO = new SaleLevelDTO();
             levelDTO.setType(ReplayRatingLevelType.AVG);
-            levelDTO.setYear(year);
+            levelDTO.setYear(year + "年");
 
             List<GoodsSluggishSalesDTO> yearSalesList = salesList.stream().filter(it -> it.getYear().equals(year)).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(yearSalesList)) {
@@ -617,39 +627,75 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     // 生产销售
-    private List<ProductionSaleDTO> findProductionSaleList() {
+    private List<ProductionSaleDTO> findProductionSaleList(SaleFacQO saleFacQO) {
+        List<ProductionSaleDTO> list = new ArrayList<>();
 
-        return Stream.of("X", "XL", "XXL").map(size -> {
-            ProductionSaleDTO productionSaleDTO = new ProductionSaleDTO();
-            productionSaleDTO.setSizeCode(size);
-            productionSaleDTO.setSizeName(size);
-            productionSaleDTO.setProduction(new BigDecimal("1200"));
-            productionSaleDTO.setProductionCount(5);
-            productionSaleDTO.setSale(new BigDecimal(1200));
-            productionSaleDTO.setStorageCount(new BigDecimal("0"));
-            return productionSaleDTO;
-        }).collect(Collectors.toList());
+        String bulkStyleNo = saleFacQO.getBulkStyleNo();
+        if (StrUtil.isBlank(bulkStyleNo)) return list;
+
+        LambdaQueryWrapper<SaleFac> queryWrapper = new BaseLambdaQueryWrapper<SaleFac>()
+                .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo);
+        List<SaleFac> sourceSaleFacList = saleFacMapper.selectList(queryWrapper);
+        List<Map<String, Object>> sizeMapList = saleFacMapper.findSizeMap(queryWrapper);
+        if (sizeMapList.isEmpty()) return list;
+
+        // 获取库存款
+        List<StockSize> stockSizeList = stockSizeMapper.selectList(new BaseLambdaQueryWrapper<StockSize>()
+                .notEmptyIn(StockSize::getBulkStyleNo, bulkStyleNo)
+        );
+
+        sizeMapList.forEach(sizeMap -> {
+            String id = sizeMap.remove("id").toString();
+            sourceSaleFacList.stream().filter(it -> it.getId().equals(id)).findFirst().ifPresent(saleFac -> {
+                sizeMap.forEach((sizeName, value) -> {
+                    int stockQty = stockSizeList.stream().filter(it -> it.getSizeName().equals(sizeName)).mapToInt(StockSize::getQty).sum();
+                    BigDecimal num = new BigDecimal(value.toString());
+                    ProductionSaleDTO productionSaleDTO = list.stream().filter(it -> it.getSizeName().equals(sizeName)).findFirst().orElseGet(() -> {
+                        ProductionSaleDTO saleDTO = new ProductionSaleDTO();
+                        list.add(saleDTO);
+                        return saleDTO;
+                    });
+                    productionSaleDTO.setSizeName(sizeName);
+                    // 投产
+                    if (StrUtil.isNotBlank(saleFac.getProductionType())) {
+                        productionSaleDTO.setProduction(productionSaleDTO.getProduction().add(num));
+                        if (BigDecimalUtil.biggerThenZero(num)) {
+                            productionSaleDTO.setProductionCount(productionSaleDTO.getProductionCount() + 1);
+                        }
+                    } else {
+                        productionSaleDTO.setSale(productionSaleDTO.getSale().add(num));
+                    }
+                    productionSaleDTO.setStorageCount(stockQty);
+                });
+            });
+        });
+        list.sort(CommonUtils.sizeNameSort(ProductionSaleDTO::getSizeName));
+        return list;
     }
 
     // 投产信息
-    private List<ProductionInfoDTO> findProductionInfoList() {
-        LocalDateTime now = LocalDateTime.now();
-        return Stream.of(now, now.minusDays(1)).map(dateTime -> {
-            ProductionInfoDTO productionSaleDTO = new ProductionInfoDTO();
-            productionSaleDTO.setDate(dateTime);
-            if (dateTime == now) {
-                productionSaleDTO.setOrderNo("54353453");
-                productionSaleDTO.setProduction(new BigDecimal("1000"));
-                productionSaleDTO.setSupplierInfoList(Arrays.asList(new SupplierInfo("1", "A供应商"), new SupplierInfo("2", "B供应商")));
-                productionSaleDTO.setStorageCount(new BigDecimal("500"));
-            } else {
-                productionSaleDTO.setOrderNo("45654645");
-                productionSaleDTO.setProduction(new BigDecimal("2000"));
-                productionSaleDTO.setSupplierInfoList(Arrays.asList(new SupplierInfo("2", "B供应商")));
-                productionSaleDTO.setStorageCount(new BigDecimal("1000"));
-            }
-            return productionSaleDTO;
-        }).collect(Collectors.toList());
+    private List<ProductionInfoDTO> findProductionInfoList(FactoryMissionRateQO factoryMissionRateQO) {
+        List<ProductionInfoDTO> list = new ArrayList<>();
+
+        String bulkStyleNo = factoryMissionRateQO.getBulkStyleNo();
+        if (StrUtil.isBlank(bulkStyleNo)) return list;
+
+        List<FactoryMissionRate> factoryMissionRateList = factoryMissionRateMapper.selectList(
+                new BaseLambdaQueryWrapper<FactoryMissionRate>()
+                        .notEmptyIn(FactoryMissionRate::getBulkStyleNo, bulkStyleNo)
+                        .orderByAsc(FactoryMissionRate::getOrderDate)
+        );
+        factoryMissionRateList.stream().collect(CommonUtils.groupingBy(it -> Pair.of(it.getOrderNo(), it.getOrderDate())))
+                .forEach((key, sameKeyList) -> {
+                    ProductionInfoDTO productionSaleDTO = new ProductionInfoDTO();
+                    productionSaleDTO.setDate(key.getValue());
+                    productionSaleDTO.setOrderNo(key.getKey());
+                    productionSaleDTO.setProduction(CommonUtils.sumBigDecimal(sameKeyList, FactoryMissionRate::getOrderNum));
+                    productionSaleDTO.setSupplierInfoList(sameKeyList.stream().map(it -> new SupplierInfo(it.getSupplierId(), it.getSupplierName())).distinct().collect(Collectors.toList()));
+                    productionSaleDTO.setStorageCount(CommonUtils.sumBigDecimal(sameKeyList, FactoryMissionRate::getDeliveryNum));
+                    list.add(productionSaleDTO);
+                });
+        return list;
     }
 
     @Override

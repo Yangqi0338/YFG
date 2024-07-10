@@ -444,4 +444,32 @@ public class CommonUtils {
         }
     }
 
+    public static <T> Comparator<? super T> sizeNameSort(Function<? super T, String> func) {
+        return Comparator.comparing((it) -> {
+            String sizeName = func.apply(it);
+            int base = 1;
+            Integer rate = null;
+            for (char c : sizeName.toCharArray()) {
+                if (c == 'X') {
+                    base += 1;
+                }
+                if (c == 'S') {
+                    rate = -1;
+                }
+                if (c == 'M') {
+                    rate = 0;
+                }
+                if (c == 'L') {
+                    rate = 1;
+                }
+            }
+            if (rate == null) return Integer.MIN_VALUE;
+            return rate * base;
+        });
+    }
+
+    public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
+        return BigDecimal.valueOf(list.stream().mapToDouble(it -> func.apply(it).doubleValue()).sum()).setScale(2, RoundingMode.HALF_UP);
+    }
+
 }

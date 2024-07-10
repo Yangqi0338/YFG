@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.dto;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
@@ -21,7 +22,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +135,15 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
                 .toString();
     }
 
+    /**
+     * 款式基础信息
+     */
+    @ApiModelProperty("款式基础信息")
+    public List<String> getSaleLevelYearList() {
+        if (CollUtil.isEmpty(saleLevelList)) return new ArrayList<>();
+        return saleLevelList.stream().map(SaleLevelDTO::getYear).distinct().collect(Collectors.toList());
+    }
+
     @Override
     public ReplayRatingType getType() {
         return ReplayRatingType.STYLE;
@@ -157,7 +168,7 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
 
         /** 年份 */
         @ApiModelProperty(value = "年份")
-        private Integer year;
+        private String year;
 
         /** 周数据 */
         @ApiModelProperty(value = "周数据")
@@ -175,21 +186,17 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
     @Data
     public static class ProductionSaleDTO extends ReplayRatingProductionSaleDTO {
 
-        /** 尺码Code */
-        @ApiModelProperty(value = "尺码Code")
-        private String sizeCode;
-
         /** 尺码 */
         @ApiModelProperty(value = "尺码")
         private String sizeName;
 
         /** 投产次数 */
         @ApiModelProperty(value = "投产次数")
-        private Integer productionCount;
+        private Integer productionCount = 0;
 
         /** 库存款 */
         @ApiModelProperty(value = "库存款")
-        private BigDecimal storageCount;
+        private Integer storageCount = 0;
 
     }
 
@@ -199,7 +206,7 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
         /** 投产日期 */
         @ApiModelProperty(value = "投产日期")
         @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-        private LocalDateTime date;
+        private LocalDate date;
 
         /** 投产单号 */
         @ApiModelProperty(value = "投产单号")
@@ -239,5 +246,12 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
         @ApiModelProperty(value = "生产商name")
         private String name;
 
+        @Override
+        public String toString() {
+            return "SupplierInfo{" +
+                    "id='" + id + '\'' +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
     }
 }

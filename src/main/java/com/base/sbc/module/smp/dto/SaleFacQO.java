@@ -4,13 +4,13 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.replay.vo;
+package com.base.sbc.module.smp.dto;
 
-import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
@@ -22,27 +22,31 @@ import lombok.EqualsAndHashCode;
  * @date 创建时间：2024-6-13 15:15:25
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("基础资料-复盘评分 ReplayRatingVo")
-public class ReplayRatingStyleVO extends ReplayRatingVO {
+@ApiModel("基础资料-复盘评分 SaleFacQO")
+public class SaleFacQO {
 
-//    /** 企划等级 */
-//    @ApiModelProperty(value = "企划等级")
-//    @ExtendField
-//    private SluggishSaleLevelEnum planningLevel;
-//    /** 季节等级 */
-//    @ApiModelProperty(value = "季节等级")
-//    @ExtendField
-//    private SluggishSaleLevelEnum seasonLevel;
     /**
-     * 跳转版型id
+     * 大货款号[范围]
      */
-    @ApiModelProperty(value = "跳转版型id")
-    private String gotoPatternId;
+    @ApiModelProperty(value = "大货款号[范围]")
+    private String bulkStyleNo;
 
-    @Override
-    public ReplayRatingType getType() {
-        return ReplayRatingType.STYLE;
-    }
+    /**
+     * 年份[范围]
+     */
+    @ApiModelProperty(value = "年份[范围]")
+    private List<Integer> year;
+
+    /**
+     * 周数[范围]
+     */
+    @ApiModelProperty(value = "周数[范围]")
+    private List<String> weekends;
+
+    /**
+     * 品牌
+     */
+    @ApiModelProperty(value = "品牌")
+    private String brand;
 
 }

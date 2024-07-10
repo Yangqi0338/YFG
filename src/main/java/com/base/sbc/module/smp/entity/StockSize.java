@@ -10,13 +10,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.enums.business.smp.SaleFacResultType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.YearMonth;
+import java.time.LocalDate;
 
 /**
  * 类描述：BI 物料投产
@@ -27,9 +26,9 @@ import java.time.YearMonth;
  * @date 创建时间：2024-6-13 15:15:25
  */
 @Data
-@TableName(value = "DM_SALE_FAC", autoResultMap = true)
+@TableName(value = "DM_STOCK_SIZE", autoResultMap = true)
 @ApiModel("BI 物料投产 SaleFac")
-public class SaleFac implements Serializable {
+public class StockSize implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,50 +38,25 @@ public class SaleFac implements Serializable {
     @TableId(value = "GUID", type = IdType.ASSIGN_UUID)
     private String id;
 
-    /** 结果类型 */
-    @ApiModelProperty(value = "结果类型")
-    @TableField("RESULTTYPE")
-    private SaleFacResultType resultType;
-
     /** 大货款 */
     @ApiModelProperty(value = "大货款")
-    @TableField("PROD_CODE")
+    @TableField("GOODSNO")
     private String bulkStyleNo;
 
-    /** 线下销售标签 */
-    @ApiModelProperty(value = "线下销售标签")
-    @TableField("SALE_TYPE")
-    private String offlineSaleFlag;
+    /** 尺码名 */
+    @ApiModelProperty(value = "尺码名")
+    @TableField("SIZES")
+    private String sizeName;
 
-    /** 投产类型 */
-    @ApiModelProperty(value = "投产类型")
-    @TableField("ORDER_TYPE")
-    private String productionType;
+    /** 入库数量 */
+    @ApiModelProperty(value = "入库数量")
+    @TableField("STO_QTY")
+    private Integer qty;
 
-    /** 渠道类型 */
-    @ApiModelProperty(value = "渠道类型")
-    @TableField("CHANNEL_TYPE")
-    private String channel;
-
-    /** 品牌名 */
-    @ApiModelProperty(value = "品牌名")
-    @TableField("BRAND_NAME")
-    private String brandName;
-
-    /** 来源 */
-    @ApiModelProperty(value = "来源")
-    @TableField("SOURCE")
-    private String source;
-
-    /** 年份 */
-    @ApiModelProperty(value = "年份")
-    @TableField("YEARS")
-    private Integer year;
-
-    /** 月份 */
-    @ApiModelProperty(value = "月份")
-    @TableField("PERIOD_NAME")
-    private YearMonth month;
+    /** 入库时间 */
+    @ApiModelProperty(value = "入库时间")
+    @TableField("STOCK_DATE")
+    private LocalDate date;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
