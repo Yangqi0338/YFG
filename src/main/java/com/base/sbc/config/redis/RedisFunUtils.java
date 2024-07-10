@@ -670,12 +670,6 @@ public class RedisFunUtils {
 			expire(key,time);
 			return true;
 		}else{
-			Boolean result1 = redisTemplate.opsForValue().setIfAbsent(key, "1");
-			if (null != result1 && result1){
-				//设置过期时间
-				expire(key,time);
-				return true;
-			}
 			return false;
 		}
 	}

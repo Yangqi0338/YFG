@@ -717,12 +717,12 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 fileName.append(s).append("_");
             }
         }
-        String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
 
-        String lockKey = formatDate + userUtils.getUserCompany().getUsername();
+        String lockKey = "MaterialPicUpload" + userUtils.getUserCompany().getUsername();
         try {
             boolean b = redisUtils.setNx(lockKey, 2);
             if (b){
+                String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
                 fileName.append(formatDate);
             }else {
                 fileName.append(System.currentTimeMillis());
