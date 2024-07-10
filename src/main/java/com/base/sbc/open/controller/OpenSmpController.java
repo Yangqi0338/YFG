@@ -497,7 +497,7 @@ public class OpenSmpController extends BaseController {
             if(!dbIds.contains(preProductionSampleTaskFob.getId())){
                 PatternMakingBarCode barCode = new PatternMakingBarCode();
                 barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
-                barCode.setStatus("0");
+                barCode.setStatus("10");
                 barCode.setHeadId(preProductionSampleTaskFob.getId());
                 saveBarCodeList.add(barCode);
             }

@@ -73,10 +73,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -205,7 +202,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
+
         qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
@@ -238,11 +235,18 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         List<PreProductionSampleTaskVo> list;
         if(StrUtil.isEmpty(dto.getDevtType()) || !"FOB".equals(dto.getDevtType())){
             qw.andLike(dto.getSearch(), "s.style_no", "t.code","p.style_no");
+            qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
             list = getBaseMapper().taskList(qw);
         }else{
             qw.notEmptyLike("t.code",dto.getSearch());
             qw.notEmptyLike("t.pattern_room",dto.getPatternRoom());
-            qw.notEmptyEq("tpmbc.status",dto.getBarCodeStatus());
+            if(StrUtil.isNotBlank(dto.getStatus())){
+                if(!"2".equals(dto.getStatus())){
+                    qw.eq("t.status", dto.getStatus());
+                }else {
+                    qw.in("t.status", Arrays.asList("2","3"));
+                }
+            }
             list = getBaseMapper().taskListFOB(qw);
         }
 
