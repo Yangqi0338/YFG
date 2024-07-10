@@ -665,11 +665,17 @@ public class RedisFunUtils {
 		Boolean result = redisTemplate.opsForValue().setIfAbsent(key, "1");
 
 		//返回1,表示设置成功,拿到锁
-		if(result){
+		if(null != result && result){
 			//设置过期时间
 			expire(key,time);
 			return true;
 		}else{
+			Boolean result1 = redisTemplate.opsForValue().setIfAbsent(key, "1");
+			if (null != result1 && result1){
+				//设置过期时间
+				expire(key,time);
+				return true;
+			}
 			return false;
 		}
 	}

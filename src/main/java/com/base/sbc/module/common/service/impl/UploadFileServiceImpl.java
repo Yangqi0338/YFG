@@ -17,6 +17,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.DateUtils;
@@ -73,7 +74,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -133,6 +136,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     private CustomStylePicUpload customStylePicUpload;
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private RedisUtils redisUtils;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
@@ -697,11 +705,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
      * @return
      */
     private String getSourceMaterialFileName(String code) {
+
         String prefix = "DesignMaterial";
         //工号
         String username = userUtils.getUserCompany().getUsername();
 
-        String name = "";
         StringBuilder fileName = new StringBuilder();
         if (StringUtils.isNotEmpty(code)){
             List<String> list = StringUtils.convertList(code);
@@ -709,7 +717,19 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 fileName.append(s).append("_");
             }
         }
-        fileName.append(DateUtils.formatDate(new Date(),"yyyyMMddHHmmss"));
+        String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
+
+        String lockKey = formatDate + userUtils.getUserCompany().getUsername();
+        try {
+            boolean b = redisUtils.setNx(lockKey, 2);
+            if (b){
+                fileName.append(formatDate);
+            }else {
+                fileName.append(System.currentTimeMillis());
+            }
+        }finally {
+            redisUtils.del(lockKey);
+        }
         return prefix + "/" + username + "/" + fileName.toString();
 
     }
