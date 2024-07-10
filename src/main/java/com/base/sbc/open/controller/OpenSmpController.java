@@ -35,6 +35,8 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskFobService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -58,10 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -100,6 +99,7 @@ public class OpenSmpController extends BaseController {
     private final OrderBookDetailService orderBookDetailService;
     private final PlanningSeasonService planningSeasonService;
     private final MoreLanguageService moreLanguageService;
+    private final PreProductionSampleTaskFobService preProductionSampleTaskFobService;
 
 
     /**
@@ -440,4 +440,25 @@ public class OpenSmpController extends BaseController {
         }
         return selectSuccess(null);
     }
+
+    @PostMapping("/productionSampleTask")
+    @ApiOperation(value = "推送FOB产前样数据" , notes = "推送FOB产前样数据")
+    public ApiResult productionSampleTask(PreProductionSampleTaskFob fob){
+        //
+        String code = fob.getCode();
+        //
+        String sampleBarCode = fob.getSampleBarCode();
+        //
+        String patternRoom = fob.getPatternRoom();
+        //
+        Date designDetailTime = fob.getDesignDetailTime();
+        //
+        fob.getTechReceiveTime();
+
+
+        //preProductionSampleTaskFobService.saveBatch();
+
+        return ApiResult.success();
+    }
+
 }
