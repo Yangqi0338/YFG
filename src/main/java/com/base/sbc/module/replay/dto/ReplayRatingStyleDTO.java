@@ -9,7 +9,6 @@ package com.base.sbc.module.replay.dto;
 import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
-import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -23,6 +22,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -155,15 +155,14 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
         @ApiModelProperty(value = "数据类型")
         private ReplayRatingLevelType type;
 
+        /** 年份 */
+        @ApiModelProperty(value = "年份")
+        private Integer year;
+
         /** 周数据 */
         @ApiModelProperty(value = "周数据")
-        private Map<SluggishSaleWeekendsType, Object> weekendDataMap;
-        /** 企划等级 */
-        @ApiModelProperty(value = "企划等级")
-        private SluggishSaleLevelEnum planningLevel;
-        /** 季节等级 | 合计 */
-        @ApiModelProperty(value = "季节等级 | 合计")
-        private String seasonLevel;
+        private Map<SluggishSaleWeekendsType, Object> weekendDataMap = new HashMap<>();
+
 
         @JsonAnyGetter
         public Map<SluggishSaleWeekendsType, Object> getWeekendDataMap() {

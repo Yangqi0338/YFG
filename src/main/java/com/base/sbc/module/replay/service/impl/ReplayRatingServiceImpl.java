@@ -104,7 +104,9 @@ import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
 import com.base.sbc.module.smp.dto.GoodsSluggishSalesDTO;
 import com.base.sbc.module.smp.dto.GoodsSluggishSalesQO;
 import com.base.sbc.module.smp.entity.GoodsSluggishSales;
+import com.base.sbc.module.smp.mapper.FactoryMissionRateMapper;
 import com.base.sbc.module.smp.mapper.GoodsSluggishSalesMapper;
+import com.base.sbc.module.smp.mapper.SaleFacMapper;
 import com.base.sbc.module.style.dto.StyleBomSearchDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -221,14 +223,20 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     @Autowired
     private GoodsSluggishSalesMapper sluggishSalesMapper;
 
+    @Autowired
+    private SaleFacMapper saleFacMapper;
+
+    @Autowired
+    private FactoryMissionRateMapper factoryMissionRateMapper;
+
     private static @NotNull BaseQueryWrapper<ReplayRating> buildQueryWrapper(ReplayRatingQO dto) {
         BaseQueryWrapper<ReplayRating> qw = new BaseQueryWrapper<>();
+        String alias = "tsc.";
         if (dto.getType() == ReplayRatingType.FABRIC) {
-            qw.notEmptyEq("ts.planning_season_id", dto.getPlanningSeasonId());
-        } else {
-            qw.notEmptyEq("tsc.planning_season_id", dto.getPlanningSeasonId());
+            alias = "ts.";
         }
-        qw.notEmptyEq("tsc.band_name", dto.getBandName());
+        qw.notEmptyEq(alias + "planning_season_id", dto.getPlanningSeasonId());
+        qw.notEmptyEq(alias + "band_name", dto.getBandName());
         qw.notEmptyEq("ts.prod_category1st", dto.getProdCategory1st());
         qw.notEmptyEq("ts.prod_category", dto.getProdCategory());
         qw.notEmptyEq("ts.prod_category2nd", dto.getProdCategory2nd());
@@ -588,96 +596,29 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         for (int year : years) {
             SaleLevelDTO levelDTO = new SaleLevelDTO();
             levelDTO.setType(ReplayRatingLevelType.LEVEL);
+            levelDTO.setYear(year);
             SaleLevelDTO avgDTO = new SaleLevelDTO();
             levelDTO.setType(ReplayRatingLevelType.AVG);
-            list.add(levelDTO);
-            list.add(avgDTO);
+            levelDTO.setYear(year);
 
             List<GoodsSluggishSalesDTO> yearSalesList = salesList.stream().filter(it -> it.getYear().equals(year)).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(yearSalesList)) {
-                levelDTO.setPlanningLevel(SluggishSaleLevelEnum.S);
-                levelDTO.setSeasonLevel(SluggishSaleLevelEnum.A.getCode());
-                levelDTO.setWeekendDataMap(weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) -> {
-                    return yearSalesList.stream().filter(it -> it.getWeekends() == weekends).findFirst().map(GoodsSluggishSalesDTO::getLevel).orElse("");
-                })));
+                weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) ->
+                        yearSalesList.stream().filter(it -> it.getWeekends() == weekends).findFirst()
+                )).forEach((weekends, yearSales) -> {
+                    levelDTO.getWeekendDataMap().put(weekends, yearSales.map(it -> SluggishSaleLevelEnum.startByCode(it.getLevel())).orElse(null));
+                    avgDTO.getWeekendDataMap().put(weekends, yearSales.map(GoodsSluggishSales::getAvg).orElse(BigDecimal.ZERO));
+                });
+                list.add(levelDTO);
+                list.add(avgDTO);
             }
-            // 获取等级
-
-//            levelDTO.setSeasonLevel(ReplayRatingLevelEnum.A.getCode());
-
-//            levelDTO.setWeekendDataMap(saleCycleList.stream().collect(Collectors.toMap(Function.identity(), (it) -> {
-//                if ("等级".equals(saleLevelType)) {
-//                    ReplayRatingLevelEnum levelEnum = ReplayRatingLevelEnum.S;
-//                    if ("4周".equals(it)) {
-//                        levelEnum = ReplayRatingLevelEnum.S;
-//                    }
-//                    if ("8周".equals(it)) {
-//                        levelEnum = ReplayRatingLevelEnum.S;
-//                    }
-//                    if ("12周".equals(it)) {
-//                        levelEnum = ReplayRatingLevelEnum.B;
-//                    }
-//                    return levelEnum;
-//                }
-//                if ("店均/件".equals(saleLevelType)) {
-//                    BigDecimal num = BigDecimal.ZERO;
-//                    if ("4周".equals(it)) {
-//                        num = num.add(new BigDecimal("2.1"));
-//                    }
-//                    if ("8周".equals(it)) {
-//                        num = num.add(new BigDecimal("3.2"));
-//                    }
-//                    if ("12周".equals(it)) {
-//                        num = num.add(new BigDecimal("4.5"));
-//                    }
-//                    saleLevelDTO.setSeasonLevel(new BigDecimal(saleLevelDTO.getSeasonLevel()).add(num).toString());
-//                    return num;
-//                }
-//                return "";
-//            })));
-//
-//
-//            avgDTO.setType(ReplayRatingLevelType.AVG);
-//            avgDTO.setSeasonLevel(ReplayRatingLevelEnum.A.getCode());
-//            avgDTO.setWeekendDataMap(saleCycleList.stream().collect(Collectors.toMap(Function.identity(), (it) -> {
-//                if ("等级".equals(saleLevelType)) {
-//                    ReplayRatingLevelEnum levelEnum = ReplayRatingLevelEnum.S;
-//                    if ("4周".equals(it)) {
-//                        levelEnum = ReplayRatingLevelEnum.S;
-//                    }
-//                    if ("8周".equals(it)) {
-//                        levelEnum = ReplayRatingLevelEnum.S;
-//                    }
-//                    if ("12周".equals(it)) {
-//                        levelEnum = ReplayRatingLevelEnum.B;
-//                    }
-//                    return levelEnum;
-//                }
-//                if ("店均/件".equals(saleLevelType)) {
-//                    BigDecimal num = BigDecimal.ZERO;
-//                    if ("4周".equals(it)) {
-//                        num = num.add(new BigDecimal("2.1"));
-//                    }
-//                    if ("8周".equals(it)) {
-//                        num = num.add(new BigDecimal("3.2"));
-//                    }
-//                    if ("12周".equals(it)) {
-//                        num = num.add(new BigDecimal("4.5"));
-//                    }
-//                    saleLevelDTO.setSeasonLevel(new BigDecimal(saleLevelDTO.getSeasonLevel()).add(num).toString());
-//                    return num;
-//                }
-//                return "";
-//            })));
-
-            // 获取店均件
-
         }
         return list;
     }
 
     // 生产销售
     private List<ProductionSaleDTO> findProductionSaleList() {
+
         return Stream.of("X", "XL", "XXL").map(size -> {
             ProductionSaleDTO productionSaleDTO = new ProductionSaleDTO();
             productionSaleDTO.setSizeCode(size);
@@ -842,27 +783,29 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         Map<String, String> packInfoStyleColorMap = MapUtil.reverse(packInfoService.mapOneField(new LambdaQueryWrapper<PackInfo>()
                 .in(PackInfo::getId, bulkUseMap.keySet()), PackInfo::getId, PackInfo::getStyleColorId));
 
-        Map<ProductionType, List<String>> devtTypeStyleColorIdMap = CommonUtils.inverse(styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
-                .in(StyleColor::getId, packInfoStyleColorMap.keySet()), StyleColor::getId, StyleColor::getDevtType));
+        if (MapUtil.isNotEmpty(packInfoStyleColorMap)) {
+            Map<ProductionType, List<String>> devtTypeStyleColorIdMap = CommonUtils.inverse(styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
+                    .in(StyleColor::getId, packInfoStyleColorMap.keySet()), StyleColor::getId, StyleColor::getDevtType));
 
-        Map<ProductionType, List<FabricMonthDataDto>> monthDataMap = Arrays.stream(ProductionType.values()).collect(Collectors.toMap(Function.identity(), (it) -> new ArrayList<>()));
-        devtTypeStyleColorIdMap.forEach((devtType, styleColorIdList) -> {
-            List<FabricMonthDataDto> dataList = monthDataMap.get(devtType);
-            for (int year : result.getYearArray()) {
-                // 生成查询时间
-                YearMonth startDate = YearMonth.of(year, Month.JANUARY);
-                YearMonth endDate;
-                for (Month month : Month.values()) {
-                    int value = month.getValue();
-                    startDate = startDate.withMonth(value);
-                    endDate = startDate.plusMonths(1);
-                    // 查投产信息
-                    int baseVal = devtType == ProductionType.CMT ? year : value + 10;
-                    dataList.add(new FabricMonthDataDto(startDate, endDate, RandomUtil.randomBigDecimal(BigDecimal.valueOf(baseVal / 2), BigDecimal.valueOf(baseVal))));
+            Map<ProductionType, List<FabricMonthDataDto>> monthDataMap = Arrays.stream(ProductionType.values()).collect(Collectors.toMap(Function.identity(), (it) -> new ArrayList<>()));
+            devtTypeStyleColorIdMap.forEach((devtType, styleColorIdList) -> {
+                List<FabricMonthDataDto> dataList = monthDataMap.get(devtType);
+                for (int year : result.getYearArray()) {
+                    // 生成查询时间
+                    YearMonth startDate = YearMonth.of(year, Month.JANUARY);
+                    YearMonth endDate;
+                    for (Month month : Month.values()) {
+                        int value = month.getValue();
+                        startDate = startDate.withMonth(value);
+                        endDate = startDate.plusMonths(1);
+                        // 查投产信息
+                        int baseVal = devtType == ProductionType.CMT ? year : value + 10;
+                        dataList.add(new FabricMonthDataDto(startDate, endDate, RandomUtil.randomBigDecimal(BigDecimal.valueOf(baseVal / 2), BigDecimal.valueOf(baseVal))));
+                    }
                 }
-            }
-        });
-        result.setMonthData(monthDataMap);
+            });
+            result.setMonthData(monthDataMap);
+        }
 
         return result;
     }

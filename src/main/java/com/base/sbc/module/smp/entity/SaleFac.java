@@ -9,18 +9,18 @@ package com.base.sbc.module.smp.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
+import com.base.sbc.config.enums.business.smp.SaleFacResultType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.util.HashMap;
 
 /**
- * 类描述：BI 物料评分
+ * 类描述：BI 物料投产
  *
  * @author KC
  * @version 1.0
@@ -28,9 +28,9 @@ import java.math.BigDecimal;
  * @date 创建时间：2024-6-13 15:15:25
  */
 @Data
-@TableName(value = "DM_GOODS_SLUGGISH_SALES")
-@ApiModel("BI 物料评分 GoodsSluggishSales")
-public class GoodsSluggishSales implements Serializable {
+@TableName(value = "DM_SALE_FAC", autoResultMap = true)
+@ApiModel("BI 物料投产 SaleFac")
+public class SaleFac extends HashMap<String, BigDecimal> {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,41 +40,50 @@ public class GoodsSluggishSales implements Serializable {
     @TableId(value = "GUID", type = IdType.ASSIGN_UUID)
     private String id;
 
-    /** 货号 */
-    @ApiModelProperty(value = "货号")
-    @TableField("GOODS_NO")
+    /** 结果类型 */
+    @ApiModelProperty(value = "结果类型")
+    @TableField("RESULTTYPE")
+    private SaleFacResultType resultType;
+
+    /** 大货款 */
+    @ApiModelProperty(value = "大货款")
+    @TableField("PROD_CODE")
     private String bulkStyleNo;
+
+    /** 线下销售标签 */
+    @ApiModelProperty(value = "线下销售标签")
+    @TableField("SALE_TYPE")
+    private String offlineSaleFlag;
+
+    /** 投产类型 */
+    @ApiModelProperty(value = "投产类型")
+    @TableField("ORDER_TYPE")
+    private String productionType;
+
+    /** 渠道类型 */
+    @ApiModelProperty(value = "渠道类型")
+    @TableField("CHANNEL_TYPE")
+    private String channel;
+
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名")
+    @TableField("BRAND_NAME")
+    private String brandName;
+
+    /** 来源 */
+    @ApiModelProperty(value = "来源")
+    @TableField("SOURCE")
+    private String source;
 
     /** 年份 */
     @ApiModelProperty(value = "年份")
-    @TableField("YEAR_ID")
+    @TableField("YEARS")
     private Integer year;
 
-    /** 周数 */
-    @ApiModelProperty(value = "周数")
-    @TableField("SLUGGISH_SALES_TYPE")
-    private SluggishSaleWeekendsType weekends;
-
-    /** 店均件 */
-    @ApiModelProperty(value = "店均件")
-    @TableField("SLUGGISH_SALES_VALUE")
-    private BigDecimal avg;
-
-    /** 等级 */
-    @ApiModelProperty(value = "等级")
-    @TableField("SLUGGISH_SALES_DESC")
-    private String level;
-
-    /** 备注 */
-    @ApiModelProperty(value = "备注")
-    @TableField("REMARK")
-    private String remark;
-
-    /** 删除标记 */
-    @ApiModelProperty(value = "删除标记")
-    @TableField("DEL_FLAG")
-    @TableLogic(value = "0", delval = "1")
-    private String delFlag;
+    /** 月份 */
+    @ApiModelProperty(value = "月份")
+    @TableField("PERIOD_NAME")
+    private YearMonth month;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
