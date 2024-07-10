@@ -124,4 +124,10 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
      */
     private Integer groupCount;
 
+    private String status;
+    private String suggestion;
+    private String suggestion_img;
+    private String suggestion_video;
+    private Date confrimDate;
+
 }

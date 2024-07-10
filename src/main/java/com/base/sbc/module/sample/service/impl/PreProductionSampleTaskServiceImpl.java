@@ -235,10 +235,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         if(StrUtil.isEmpty(dto.getOrderBy())){
             qw.orderByDesc("t.create_date");
         }
-        List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        // 设置头像
-        amcFeignService.setUserAvatarToList(list);
-        nodeStatusService.setNodeStatus(list);
+
+        List<PreProductionSampleTaskVo> list;
+        if(StrUtil.isEmpty(dto.getDevtType()) || !"FOB".equals(dto.getDevtType())){
+            list = getBaseMapper().taskList(qw);
+        }else{
+            list = getBaseMapper().taskListFOB(qw);
+        }
+
+        if (!BaseGlobal.YES.equals(dto.getExcelFlag())) {
+            // 设置头像
+            amcFeignService.setUserAvatarToList(list);
+            nodeStatusService.setNodeStatus(list);
+        }
         /**/
         if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
             /*带图片只能导出3000条*/

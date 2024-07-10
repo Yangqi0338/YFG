@@ -52,6 +52,48 @@
         </if>
 
     </select>
+
+    <select id="taskListFOB" resultType="com.base.sbc.module.sample.vo.PreProductionSampleTaskVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            DISTINCT
+            t.*,
+            s.brand_name,
+            s.year_name,
+            s.season_name,
+            s.month_name,
+            s.band_name,
+            s.design_no,
+            p.style_no,
+            p.color,
+            p.prod_category_name,
+            s.style_pic,
+            s.pattern_design_name,
+            s.pattern_design_id,
+            s.designer,
+            s.designer_id,
+            tpmbc.status,
+            tpmbc.suggestion,
+            tpmbc.suggestion_img,
+            tpmbc.suggestion_video,
+            tpmbc.update_date as confrimDate
+        </if>
+        FROM
+        (t_style s,
+        t_pre_production_sample_task_fob t)
+        left join t_pattern_making_bar_code tpmbc where t.id = tpmbc.head_id and tpmbc.del_flag = '0'
+        WHERE
+        s.id = t.style_id and p.id=t.pack_info_id
+        AND s.del_flag = '0'
+        AND t.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
     <select id="countByQw" resultType="java.lang.Long">
         select count(*)
         from t_pre_production_sample_task ${ew.customSqlSegment}

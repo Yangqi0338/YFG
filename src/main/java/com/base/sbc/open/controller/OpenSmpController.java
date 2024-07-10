@@ -34,6 +34,8 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
+import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
@@ -61,7 +63,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -102,6 +107,7 @@ public class OpenSmpController extends BaseController {
     private final PlanningSeasonService planningSeasonService;
     private final MoreLanguageService moreLanguageService;
     private final PreProductionSampleTaskFobService preProductionSampleTaskFobService;
+    private final PatternMakingBarCodeService patternMakingBarCodeService;
 
 
     /**
@@ -453,16 +459,14 @@ public class OpenSmpController extends BaseController {
         List<StyleColor> list = styleColorService.list(queryWrapper);
         Map<String, StyleColor> styleColorMap = list.stream().collect(Collectors.toMap(StyleColor::getStyleNo, o -> o, (v1, v2) -> v1));
 
-        LambdaQueryWrapper<PreProductionSampleTaskFob> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.in(PreProductionSampleTaskFob::getCode, codes);
-        List<PreProductionSampleTaskFob> list1 = preProductionSampleTaskFobService.list(queryWrapper1);
-        Map<String, PreProductionSampleTaskFob> taskFobMap = list1.stream().collect(Collectors.toMap(PreProductionSampleTaskFob::getCode, o -> o, (v1, v2) -> v1));
-
         List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
 
         StringBuilder msg = new StringBuilder();
+        List<String> ids = new ArrayList<>();
         for (PreProductionSampleTaskFob fob : fobs) {
-            //大货款号
+            //对面会给id过来，  根据对方的id进行新增或修改操作
+            
+            //大货款号 code
             String code = fob.getCode();
             if(!styleColorMap.containsKey(code)){
                 msg.append("大货款号:").append(code).append("没有找到;");
@@ -472,22 +476,33 @@ public class OpenSmpController extends BaseController {
             fob.setStyleId(styleColor.getStyleId());
             fob.setPlanningSeasonId(styleColor.getPlanningSeasonId());
 
-            if(taskFobMap.containsKey(code)){
-                fob.setId(taskFobMap.get(code).getId());
-            }
-
-            //样衣码
             String sampleBarCode = fob.getSampleBarCode();
-            //供应商
-            String patternRoom = fob.getPatternRoom();
-            //外发部发出时间
-            Date designDetailTime = fob.getDesignDetailTime();
-            //外发部绑定时间
-            Date techReceiveTime = fob.getTechReceiveTime();
-
+            //样衣码 sampleBarCode
+            //供应商 patternRoom patternRoomId
+            //外发部发出时间 designDetailTime
+            //外发部绑定时间 techReceiveTime
+            //通过状态 status
+            //改版意见 tech_remarks
+            //确认时间 processDepartmentDate
             saveList.add(fob);
+            ids.add(fob.getId());
         }
         preProductionSampleTaskFobService.saveOrUpdateBatch(saveList);
+
+        List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listbyHeadId(ids);
+        List<String> dbIds = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).collect(Collectors.toList());
+
+        List<PatternMakingBarCode> saveBarCodeList = new ArrayList<>();
+        for (PreProductionSampleTaskFob preProductionSampleTaskFob : saveList) {
+            if(!dbIds.contains(preProductionSampleTaskFob.getId())){
+                PatternMakingBarCode barCode = new PatternMakingBarCode();
+                barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
+                barCode.setStatus("0");
+                barCode.setHeadId(preProductionSampleTaskFob.getId());
+                saveBarCodeList.add(barCode);
+            }
+        }
+        patternMakingBarCodeService.saveBatch(saveBarCodeList);
 
         return ApiResult.success("保存成功;"+msg);
     }

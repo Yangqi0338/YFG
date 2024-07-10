@@ -54,4 +54,7 @@ public class PreProductionSampleTaskSearchDto extends QueryFieldDto {
 
     private String cfkssj;//	车缝开始时间
     private String cfwcsj;//	车缝完成时间
+
+    @ApiModelProperty(value = "生产模式")
+    private String devtType;
 }

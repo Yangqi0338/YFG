@@ -39,6 +39,8 @@ public interface PreProductionSampleTaskMapper extends BaseMapper<PreProductionS
      */
     List<PreProductionSampleTaskVo> taskList(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> qw);
 
+    List<PreProductionSampleTaskVo> taskListFOB(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> qw);
+
     long countByQw(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> countQc);
 
     List<String> stitcherList(@Param(Constants.WRAPPER) BaseQueryWrapper<PreProductionSampleTask> qw);
