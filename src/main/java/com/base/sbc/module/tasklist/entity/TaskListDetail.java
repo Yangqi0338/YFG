@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.tasklist.entity;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -46,6 +47,7 @@ public class TaskListDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "错误信息（用来记录这个数据为什么下发失败）")
     @NotBlank(message = "错误信息不能为空")
+    @ExcelProperty(value = "错误信息")
     private String errorInfo;
     /**
      * 同步结果（1-成功 2-失败）
@@ -53,10 +55,12 @@ public class TaskListDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "同步结果（1-成功 2-失败）")
     @NotNull(message = "同步结果不能为空")
     @Range(min = 1, max = 2, message = "同步结果仅支持「1-成功 2-失败」")
+    @ExcelProperty(value = "同步结果")
     private Integer syncResult;
     /**
      * 大货款号
      */
     @ApiModelProperty(value = "大货款号")
+    @ExcelProperty(value = "大货款号")
     private String styleNo;
 }

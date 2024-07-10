@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * 任务列表详情 Controller
  *
@@ -50,6 +52,20 @@ public class TaskListDetailController {
     public ApiResult<PageInfo<TaskListDetailVO>> queryTaskListDetailPage(QueryPageTaskListDetailDTO queryPageTaskListDetail) {
         PageInfo<TaskListDetailVO> taskListDetailPageInfo = taskListDetailService.queryTaskListDetailPage(queryPageTaskListDetail);
         return ApiResult.success("操作成功", taskListDetailPageInfo);
+    }
+
+    /**
+     * 导出任务列表详情 Excel
+     *
+     * @param queryPageTaskListDetail 查询条件
+     * @param response 响应数据
+     * @return 导出结果
+     */
+    @PostMapping(value = "/exportTaskListDetailExcel")
+    @ApiOperation(value = "导出任务列表详情 Excel")
+    public ApiResult<String> exportTaskListDetailExcel(QueryPageTaskListDetailDTO queryPageTaskListDetail, HttpServletResponse response) {
+        taskListDetailService.exportTaskListDetailExcel(queryPageTaskListDetail, response);
+        return ApiResult.success("导出成功");
     }
 
 }

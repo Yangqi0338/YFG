@@ -6,7 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.tasklist.vo;
 
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.BooleanEnum;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
+import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 import com.base.sbc.module.tasklist.entity.TaskList;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +27,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("任务列表详情返回对象")
-public class TaskListDetailVO extends TaskList {
+@ColumnWidth(25)
+@ContentRowHeight(60)
+@ContentStyle(
+        wrapped = BooleanEnum.TRUE,
+        horizontalAlignment = HorizontalAlignmentEnum.CENTER,
+        verticalAlignment = VerticalAlignmentEnum.CENTER,
+        shrinkToFit = BooleanEnum.TRUE
+)
+public class TaskListDetailVO extends TaskListDetail {
 
     private static final long serialVersionUID = 1L;
 

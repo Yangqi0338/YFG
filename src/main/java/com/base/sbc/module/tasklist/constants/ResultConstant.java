@@ -15,6 +15,7 @@ public class ResultConstant {
     public static final String SELECT_DATA_NOT_ACTION = "已选数据无需进行操作！";
     public static final String CURRENT_STATE_DATA_NOT_DO_IT = "当前状态数据无法进行此操作！";
     public static final String DATA_NOT_EXIST_REFRESH_TRY_AGAIN = "数据不存在，请刷新后重试！";
+    public static final String NO_DATA_EXPORT = "暂无导出数据！";
     public static final String TASK_LIST_SAVE_FAILED = "任务列表新增失败！";
     public static final String TASK_LIST_DETAIL_SAVE_FAILED = "任务列表详情新增失败！";
 

@@ -14,13 +14,15 @@ import com.base.sbc.module.tasklist.vo.TaskListVO;
 import com.github.pagehelper.PageInfo;
 import org.springframework.validation.annotation.Validated;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * 任务列表 Service
  *
  * @author XHTE
  * @create 2024/7/10
  */
-public interface TaskListService extends BaseService<TaskList>{
+public interface TaskListService extends BaseService<TaskList> {
 
     /**
      * 新增任务列表
@@ -38,5 +40,14 @@ public interface TaskListService extends BaseService<TaskList>{
      * @return 任务列表列表分页
      */
     PageInfo<TaskListVO> queryTaskListPage(QueryPageTaskListDTO queryPageTaskList);
+
+    /**
+     * 导出任务列表 Excel
+     *
+     * @param queryPageTaskList 查询条件
+     * @param response 响应数据
+     * @return 导出结果
+     */
+    void exportTaskListExcel(QueryPageTaskListDTO queryPageTaskList, HttpServletResponse response);
 
 }

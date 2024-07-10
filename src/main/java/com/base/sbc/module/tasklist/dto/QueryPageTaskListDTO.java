@@ -8,6 +8,7 @@ package com.base.sbc.module.tasklist.dto;
 
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -23,5 +24,16 @@ import lombok.EqualsAndHashCode;
 public class QueryPageTaskListDTO extends Page {
 
     private static final long serialVersionUID = 1L;
+
+    {
+        // 默认 Excel 导出标记为 0
+        excelFlag = 0;
+    }
+
+    /**
+     * Excel 导出标记（0-否，1-是)
+     */
+    @ApiModelProperty("Excel 导出标记（0-否，1-是)")
+    private Integer excelFlag;
 
 }

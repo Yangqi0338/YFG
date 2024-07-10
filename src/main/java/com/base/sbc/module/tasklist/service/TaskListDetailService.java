@@ -14,6 +14,8 @@ import com.base.sbc.module.tasklist.vo.TaskListDetailVO;
 import com.base.sbc.module.tasklist.vo.TaskListVO;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * 任务列表详情 Service
@@ -30,5 +32,14 @@ public interface TaskListDetailService extends BaseService<TaskListDetail> {
      * @return 查询任务列表详情列表分页
      */
     PageInfo<TaskListDetailVO> queryTaskListDetailPage(QueryPageTaskListDetailDTO queryPageTaskListDetail);
+
+    /**
+     * 导出任务列表详情 Excel
+     *
+     * @param queryPageTaskListDetail 查询条件
+     * @param response 响应数据
+     * @return 导出结果
+     */
+    void exportTaskListDetailExcel(QueryPageTaskListDetailDTO queryPageTaskListDetail, HttpServletResponse response);
 
 }
