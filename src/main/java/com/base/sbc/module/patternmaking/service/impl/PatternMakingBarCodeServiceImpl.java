@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -44,11 +45,13 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
 
     private final MinioUtils minioUtils;
     private final NodeStatusService nodeStatusServiceImpl;
+    private final StylePicUtils stylePicUtils;
 
-    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl) {
+    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl, StylePicUtils stylePicUtils) {
         super();
         this.minioUtils = minioUtils;
         this.nodeStatusServiceImpl = nodeStatusServiceImpl;
+        this.stylePicUtils = stylePicUtils;
     }
 
     @Override
@@ -63,6 +66,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         minioUtils.setObjectUrlToList(list,"img");
+        stylePicUtils.setStylePic(list, "stylePic");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
     }
 
@@ -79,6 +84,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.eq("tpmbc.bar_code", dto.getBarCode());
         List<PatternMakingBarCodeVo> list = baseMapper.findPageLog(qw);
         minioUtils.setObjectUrlToList(list,"img");
+        stylePicUtils.setStylePic(list, "stylePic");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
     }
 
@@ -88,6 +95,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.eq("tpmbc.bar_code", barCode);
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         if (CollUtil.isNotEmpty(list)) {
+            stylePicUtils.setStylePic(list, "stylePic");
+            stylePicUtils.setStyleColorPic2(list, "styleColorPic");
             PatternMakingBarCodeVo patternMakingBarCodeVo = list.get(0);
             minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"img");
             minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg");
