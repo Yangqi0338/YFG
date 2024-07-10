@@ -76,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -718,12 +719,15 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             }
         }
 
-        String lockKey = "MaterialPicUpload" + userUtils.getUserCompany().getUsername();
+        String lockKey = "MaterialPicUpload" + username;
         try {
             boolean b = redisUtils.setNx(lockKey, 2);
             if (b){
                 String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
-                fileName.append(formatDate);
+                long incr = redisUtils.incr(formatDate + username, 1, 5, TimeUnit.SECONDS);
+                if (incr > 1){
+                    fileName.append(formatDate).append("_").append(incr-1);
+                }
             }else {
                 fileName.append(System.currentTimeMillis());
             }
