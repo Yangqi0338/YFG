@@ -69,6 +69,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Principal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,16 +152,16 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 switch (type) {
                     /*创意素材库图/附件 t_material.pic_url*/
                     case "sourceMaterial":
-                        StringBuilder sourceMaterialPath = new StringBuilder();
-                        sourceMaterialPath.append("DesignMaterial").append("/");
-                        if (StringUtils.isNotEmpty(code)){
-                            List<String> list = StringUtils.convertList(code);
-                            for (String s : list) {
-                                sourceMaterialPath.append(s).append("/");
-                            }
-                        }
-
-                        objectName =   sourceMaterialPath.toString()  + System.currentTimeMillis() + "." + extName;
+//                        StringBuilder sourceMaterialPath = new StringBuilder();
+//                        sourceMaterialPath.append("DesignMaterial").append("/");
+//                        if (StringUtils.isNotEmpty(code)){
+//                            List<String> list = StringUtils.convertList(code);
+//                            for (String s : list) {
+//                                sourceMaterialPath.append(s).append("/");
+//                            }
+//                        }
+//                        objectName =   sourceMaterialPath.toString()  + System.currentTimeMillis() + "." + extName;
+                        objectName = getSourceMaterialFileName(code) + "." + extName;
                         break;
                     /*商品企划图 t_planning_category_item.style_pic */
                     case "planning":
@@ -688,6 +689,33 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         tempFile.delete();
         return temporaryFilePath;
     }
+
+
+    /**
+     * 获取素材库上传的文件路径
+     * @param code
+     * @return
+     */
+    private String getSourceMaterialFileName(String code) {
+        String prefix = "DesignMaterial";
+        //工号
+        String username = userUtils.getUserCompany().getUsername();
+
+        String name = "";
+        StringBuilder fileName = new StringBuilder();
+        if (StringUtils.isNotEmpty(code)){
+            List<String> list = StringUtils.convertList(code);
+            for (String s : list) {
+                fileName.append(s).append("_");
+            }
+        }
+        fileName.append(DateUtils.formatDate(new Date(),"yyyyMMddHHmmss"));
+        return prefix + "/" + username + "/" + fileName.toString();
+
+    }
+
+
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

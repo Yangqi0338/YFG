@@ -41,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -152,6 +154,9 @@ public class MaterialController extends BaseController {
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
         Material material = materialService.getById(materialSaveDto.getId());
+        if ("2".equals(material.getStatus()) && materialSaveDto.getCiteFlag()){
+            throw new OtherException("该素材已经被引用，暂不允许编辑！");
+        }
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
             //从公司素材管理提交审批，静默审批，不用走审批流
@@ -232,7 +237,8 @@ public class MaterialController extends BaseController {
                 return ApiResult.error("此素材有被引用，不允许删除, 请删除引用后再进行删除！",500);
             }
         }
-        list.forEach(item -> minioUtils.delFile(item.getPicUrl()));
+        List<Material> materials = materialService.listByIds(Lists.newArrayList(ids));
+        materials.forEach(item -> minioUtils.delFile(item.getPicUrl()));
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
@@ -356,7 +362,10 @@ public class MaterialController extends BaseController {
         checkMaterial(materials, dto.getType());
         //参数补全
         fillMaterial(materials,dto.getType());
-        materialService.saveOrUpdateBatch(materials);
+        boolean b = materialService.saveOrUpdateBatch(materials);
+        if (!b){
+            throw new OtherException("提交失败!");
+        }
         return ApiResult.success("发布成功");
     }
 
@@ -455,6 +464,8 @@ public class MaterialController extends BaseController {
 
         //提交发布
         if ("2".equals(type)){
+            //工号
+            String username = userUtils.getUserCompany().getUsername();
             materials.forEach(item ->{
                 item.setStatus("2");
                 if (StringUtils.isEmpty(item.getMaterialCode())){
@@ -464,6 +475,8 @@ public class MaterialController extends BaseController {
                     item.setMaterialCode(materialCode);
                 }
             });
+            //图片路径更新
+            picPathUpdate(username,materials);
         }
 
     }
@@ -511,4 +524,25 @@ public class MaterialController extends BaseController {
 
     }
 
+
+    private void picPathUpdate(String username, List<Material> materials) {
+        if (CollUtil.isEmpty(materials)){
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+            @Override
+            public void afterCommit() {
+                List<Material> updateList = Lists.newArrayList();
+                for (Material material : materials) {
+                    if (material.getPicUrl().contains(username)){
+                        String newUrl = material.getPicUrl().replace(username,"companpay");
+                        minioUtils.copyFile(material.getPicUrl(),newUrl);
+                        material.setPicUrl(newUrl);
+                        updateList.add(material);
+                    }
+                }
+                materialService.saveOrUpdateBatch(updateList);
+            }
+        });
+    }
 }
