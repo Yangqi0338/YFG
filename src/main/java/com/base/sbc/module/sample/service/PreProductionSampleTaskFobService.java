@@ -5,11 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
+
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
-import com.base.sbc.module.sample.dto.PreProductionSampleTaskFobQueryDto;
-import com.base.sbc.module.sample.vo.PreProductionSampleTaskFobVo;
-import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：产前样-任务 service类
@@ -23,7 +21,6 @@ public interface PreProductionSampleTaskFobService extends BaseService<PreProduc
 
 // 自定义方法区 不替换的区域【other_start】
 
-    PageInfo<PreProductionSampleTaskFobVo> findPage(PreProductionSampleTaskFobQueryDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

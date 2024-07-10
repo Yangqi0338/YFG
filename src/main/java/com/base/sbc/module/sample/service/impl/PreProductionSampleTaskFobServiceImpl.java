@@ -31,14 +31,6 @@ public class PreProductionSampleTaskFobServiceImpl extends BaseServiceImpl<PrePr
 
 // 自定义方法区 不替换的区域【other_start】
 
-    @Override
-    public PageInfo<PreProductionSampleTaskFobVo> findPage(PreProductionSampleTaskFobQueryDto dto) {
-       Page<Object> objects = PageHelper.startPage(dto);
-       BaseQueryWrapper<PreProductionSampleTaskFob> qw = new BaseQueryWrapper<>();
-       List<PreProductionSampleTaskFob> list = list(qw);
-       return new PageInfo<>(BeanUtil.copyToList(list, PreProductionSampleTaskFobVo.class));
-    }
-
 // 自定义方法区 不替换的区域【other_end】
 
 }
