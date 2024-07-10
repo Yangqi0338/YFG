@@ -718,21 +718,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 fileName.append(s).append("_");
             }
         }
-
-        String lockKey = "MaterialPicUpload" + username;
-        try {
-            boolean b = redisUtils.setNx(lockKey, 2);
-            if (b){
-                String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
-                long incr = redisUtils.incr(formatDate + username, 1, 5, TimeUnit.SECONDS);
-                if (incr > 1){
-                    fileName.append(formatDate).append("_").append(incr-1);
-                }
-            }else {
-                fileName.append(System.currentTimeMillis());
-            }
-        }finally {
-            redisUtils.del(lockKey);
+        String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
+        String redisKey = "MaterialPicRedis" + username + formatDate;
+        long incr = redisUtils.incr(redisKey, 1, 5, TimeUnit.SECONDS);
+        if (incr > 1){
+            fileName.append(formatDate).append("_").append(incr-1);
         }
         return prefix + "/" + username + "/" + fileName.toString();
 
