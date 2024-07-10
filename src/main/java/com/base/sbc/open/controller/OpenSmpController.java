@@ -445,7 +445,7 @@ public class OpenSmpController extends BaseController {
 
     @PostMapping("/productionSampleTask")
     @ApiOperation(value = "推送FOB产前样数据" , notes = "推送FOB产前样数据")
-    public ApiResult productionSampleTask(List<PreProductionSampleTaskFob> fobs){
+    public ApiResult productionSampleTask(@RequestBody List<PreProductionSampleTaskFob> fobs){
         List<String> codes = fobs.stream().map(PreProductionSampleTaskFob::getCode).distinct().collect(Collectors.toList());
 
         LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
