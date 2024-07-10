@@ -193,6 +193,10 @@ public class MaterialController extends BaseController {
         //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
         //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
+        if ("2".equals(materialSaveDto.getStatus()) && !"2".equals(material.getStatus())){
+            //图片路径更新
+            materialSaveDto.setPicUrl(picPathUpdate(material.getPicUrl()));
+        }
         boolean b = materialService.updateById(materialSaveDto);
             return updateSuccess(b);
     }
@@ -465,7 +469,6 @@ public class MaterialController extends BaseController {
         //提交发布
         if ("2".equals(type)){
             //工号
-            String username = userUtils.getUserCompany().getUsername();
             materials.forEach(item ->{
                 item.setStatus("2");
                 if (StringUtils.isEmpty(item.getMaterialCode())){
@@ -474,9 +477,10 @@ public class MaterialController extends BaseController {
                     String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
                     item.setMaterialCode(materialCode);
                 }
+                //图片路径更新
+                item.setPicUrl(picPathUpdate(item.getPicUrl()));
             });
-            //图片路径更新
-            picPathUpdate(username,materials);
+
         }
 
     }
@@ -525,24 +529,13 @@ public class MaterialController extends BaseController {
     }
 
 
-    private void picPathUpdate(String username, List<Material> materials) {
-        if (CollUtil.isEmpty(materials)){
-            return;
+    private String picPathUpdate(String url) {
+        String username = userUtils.getUserCompany().getUsername();
+        if (!url.contains(username)){
+            return url;
         }
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override
-            public void afterCommit() {
-                List<Material> updateList = Lists.newArrayList();
-                for (Material material : materials) {
-                    if (material.getPicUrl().contains(username)){
-                        String newUrl = material.getPicUrl().replace(username,"companpay");
-                        minioUtils.copyFile(material.getPicUrl(),newUrl);
-                        material.setPicUrl(newUrl);
-                        updateList.add(material);
-                    }
-                }
-                materialService.saveOrUpdateBatch(updateList);
-            }
-        });
+        String newUrl = url.replace(username,"companpay");
+        minioUtils.copyFile(url,newUrl);
+        return newUrl;
     }
 }
