@@ -12,6 +12,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -33,6 +34,7 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +92,9 @@ public class MaterialController extends BaseController {
 
     @Autowired
     private StorageSpacePersonService storageSpacePersonService;
+
+    @Autowired
+    private MinioUtils minioUtils;
 
     /**
      * 新增
@@ -224,9 +229,10 @@ public class MaterialController extends BaseController {
             qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, list.stream().map(Material::getId).collect(Collectors.toList()));
             long count = planningCategoryItemMaterialService.count(qw1);
             if (count > 0){
-                return ApiResult.error("此素材有被引用，不允许删除！",500);
+                return ApiResult.error("此素材有被引用，不允许删除, 请删除引用后再进行删除！",500);
             }
         }
+        list.forEach(item -> minioUtils.delFile(item.getPicUrl()));
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
@@ -239,7 +245,10 @@ public class MaterialController extends BaseController {
         if (materialQueryDto == null) {
             throw new OtherException("参数不能为空");
         }
-        return selectSuccess(materialService.listQuery(materialQueryDto));
+        PageInfo<MaterialVo> materialVoPageInfo = materialService.listQuery(materialQueryDto);
+        //补充信息
+        fullMaterialVoPageInfo(materialVoPageInfo);
+        return selectSuccess(materialVoPageInfo);
     }
 
     /**
@@ -472,6 +481,34 @@ public class MaterialController extends BaseController {
             long sum = materials.stream().mapToLong(Material::getFileSize).sum();
             storageSpacePersonService.checkPersonSpacer(fileSize + sum,"1",userId);
         }
+    }
+
+    private void fullMaterialVoPageInfo(PageInfo<MaterialVo> materialVoPageInfo) {
+        if (CollUtil.isEmpty(materialVoPageInfo.getList())){
+            return;
+        }
+        List<String> materialIds = materialVoPageInfo.getList().stream().filter(item -> "2".equals(item.getStatus())).map(MaterialVo::getId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(materialIds)){
+            return;
+        }
+
+        QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
+        qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
+        qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, materialIds);
+        qw1.lambda().select(PlanningCategoryItemMaterial::getMaterialId);
+        qw1.lambda().groupBy(PlanningCategoryItemMaterial::getMaterialId);
+        List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(qw1);
+        if (CollUtil.isEmpty(list)){
+            return;
+        }
+        List<String> collect = list.stream().map(PlanningCategoryItemMaterial::getMaterialId).collect(Collectors.toList());
+
+        materialVoPageInfo.getList().forEach(item ->{
+            if (collect.contains(item.getId())){
+                item.setCiteFlag(true);
+            }
+        });
+
     }
 
 }

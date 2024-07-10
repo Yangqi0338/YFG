@@ -14,8 +14,10 @@
     </select>
 
     <select id="listQueryMaterialPage" resultType="com.base.sbc.module.storageSpace.vo.StorageSpacePersonVo">
-        select * from
+        select tssp.*, tmcopy.usedSpace  from
         t_storage_space_person tssp
+        left join
+        (select create_id, sum(file_size) as usedSpace from t_material tm where tm.del_flag = '0' and tm.status != '2' group by tm.create_id) tmcopy on tssp.owner_id = tmcopy.create_id
         where
         del_flag = '0' and parent_space_id = #{parentSpaceId}
 

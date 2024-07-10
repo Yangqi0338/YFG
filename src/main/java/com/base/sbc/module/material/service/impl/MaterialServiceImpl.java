@@ -558,13 +558,27 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
     @Override
     public void delMaterialPersonSpace(List<String> userIds) {
+
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().eq(Material::getCreateId,userIds);
+        qw.lambda().eq(Material::getDelFlag,"0");
+        qw.lambda().notIn(Material::getStatus,Lists.newArrayList("2"));
+        List<Material> materials = list(qw);
+        if (CollUtil.isEmpty(materials)){
+            return;
+        }
         //删除个人除了已发布的所有数据
         UpdateWrapper<Material> uw = new UpdateWrapper<>();
         uw.lambda().in(Material::getCreateId,userIds);
         uw.lambda().notIn(Material::getStatus,Lists.newArrayList("2"));
         uw.lambda().eq(Material::getDelFlag,"0");
         uw.lambda().set(Material::getDelFlag,"1");
-        update(uw);
+        boolean b = update(uw);
+        if (b){
+            //修改成功，删除远端文件
+            materials.forEach(item ->minioUtils.delFile(item.getPicUrl()));
+        }
+
     }
 
 }

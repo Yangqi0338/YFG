@@ -55,4 +55,8 @@ public class MaterialVo extends Material {
      * 所有颜色
      */
     private List<MaterialColor> colors;
+
+    @ApiModelProperty("引用标志，ture:已引用，其他为未引用")
+    private Boolean citeFlag;
+
 }
