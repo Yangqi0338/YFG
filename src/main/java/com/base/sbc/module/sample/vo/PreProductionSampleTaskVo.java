@@ -74,6 +74,12 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private String color;
     @ApiModelProperty(value = "品类")
     private String prodCategoryName;
+    @ApiModelProperty(value = "大类名称"  )
+    private String prodCategory1stName;
+    @ApiModelProperty(value = "中类名称"  )
+    private String prodCategory2ndName;
+    @ApiModelProperty(value = "小类名称"  )
+    private String prodCategory3rdName;
     @ApiModelProperty(value = "款式图")
     private String stylePic;
 
@@ -124,7 +130,7 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
      */
     private Integer groupCount;
 
-    private String status;
+    private String barCodeStatus;
     private String suggestion;
     private String suggestion_img;
     private String suggestion_video;

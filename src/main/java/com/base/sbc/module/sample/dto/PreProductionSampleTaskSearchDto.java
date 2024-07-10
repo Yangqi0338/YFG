@@ -57,4 +57,8 @@ public class PreProductionSampleTaskSearchDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "生产模式")
     private String devtType;
+
+    private String barCodeStatus;
+
+    private String patternRoom;
 }

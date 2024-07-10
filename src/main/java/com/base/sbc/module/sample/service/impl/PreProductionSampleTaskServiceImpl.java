@@ -207,7 +207,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
         qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
-        qw.andLike(dto.getSearch(), "s.style_no", "t.code","p.style_no");
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
@@ -238,8 +237,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
         List<PreProductionSampleTaskVo> list;
         if(StrUtil.isEmpty(dto.getDevtType()) || !"FOB".equals(dto.getDevtType())){
+            qw.andLike(dto.getSearch(), "s.style_no", "t.code","p.style_no");
             list = getBaseMapper().taskList(qw);
         }else{
+            qw.notEmptyLike("t.code",dto.getSearch());
+            qw.notEmptyLike("t.pattern_room",dto.getPatternRoom());
+            qw.notEmptyEq("tpmbc.status",dto.getBarCodeStatus());
             list = getBaseMapper().taskListFOB(qw);
         }
 
