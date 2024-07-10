@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
@@ -61,6 +62,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -443,22 +445,51 @@ public class OpenSmpController extends BaseController {
 
     @PostMapping("/productionSampleTask")
     @ApiOperation(value = "推送FOB产前样数据" , notes = "推送FOB产前样数据")
-    public ApiResult productionSampleTask(PreProductionSampleTaskFob fob){
-        //
-        String code = fob.getCode();
-        //
-        String sampleBarCode = fob.getSampleBarCode();
-        //
-        String patternRoom = fob.getPatternRoom();
-        //
-        Date designDetailTime = fob.getDesignDetailTime();
-        //
-        fob.getTechReceiveTime();
+    public ApiResult productionSampleTask(List<PreProductionSampleTaskFob> fobs){
+        List<String> codes = fobs.stream().map(PreProductionSampleTaskFob::getCode).distinct().collect(Collectors.toList());
 
+        LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StyleColor::getStyleNo, codes);
+        List<StyleColor> list = styleColorService.list(queryWrapper);
+        Map<String, StyleColor> styleColorMap = list.stream().collect(Collectors.toMap(StyleColor::getStyleNo, o -> o, (v1, v2) -> v1));
 
-        //preProductionSampleTaskFobService.saveBatch();
+        LambdaQueryWrapper<PreProductionSampleTaskFob> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.in(PreProductionSampleTaskFob::getCode, codes);
+        List<PreProductionSampleTaskFob> list1 = preProductionSampleTaskFobService.list(queryWrapper1);
+        Map<String, PreProductionSampleTaskFob> taskFobMap = list1.stream().collect(Collectors.toMap(PreProductionSampleTaskFob::getCode, o -> o, (v1, v2) -> v1));
 
-        return ApiResult.success();
+        List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
+
+        StringBuilder msg = new StringBuilder();
+        for (PreProductionSampleTaskFob fob : fobs) {
+            //大货款号
+            String code = fob.getCode();
+            if(!styleColorMap.containsKey(code)){
+                msg.append("大货款号:").append(code).append("没有找到;");
+                continue;
+            }
+            StyleColor styleColor = styleColorMap.get(code);
+            fob.setStyleId(styleColor.getStyleId());
+            fob.setPlanningSeasonId(styleColor.getPlanningSeasonId());
+
+            if(taskFobMap.containsKey(code)){
+                fob.setId(taskFobMap.get(code).getId());
+            }
+
+            //样衣码
+            String sampleBarCode = fob.getSampleBarCode();
+            //供应商
+            String patternRoom = fob.getPatternRoom();
+            //外发部发出时间
+            Date designDetailTime = fob.getDesignDetailTime();
+            //外发部绑定时间
+            Date techReceiveTime = fob.getTechReceiveTime();
+
+            saveList.add(fob);
+        }
+        preProductionSampleTaskFobService.saveOrUpdateBatch(saveList);
+
+        return ApiResult.success("保存成功;"+msg);
     }
 
 }
