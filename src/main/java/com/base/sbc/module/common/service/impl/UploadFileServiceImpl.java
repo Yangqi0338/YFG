@@ -719,10 +719,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             }
         }
         String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
+        fileName.append(formatDate);
         String redisKey = "MaterialPicRedis" + username + formatDate;
         long incr = redisUtils.incr(redisKey, 1, 5, TimeUnit.SECONDS);
         if (incr > 1){
-            fileName.append(formatDate).append("_").append(incr-1);
+            fileName.append("_").append(incr-1);
         }
         return prefix + "/" + username + "/" + fileName.toString();
 
