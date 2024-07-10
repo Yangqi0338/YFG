@@ -6,9 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.tasklist.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
+import com.base.sbc.module.tasklist.dto.QueryPageTaskListDetailDTO;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
+import com.base.sbc.module.tasklist.service.TaskListDetailService;
+import com.base.sbc.module.tasklist.service.TaskListService;
+import com.base.sbc.module.tasklist.vo.TaskListDetailVO;
+import com.base.sbc.module.tasklist.vo.TaskListVO;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +35,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = BaseController.SAAS_URL + "/taskListDetail")
 @RequiredArgsConstructor
 public class TaskListDetailController {
+
+    @Autowired
+    private TaskListDetailService taskListDetailService;
+
+    /**
+     * 查询任务列表详情列表分页
+     *
+     * @param queryPageTaskListDetail 查询条件
+     * @return 查询任务列表详情列表分页
+     */
+    @PostMapping(value = "/queryTaskListDetailPage")
+    @ApiOperation(value = "查询任务列表详情列表分页")
+    public ApiResult<PageInfo<TaskListDetailVO>> queryTaskListDetailPage(QueryPageTaskListDetailDTO queryPageTaskListDetail) {
+        PageInfo<TaskListDetailVO> taskListDetailPageInfo = taskListDetailService.queryTaskListDetailPage(queryPageTaskListDetail);
+        return ApiResult.success("操作成功", taskListDetailPageInfo);
+    }
 
 }

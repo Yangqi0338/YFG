@@ -8,35 +8,27 @@ package com.base.sbc.module.tasklist.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
-import com.base.sbc.module.tasklist.dto.TaskListDTO;
-import com.base.sbc.module.tasklist.entity.TaskList;
+import com.base.sbc.module.tasklist.dto.QueryPageTaskListDetailDTO;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
+import com.base.sbc.module.tasklist.vo.TaskListDetailVO;
 import com.base.sbc.module.tasklist.vo.TaskListVO;
 import com.github.pagehelper.PageInfo;
-import org.springframework.validation.annotation.Validated;
+
 
 /**
- * 任务列表 Service
+ * 任务列表详情 Service
  *
  * @author XHTE
  * @create 2024/7/10
  */
-public interface TaskListService extends BaseService<TaskList>{
+public interface TaskListDetailService extends BaseService<TaskListDetail> {
 
     /**
-     * 新增任务列表
-     * 所有任务通过此接口进行新增
+     * 查询任务列表详情列表分页
      *
-     * @param taskList 任务列表信息
-     * @return 新增结果
+     * @param queryPageTaskListDetail 查询条件
+     * @return 查询任务列表详情列表分页
      */
-    Boolean saveTaskList(@Validated TaskListDTO taskList);
-
-    /**
-     * 查询任务列表列表分页
-     *
-     * @param queryPageTaskList 查询条件
-     * @return 任务列表列表分页
-     */
-    PageInfo<TaskListVO> queryTaskListPage(QueryPageTaskListDTO queryPageTaskList);
+    PageInfo<TaskListDetailVO> queryTaskListDetailPage(QueryPageTaskListDetailDTO queryPageTaskListDetail);
 
 }

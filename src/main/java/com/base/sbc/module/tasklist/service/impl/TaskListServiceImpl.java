@@ -7,16 +7,27 @@
 package com.base.sbc.module.tasklist.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.tasklist.constants.ResultConstant;
 import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
+import com.base.sbc.module.tasklist.dto.TaskListDTO;
 import com.base.sbc.module.tasklist.entity.TaskList;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.mapper.TaskListMapper;
+import com.base.sbc.module.tasklist.service.TaskListDetailService;
 import com.base.sbc.module.tasklist.service.TaskListService;
 import com.base.sbc.module.tasklist.vo.TaskListVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,14 +39,31 @@ import java.util.List;
  * @create 2024/7/10
  */
 @Service
+@Slf4j
 public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskList> implements TaskListService {
 
+    @Autowired
+    private TaskListDetailService taskListDetailService;
+
     @Override
-    public PageInfo<TaskListVO> findPage(QueryPageTaskListDTO queryPageTaskList) {
-       PageHelper.startPage(queryPageTaskList);
-       BaseQueryWrapper<TaskList> qw = new BaseQueryWrapper<>();
-       List<TaskList> list = list(qw);
-       return new PageInfo<>(BeanUtil.copyToList(list, TaskListVO.class));
+    public Boolean saveTaskList(TaskListDTO taskList) {
+        if (!save(taskList)) {
+            throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_SAVE_FAILED));
+        }
+        List<TaskListDetail> taskListDetailList = taskList.getTaskListDetailList();
+        if (!taskListDetailService.saveBatch(taskListDetailList)) {
+            throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_DETAIL_SAVE_FAILED));
+        }
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public PageInfo<TaskListVO> queryTaskListPage(QueryPageTaskListDTO queryPageTaskList) {
+        PageHelper.startPage(queryPageTaskList);
+        LambdaQueryWrapper<TaskList> taskListLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        List<TaskList> taskListList = list(taskListLambdaQueryWrapper);
+        PageInfo<TaskList> taskListPageInfo = new PageInfo<>(taskListList);
+        return CopyUtil.copy(taskListPageInfo, TaskListVO.class);
     }
 
 }

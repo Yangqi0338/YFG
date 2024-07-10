@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.Range;
 
 import java.util.Date;
 
@@ -33,21 +35,26 @@ public class TaskList extends BaseDataEntity<String> {
      * 任务编号（单据编号）
      */
     @ApiModelProperty(value = "任务编号（单据编号）")
+    @NotBlank(message = "任务编号不能为空")
     private String taskCode;
     /**
-     * 任务名称（任务类型：单据编号）
+     * 任务名称（「任务类型：单据编号」）
      */
     @ApiModelProperty(value = "任务名称（任务类型：单据编号）")
+    @NotBlank(message = "任务名称不能为空")
     private String taskName;
     /**
-     * 任务内容（比方说：总共下发xx条，成功xx条，失败xx条。相当于总结）
+     * 任务内容（「单据编号：同步结果」同步结果举例：总共下发xx条，成功xx条，失败xx条）
      */
-    @ApiModelProperty(value = "任务内容（比方说：总共下发xx条，成功xx条，失败xx条。相当于总结）")
+    @ApiModelProperty(value = "任务内容（「单据编号：同步结果」同步结果举例：总共下发xx条，成功xx条，失败xx条）")
+    @NotBlank(message = "任务内容不能为空")
     private String taskContent;
     /**
      * 任务类型（1-款式打标下发）
      */
     @ApiModelProperty(value = "任务类型（1-款式打标下发）")
+    @NotBlank(message = "任务类型不能为空")
+    @Range(min = 1, max = 1, message = "任务类型仅支持「1-款式打标下发」")
     private Integer taskType;
     /**
      * 发起人 ID

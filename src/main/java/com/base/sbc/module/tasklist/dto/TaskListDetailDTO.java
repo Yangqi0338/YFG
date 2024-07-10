@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.tasklist.dto;
 
-import com.base.sbc.module.tasklist.entity.TaskListItem;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("任务列表详情接收对象")
-public class TaskListItemDTO extends TaskListItem {
+public class TaskListDetailDTO extends TaskListDetail {
 
 	private static final long serialVersionUID = 1L;
 

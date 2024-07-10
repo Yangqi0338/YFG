@@ -6,10 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.module.tasklist.dto;
 
+import com.base.sbc.module.tasklist.controller.TaskListDetailController;
 import com.base.sbc.module.tasklist.entity.TaskList;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import java.util.List;
 
 /**
  * 任务列表接收对象
@@ -23,5 +30,12 @@ import lombok.EqualsAndHashCode;
 public class TaskListDTO extends TaskList {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 任务列表详情
+     */
+    @ApiModelProperty(value = "任务列表详情")
+    @NotEmpty(message = "任务列表详情不能为空")
+    private List<TaskListDetail> taskListDetailList;
 
 }

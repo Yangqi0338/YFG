@@ -8,7 +8,7 @@ package com.base.sbc.module.tasklist.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.tasklist.entity.TaskListItem;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
 
 /**
  * 任务列表详情 Mapper
@@ -17,6 +17,6 @@ import com.base.sbc.module.tasklist.entity.TaskListItem;
  * @create 2024/7/10
  */
 @Mapper
-public interface TaskListItemMapper extends BaseMapper<TaskListItem> {
+public interface TaskListDetailMapper extends BaseMapper<TaskListDetail> {
 
 }
