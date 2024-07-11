@@ -154,7 +154,8 @@
             p.second_processing,
             p.receive_sample,
             tbs.supplier as supplierName,
-            p.pattern_making_devt_type
+            p.pattern_making_devt_type,
+            s.style_origin_name
         </if>
         FROM
         t_pattern_making p
@@ -163,7 +164,7 @@
         where  p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
         and s.del_flag &lt;&gt; '1'
-
+        AND (p.historical_data != '1' or (p.historical_data = '1' and p.design_send_date>= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) ))
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -222,18 +223,21 @@
             p.grading_id,
             p.grading_name,
             p.stitcher_remark,
-            p.sample_bar_code,
             p.grading_date,
             p.sample_making_score,
             p.sample_making_quality_score,
             p.second_processing,
             p.receive_sample,
-            tbs.supplier as supplierName
+            tbs.supplier as supplierName,
+            p.pattern_making_devt_type,
+            s.style_origin_name,
+            tpmbc.bar_code as sampleBarCode
         </if>
         FROM
         t_pattern_making p,
         left join t_style s on (p.style_id = s.id)
         left join t_basicsdatum_supplier tbs on (p.supplier_id = tbs.id and tpl.del_flag = '0')
+        left join t_pattern_making_bar_code tpmbc on (tpmbc.head_id = p.id and tpmbc.del_flag = '0')
         where p.style_id = s.id
         and p.design_send_status='1'
         and p.prm_send_status='1'
