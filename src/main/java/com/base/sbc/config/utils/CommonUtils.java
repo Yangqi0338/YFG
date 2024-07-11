@@ -469,7 +469,7 @@ public class CommonUtils {
     }
 
     public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
-        return BigDecimal.valueOf(list.stream().mapToDouble(it -> func.apply(it).doubleValue()).sum()).setScale(2, RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
     }
 
 }

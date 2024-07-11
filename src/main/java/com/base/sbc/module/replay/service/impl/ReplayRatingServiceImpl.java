@@ -12,7 +12,6 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -26,6 +25,7 @@ import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingWarnType;
+import com.base.sbc.config.enums.business.smp.SaleFacResultType;
 import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.base.sbc.config.exception.OtherException;
@@ -130,7 +130,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
@@ -141,13 +140,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.enums.UnitConverterEnum.KILOMETER;
 import static com.base.sbc.module.common.convert.ConvertContext.BI_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.REPLAY_CV;
 import static com.base.sbc.module.replay.dto.ReplayRatingFabricDTO.FabricMonthDataDto;
@@ -395,9 +394,23 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
         /* ----------------------------当季投产销售---------------------------- */
 
+        // 查询
+        if (CollUtil.isEmpty(bulkStyleNoList)) return;
+        List<SaleFac> saleFacList = saleFacMapper.selectList(new LambdaQueryWrapper<SaleFac>()
+                .in(SaleFac::getBulkStyleNo, bulkStyleNoList)
+        );
         patternVOList.forEach(pattern -> {
-            pattern.setSeasonProductionCount(RandomUtil.randomBigDecimal(BigDecimal.ONE, BigDecimal.TEN.add(BigDecimal.TEN)).setScale(0, RoundingMode.HALF_UP));
-            pattern.setSeasonSaleCount(RandomUtil.randomBigDecimal(BigDecimal.ONE, BigDecimal.TEN).setScale(0, RoundingMode.HALF_UP));
+            saleFacList.stream()
+                    .filter(it -> it.getBulkStyleNo().equals(pattern.getBulkStyleNo()))
+                    .collect(Collectors.groupingBy(it -> StrUtil.isNotBlank(it.getProductionType())))
+                    .forEach((isSale, sameTypeList) -> {
+                        BigDecimal sum = CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum);
+                        if (isSale) {
+                            pattern.setSeasonSaleCount(sum);
+                        } else {
+                            pattern.setSeasonProductionCount(sum);
+                        }
+                    });
         });
     }
 
@@ -429,6 +442,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     private void decorateFabricList(List<ReplayRatingFabricVO> fabricVOList, ReplayRatingQO qo) {
         /* ----------------------------大货款维度数据---------------------------- */
         List<String> styleColorIdList = fabricVOList.stream().map(ReplayRatingFabricVO::getStyleColorId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(styleColorIdList)) return;
         Map<String, String> styleColorPicMap = styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
                 .in(StyleColor::getId, styleColorIdList), StyleColor::getId, StyleColor::getStyleColorPic);
         fabricVOList.forEach(fabric -> {
@@ -448,10 +462,15 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         });
 
         /* ----------------------------大货款维度投产量 + 使用米数---------------------------- */
-        AtomicInteger production = new AtomicInteger(1000);
-        AtomicInteger unitUseCount = new AtomicInteger(0);
+        List<String> bulkStyleNoList = fabricVOList.stream().map(ReplayRatingFabricVO::getBulkStyleNo).collect(Collectors.toList());
+        if (CollUtil.isEmpty(bulkStyleNoList)) return;
+        List<SaleFac> saleFacList = saleFacMapper.selectList(new LambdaQueryWrapper<SaleFac>().in(SaleFac::getBulkStyleNo, bulkStyleNoList)
+                .in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
+                .select(SaleFac::getBulkStyleNo, SaleFac::getNum)
+        );
         fabricVOList.forEach(fabric -> {
-            fabric.setProduction(BigDecimal.valueOf(production.getAndIncrement()));
+            fabric.setProduction(CommonUtils.sumBigDecimal(saleFacList.stream()
+                    .filter(it -> it.getBulkStyleNo().equals(fabric.getBulkStyleNo())).collect(Collectors.toList()), SaleFac::getNum));
         });
     }
 
@@ -611,10 +630,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             levelDTO.setType(ReplayRatingLevelType.AVG);
             levelDTO.setYear(year + "年");
 
-            List<GoodsSluggishSalesDTO> yearSalesList = salesList.stream().filter(it -> it.getYear().equals(year)).collect(Collectors.toList());
-            if (CollUtil.isNotEmpty(yearSalesList)) {
+            if (CollUtil.isNotEmpty(weekendsTypeList)) {
                 weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) ->
-                        yearSalesList.stream().filter(it -> it.getWeekends() == weekends).findFirst()
+                        salesList.stream().filter(it -> it.getYear().equals(year) && it.getWeekends() == weekends).findFirst()
                 )).forEach((weekends, yearSales) -> {
                     levelDTO.getWeekendDataMap().put(weekends, yearSales.map(it -> SluggishSaleLevelEnum.startByCode(it.getLevel())).orElse(null));
                     avgDTO.getWeekendDataMap().put(weekends, yearSales.map(GoodsSluggishSales::getAvg).orElse(BigDecimal.ZERO));
@@ -790,8 +808,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         REPLAY_CV.copy(result, material);
         result.setColor(String.join("/", colorMap.values()));
         result.setColorCode(String.join(COMMA, colorMap.keySet()));
-        result.setYearArray(ReplayRatingProperties.years);
-        result.setCmtUnit(UnitConverterEnum.KILOMETER);
+        result.setYearList(Arrays.stream(ReplayRatingProperties.years).boxed().collect(Collectors.toList()));
+        result.setCmtUnit(KILOMETER);
         result.setFobUnit(UnitConverterEnum.PIECE);
         result.setTranslate(String.join("/", materialWidthMap.keySet()));
         result.setTranslateCode(String.join(COMMA, materialWidthMap.values()));
@@ -809,51 +827,68 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         }
 
         /* ----------------------------获取大货款号以及物料清单---------------------------- */
+
+        Map<ProductionType, Map<String, BigDecimal>> bulkUnitUseMap = findBulkUnitUseMap(materialId);
+        if (MapUtil.isNotEmpty(bulkUnitUseMap)) {
+            Map<ProductionType, List<FabricMonthDataDto>> monthDataMap = Arrays.stream(ProductionType.values()).collect(Collectors.toMap(Function.identity(), (it) -> new ArrayList<>()));
+            bulkUnitUseMap.forEach((productionType, bulkUseMap) -> {
+                List<SaleFac> saleFacList = saleFacMapper.selectList(new LambdaQueryWrapper<SaleFac>()
+                        .in(SaleFac::getBulkStyleNo, bulkUseMap.keySet())
+                        .in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
+                        .in(SaleFac::getYear, result.getYearList())
+                        .select(SaleFac::getBulkStyleNo, SaleFac::getNum, SaleFac::getMonth)
+                );
+                UnitConverterEnum converterEnum = productionType == ProductionType.CMT ? result.getCmtUnit() : result.getFobUnit();
+                List<FabricMonthDataDto> dataList = monthDataMap.get(productionType);
+                for (Month month : Month.values()) {
+                    int value = month.getValue();
+                    for (int year : result.getYearList()) {
+                        // 生成查询时间
+                        YearMonth startDate = YearMonth.of(year, value);
+                        YearMonth endDate = startDate.plusMonths(1);
+                        dataList.add(new FabricMonthDataDto(startDate, endDate, CommonUtils.sumBigDecimal(
+                                saleFacList.stream().filter(it -> !it.getMonth().isBefore(startDate) && !it.getMonth().isAfter(endDate)).collect(Collectors.toList()),
+                                (saleFac) -> {
+                                    BigDecimal bulkUnitUse = bulkUseMap.getOrDefault(saleFac.getBulkStyleNo(), BigDecimal.ZERO);
+                                    return converterEnum.calculate(BigDecimalUtil.mul(saleFac.getNum(), bulkUnitUse));
+                                })));
+                    }
+                }
+            });
+            result.setMonthData(monthDataMap);
+        }
+        return result;
+    }
+
+    // 获取款式配色-用量映射关系
+    private Map<ProductionType, Map<String, BigDecimal>> findBulkUnitUseMap(String materialId) {
+        // 如果PackBom 冗余了 styleColorId 就能省略这个步骤 TODO
         List<PackBom> packBomList = packBomService.list(new LambdaQueryWrapper<PackBom>()
                 .select(PackBom::getBulkUnitUse, PackBom::getForeignId)
                 .eq(PackBom::getMaterialId, materialId)
                 .eq(PackBom::getStatus, YesOrNoEnum.YES)
                 .eq(PackBom::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
         );
-        if (CollUtil.isEmpty(packBomList)) return result;
+        if (CollUtil.isEmpty(packBomList)) return new HashMap<>();
 
+        // key: packInfoId value: bulkUnitUse
         Map<String, BigDecimal> bulkUseMap = packBomList.stream().collect(CommonUtils.groupingSingleBy(PackBom::getForeignId,
-                (list) -> BigDecimal.valueOf(list.stream()
-                        .map(PackBom::getBulkUnitUse)
-                        .filter(Objects::nonNull)
-                        .mapToDouble(BigDecimal::doubleValue)
-                        .sum()
-                ).setScale(2, RoundingMode.HALF_UP)
-        ));
+                (list) -> CommonUtils.sumBigDecimal(list, PackBom::getBulkUnitUse)));
 
+        // key: styleColorId value: packInfoId
         Map<String, String> packInfoStyleColorMap = MapUtil.reverse(packInfoService.mapOneField(new LambdaQueryWrapper<PackInfo>()
                 .in(PackInfo::getId, bulkUseMap.keySet()), PackInfo::getId, PackInfo::getStyleColorId));
 
-        if (MapUtil.isNotEmpty(packInfoStyleColorMap)) {
-            Map<ProductionType, List<String>> devtTypeStyleColorIdMap = CommonUtils.inverse(styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
-                    .in(StyleColor::getId, packInfoStyleColorMap.keySet()), StyleColor::getId, StyleColor::getDevtType));
+        // key: styleColorId value: bulkUnitUse
+        Map<String, BigDecimal> bulkUnitUseMap = MapUtil.map(packInfoStyleColorMap, (styleColorId, packInfoId) -> bulkUseMap.getOrDefault(packInfoId, BigDecimal.ZERO));
 
-            Map<ProductionType, List<FabricMonthDataDto>> monthDataMap = Arrays.stream(ProductionType.values()).collect(Collectors.toMap(Function.identity(), (it) -> new ArrayList<>()));
-            devtTypeStyleColorIdMap.forEach((devtType, styleColorIdList) -> {
-                List<FabricMonthDataDto> dataList = monthDataMap.get(devtType);
-                for (int year : result.getYearArray()) {
-                    // 生成查询时间
-                    YearMonth startDate = YearMonth.of(year, Month.JANUARY);
-                    YearMonth endDate;
-                    for (Month month : Month.values()) {
-                        int value = month.getValue();
-                        startDate = startDate.withMonth(value);
-                        endDate = startDate.plusMonths(1);
-                        // 查投产信息
-                        int baseVal = devtType == ProductionType.CMT ? year : value + 10;
-                        dataList.add(new FabricMonthDataDto(startDate, endDate, RandomUtil.randomBigDecimal(BigDecimal.valueOf(baseVal / 2), BigDecimal.valueOf(baseVal))));
-                    }
-                }
-            });
-            result.setMonthData(monthDataMap);
-        }
+        // key: cmt/fob value: styleColorIdList
+        Map<ProductionType, List<String>> devtTypeStyleColorIdMap = CommonUtils.inverse(styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
+                .in(StyleColor::getId, packInfoStyleColorMap.keySet()), StyleColor::getId, StyleColor::getDevtType));
 
-        return result;
+        return MapUtil.map(devtTypeStyleColorIdMap, (productionType, styleColorIdList) ->
+                MapUtil.filter(bulkUnitUseMap, styleColorIdList.toArray(new String[]{}))
+        );
     }
 
     @Override

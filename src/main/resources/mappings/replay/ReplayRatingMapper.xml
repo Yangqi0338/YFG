@@ -122,8 +122,8 @@
         tpb.ingredient,
         tpb.translate_code,
         tpb.translate,
-        group_concat(distinct tbmc.color_name separator '\n') as color,
-        group_concat(distinct tbmc.color_code) as colorCode,
+        group_concat(distinct tpb.color separator '\n') as color,
+        group_concat(distinct tpb.color_code) as colorCode,
         tpb.bulk_unit_use,
         tpb.supplier_id,
         tpb.supplier_name,
@@ -160,7 +160,6 @@
         </if>
         from t_pack_bom tpb
         LEFT JOIN t_pack_info tpi ON tpb.foreign_id = tpi.id and tpi.del_flag = '0'
-        LEFT JOIN t_basicsdatum_material_color tbmc ON tpb.material_code = tbmc.material_code and tbmc.del_flag = '0'
         LEFT JOIN t_style ts ON tpi.foreign_id = ts.id AND ts.del_flag = '0'
         LEFT JOIN t_replay_rating trr ON trr.foreign_id = tpb.material_id AND trr.type = 'fabric' AND trr.del_flag = '0'
         where

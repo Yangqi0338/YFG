@@ -1,6 +1,5 @@
 package com.base.sbc.config.enums.business.smp;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
@@ -32,8 +31,7 @@ public enum SluggishSaleWeekendsType {
     private final String text;
 
     SluggishSaleWeekendsType(String text) {
-        String code = this.name().toLowerCase();
-        this.code = StrUtil.toCamelCase(code);
+        this.code = this.name();
         this.text = text;
     }
 

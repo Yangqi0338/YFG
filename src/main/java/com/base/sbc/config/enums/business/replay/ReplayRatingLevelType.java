@@ -19,7 +19,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum ReplayRatingLevelType {
     /**/
-    LEVEL("等级"),
+    LEVEL("销售等级"),
     AVG("店均/件"),
 
     ;
@@ -40,8 +40,8 @@ public enum ReplayRatingLevelType {
     }
 
     @JsonValue
-    public String getCode() {
-        return code;
+    public String getText() {
+        return text;
     }
 
     @Override

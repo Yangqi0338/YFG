@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 /**
@@ -83,6 +84,11 @@ public class SaleFac implements Serializable {
     @ApiModelProperty(value = "月份")
     @TableField("PERIOD_NAME")
     private YearMonth month;
+
+    /** 合计 */
+    @ApiModelProperty(value = "合计")
+    @TableField("NUM")
+    private BigDecimal num;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

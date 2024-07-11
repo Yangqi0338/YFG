@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +96,7 @@ public class ReplayRatingFabricDTO extends ReplayRatingSaveDTO {
     /** 年份数组 */
     @ApiModelProperty(value = "年份数组")
     @JsonIgnore
-    private int[] yearArray;
+    private List<Integer> yearList;
     /** cmt单位 */
     @ApiModelProperty(value = "cmt单位")
     private UnitConverterEnum cmtUnit;
@@ -106,7 +105,7 @@ public class ReplayRatingFabricDTO extends ReplayRatingSaveDTO {
     private UnitConverterEnum fobUnit;
 
     public List<String> getYears() {
-        return Arrays.stream(yearArray).mapToObj(it -> it + "年").collect(Collectors.toList());
+        return yearList.stream().map(it -> it + "年").collect(Collectors.toList());
     }
 
     @Override

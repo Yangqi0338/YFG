@@ -9,7 +9,6 @@
     </sql>
 
     <sql id="sizeSQL">
-        NUM,
         XXS,
         XS,
         S,
