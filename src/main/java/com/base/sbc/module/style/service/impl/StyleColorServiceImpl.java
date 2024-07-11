@@ -283,12 +283,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*分页*/
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
-        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
-        if(MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("styleNo") && ("styleNo".equals(queryDto.getFieldQueryMap().get("styleNo")) || "styleNo".equals(queryDto.getColumnHeard()))){
+        if((MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("styleNo") && ("styleNo".equals(queryDto.getFieldQueryMap().get("styleNo")) || "styleNo".equals(queryDto.getColumnHeard())))
+         || (MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("designNo") && ("designNo".equals(queryDto.getFieldQueryMap().get("designNo")) || "designNo".equals(queryDto.getColumnHeard())))
+        ){
             queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
             queryWrapper.orderByDesc("ts.season");
             queryWrapper.orderByDesc("ts.brand");
         }
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
 
         //添加数据权限，根据前端传值
         //打版进度	patternMakingSteps
