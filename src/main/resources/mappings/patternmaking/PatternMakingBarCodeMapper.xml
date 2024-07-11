@@ -29,7 +29,7 @@
                fob.status,
                fob.tech_remarks,
                fob.process_department_date,
-               tbs.supplier as supplierName,
+               tbs.supplier as supplierName
         FROM t_pattern_making_bar_code tpmbc
                  LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
                  LEFT JOIN t_basicsdatum_supplier tbs on (tpm.supplier_id = tbs.id and tbs.del_flag = '0')
