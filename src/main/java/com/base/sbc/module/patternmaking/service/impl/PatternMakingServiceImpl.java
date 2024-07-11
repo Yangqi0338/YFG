@@ -808,7 +808,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
-        qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "s.supplier_id", dto.getSupplierId());
         if (StrUtil.isNotBlank(dto.getUserType())){
             switch (dto.getUserType()) {
@@ -869,6 +868,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // FOB
         List<PatternMakingTaskListVo> list;
         if (StrUtil.equals(dto.getDevtType(), ProductionType.FOB.getCode())) {
+            qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "p.pattern_making_devt_type", dto.getDevtType());
             if (dto.getStatus().equals("已下发")) {
                 qw.isNullStr("tpmbc.bar_code");
             }else if (dto.getStatus().equals("已收样")){
@@ -876,6 +876,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
             list = getBaseMapper().patternMakingTaskFOBList(qw);
         } else {
+            qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
             qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
             list = getBaseMapper().patternMakingTaskList(qw);
         }
@@ -1604,6 +1605,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         List<SampleBoardVo> list;
         if (StrUtil.isNotBlank(dto.getDevtType()) && "FOB".equals(dto.getDevtType())) {
+            qw.eq("p.pattern_making_devt_type", dto.getDevtType());
             list = getBaseMapper().sampleBoardListFOB(qw);
         }else {
             list = getBaseMapper().sampleBoardList(qw);
