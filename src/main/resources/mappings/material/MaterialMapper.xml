@@ -36,7 +36,14 @@
             and (file_info like concat('%',#{search},'%') or remarks like concat('%',#{search},'%') )
         </if>
         <if test="searchName != null and searchName != ''">
-            and (tm.material_name like concat('%',#{searchName},'%') or tm.desc_info like concat('%',#{searchName},'%') )
+            and  (tm.material_name like concat('%',#{searchName},'%') or tm.desc_info like concat('%',#{searchName},'%')
+                <if test="ids != null and ids.size > 0">
+                    or tm.id in
+                    <foreach collection="ids" item="id" separator="," open="(" close=")">
+                        #{id}
+                    </foreach>
+                 </if>
+                )
         </if>
         <if test="categoryId != null and categoryId != ''">
             and category_id = #{categoryId}
