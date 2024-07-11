@@ -756,6 +756,7 @@ public class SmpService {
             taskList.setTaskContent(taskContent);
             taskList.setInitiateUserId(userUtils.getUserId());
             taskList.setInitiateUserName(userUtils.getAliasUserName());
+            // 写死通过工号查询任佳威和陈太超的用户信息 存入消息接收人
             taskList.setReceiveUserId(userUtils.getUserId());
             taskList.setReceiveUserName(userUtils.getAliasUserName());
             taskList.setReceiveDate(new Date());

@@ -23,7 +23,7 @@ public enum TaskListTaskTypeEnum {
     }
 
     public static String getValueByCode(Integer code) {
-        for (PatternLibraryStatusEnum value : PatternLibraryStatusEnum.values()) {
+        for (TaskListTaskTypeEnum value : TaskListTaskTypeEnum.values()) {
             if (value.getCode().equals(code)) {
                 return value.getValue();
             }

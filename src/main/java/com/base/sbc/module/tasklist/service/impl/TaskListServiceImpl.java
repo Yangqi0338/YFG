@@ -8,23 +8,18 @@ package com.base.sbc.module.tasklist.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
-import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
-import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
-import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
 import com.base.sbc.module.tasklist.constants.ResultConstant;
 import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
 import com.base.sbc.module.tasklist.dto.TaskListDTO;
-import com.base.sbc.module.tasklist.dto.TaskListDetailDTO;
 import com.base.sbc.module.tasklist.entity.TaskList;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
@@ -35,16 +30,15 @@ import com.base.sbc.module.tasklist.service.TaskListDetailService;
 import com.base.sbc.module.tasklist.service.TaskListService;
 import com.base.sbc.module.tasklist.vo.ExportTaskListExcelVO;
 import com.base.sbc.module.tasklist.vo.TaskListVO;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +57,11 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
 
     @Autowired
     private TaskListDetailService taskListDetailService;
+    @Autowired
+    private MessageUtils messageUtils;
+    @Autowired
+    @Lazy
+    private StylePicUtils stylePicUtils;
 
     @Override
     public Boolean saveTaskList(TaskListDTO taskList) {
@@ -84,6 +83,9 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
         if (!taskListDetailService.saveBatch(taskListDetailList)) {
             throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_DETAIL_SAVE_FAILED));
         }
+        // 任务新增完毕后进行消息发送
+        String message = StrUtil.format("{}任务：{}，详情请点击查看", TaskListTaskTypeEnum.getValueByCode(taskList.getTaskType()), taskList.getTaskContent());
+        messageUtils.sendCommonMessage(taskList.getReceiveUserId(), message, "/styleManagement/orderBook", stylePicUtils.getGroupUser());
         return Boolean.TRUE;
     }
 
