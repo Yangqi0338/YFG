@@ -153,7 +153,8 @@
             p.sample_making_quality_score,
             p.second_processing,
             p.receive_sample,
-            tbs.supplier as supplierName
+            tbs.supplier as supplierName,
+            p.pattern_making_devt_type
         </if>
         FROM
         t_pattern_making p
