@@ -192,6 +192,11 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             // 1.将当前启用的停用 2.启用当前的
             enable(version);
             log(id, "启用");
+            packBomService.update(new LambdaUpdateWrapper<PackBom>()
+                    .eq(PackBom::getForeignId, version.getForeignId())
+                    .ne(PackBom::getBomVersionId, id)
+                    .set(PackBom::getStatus, BaseGlobal.NO)
+            );
         }
 
         // 将所有packBom的状态改为version状态,方便调用

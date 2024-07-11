@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -246,6 +247,7 @@ public class ReplayRatingPatternDTO extends ReplayRatingSaveDTO {
     }
 
     public List<String> getSaleSeasonList() {
+        if (saleSeason == null) return new ArrayList<>();
         return saleSeason.getTitleList();
     }
 
