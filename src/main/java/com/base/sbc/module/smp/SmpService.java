@@ -232,8 +232,15 @@ public class SmpService {
         return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null);
     }
 
+    /**
+     * 异步下发货品数据
+     * @param ids 大货款号ids
+     * @param targetBusinessSystem 目标系统多个逗号拼接
+     * @param yshBusinessSystem ysh系统时对应的业务系统多个逗号拼接
+     * @param numberByKeyDay 异步流水号
+     */
     @Async
-    public void goodsAsync(String[] ids, String targetBusinessSystem, String yshBusinessSystem) {
+    public void goodsAsync(String[] ids, String targetBusinessSystem, String yshBusinessSystem, String numberByKeyDay) {
         List<String> msg = new ArrayList<>();
         StringBuffer sbMsg1 = new StringBuffer();
         OperaLogEntity operaLogEntity = new OperaLogEntity();
