@@ -13,6 +13,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.Constants;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
@@ -411,6 +412,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     @Transactional
     public Integer updateList(List<MaterialSaveDto> materialSaveDtoList) {
         for (MaterialSaveDto materialSaveDto : materialSaveDtoList) {
+            if ("2".equals(materialSaveDto.getStatus()) && null != materialSaveDto.getCiteFlag() && materialSaveDto.getCiteFlag()){
+                throw new OtherException("该素材已经被引用，暂不允许编辑！");
+            }
             //修改关联标签
             QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
@@ -560,7 +564,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     public void delMaterialPersonSpace(List<String> userIds) {
 
         QueryWrapper<Material> qw = new QueryWrapper<>();
-        qw.lambda().eq(Material::getCreateId,userIds);
+        qw.lambda().in(Material::getCreateId,userIds);
         qw.lambda().eq(Material::getDelFlag,"0");
         qw.lambda().notIn(Material::getStatus,Lists.newArrayList("2"));
         List<Material> materials = list(qw);
