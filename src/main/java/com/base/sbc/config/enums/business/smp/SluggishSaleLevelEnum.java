@@ -18,20 +18,19 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum SluggishSaleLevelEnum {
     /**/
-    S,
-    A,
-    B,
-    C,
+    S("S"),
+    A("A"),
+    B("B"),
+    C("C"),
     ;
 
     private final String code;
     /** 文本 */
     private final String text;
 
-    SluggishSaleLevelEnum() {
-        String code = this.name().toLowerCase();
-        this.code = StrUtil.toCamelCase(code);
-        this.text = code;
+    SluggishSaleLevelEnum(String text) {
+        this.code = this.name();
+        this.text = text;
     }
 
     public static SluggishSaleLevelEnum startByCode(String code) {

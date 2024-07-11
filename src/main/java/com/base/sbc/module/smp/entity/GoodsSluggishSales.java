@@ -48,7 +48,12 @@ public class GoodsSluggishSales implements Serializable {
     /** 年份 */
     @ApiModelProperty(value = "年份")
     @TableField("YEAR_ID")
-    private Integer year;
+    private Integer yearId;
+
+    /** 销售年份 */
+    @ApiModelProperty(value = "销售年份")
+    @TableField("SALE_YEAR")
+    private String year;
 
     /** 周数 */
     @ApiModelProperty(value = "周数")

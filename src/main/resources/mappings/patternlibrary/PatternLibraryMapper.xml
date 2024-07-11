@@ -346,7 +346,7 @@
         FROM
             t_style ts
         WHERE
-        ts.id = tsc.style_id and ts.del_flag = '0'
+        ts.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

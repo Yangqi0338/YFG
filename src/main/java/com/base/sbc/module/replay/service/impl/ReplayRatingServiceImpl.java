@@ -599,7 +599,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     // 销售等级
     private List<SaleLevelDTO> findSaleLevelList(GoodsSluggishSalesQO sluggishSalesQO) {
         List<String> saleCycleList = sluggishSalesQO.getWeekends();
-        List<Integer> years = sluggishSalesQO.getYear();
+        List<String> years = sluggishSalesQO.getYear().stream().map(it -> it + ".0").collect(Collectors.toList());
         List<SaleLevelDTO> list = new ArrayList<>();
 
         String bulkStyleNo = sluggishSalesQO.getBulkStyleNo();
@@ -620,13 +620,14 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         List<GoodsSluggishSalesDTO> salesList = BI_CV.copyList2DTO(goodsSluggishSalesList);
 
         // 遍历年份
-        for (int year : years) {
+        for (String year : years) {
+            int yearInt = (int) Double.parseDouble(year);
             SaleLevelDTO levelDTO = new SaleLevelDTO();
             levelDTO.setType(ReplayRatingLevelType.LEVEL);
-            levelDTO.setYear(year + "年");
+            levelDTO.setYear(yearInt + "年");
             SaleLevelDTO avgDTO = new SaleLevelDTO();
-            levelDTO.setType(ReplayRatingLevelType.AVG);
-            levelDTO.setYear(year + "年");
+            avgDTO.setType(ReplayRatingLevelType.AVG);
+            avgDTO.setYear(yearInt + "年");
 
             if (CollUtil.isNotEmpty(weekendsTypeList)) {
                 weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) ->
