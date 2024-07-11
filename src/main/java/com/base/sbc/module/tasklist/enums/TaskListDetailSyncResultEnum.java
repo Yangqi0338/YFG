@@ -29,7 +29,7 @@ public enum TaskListDetailSyncResultEnum {
                 return value.getValue();
             }
         }
-        return "未知状态";
+        return "";
     }
 
 }

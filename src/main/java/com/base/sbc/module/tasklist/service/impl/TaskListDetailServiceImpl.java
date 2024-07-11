@@ -78,7 +78,7 @@ public class TaskListDetailServiceImpl extends BaseServiceImpl<TaskListDetailMap
             response.setCharacterEncoding("utf-8");
             String fileName = URLEncoder.encode("任务列表详情数据", "utf-8");
             response.setHeader("Content-disposition", "attachment;filename*=utf-8" + fileName + ".xlsx");
-            EasyExcel.write(response.getOutputStream(), ExcelExportVO.class).sheet("任务列表数据").doWrite(exportStyleMarkingIssuedExcelList);
+            EasyExcel.write(response.getOutputStream(), ExportStyleMarkingIssuedExcelVO.class).sheet("任务列表数据").doWrite(exportStyleMarkingIssuedExcelList);
         } catch (IOException e) {
             log.error("导出任务列表 Excel 失败，失败原因：{}", e.getMessage());
         }

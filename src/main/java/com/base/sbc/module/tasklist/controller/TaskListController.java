@@ -20,10 +20,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -45,6 +43,20 @@ public class TaskListController {
     private TaskListService taskListService;
 
     /**
+     * 新增任务列表
+     * 所有任务通过此接口进行新增
+     *
+     * @param taskList 任务列表信息
+     * @return 新增结果
+     */
+    @PostMapping(value = "/saveTaskList")
+    @ApiOperation(value = "新增任务列表")
+    public ApiResult<String> saveTaskList(@RequestBody TaskListDTO taskList) {
+        taskListService.saveTaskList(taskList);
+        return ApiResult.success("操作成功");
+    }
+
+    /**
      * 查询任务列表列表分页
      *
      * @param queryPageTaskList 查询条件
@@ -52,7 +64,7 @@ public class TaskListController {
      */
     @PostMapping(value = "/queryTaskListPage")
     @ApiOperation(value = "查询任务列表列表分页")
-    public ApiResult<PageInfo<TaskListVO>> queryTaskListPage(QueryPageTaskListDTO queryPageTaskList) {
+    public ApiResult<PageInfo<TaskListVO>> queryTaskListPage(@RequestBody QueryPageTaskListDTO queryPageTaskList) {
         PageInfo<TaskListVO> taskListPageInfo = taskListService.queryTaskListPage(queryPageTaskList);
         return ApiResult.success("操作成功", taskListPageInfo);
     }
@@ -66,7 +78,7 @@ public class TaskListController {
      */
     @PostMapping(value = "/exportTaskListExcel")
     @ApiOperation(value = "导出任务列表 Excel")
-    public ApiResult<String> exportTaskListExcel(QueryPageTaskListDTO queryPageTaskList, HttpServletResponse response) {
+    public ApiResult<String> exportTaskListExcel(@RequestBody QueryPageTaskListDTO queryPageTaskList, HttpServletResponse response) {
         taskListService.exportTaskListExcel(queryPageTaskList, response);
         return ApiResult.success("导出成功");
     }

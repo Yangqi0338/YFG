@@ -31,7 +31,7 @@ public interface TaskListService extends BaseService<TaskList> {
      * @param taskList 任务列表信息
      * @return 新增结果
      */
-    Boolean saveTaskList(@Validated TaskListDTO taskList);
+    Boolean saveTaskList(TaskListDTO taskList);
 
     /**
      * 查询任务列表列表分页

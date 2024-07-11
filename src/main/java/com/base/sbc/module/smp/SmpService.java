@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -87,6 +88,13 @@ import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.smp.impl.SaleProductIntoService;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
+import com.base.sbc.module.tasklist.dto.TaskListDTO;
+import com.base.sbc.module.tasklist.entity.TaskList;
+import com.base.sbc.module.tasklist.entity.TaskListDetail;
+import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
+import com.base.sbc.module.tasklist.enums.TaskListTaskStatusEnum;
+import com.base.sbc.module.tasklist.enums.TaskListTaskTypeEnum;
+import com.base.sbc.module.tasklist.service.TaskListService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -221,6 +229,10 @@ public class SmpService {
     @Autowired
     private FieldBusinessSystemService fieldBusinessSystemService;
 
+    @Autowired
+    @Lazy
+    private TaskListService taskListService;
+
     @Resource
     public OperaLogService operaLogService;
 
@@ -248,7 +260,6 @@ public class SmpService {
             log.error("款式打标下发失败,请手工重推",e);
             sbMsg1.append("下发失败,请手工重推");
         }
-
 
         operaLogEntity.setType("导入-下发");
         operaLogEntity.setDocumentId("导入下发结果");
@@ -299,7 +310,14 @@ public class SmpService {
         List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
         Map<String, List<StyleSpecFabric>> styleSpecFabricMap = styleSpecFabricList.stream().collect(Collectors.groupingBy(StyleSpecFabric::getStyleColorId));
 
+        // 初始化任务列表详情ji'he
+        List<TaskListDetail> taskListDetailList = new ArrayList<>(ids.length);
         for (StyleColor styleColor : styleColors) {
+            // 初始化任务列表详情
+            TaskListDetail taskListDetail = new TaskListDetail();
+            taskListDetail.setDataId(styleColor.getId());
+            taskListDetail.setStyleNo(styleColor.getStyleNo());
+
             if (mainAccessoriesListMap.containsKey(styleColor.getId())) {
                 List<StyleMainAccessories> mainAccessoriesList = mainAccessoriesListMap.get(styleColor.getId());
                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
@@ -320,6 +338,8 @@ public class SmpService {
                 if(type != null && type == 1){
                     //不抛出异常  保存到msg中
                     msg.add(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                    taskListDetail.setErrorInfo(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                    taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
                     continue;
                 }else{
                     throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
@@ -636,6 +656,8 @@ public class SmpService {
                 if(type != null && type == 1){
                     //不抛出异常  保存到msg中
                     msg.add(styleColor.getStyleNo()+"尺码不能为空");
+                    taskListDetail.setErrorInfo(styleColor.getStyleNo()+"尺码不能为空");
+                    taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
                     continue;
                 }else{
                     throw new OtherException("尺码不能为空");
@@ -712,10 +734,34 @@ public class SmpService {
             if (httpResp.isSuccess()) {
                 i++;
                 styleColor.setScmSendFlag("1");
+                taskListDetail.setErrorInfo("无");
+                taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.SUCCESS.getCode());
             } else {
                 styleColor.setScmSendFlag("2");
+                taskListDetail.setErrorInfo("款式打标下发失败，失败原因：" + httpResp.getMessage());
+                taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
             }
+            taskListDetailList.add(taskListDetail);
             styleColorService.updateById(styleColor);
+        }
+        if (type.equals(1)) {
+            // 此时是款式打标下发
+            TaskListDTO taskList = new TaskListDTO();
+            String taskCode = IdUtil.getSnowflakeNextIdStr();
+            taskList.setTaskCode(taskCode);
+            taskList.setTaskType(TaskListTaskTypeEnum.STYLE_MARKING_ISSUED.getCode());
+            taskList.setTaskStatus(TaskListTaskStatusEnum.TO_DO.getCode());
+            taskList.setTaskName(TaskListTaskTypeEnum.STYLE_MARKING_ISSUED.getValue() + "：" + taskCode);
+            String taskContent = StrUtil.format("{}：总共下发 {} 条，成功 {} 条，失败 {} 条", taskCode, ids.length, i, ids.length - i);
+            taskList.setTaskContent(taskContent);
+            taskList.setInitiateUserId(userUtils.getUserId());
+            taskList.setInitiateUserName(userUtils.getAliasUserName());
+            taskList.setReceiveUserId(userUtils.getUserId());
+            taskList.setReceiveUserName(userUtils.getAliasUserName());
+            taskList.setReceiveDate(new Date());
+            taskList.setTaskListDetailList(taskListDetailList);
+
+            taskListService.saveTaskList(taskList);
         }
         return i;
     }

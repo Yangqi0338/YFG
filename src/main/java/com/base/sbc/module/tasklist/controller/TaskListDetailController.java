@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,7 +50,7 @@ public class TaskListDetailController {
      */
     @PostMapping(value = "/queryTaskListDetailPage")
     @ApiOperation(value = "查询任务列表详情列表分页")
-    public ApiResult<PageInfo<TaskListDetailVO>> queryTaskListDetailPage(QueryPageTaskListDetailDTO queryPageTaskListDetail) {
+    public ApiResult<PageInfo<TaskListDetailVO>> queryTaskListDetailPage(@RequestBody QueryPageTaskListDetailDTO queryPageTaskListDetail) {
         PageInfo<TaskListDetailVO> taskListDetailPageInfo = taskListDetailService.queryTaskListDetailPage(queryPageTaskListDetail);
         return ApiResult.success("操作成功", taskListDetailPageInfo);
     }
@@ -63,7 +64,7 @@ public class TaskListDetailController {
      */
     @PostMapping(value = "/exportTaskListDetailExcel")
     @ApiOperation(value = "导出任务列表详情 Excel")
-    public ApiResult<String> exportTaskListDetailExcel(QueryPageTaskListDetailDTO queryPageTaskListDetail, HttpServletResponse response) {
+    public ApiResult<String> exportTaskListDetailExcel(@RequestBody QueryPageTaskListDetailDTO queryPageTaskListDetail, HttpServletResponse response) {
         taskListDetailService.exportTaskListDetailExcel(queryPageTaskListDetail, response);
         return ApiResult.success("导出成功");
     }

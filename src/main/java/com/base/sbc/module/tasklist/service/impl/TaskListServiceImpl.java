@@ -7,6 +7,7 @@
 package com.base.sbc.module.tasklist.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,8 +24,11 @@ import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
 import com.base.sbc.module.tasklist.constants.ResultConstant;
 import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
 import com.base.sbc.module.tasklist.dto.TaskListDTO;
+import com.base.sbc.module.tasklist.dto.TaskListDetailDTO;
 import com.base.sbc.module.tasklist.entity.TaskList;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
+import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
+import com.base.sbc.module.tasklist.enums.TaskListTaskStatusEnum;
 import com.base.sbc.module.tasklist.enums.TaskListTaskTypeEnum;
 import com.base.sbc.module.tasklist.mapper.TaskListMapper;
 import com.base.sbc.module.tasklist.service.TaskListDetailService;
@@ -44,6 +48,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,10 +66,21 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
 
     @Override
     public Boolean saveTaskList(TaskListDTO taskList) {
+        if (ObjectUtil.isEmpty(taskList)) {
+            throw new OtherException(ResultConstant.TASK_LIST_SAVE_DATA_CANT_EMPTY);
+        }
+        String checkTaskListResult = checkTaskList(CollUtil.newArrayList(taskList));
+        if (StrUtil.isNotBlank(checkTaskListResult)) {
+            throw new OtherException(checkTaskListResult);
+        }
+        List<TaskListDetail> taskListDetailList = taskList.getTaskListDetailList();
+        String checkTaskListDetailResult = checkTaskListDetail(taskListDetailList);
+        if (StrUtil.isNotBlank(checkTaskListDetailResult)) {
+            throw new OtherException(checkTaskListDetailResult);
+        }
         if (!save(taskList)) {
             throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_SAVE_FAILED));
         }
-        List<TaskListDetail> taskListDetailList = taskList.getTaskListDetailList();
         if (!taskListDetailService.saveBatch(taskListDetailList)) {
             throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_DETAIL_SAVE_FAILED));
         }
@@ -99,17 +115,108 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
                 exportTaskListExcel.setTaskType(TaskListTaskTypeEnum.getValueByCode(taskList.getTaskType()));
                 exportTaskListExcel.setTaskStatus(TaskListTaskTypeEnum.getValueByCode(taskList.getTaskStatus()));
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                exportTaskListExcel.setReceiveDate(simpleDateFormat.format(exportTaskListExcel.getReceiveDate()));
+                exportTaskListExcel.setReceiveDate(simpleDateFormat.format(taskList.getReceiveDate()));
                 exportTaskListExcelList.add(exportTaskListExcel);
             }
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setCharacterEncoding("utf-8");
             String fileName = URLEncoder.encode("任务列表数据", "utf-8");
             response.setHeader("Content-disposition", "attachment;filename*=utf-8" + fileName + ".xlsx");
-            EasyExcel.write(response.getOutputStream(), ExcelExportVO.class).sheet("任务列表数据").doWrite(exportTaskListExcelList);
+            EasyExcel.write(response.getOutputStream(), ExportTaskListExcelVO.class).sheet("任务列表数据").doWrite(exportTaskListExcelList);
         } catch (IOException e) {
             log.error("导出任务列表 Excel 失败，失败原因：{}", e.getMessage());
         }
     }
 
+    private String checkTaskList(List<TaskList> taskListList) {
+        if (ObjectUtil.isEmpty(taskListList)) {
+            return ResultConstant.TASK_LIST_SAVE_DATA_CANT_EMPTY;
+        }
+        String checkResult = "";
+        for (TaskList taskList : taskListList) {
+            String taskCode = taskList.getTaskCode();
+            if (StrUtil.isBlank(taskCode)) {
+                checkResult = "任务编号不能为空！";
+                break;
+            }
+            Integer taskType = taskList.getTaskType();
+            if (ObjectUtil.isEmpty(taskType)) {
+                checkResult = "任务类型不能为空！";
+                break;
+            }
+            if (StrUtil.isBlank(TaskListTaskTypeEnum.getValueByCode(taskType))) {
+                checkResult = "任务类型不存在！";
+                break;
+            }
+            Integer taskStatus = taskList.getTaskStatus();
+            if (ObjectUtil.isEmpty(taskStatus)) {
+                checkResult = "任务状态不能为空！";
+                break;
+            }
+            if (StrUtil.isBlank(TaskListTaskStatusEnum.getValueByCode(taskStatus))) {
+                checkResult = "任务状态不存在！";
+                break;
+            }
+            String taskName = taskList.getTaskName();
+            if (StrUtil.isBlank(taskName)) {
+                checkResult = "任务名称不能为空！";
+                break;
+            }
+            String taskContent = taskList.getTaskContent();
+            if (StrUtil.isBlank(taskContent)) {
+                checkResult = "任务内容不能为空！";
+                break;
+            }
+            String initiateUserId = taskList.getInitiateUserId();
+            if (StrUtil.isBlank(initiateUserId)) {
+                checkResult = "发送人 ID 不能为空！";
+                break;
+            }
+            String initiateUserName = taskList.getInitiateUserName();
+            if (StrUtil.isBlank(initiateUserName)) {
+                checkResult = "发送人名称不能为空！";
+                break;
+            }
+            String receiveUserId = taskList.getReceiveUserId();
+            if (StrUtil.isBlank(receiveUserId)) {
+                checkResult = "接收人 ID 不能为空！";
+                break;
+            }
+            String receiveUserName = taskList.getReceiveUserName();
+            if (StrUtil.isBlank(receiveUserName)) {
+                checkResult = "接收人名称不能为空！";
+                break;
+            }
+            Date receiveDate = taskList.getReceiveDate();
+            if (ObjectUtil.isEmpty(receiveDate)) {
+                checkResult = "接收日期不能为空！";
+                break;
+            }
+        }
+        return checkResult;
+    }
+
+    private String checkTaskListDetail(List<TaskListDetail> taskListDetailList) {
+        if (ObjectUtil.isEmpty(taskListDetailList)) {
+            return ResultConstant.TASK_LIST_DETAIL_SAVE_DATA_CANT_EMPTY;
+        }
+        String checkResult = "";
+        for (TaskListDetail taskListDetail : taskListDetailList) {
+            String dataId = taskListDetail.getDataId();
+            if (StrUtil.isBlank(dataId)) {
+                checkResult = "关联数据 ID 不能为空！";
+                break;
+            }
+            Integer syncResult = taskListDetail.getSyncResult();
+            if (ObjectUtil.isEmpty(syncResult)) {
+                checkResult = "同步结果不能为空！";
+                break;
+            }
+            if (StrUtil.isBlank(TaskListDetailSyncResultEnum.getValueByCode(syncResult))) {
+                checkResult = "同步结果不存在！";
+                break;
+            }
+        }
+        return checkResult;
+    }
 }

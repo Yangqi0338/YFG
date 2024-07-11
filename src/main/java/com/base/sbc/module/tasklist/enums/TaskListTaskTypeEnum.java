@@ -28,7 +28,7 @@ public enum TaskListTaskTypeEnum {
                 return value.getValue();
             }
         }
-        return "未知状态";
+        return "";
     }
 
 }

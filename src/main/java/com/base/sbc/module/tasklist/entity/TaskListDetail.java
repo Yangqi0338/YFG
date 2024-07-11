@@ -13,9 +13,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -26,41 +25,34 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_distribute_task_item")
+@TableName("t_task_list_detail")
 @ApiModel("任务列表详情实体对象")
 public class TaskListDetail extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**
-     * 任务列表主表 ID（t_distribute_task）
+     * 任务列表主表 ID（t_task_list）
      */
-    @ApiModelProperty(value = "任务列表主表 ID（t_distribute_task）")
+    @ApiModelProperty(value = "任务列表主表 ID（t_task_list）")
     private String taskListId;
     /**
      * 关联的数据 ID（款式打标下发）
      */
     @ApiModelProperty(value = "关联的数据 ID（款式打标下发）")
-    @NotBlank(message = "关联的数据 ID 不能为空")
     private String dataId;
     /**
      * 错误信息（用来记录这个数据为什么下发失败）
      */
     @ApiModelProperty(value = "错误信息（用来记录这个数据为什么下发失败）")
-    @NotBlank(message = "错误信息不能为空")
-    @ExcelProperty(value = "错误信息")
     private String errorInfo;
     /**
      * 同步结果（1-成功 2-失败）
      */
     @ApiModelProperty(value = "同步结果（1-成功 2-失败）")
-    @NotNull(message = "同步结果不能为空")
-    @Range(min = 1, max = 2, message = "同步结果仅支持「1-成功 2-失败」")
-    @ExcelProperty(value = "同步结果")
     private Integer syncResult;
     /**
      * 大货款号
      */
     @ApiModelProperty(value = "大货款号")
-    @ExcelProperty(value = "大货款号")
     private String styleNo;
 }
