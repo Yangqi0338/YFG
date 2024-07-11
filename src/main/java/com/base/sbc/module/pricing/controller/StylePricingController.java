@@ -212,6 +212,7 @@ public class StylePricingController extends BaseController {
                 }
                 stylePricing.setWagesConfirm(dto.getWagesConfirm());
                 stylePricing.setWagesConfirmTime(new Date());
+                operaLogEntity.setDocumentName("工时部已确认");
             }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){

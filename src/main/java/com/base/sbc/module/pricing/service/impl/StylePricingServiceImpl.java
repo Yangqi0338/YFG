@@ -469,9 +469,14 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             styleService.updateProductCost(packInfo.getForeignId(), stylePricingSaveDTO.getTargetCost());
 
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", packInfo.getStyleNo()));
+            BigDecimal tagPrice = styleColor.getTagPrice();
             styleColor.setTagPrice(stylePricingSaveDTO.getTagPrice());
             styleColorService.updateById(styleColor);
             // smpService.goods(new String[]{styleColor.getId()});
+            if (!Objects.isNull(byId)){
+                byId.setTagPriceCopy(tagPrice);
+                stylePricing.setTagPriceCopy(stylePricingSaveDTO.getTagPrice());
+            }
         }
         //修改记录
         OperaLogEntity operaLogEntity = new OperaLogEntity();
@@ -481,7 +486,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         operaLogEntity.setDocumentCode(stylePricing.getId());
         operaLogEntity.setDocumentName("");
         operaLogEntity.setParentId(stylePricing.getId());
-        saveOrUpdateOperaLog(Objects.isNull(byId) ? new StylePricing():byId, stylePricing, operaLogEntity);
+        saveOrUpdateOperaLog(stylePricing, Objects.isNull(byId) ? new StylePricing():byId , operaLogEntity);
     }
 
     @Override
