@@ -67,7 +67,7 @@ public class ReplayRatingPatternVO extends ReplayRatingVO {
 
     /** 当季销售件数 */
     @ApiModelProperty(value = "当季销售件数")
-    private BigDecimal seasonSaleCount;
+    private BigDecimal seasonSaleCount = BigDecimal.ZERO;
 
     /** 当季投产件数(SCM) */
     @ApiModelProperty(value = "当季投产件数(SCM)")
