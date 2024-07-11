@@ -298,9 +298,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 		hangTagDTO.setColumnMap(columnMap);
 		hangTagDTO.startPage();
-		if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd.") ) {
-			columnMap.put("tsd", "tsd");
-		}
 		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
@@ -308,7 +305,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
-
+		if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd.") ) {
+			columnMap.put("tsd", "tsd");
+		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryListByLine(hangTagDTO, qw);
 		if (CollUtil.isEmpty(hangTagListVOS)) {
 			return new PageInfo<>(hangTagListVOS);
