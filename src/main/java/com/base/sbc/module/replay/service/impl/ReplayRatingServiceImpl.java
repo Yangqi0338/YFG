@@ -296,7 +296,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             case FABRIC:
                 if (!qo.isColumnGroupSearch()) {
                     queryWrapper.groupBy("tpb.material_code", "tpb.foreign_id");
-                    queryWrapper.orderByAsc("tpb.material_code");
+                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
                 }
                 ;
                 decorateFabricList(baseMapper.queryFabricList(queryWrapper, qo), qo);
