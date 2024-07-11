@@ -144,8 +144,9 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         nodeStatus.setStatus("绑样");
         nodeStatus.setStartDate(patternMakingBarCode.getCreateDate());
         nodeStatus.setEndDate(patternMakingBarCode.getCreateDate());
-        nodeStatusServiceImpl.save(nodeStatus);
+        nodeStatusServiceImpl.saveOrUpdate(nodeStatus);
 
+        patternMakingBarCode.setId(null);
         baseMapper.saveBarCodeLog(patternMakingBarCode);
     }
 
