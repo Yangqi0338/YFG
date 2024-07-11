@@ -27,6 +27,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
@@ -429,6 +430,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
+        StylePricing byId = getById(stylePricingSaveDTO.getId());
         StylePricing stylePricing = new StylePricing();
         if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
 
@@ -471,6 +473,15 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             styleColorService.updateById(styleColor);
             // smpService.goods(new String[]{styleColor.getId()});
         }
+        //修改记录
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName("款式定价");
+        operaLogEntity.setType(Objects.isNull(byId) ? "新增" : "修改");
+        operaLogEntity.setDocumentId(stylePricing.getId());
+        operaLogEntity.setDocumentCode(stylePricing.getId());
+        operaLogEntity.setDocumentName("");
+        operaLogEntity.setParentId(stylePricing.getId());
+        saveOrUpdateOperaLog(Objects.isNull(byId) ? new StylePricing():byId, stylePricing, operaLogEntity);
     }
 
     @Override
@@ -540,6 +551,15 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                     stylePricing.setCompanyCode(companyCode);
                     BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
+                    //修改记录
+                    OperaLogEntity operaLogEntity = new OperaLogEntity();
+                    operaLogEntity.setName("款式定价");
+                    operaLogEntity.setType( "修改");
+                    operaLogEntity.setDocumentId(stylePricing.getId());
+                    operaLogEntity.setDocumentCode(stylePricing.getId());
+                    operaLogEntity.setDocumentName("");
+                    operaLogEntity.setParentId(stylePricing.getId());
+                    saveOrUpdateOperaLog( stylePricingSaveDTO, stylePricing, operaLogEntity);
                     return stylePricing;
                 }).collect(Collectors.toList());
         super.saveOrUpdateBatch(stylePricings);

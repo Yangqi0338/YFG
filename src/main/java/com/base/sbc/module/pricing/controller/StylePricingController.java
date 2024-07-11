@@ -15,6 +15,7 @@ import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingService;
@@ -175,6 +176,9 @@ public class StylePricingController extends BaseController {
                 stylePricing.setPlanningRate(new BigDecimal(4));
                 stylePricingService.save(stylePricing);
                 s=stylePricing.getId();
+                //修改记录
+                OperaLogEntity operaLogEntity = getOperaLogEntity(stylePricing,"新增");
+                stylePricingService.saveOrUpdateOperaLog(new StylePricing(), stylePricing, operaLogEntity);
             }
             list.add(s);
         }
@@ -188,6 +192,8 @@ public class StylePricingController extends BaseController {
                     .findFirst().orElseThrow(() -> new OtherException("不存在资料包"));
             String devtType = styleService.findByIds2OneField(packInfo.getForeignId(), Style::getDevtType);
             boolean isCmt = ProductionType.CMT.getCode().equals(devtType);
+            StylePricing byId = stylePricingService.getById(stylePricing.getId());
+            OperaLogEntity operaLogEntity = getOperaLogEntity(byId,"修改");
             if ("1".equals(dto.getWagesConfirm()) &&"1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
                 throw new OtherException("存在已经提交审核");
             }
@@ -213,6 +219,7 @@ public class StylePricingController extends BaseController {
                 }
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
+                operaLogEntity.setDocumentName("计控确认");
             }
             if (!StringUtils.isEmpty(dto.getProductHangtagConfirm())){
                 if (dto.getProductHangtagConfirm().equals(stylePricing.getProductHangtagConfirm())){
@@ -220,6 +227,7 @@ public class StylePricingController extends BaseController {
                 }
                 stylePricing.setProductHangtagConfirm(dto.getProductHangtagConfirm());
                 stylePricing.setProductHangtagConfirmTime(new Date());
+                operaLogEntity.setDocumentName("商品吊牌确认");
             }
             if (!StringUtils.isEmpty(dto.getControlHangtagConfirm())){
                 if (dto.getControlHangtagConfirm().equals(stylePricing.getControlHangtagConfirm())){
@@ -227,11 +235,13 @@ public class StylePricingController extends BaseController {
                 }
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
                 stylePricing.setControlHangtagConfirmTime(new Date());
+                operaLogEntity.setDocumentName("计控吊牌确认");
             }
 //            计控确认时设置计控成本价等于总成本
             if (StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
                 stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
             }
+            stylePricingService.saveOrUpdateOperaLog(byId, stylePricing, operaLogEntity);
         }
         /*迁移数据不能操作*/
 //        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
@@ -284,6 +294,17 @@ public class StylePricingController extends BaseController {
     public ApiResult unAuditStatus( @RequestBody List<String> ids) {
         stylePricingService.unAuditStatus(ids);
         return updateSuccess("反审核成功");
+    }
+
+    private OperaLogEntity getOperaLogEntity(StylePricing byId, String type) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName("款式定价");
+        operaLogEntity.setDocumentId(byId.getId());
+        operaLogEntity.setDocumentCode(byId.getId());
+        operaLogEntity.setDocumentName("");
+        operaLogEntity.setParentId(byId.getId());
+        operaLogEntity.setType(type);
+        return operaLogEntity;
     }
 
 
