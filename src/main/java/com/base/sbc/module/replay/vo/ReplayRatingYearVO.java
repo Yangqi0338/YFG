@@ -166,21 +166,20 @@ public class ReplayRatingYearVO {
     private ReplayRatingYearProductionSaleDTO handlerSeasonProductionSale(ReplayRatingYearProductionSaleDTO productionSaleDTO) {
         ReplayRatingYearProductionSaleDTO yearProductionSaleDTO = BeanUtil.copyProperties(productionSaleDTO, ReplayRatingYearProductionSaleDTO.class);
 
-        List<ReplayRatingYearProductionSaleDTO> childrenList = new ArrayList<>();
-        yearProductionSaleDTO.setChildrenList(childrenList);
-        productionSaleDTO.getChildrenList().stream()
+        List<ReplayRatingYearProductionSaleDTO> childrenList = productionSaleDTO.getChildrenList();
+        childrenList.stream()
                 .flatMap(it -> it.getChildrenList().stream())
                 .collect(Collectors.groupingBy(ReplayRatingYearProductionSaleDTO::getKey))
                 .forEach((seasonKey, sameKeyList) -> {
                     ReplayRatingYearProductionSaleDTO seasonProductionSaleDTO = new ReplayRatingYearProductionSaleDTO();
-                    childrenList.add(seasonProductionSaleDTO);
+                    yearProductionSaleDTO.getChildrenList().add(seasonProductionSaleDTO);
                     seasonProductionSaleDTO.setChildrenList(sameKeyList);
                     seasonProductionSaleDTO.setKey(seasonKey);
                     seasonProductionSaleDTO.calculate();
-                    seasonProductionSaleDTO.setChildrenList(null);
+                    seasonProductionSaleDTO.setChildrenList(new ArrayList<>());
                 });
 
-        productionSaleDTO.getChildrenList().add(yearProductionSaleDTO);
+        childrenList.add(yearProductionSaleDTO);
         return productionSaleDTO;
     }
 

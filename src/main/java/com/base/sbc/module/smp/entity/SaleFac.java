@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.smp.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -91,4 +92,18 @@ public class SaleFac implements Serializable {
     private BigDecimal num;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public boolean isBetween(YearMonth startMonth, YearMonth endMonth) {
+        if (month == null) return false;
+        return !month.isBefore(startMonth) && month.isBefore(endMonth);
+    }
+
+    public boolean isBetween(Integer startYear, Integer endYear) {
+        if (year == null) return false;
+        return year >= startYear && year <= endYear;
+    }
+
+    public boolean isProduction() {
+        return StrUtil.isNotBlank(productionType);
+    }
 }

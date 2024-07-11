@@ -8,6 +8,7 @@ package com.base.sbc.module.replay.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
@@ -893,7 +894,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Override
     public PageInfo<ReplayRatingYearVO> yearListByStyleNo(ReplayRatingYearQO replayRatingYearQO) {
-        // 获取使用了该版型的设计款
+        // 获取使用了该版型或面料的设计款
         ReplayRatingQO replayRatingQO = BeanUtil.copyProperties(replayRatingYearQO, ReplayRatingQO.class);
         replayRatingQO.setType(ReplayRatingType.STYLE);
         replayRatingQO.setRegisteringId(replayRatingYearQO.getPatternLibraryId());
@@ -901,126 +902,159 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         ReplayRatingPageVO<? extends ReplayRatingVO> pageInfo = queryPageInfo(replayRatingQO);
 
         List<? extends ReplayRatingVO> list = pageInfo.getList();
-
+        if (CollUtil.isEmpty(list)) return CopyUtil.copy(pageInfo, new ArrayList<>());
+        
         List<ReplayRatingYearVO> yearVOList = new ArrayList<>();
-        if (CollUtil.isNotEmpty(list)) {
-            List<ReplayConfig> configList = new ArrayList<>();
 
-            Map<String, List<PackBom>> stylePackBomListMap = new HashMap<>();
-            switch (replayRatingYearQO.getType()) {
-                case PATTERN:
-                    List<String> brandList = list.stream().map(ReplayRatingVO::getBrand).distinct().collect(Collectors.toList());
-                    configList.addAll(replayConfigService.list(new LambdaQueryWrapper<ReplayConfig>().in(ReplayConfig::getBrand, brandList)));
-                    break;
-                case FABRIC:
-                    List<String> styleColorIdList = list.stream().map(ReplayRatingVO::getStyleColorId).distinct().collect(Collectors.toList());
-                    Map<String, String> styleColorIdMap = packInfoService.mapOneField(
-                            new LambdaQueryWrapper<PackInfo>().in(PackInfo::getStyleColorId, styleColorIdList)
-                            , PackInfo::getStyleColorId, PackInfo::getId
-                    );
-                    if (MapUtil.isNotEmpty(styleColorIdMap)) {
-                        List<PackBom> packBomList = packBomService.list(new LambdaQueryWrapper<PackBom>()
-                                .select(PackBom::getForeignId, PackBom::getCollocationCode, PackBom::getCollocationName, PackBom::getBulkUnitUse)
-                                .eq(PackBom::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
-                                .in(PackBom::getForeignId, styleColorIdMap.values())
-                                .eq(PackBom::getStatus, YesOrNoEnum.YES)
-                        );
-                        stylePackBomListMap.putAll(
-                                MapUtil.map(styleColorIdMap, (styleColorId, packInfoId) ->
-                                        packBomList.stream().filter(it -> it.getForeignId().equals(packInfoId)).collect(Collectors.toList())
-                                )
-                        );
-                    }
-                    break;
-                default:
-                    throw new UnsupportedOperationException("暂不支持" + replayRatingYearQO.getType().getText());
-            }
+        List<ReplayConfig> configList = new ArrayList<>();
+        // key: styleColorId value:packBomList
+        Map<String, List<PackBom>> stylePackBomListMap = new HashMap<>(list.size());
+        List<SaleFac> saleFacList = new ArrayList<>();
+        // 构建支持数据
+        findSupportData(replayRatingYearQO, list, configList, stylePackBomListMap, saleFacList);
 
-            list.forEach(replayRatingVO -> {
-                ReplayRatingYearVO replayRatingYearVO = new ReplayRatingYearVO();
-                REPLAY_CV.copy(replayRatingYearVO, replayRatingVO);
+        list.forEach(replayRatingVO -> {
+            // 构建结果体
+            ReplayRatingYearVO replayRatingYearVO = new ReplayRatingYearVO();
+            replayRatingYearVO.setSeasonFlag(replayRatingYearQO.getSeasonFlag());
+            REPLAY_CV.copy(replayRatingYearVO, replayRatingVO);
 
-                List<PackBom> stylePackBomList = stylePackBomListMap.getOrDefault(replayRatingYearVO.getStyleColorId(), new ArrayList<>());
-                replayRatingYearVO.setCollocationCode(stylePackBomList.stream().map(PackBom::getCollocationCode).distinct().collect(Collectors.joining(COMMA)));
-                replayRatingYearVO.setCollocationName(stylePackBomList.stream().map(PackBom::getCollocationName).distinct().collect(Collectors.joining("\n")));
+            // 通过复盘管理获取时间区间
+            ReplayConfigDetailDTO saleSeason = configList.stream()
+                    .filter(it -> it.getBrand().equals(replayRatingVO.getBrand()))
+                    .findFirst().map(it -> {
+                        it.build();
+                        return it.getSaleSeason();
+                    }).orElse(new ReplayConfigDetailDTO());
 
-                replayRatingYearVO.setSeasonFlag(replayRatingYearQO.getSeasonFlag());
-                // 设置年份数据
-                ReplayRatingYearProductionSaleDTO yearProductionSaleDTO = new ReplayRatingYearProductionSaleDTO();
-                yearProductionSaleDTO.setKey("total");
-                replayRatingYearVO.setReplayRatingYearProductionSaleDTO(yearProductionSaleDTO);
+            List<SaleFac> bulkSaleFacList = saleFacList.stream().filter(it -> it.getBulkStyleNo().equals(replayRatingVO.getBulkStyleNo())).collect(Collectors.toList());
 
-                ReplayConfigDetailDTO saleSeason = configList.stream()
-                        .filter(it -> it.getBrand().equals(replayRatingVO.getBrand()))
-                        .findFirst().map(it -> {
-                            it.build();
-                            return it.getSaleSeason();
-                        }).orElse(new ReplayConfigDetailDTO());
+            ReplayRatingYearProductionSaleDTO yearProductionSaleDTO = new ReplayRatingYearProductionSaleDTO();
+            // 设置合计字段的前缀
+            yearProductionSaleDTO.setKey("total");
+            replayRatingYearVO.setReplayRatingYearProductionSaleDTO(yearProductionSaleDTO);
+            List<ReplayRatingYearProductionSaleDTO> childrenList = yearProductionSaleDTO.getChildrenList();
 
-                BigDecimal production = BigDecimal.valueOf(1000);
-                BigDecimal sale = BigDecimal.valueOf(500);
+            // 解构复盘管理
+            Map<String, Object> saleSeasonMap = BeanUtil.beanToMap(saleSeason);
+            // !!注意!! 这个map顺序是ReplayConfigDetailDTO的字段顺序 不要改
+            AtomicInteger yearIndex = new AtomicInteger();
+            saleSeasonMap.forEach((key, value) -> {
+                // 可选季节设置 没设置 就用默认季节
+                List<ReplayConfigTimeDTO> timeDTOList = ObjectUtil.isEmpty(value)
+                        ? Arrays.stream(SeasonEnum.values()).map(ReplayConfigTimeDTO::new).collect(Collectors.toList())
+                        : (List<ReplayConfigTimeDTO>) value;
+                // 可选年份设置
+                replayRatingYearVO.getYearList().add(key);
 
-                List<ReplayRatingYearProductionSaleDTO> childrenList = new ArrayList<>();
-                yearProductionSaleDTO.setChildrenList(childrenList);
+                // 构建第一层子体
+                ReplayRatingYearProductionSaleDTO children = new ReplayRatingYearProductionSaleDTO();
+                children.setKey(key);
+                List<ReplayRatingYearProductionSaleDTO> subChildrenList = children.getChildrenList();
 
-                ReplayRatingYearProductionSaleDTO longTimeAgoChildren = new ReplayRatingYearProductionSaleDTO();
-                longTimeAgoChildren.setKey("longTimeAgo");
-                longTimeAgoChildren.setChildrenList(new ArrayList<>());
-                childrenList.add(longTimeAgoChildren);
+                YearMonth date = YearMonth.now().minusYears(yearIndex.getAndIncrement()).withMonth(Month.JANUARY.getValue());
+                timeDTOList.forEach(timeDTO -> {
+                    // 构建第二层子体,季节
+                    ReplayRatingYearProductionSaleDTO subChildren = new ReplayRatingYearProductionSaleDTO();
 
-                YearMonth date = YearMonth.now().withMonth(Month.JANUARY.getValue());
-                Map<String, Object> saleSeasonMap = BeanUtil.beanToMap(saleSeason);
-                for (Map.Entry<String, Object> entry : saleSeasonMap.entrySet()) {
-                    List<ReplayConfigTimeDTO> timeDTOList = Arrays.stream(SeasonEnum.values()).map(ReplayConfigTimeDTO::new).collect(Collectors.toList());
-                    if (ObjectUtil.isNotEmpty(entry.getValue())) {
-                        timeDTOList = (List<ReplayConfigTimeDTO>) entry.getValue();
-                    }
-                    replayRatingYearVO.getYearList().add(entry.getKey());
-                    ReplayRatingYearProductionSaleDTO children = new ReplayRatingYearProductionSaleDTO();
-                    children.setKey(entry.getKey());
-                    List<ReplayRatingYearProductionSaleDTO> subChildrenList = new ArrayList<>();
-                    children.setChildrenList(subChildrenList);
-                    for (int i = 0; i < timeDTOList.size(); i++) {
-                        ReplayConfigTimeDTO timeDTO = timeDTOList.get(i);
-                        ReplayRatingYearProductionSaleDTO subChildren = new ReplayRatingYearProductionSaleDTO();
-                        String code = timeDTO.getSeason().name().toLowerCase();
+                    // 使用名称来作为前缀
+                    SeasonEnum season = timeDTO.getSeason();
+                    int index = season.ordinal();
+                    String code = season.name().toLowerCase();
+                    subChildren.setKey(code);
 
-                        YearMonth startMonth = replayRatingYearVO.getSeasonFlag() == YesOrNoEnum.NO ? date.plusMonths(i * 3L) : timeDTO.getStartMonth();
-                        YearMonth endMonth = replayRatingYearVO.getSeasonFlag() == YesOrNoEnum.NO ? date.plusMonths((i + 1) * 3L) : timeDTO.getEndMonth();
-                        subChildren.setKey(code);
-                        production = production.subtract(BigDecimal.TEN);
-                        sale = sale.add(BigDecimal.TEN);
-                        subChildren.setProduction(production);
-                        subChildren.setSale(sale);
-                        subChildrenList.add(subChildren);
-
-                        ReplayRatingYearProductionSaleDTO subLongTimeAgoChildren = longTimeAgoChildren.getChildrenList().stream().filter(it -> it.getKey().equals(code))
-                                .findFirst().orElseGet(() -> {
-                                    ReplayRatingYearProductionSaleDTO dto = new ReplayRatingYearProductionSaleDTO();
-                                    dto.setProduction(BigDecimal.TEN);
-                                    dto.setSale(BigDecimal.ONE);
-                                    longTimeAgoChildren.getChildrenList().add(dto);
-                                    return dto;
-                                });
-                        subLongTimeAgoChildren.setKey(code);
-                        subLongTimeAgoChildren.setProduction(subLongTimeAgoChildren.getProduction().subtract(BigDecimal.ONE));
-                        subLongTimeAgoChildren.setSale(subLongTimeAgoChildren.getSale().add(BigDecimal.ONE));
-                    }
-                    childrenList.add(children);
-                    date = date.minusYears(1);
-                }
-
-                yearProductionSaleDTO.calculate();
-
-                yearVOList.add(replayRatingYearVO);
+                    // 计算月份范围
+                    YearMonth startMonth = Opt.ofNullable(timeDTO.getStartMonth()).orElse(date.plusMonths(index * 3L));
+                    YearMonth endMonth = Opt.ofNullable(timeDTO.getEndMonth()).orElse(date.plusMonths((index + 1) * 3L));
+                    // 获取投产销售数据
+                    bulkSaleFacList.stream().filter(it -> it.isBetween(startMonth, endMonth))
+                            .collect(Collectors.groupingBy(SaleFac::isProduction))
+                            .forEach((isProduction, sameTypeList) -> {
+                                if (isProduction) {
+                                    subChildren.setProduction(CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum));
+                                } else {
+                                    subChildren.setSale(CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum));
+                                }
+                                bulkSaleFacList.removeAll(sameTypeList);
+                            });
+                    subChildrenList.add(subChildren);
+                });
+                childrenList.add(children);
             });
-
-            QueryFieldManagementDto queryDto = new QueryFieldManagementDto();
-            queryDto.setGroupName(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            queryDto.setFieldExplain("廓形及代码");
-            decorateFieldVal(yearVOList, queryDto, ReplayRatingYearVO::getStyleId, ReplayRatingYearVO::setSilhouetteCode, ReplayRatingYearVO::setSilhouetteName);
-        }
+            yearVOList.add(replayRatingYearVO);
+        });
+        decorateYearList(yearVOList, saleFacList, stylePackBomListMap);
         return CopyUtil.copy(pageInfo, yearVOList);
+    }
+
+    private void decorateYearList(List<ReplayRatingYearVO> list, List<SaleFac> saleFacList, Map<String, List<PackBom>> stylePackBomListMap) {
+        // 设置廓形
+        QueryFieldManagementDto queryDto = new QueryFieldManagementDto();
+        queryDto.setGroupName(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        queryDto.setFieldExplain("廓形及代码");
+        decorateFieldVal(list, queryDto, ReplayRatingYearVO::getStyleId, ReplayRatingYearVO::setSilhouetteCode, ReplayRatingYearVO::setSilhouetteName);
+
+        list.forEach(replayRatingYearVO -> {
+            ReplayRatingYearProductionSaleDTO yearProductionSaleDTO = replayRatingYearVO.getReplayRatingYearProductionSaleDTO();
+            // 设置除前年去年今年之外的时间的构建体
+            ReplayRatingYearProductionSaleDTO longTimeAgoChildren = new ReplayRatingYearProductionSaleDTO();
+            // 设置前缀 任意,前端不显示
+            longTimeAgoChildren.setKey("longTimeAgo");
+            saleFacList.stream()
+                    .filter(it -> it.getBulkStyleNo().equals(replayRatingYearVO.getBulkStyleNo()))
+                    .collect(Collectors.groupingBy(SaleFac::isProduction)).forEach((isProduction, sameTypeList) -> {
+                        if (isProduction) {
+                            longTimeAgoChildren.setProduction(CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum));
+                        } else {
+                            longTimeAgoChildren.setSale(CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum));
+                        }
+                    });
+            yearProductionSaleDTO.getChildrenList().add(longTimeAgoChildren);
+            yearProductionSaleDTO.calculate();
+
+            // 获取物料清单 设置搭配
+            List<PackBom> stylePackBomList = stylePackBomListMap.getOrDefault(replayRatingYearVO.getStyleColorId(), new ArrayList<>());
+            replayRatingYearVO.setCollocationCode(stylePackBomList.stream().map(PackBom::getCollocationCode).distinct().collect(Collectors.joining(COMMA)));
+            replayRatingYearVO.setCollocationName(stylePackBomList.stream().map(PackBom::getCollocationName).distinct().collect(Collectors.joining("\n")));
+        });
+    }
+
+    private void findSupportData(ReplayRatingYearQO replayRatingYearQO, List<? extends ReplayRatingVO> list, List<ReplayConfig> configList, Map<String, List<PackBom>> stylePackBomListMap, List<SaleFac> saleFacList) {
+        List<String> bulkStyleNoList = list.stream().map(ReplayRatingVO::getBulkStyleNo).distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<SaleFac> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(SaleFac::getBulkStyleNo, bulkStyleNoList);
+        switch (replayRatingYearQO.getType()) {
+            case PATTERN:
+                // 版型复盘需要复盘管理的配置
+                List<String> brandList = list.stream().map(ReplayRatingVO::getBrand).distinct().collect(Collectors.toList());
+                configList.addAll(replayConfigService.list(new LambdaQueryWrapper<ReplayConfig>().in(ReplayConfig::getBrand, brandList)));
+                break;
+            case FABRIC:
+                queryWrapper.in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION));
+                // 版型复盘需要 大货款的对应的特定物料清单列表
+                List<String> styleColorIdList = list.stream().map(ReplayRatingVO::getStyleColorId).distinct().collect(Collectors.toList());
+                Map<String, String> styleColorIdMap = packInfoService.mapOneField(
+                        new LambdaQueryWrapper<PackInfo>().in(PackInfo::getStyleColorId, styleColorIdList)
+                        , PackInfo::getStyleColorId, PackInfo::getId
+                );
+                if (MapUtil.isNotEmpty(styleColorIdMap)) {
+                    List<PackBom> packBomList = packBomService.list(new LambdaQueryWrapper<PackBom>()
+                            .select(PackBom::getForeignId, PackBom::getCollocationCode, PackBom::getCollocationName, PackBom::getBulkUnitUse)
+                            .eq(PackBom::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
+                            .in(PackBom::getForeignId, styleColorIdMap.values())
+                            .eq(PackBom::getStatus, YesOrNoEnum.YES)
+                    );
+                    stylePackBomListMap.putAll(
+                            MapUtil.map(styleColorIdMap, (styleColorId, packInfoId) ->
+                                    packBomList.stream().filter(it -> it.getForeignId().equals(packInfoId)).collect(Collectors.toList())
+                            )
+                    );
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("暂不支持" + replayRatingYearQO.getType().getText());
+        }
+        saleFacList.addAll(saleFacMapper.selectList(queryWrapper));
     }
 
     @Override

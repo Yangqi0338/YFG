@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -470,6 +471,11 @@ public class CommonUtils {
 
     public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
         return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static <T> Supplier<? extends T> getListOne(List<T> list, T dto) {
+        list.add(dto);
+        return () -> dto;
     }
 
 }

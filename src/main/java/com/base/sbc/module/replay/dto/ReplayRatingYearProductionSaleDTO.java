@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class ReplayRatingYearProductionSaleDTO extends ReplayRatingProductionSal
     /** 子计算集 */
     @ApiModelProperty(value = "子计算集")
     @JsonIgnore
-    private List<ReplayRatingYearProductionSaleDTO> childrenList;
+    private List<ReplayRatingYearProductionSaleDTO> childrenList = new ArrayList<>();
 
     public Map<Object, ReplayRatingYearProductionSaleDTO> findCalculateMap() {
         if (CollUtil.isEmpty(childrenList)) return new HashMap<>();
