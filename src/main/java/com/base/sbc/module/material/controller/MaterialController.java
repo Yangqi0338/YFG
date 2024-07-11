@@ -31,8 +31,10 @@ import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.material.vo.MaterialSpaceInfoVo;
 import com.base.sbc.module.material.vo.MaterialVo;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -91,6 +93,8 @@ public class MaterialController extends BaseController {
     private final RedisTemplate<String,Object> redisTemplate;
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+
+    private final PlanningCategoryItemService planningCategoryItemService;
 
     @Autowired
     private StorageSpacePersonService storageSpacePersonService;
@@ -236,9 +240,14 @@ public class MaterialController extends BaseController {
             QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
             qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
             qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, list.stream().map(Material::getId).collect(Collectors.toList()));
-            long count = planningCategoryItemMaterialService.count(qw1);
-            if (count > 0){
-                return ApiResult.error("此素材有被引用，不允许删除, 请删除引用后再进行删除！",500);
+            qw1.lambda().select(PlanningCategoryItemMaterial::getPlanningCategoryItemId);
+            qw1.lambda().groupBy(PlanningCategoryItemMaterial::getPlanningCategoryItemId);
+            List<PlanningCategoryItemMaterial> list1 = planningCategoryItemMaterialService.list(qw1);
+//            long count = planningCategoryItemMaterialService.count(qw1);
+            if (CollUtil.isNotEmpty(list1)){
+                List<PlanningCategoryItem> planningCategoryItems = planningCategoryItemService.listByIds(list1.stream().map(PlanningCategoryItemMaterial::getPlanningCategoryItemId).collect(Collectors.toList()));
+                List<String> collect = planningCategoryItems.stream().map(PlanningCategoryItem::getDesignNo).collect(Collectors.toList());
+                return ApiResult.error("该素材有被设计款："+StringUtils.convertListToString(collect)+" 引用，不允许删除, 请去除引用后再进行删除！",500);
             }
         }
         List<Material> materials = materialService.listByIds(Lists.newArrayList(ids));
