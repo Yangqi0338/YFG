@@ -154,7 +154,7 @@ public class MaterialController extends BaseController {
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
         Material material = materialService.getById(materialSaveDto.getId());
-        if ("2".equals(material.getStatus()) && materialSaveDto.getCiteFlag()){
+        if ("2".equals(material.getStatus()) && null != materialSaveDto.getCiteFlag() && materialSaveDto.getCiteFlag()){
             throw new OtherException("该素材已经被引用，暂不允许编辑！");
         }
         //如果仅仅是保存则不提交审核
