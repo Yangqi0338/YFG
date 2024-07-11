@@ -321,7 +321,12 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     map.put(key, joiner);
                     handlerNum.set(1);
                 } else {
-                    joiner.add(sqlSegment);
+                    if (StrUtil.isNotBlank(sqlSegment) && sqlSegment.contains("1=0")) {
+                        joiner.add(SqlKeyword.AND + " " + sqlSegment);
+                    } else {
+                        joiner.add(sqlSegment);
+                    }
+
                     handlerNum.incrementAndGet();
                 }
             }
