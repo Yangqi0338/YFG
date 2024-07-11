@@ -9,7 +9,6 @@ package com.base.sbc.module.patternmaking.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -64,6 +63,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("ts.brand_name", dto.getBrandName());
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
+        qw.orderByDesc("tpmbc.create_date");
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         minioUtils.setObjectUrlToList(list,"img");
         stylePicUtils.setStylePic(list, "stylePic");
@@ -82,6 +82,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
         qw.eq("tpmbc.bar_code", dto.getBarCode());
+        qw.orderByDesc("tpmbc.create_date");
         List<PatternMakingBarCodeVo> list = baseMapper.findPageLog(qw);
         minioUtils.setObjectUrlToList(list,"img");
         stylePicUtils.setStylePic(list, "stylePic");
@@ -124,7 +125,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         //删除绑样时间
         List<PatternMakingBarCode> patternMakingBarCodes = listByCode(patternMakingBarCode.getHeadId(), patternMakingBarCode.getPitSite());
         if(CollUtil.isNotEmpty(patternMakingBarCodes)){
-            List<String> collect = patternMakingBarCodes.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+            List<String> collect = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).distinct().collect(Collectors.toList());
             LambdaQueryWrapper<NodeStatus> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.in(NodeStatus::getDataId, collect);
             queryWrapper.eq(NodeStatus::getNode,"FOB");
@@ -139,7 +140,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         saveOrUpdate(patternMakingBarCode);
         //添加新的绑样时间
         NodeStatus nodeStatus = new NodeStatus();
-        nodeStatus.setDataId(patternMakingBarCode.getId());
+        nodeStatus.setDataId(patternMakingBarCode.getHeadId());
         nodeStatus.setNode("FOB");
         nodeStatus.setStatus("绑样");
         nodeStatus.setStartDate(patternMakingBarCode.getCreateDate());
@@ -163,7 +164,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         updateById(patternMakingBarCode);
         //审样时间
         NodeStatus nodeStatus = new NodeStatus();
-        nodeStatus.setDataId(patternMakingBarCode.getId());
+        nodeStatus.setDataId(patternMakingBarCode.getHeadId());
         nodeStatus.setNode("FOB");
         nodeStatus.setStatus("审样");
         nodeStatus.setStartDate(patternMakingBarCode.getCreateDate());
