@@ -23,7 +23,7 @@ public interface MaterialLabelService extends BaseService<MaterialLabel> {
 
     List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds,String folderId, String status, String createId);
 
-    List<MaterialLabel> getByLabelNames(List<String> labelNames);
+    List<MaterialLabel> getByLabelNames(List<String> labelNames, String searchName);
 
     List<MaterialLabel> getLikeLabelNames(String labelName);
 }

@@ -1,6 +1,7 @@
 package com.base.sbc.module.material.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.mapper.MaterialLabelMapper;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import cn.hutool.core.collection.CollUtil;
 
 /**
  * @author 卞康
@@ -48,9 +51,10 @@ public class MaterialLabelServiceImpl extends BaseServiceImpl<MaterialLabelMappe
     }
 
     @Override
-    public List<MaterialLabel> getByLabelNames(List<String> labelNames) {
+    public List<MaterialLabel> getByLabelNames(List<String> labelNames, String searchName) {
         QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
-        queryWrapper.in("label_name",labelNames);
+        queryWrapper.in(CollUtil.isNotEmpty(labelNames),"label_name",labelNames);
+        queryWrapper.like(StringUtils.isNotEmpty(searchName),"label_name",searchName);
         return materialLabelMapper.selectList(queryWrapper);
     }
 

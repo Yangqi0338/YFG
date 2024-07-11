@@ -35,6 +35,9 @@
         <if test="search != null and search != ''">
             and (file_info like concat('%',#{search},'%') or remarks like concat('%',#{search},'%') )
         </if>
+        <if test="searchName != null and searchName != ''">
+            and (tm.material_name like concat('%',#{searchName},'%') or tm.desc_info like concat('%',#{searchName},'%') )
+        </if>
         <if test="categoryId != null and categoryId != ''">
             and category_id = #{categoryId}
         </if>

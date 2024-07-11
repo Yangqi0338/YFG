@@ -124,4 +124,6 @@ public class MaterialQueryDto extends Page {
     private List<String> descInfoList;
 
     private BaseQueryWrapper ew;
+
+    private String searchName;
 }

@@ -137,9 +137,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         }
 
         //标签名称筛选条件
-        if (StringUtils.isNotEmpty(materialQueryDto.getLabelNames())) {
+        if (StringUtils.isNotEmpty(materialQueryDto.getLabelNames()) || StringUtils.isNotEmpty(materialQueryDto.getSearchName())) {
             labelSet = new HashSet<>();
-            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(StringUtils.convertList(materialQueryDto.getLabelNames()));
+            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(StringUtils.convertList(materialQueryDto.getLabelNames()),materialQueryDto.getSearchName());
             for (MaterialLabel materialLabel : materialLabels) {
                 labelSet.add(materialLabel.getMaterialId());
             }
