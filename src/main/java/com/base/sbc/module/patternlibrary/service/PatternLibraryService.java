@@ -7,6 +7,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.dto.UseStyleDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.EverGreenVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
@@ -126,10 +127,17 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * 查询设计款号数据信息
      *
      * @param search      查询条件
+     * @return 设计款号数据信息
+     */
+    List<Style> listStyle(String search);
+
+ /**
+     * 查询设计款号数据信息
+     *
      * @param styleNoList 款号集合
      * @return 设计款号数据信息
      */
-    List<Style> listStyle(String search, List<String> styleNoList);
+    List<Style> listStyle(List<String> styleNoList);
 
     /**
      * 根据设计款号查询相关数据
@@ -191,4 +199,11 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 常青编号列表
      */
     PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO);
+/**
+     * 根据款式 ID 获取可否改版信息
+     *
+     * @param styleId 设计款 ID
+     * @return 常青编号列表
+     */
+    PatternLibraryTemplate queryPatternTypeByStyleId(String styleId);
 }

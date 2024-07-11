@@ -16,10 +16,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.vo.StyleColorAgentVo;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +46,24 @@ public interface StyleColorService extends BaseService<StyleColor> {
         * @return PageInfo<BasicsdatumComponentVo>
          */
         PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto);
+
+        /**
+         * 方法描述：大货款查询
+         *
+         * @param queryDto 查询条件
+         * @return PageInfo<BasicsdatumComponentVo>
+         */
+        PageInfo<CompleteStyleVo> getCompleteStyleVoList(QueryBulkCargoDto queryDto);
+
+        void getStyleColorListExport(HttpServletResponse response, QueryBulkCargoDto queryDto) throws IOException;
+
+        /**
+         * 方法描述：大货款详情
+         *
+         * @return PageInfo<BasicsdatumComponentVo>
+         */
+        ApiResult getStyleColorBystyleNo(String styleNo);
+
         /**
          * 方法描述: 获取款式或配饰
          * @param designNo 款式编号
@@ -279,6 +294,13 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * mango品牌Execl导入模板下载
      */
     ApiResult mangoExeclImport(List<MangoStyleColorExeclDto> list,Boolean isUpdate);
+
+    /**
+     * Mango吊牌信息Execl导入模板下载
+     * @param list
+     * @return
+     */
+    ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list);
 
     /**
      * 根据大货款获取设计师，版师，样衣工信息

@@ -17,7 +17,7 @@ import com.base.sbc.module.fabric.mapper.FabricPoolItemMapper;
 import com.base.sbc.module.fabric.service.FabricPoolItemService;
 import com.base.sbc.module.fabric.vo.FabricPoolItemVO;
 import com.beust.jcommander.internal.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ public class FabricPoolItemServiceImpl extends BaseServiceImpl<FabricPoolItemMap
 
     @Override
     public void saveItem(List<FabricPoolItemSaveDTO> dto, String fabricPoolId) {
-        if (CollectionUtils.isEmpty(dto)) {
+        if (CollUtil.isEmpty(dto)) {
             LambdaQueryWrapper<FabricPoolItem> queryWrapper = new QueryWrapper<FabricPoolItem>()
                     .lambda()
                     .eq(FabricPoolItem::getFabricPoolId, fabricPoolId)
@@ -66,7 +66,7 @@ public class FabricPoolItemServiceImpl extends BaseServiceImpl<FabricPoolItemMap
                     return fabricPoolItem;
                 }).collect(Collectors.toList());
         super.saveOrUpdateBatch(fabricPoolItems);
-        if (CollectionUtils.isNotEmpty(ids)) {
+        if (CollUtil.isNotEmpty(ids)) {
             super.getBaseMapper().deleteBatchIds(ids);
         }
     }
@@ -79,7 +79,7 @@ public class FabricPoolItemServiceImpl extends BaseServiceImpl<FabricPoolItemMap
     @Override
     public Map<String, List<String>> getSourceIdByFabricPlanningId(String fabricPlanningId) {
         List<FabricPoolItem> fabricPoolItems = super.getBaseMapper().getSourceIdByFabricPlanningId(fabricPlanningId);
-        return CollectionUtils.isEmpty(fabricPoolItems) ?
+        return CollUtil.isEmpty(fabricPoolItems) ?
                 null :
                 fabricPoolItems.stream()
                         .collect(Collectors.groupingBy(FabricPoolItem::getFabricPoolId, Collectors.mapping(FabricPoolItem::getSourceId, Collectors.toList())));
@@ -92,7 +92,7 @@ public class FabricPoolItemServiceImpl extends BaseServiceImpl<FabricPoolItemMap
                 .eq(FabricPoolItem::getDelFlag, "0")
                 .select(FabricPoolItem::getId);
         List<FabricPoolItem> list = super.list(qw);
-        return CollectionUtils.isEmpty(list) ? Lists.newArrayList() : list.stream()
+        return CollUtil.isEmpty(list) ? Lists.newArrayList() : list.stream()
                 .map(FabricPoolItem::getId)
                 .collect(Collectors.toList());
     }

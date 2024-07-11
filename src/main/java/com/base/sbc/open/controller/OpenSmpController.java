@@ -9,6 +9,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -388,5 +389,22 @@ public class OpenSmpController extends BaseController {
         moreLanguageQueryDto.setStandardColumnCode(standardColumnCode);
         List<Map<String, Object>> list = moreLanguageService.listQuery(moreLanguageQueryDto).getList();
         return selectSuccess(list);
+    }
+
+    /**
+     * 根据物料编码获取图片
+     */
+    @GetMapping("/pdmImgUrlByMaterialCode")
+    @ApiOperation(value = "物料图片获取", notes = "物料图片获取")
+    public ApiResult getMaterialImageUrl(String code) {
+        QueryWrapper<BasicsdatumMaterial> materialQueryWrapper = new BaseQueryWrapper<>();
+        materialQueryWrapper.eq("material_code",code);
+        materialQueryWrapper.orderByAsc("del_flag,status");
+        materialQueryWrapper.last("limit 1");
+        BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(materialQueryWrapper);
+        if (basicsdatumMaterial == null) {
+            return ApiResult.error(code+"：找不到物料图片！",404);
+        }
+        return selectSuccess(basicsdatumMaterial.getImageUrl());
     }
 }

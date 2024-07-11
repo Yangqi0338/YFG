@@ -24,6 +24,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.CompleteStyleVo;
 import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
@@ -39,6 +40,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.xml.transform.Result;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +68,24 @@ public class StyleColorController {
     @GetMapping("/getSampleStyleColorList")
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
         return styleColorService.getSampleStyleColorList(user, querySampleStyleColorDto);
+    }
+
+    @ApiOperation(value = "大货款列表")
+    @GetMapping("/getStyleColorList")
+    public PageInfo<CompleteStyleVo> getStyleColorList(QueryBulkCargoDto queryBulkCargoDto) {
+        return styleColorService.getCompleteStyleVoList(queryBulkCargoDto);
+    }
+
+    @ApiOperation(value = "导出大货款列表")
+    @GetMapping("/getStyleColorListExport")
+    public void getStyleColorListExport(HttpServletResponse response, QueryBulkCargoDto queryBulkCargoDto) throws IOException {
+        styleColorService.getStyleColorListExport(response, queryBulkCargoDto);
+    }
+
+    @ApiOperation(value = "大货款号查询大货详情")
+    @GetMapping("/getStyleColorDetail")
+    public ApiResult getStyleColorBystyleNo(@Valid @NotBlank(message = "大货款号不能为空") String styleNo) {
+        return styleColorService.getStyleColorBystyleNo(styleNo);
     }
 
     @ApiOperation(value = "款式编号查找款式配色")
@@ -309,6 +330,13 @@ public class StyleColorController {
     public ApiResult importExcel(@RequestParam("file") MultipartFile file, @RequestParam(value = "isUpdate", required = false, defaultValue = "false") Boolean isUpdate) throws Exception {
         List<MangoStyleColorExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoStyleColorExeclDto.class, new ImportParams());
         return styleColorService.mangoExeclImport(list, isUpdate);
+    }
+
+    @ApiOperation(value = "mango吊牌信息导入Excel")
+    @PostMapping("/mangoHangTagImportExcel")
+    public ApiResult importMangHangTagExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        List<MangoHangTagExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoHangTagExeclDto.class, new ImportParams());
+        return styleColorService.mangoHangTagExeclImport(list);
     }
 
     @ApiOperation(value = "mango数据导出Excel")

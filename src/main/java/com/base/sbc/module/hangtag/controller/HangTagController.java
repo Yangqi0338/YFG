@@ -28,7 +28,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -81,7 +81,6 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "查询详情")
     @GetMapping("/getDetailsByBulkStyleNo")
-    @Deprecated
     public ApiResult getDetailsByBulkStyleNo(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType) {
         return selectSuccess(hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, super.getUserCompany(), selectType));
     }

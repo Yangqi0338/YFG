@@ -6,15 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -32,8 +28,7 @@ import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -41,10 +36,12 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -52,6 +49,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 类描述：款式定价 Controller类
@@ -224,7 +229,7 @@ public class StylePricingController extends BaseController {
                 stylePricing.setControlHangtagConfirmTime(new Date());
             }
 //            计控确认时设置计控成本价等于总成本
-            if (StrUtil.equals(stylePricing.getControlConfirm(),BaseGlobal.YES)){
+            if (StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
                 stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
             }
         }
@@ -249,12 +254,17 @@ public class StylePricingController extends BaseController {
 
         //是否计控吊牌确认
         if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
-            type = HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM;
+            type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
         }
 
         //是否商品吊牌确认
-        if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
-            type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
+        if(StrUtil.equals(dto.getProductHangtagConfirm() ,BaseGlobal.YES)){
+            type = HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM;
+        }
+
+        //是否工时部工价确认
+        if(StrUtil.equals(dto.getWagesConfirm(),BaseGlobal.YES)){
+            type = HangTagDeliverySCMStatusEnum.WORKING_HOUR_CONFIRM;
         }
         smpService.tagConfirmDates(list,type,1);
 

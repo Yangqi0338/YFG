@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternlibrary.vo.EverGreenVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -39,6 +40,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      */
     @ApiModelProperty("版型编码")
     private String code;
+
+    /**
+     * 版型常青顶级编码
+     */
+    @ApiModelProperty("版型常青顶级编码")
+    @TableField(exist = false)
+    private String topParentCode;
 
     /**
      * 父级 ID
@@ -157,10 +165,23 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String templateName;
 
     /**
+     * 可否改版
+     */
+    @ApiModelProperty("可否改版")
+    private String patternType;
+
+    /**
      * 常青编号
      */
     @ApiModelProperty("常青编号")
     private String everGreenCode;
+
+    /**
+     * 常青编号
+     */
+    @ApiModelProperty("常青编号")
+    @TableField(exist = false)
+    private EverGreenVO everGreenVO;
 
     /**
      * 文件 ID
@@ -281,51 +302,44 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private List<PatternLibraryBrand> patternLibraryBrandList;
 
     /**
-     * 部件库-所属版型库
+     * 版型库-子表数据集合
      */
-    @ApiModelProperty("部件库-所属版型库")
-    @TableField(exist = false)
-    private PatternLibraryTemplate patternLibraryTemplate;
-
-    /**
-     * 模板子表信息格式化后
-     */
-    @ApiModelProperty("模板子表信息格式化后")
-    @TableField(exist = false)
-    private String patternLibraryTemplateItem;
-
-    /**
-     * 部件库-子表数据集合
-     */
-    @ApiModelProperty("部件库-子表数据集合")
+    @ApiModelProperty("版型库-子表数据集合")
     @TableField(exist = false)
     private List<PatternLibraryItem> patternLibraryItemList;
 
     /**
-     * 部件库-子表围度数据
+     * 版型库模板信息
      */
-    @ApiModelProperty("部件库-子表围度数据")
+    @ApiModelProperty("版型库模板信息")
+    @TableField(exist = false)
+    private PatternLibraryTemplate patternLibraryTemplate;
+
+    /**
+     * 版型库-子表围度数据
+     */
+    @ApiModelProperty("版型库-子表围度数据")
     @TableField(exist = false)
     private String patternLibraryItemPattern;
 
     /**
-     * 部件库-子表长度数据
+     * 版型库-子表长度数据
      */
-    @ApiModelProperty("部件库-子表长度数据")
+    @ApiModelProperty("版型库-子表长度数据")
     @TableField(exist = false)
     private String patternLibraryItemLength;
 
     /**
-     * 部件库-子表部位数据
+     * 版型库-子表部位数据
      */
-    @ApiModelProperty("部件库-子表部位数据")
+    @ApiModelProperty("版型库-子表部位数据")
     @TableField(exist = false)
     private String patternLibraryItemPosition;
 
     /**
-     * 部件库-子表部件数据
+     * 版型库-子表部件数据
      */
-    @ApiModelProperty("部件库-子表部件数据")
+    @ApiModelProperty("版型库-子表部件数据")
     @TableField(exist = false)
     private String patternLibraryItemParts;
 

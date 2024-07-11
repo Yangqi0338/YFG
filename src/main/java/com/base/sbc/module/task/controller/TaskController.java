@@ -1,7 +1,5 @@
 package com.base.sbc.module.task.controller;
 
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -11,18 +9,19 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.service.MaterialService;
+import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +32,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author 卞康
@@ -53,6 +58,8 @@ public class TaskController {
     private final StylePicUtils stylePicUtils;
 
     private final MaterialService materialService;
+
+    private final PatternLibraryService patternLibraryService;
 
     private final MinioUtils minioUtils;
 
@@ -112,6 +119,15 @@ public class TaskController {
                     if (!Objects.isNull(material)){
                         minioUtils.setObjectUrlToObject(material, "picUrl");
                         flowTaskDto.setPic(material.getPicUrl());
+                        flowTaskDto.setName(StringUtils.isNotBlank(material.getMaterialName()) ? material.getMaterialName() : material.getFileInfo());
+                    }
+                }
+
+                if (StrUtil.isNotBlank(contentApproval) && procDefName.contains("版型库审批")) {
+                    PatternLibrary patternLibrary = patternLibraryService.getById(flowTaskDto.getBusinessKey());
+                    if (!Objects.isNull(patternLibrary)) {
+                        minioUtils.setObjectUrlToObject(patternLibrary, "picUrl");
+                        flowTaskDto.setPic(patternLibrary.getPicUrl());
                     }
                 }
 

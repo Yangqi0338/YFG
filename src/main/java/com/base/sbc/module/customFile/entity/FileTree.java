@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.customFile.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,15 @@ import lombok.EqualsAndHashCode;
 public class FileTree extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
+
+    @ApiModelProperty(value = "文件数量")
+    @TableField(exist = false)
+    private long fileCount;
+
+    @ApiModelProperty(value = "文件所占空间大小")
+    @TableField(exist = false)
+    private String fileSize;
+
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
@@ -45,5 +55,8 @@ public class FileTree extends BaseDataEntity<String> {
     /** 父级ids */
     @ApiModelProperty(value = "父级ids"  )
     private String parentIds;
+
+    @ApiModelProperty(value = "类型，0:系统默认，1：自定义"  )
+    private String type;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

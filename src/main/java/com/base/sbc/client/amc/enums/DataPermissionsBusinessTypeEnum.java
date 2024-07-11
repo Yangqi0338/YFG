@@ -31,6 +31,7 @@ public enum DataPermissionsBusinessTypeEnum {
     packDesign("packDesign", "设计BOM"),
     styleAgent("styleAgent", "款式列表SKU"),
     packBigGoods("packBigGoods", "标准资料包"),
+    bulkCargoStyle("bulkCargoStyle", "大货款列表"),
     sample_capacity_total_count("sample_capacity_total_count", "样衣产能总数"),
     capacity_contrast_statistics("capacity_contrast_statistics", "样衣产能对比"),
     style_group("style_group", "款式搭配"),
@@ -69,6 +70,7 @@ public enum DataPermissionsBusinessTypeEnum {
 
     work_log("work_log","工作小账"),
     PATTERN_LIBRARY("t_pattern_library","版型库"),
+    fabricSummaryList("fabricSummaryList", "面料详单"),
     ;
     private final String k;
     private final String v;

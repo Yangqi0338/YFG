@@ -44,6 +44,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -125,7 +126,7 @@ import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.springframework.util.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +136,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -161,6 +163,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIP
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
@@ -270,7 +273,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagDTO.startPage();
 		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
-			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+			if ("quote".equals(hangTagDTO.getSelectType())) {
+				qw.notIn("tssc.style_no", hangTagDTO.getBulkStyleNo());
+			} else {
+				hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+			}
 		}
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
@@ -345,7 +352,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								e.setStatus(HangTagStatusEnum.QC_CHECK);
 								break;
 							case "翻译确认":
-								e.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
+								e.setStatus(TRANSLATE_CHECK);
 								break;
 							default:
 								break;
@@ -425,6 +432,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (hangTagVO.getWarmTipsDefaultWrap() == null) {
 			hangTagVO.setWarmTipsDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_WARM_TIPS_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
 		}
+
+		// 如果是引用查询 加多一个成分查询
+		if ("quote".equals(selectType)) {
+			List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+					.eq(HangTagIngredient::getHangTagId, hangTagVO.getId()));
+			hangTagVO.setHangTagIngredients(list);
+		}
+		hangTagVO.setSelectType(selectType);
 
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
@@ -661,9 +676,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
 						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
 						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-					boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
-					boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
-					boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
+					boolean heightNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeHeight());
+					boolean widthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeWidth());
+					boolean lengthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeLength());
 					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
 							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
 							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
@@ -767,12 +782,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 如果当前是部分确认,且部分确认,仅当部分确认
 		if (HangTagStatusEnum.PART_TRANSLATE_CHECK == updateStatus) {
 			List<HangTag> partCheckTranslateList = hangTags.stream()
-					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
+					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
 //				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
 //				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
 
-				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
+				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
 					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
@@ -797,21 +812,27 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (HangTagStatusEnum.FINISH == e.getStatus()) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
-                    if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
-                            &&
-                            HangTagStatusEnum.DESIGN_CHECK != updateStatus
-                    ) {
-						if (!(ObjectUtil.isNotEmpty(e.getProductName())&&
-								ObjectUtil.isNotEmpty(e.getQualityGrade())&&
-								ObjectUtil.isNotEmpty(e.getSaftyTitle())&&
-								ObjectUtil.isNotEmpty(e.getPackagingForm())&&
-								ObjectUtil.isNotEmpty(e.getPackagingBagStandard())&&
-								ObjectUtil.isNotEmpty(e.getIngredient())&&
-								ObjectUtil.isNotEmpty(e.getFabricDetails())&&
-								ObjectUtil.isNotEmpty(e.getWarmTips()))) {
-							throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
+						if (HangTagStatusEnum.TECH_CHECK == updateStatus) {
+							if (!(StrUtil.isNotBlank(e.getProductName()) &&
+									StrUtil.isNotBlank(e.getQualityGrade()) &&
+									StrUtil.isNotBlank(e.getSaftyTitle()) &&
+									StrUtil.isNotBlank(e.getPackagingForm()) &&
+									StrUtil.isNotBlank(e.getPackagingBagStandard()) &&
+									StrUtil.isNotBlank(e.getIngredient()) &&
+									StrUtil.isNotBlank(e.getFabricDetails()) &&
+									StrUtil.isNotBlank(e.getWashingMaterialRemarks()) &&
+									StrUtil.isNotBlank(e.getWashingMaterialRemarksName()) &&
+									StrUtil.isNotBlank(e.getWashingCode()) &&
+									StrUtil.isNotBlank(e.getWashingLabelName()) &&
+									StrUtil.isNotBlank(e.getWarmTips()))) {
+								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+							}
+						} else {
+							throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
 						}
-                    }
+					}
+
 					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
 							&&
 							HangTagStatusEnum.TECH_CHECK != updateStatus
@@ -825,17 +846,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.QC_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.TRANSLATE_CHECK != updateStatus) {
+							TRANSLATE_CHECK != updateStatus) {
 						throw new OtherException("存在待品控确认数据，请先品控确认");
 					}
-					if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
+					if (TRANSLATE_CHECK == e.getStatus()
 							&&
 							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
 						throw new OtherException("存在待翻译确认数据，请先翻译确认");
 					}
 					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.FINISH != updateStatus) {
+							!Arrays.asList(TRANSLATE_CHECK, HangTagStatusEnum.FINISH).contains(updateStatus)) {
 						throw new OtherException("存在部分翻译数据，请先全部翻译确认");
 					}
 				}catch (OtherException ex) {
@@ -848,10 +869,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
 			hangTag.setStatus(updateStatus);
-			if (updateStatus.lessThan(HangTagStatusEnum.TRANSLATE_CHECK)) {
+			if (updateStatus.lessThan(TRANSLATE_CHECK)) {
 				hangTag.setConfirmDate(null);
-			}else if (updateStatus == HangTagStatusEnum.TRANSLATE_CHECK) {
+			}else if (updateStatus == TRANSLATE_CHECK) {
 				hangTag.setConfirmDate(new Date());
+				hangTag.setTranslateConfirmDate(null);
 			}else {
 				hangTag.setTranslateConfirmDate(new Date());
 			}
@@ -861,6 +883,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds().stream().map(it-> new HangTagLog(updateStatus.getText(), it)).collect(Collectors.toList()));
 
 		HangTagDeliverySCMStatusEnum type;
+		int confirmStatus = 1;
 		switch (updateStatus) {
 			case TECH_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM;
@@ -870,12 +893,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				break;
 			case TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM;
-				break;
-            default:
+				if (hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.MULTI_CHECK) {
+					break;
+				}
+			case PART_TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
+				confirmStatus = 0;
+				break;
+			default:
+				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
+				break;
 		}
 
-		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,confirmStatus);
 		// 貌似无用, checkType前端不传
 		if (HangTagStatusCheckEnum.QC_CHECK == hangTagUpdateStatusDTO.getCheckType()) {
 			// 发送审批

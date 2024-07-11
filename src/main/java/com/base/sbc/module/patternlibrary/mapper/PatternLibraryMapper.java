@@ -77,7 +77,17 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
     );
 
     /**
-     * 查询已开款的设计款号数据信息
+     * 查询设计款号数据信息
+     *
+     * @param queryWrapper 筛选条件
+     * @return 款号列表
+     */
+    List<Style> listStyleNoCode(
+            @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper
+    );
+
+ /**
+     * 查询设计款号数据信息
      *
      * @param queryWrapper 筛选条件
      * @return 款号列表

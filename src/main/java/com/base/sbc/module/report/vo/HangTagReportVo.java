@@ -91,6 +91,19 @@ public class HangTagReportVo {
     private String specialSpec;
 
     /**
+     * 执行标准
+     */
+    private String executeStandard;
+    /**
+     * 执行标准 code
+     */
+    private String executeStandardCode;
+    /**
+     * 温馨提示
+     */
+    private String warmTips;
+
+    /**
      * 列头筛选数量
      */
     private Integer groupCount;

@@ -125,6 +125,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -405,19 +406,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             List<String> styleColorIds = scmSendStyleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(styleColorIds)) {
-                for (String styleColorId : styleColorIds) {
-                    String[] stringArray = new String[]{styleColorId};
-                    PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
-                    publicStyleColorDto.setId(style.getId());
-                    publicStyleColorDto.setSizeRange(style.getSizeRange());
-                    //检查配色数据是否投产，投产了就报错
-                    checkColorSize(publicStyleColorDto);
-                    try {
-                        smpService.goods(stringArray);
-                    } catch (Exception e) {
-                        log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
-                        throw new OtherException("同步SCM失败：" + e.getMessage());
-                    }
+                PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
+                publicStyleColorDto.setId(style.getId());
+                publicStyleColorDto.setSizeRange(style.getSizeRange());
+                //检查配色数据是否投产，投产了就报错
+                checkColorSize(publicStyleColorDto);
+                try {
+                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                } catch (Exception e) {
+                    log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
+                    throw new OtherException("同步SCM失败：" + e.getMessage());
                 }
             }
 
@@ -721,7 +719,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 排序
         // 未下发 按下发时间排序
         if (StrUtil.equals(BasicNumber.ZERO.getNumber(), dto.getStatus())) {
-            dto.setOrderBy("planning_finish_date is null ,planning_finish_date asc , create_date asc ");
+            dto.setOrderBy("planning_finish_date is null ,planning_finish_date desc , create_date desc ");
         }
         // 已经开款 按审核时间(开款时间)
         else if (StrUtil.equals(BasicNumber.ONE.getNumber(), dto.getStatus())) {

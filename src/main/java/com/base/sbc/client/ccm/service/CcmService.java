@@ -4,7 +4,7 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

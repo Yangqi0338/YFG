@@ -441,13 +441,23 @@ public class BigDecimalUtil {
 	 * @return
 	 */
 	public static BigDecimal dividePercentage (BigDecimal d1,BigDecimal d2){
+		return dividePercentage(d1, d2, 2, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * 计算两个BigDecimal的比值
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static BigDecimal dividePercentage (BigDecimal d1,BigDecimal d2, int scale, RoundingMode roundingMode){
 		if(!biggerThenZero(d1)){
 			return BigDecimal.ZERO;
 		}
 		if(!biggerThenZero(d2)){
 			return BigDecimal.ZERO;
 		}
-		return d1.multiply(new BigDecimal(100)).divide(d2, 2, RoundingMode.HALF_UP);
+		return d1.multiply(new BigDecimal(100)).divide(d2, scale, roundingMode);
 	}
 
 	/**

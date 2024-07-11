@@ -1,15 +1,12 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
-import net.sf.jmimemagic.Magic;
-import net.sf.jmimemagic.MagicMatch;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -29,15 +26,13 @@ import java.util.Map;
  * @author yangshanshan
  *
  */
+@Slf4j
 public class ImgUtils {
 
 	/** 本地字符编码 */
 	private static String LOCAL_CHARSET = "GBK";
 	// FTP协议里面，规定文件名编码为iso-8859-1
 	private static String SERVER_CHARSET = "ISO-8859-1";
-
-
-	private static 	Logger  logger = Logger.getLogger(ImgUtils.class);
 	/*
 	 * Description: 从FTP服务器下载文件
 	 * @param url FTP服务器hostname
@@ -145,7 +140,7 @@ public class ImgUtils {
 				ftp.enterLocalPassiveMode();// 设置被动模式
 				ftp.setFileType(FTP.BINARY_FILE_TYPE);// 设置传输的模式
 			} else {
-					logger.info	("Connet ftpServer error! Please check user or password");
+					log.info	("Connet ftpServer error! Please check user or password");
 				}
 			reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply)) {
@@ -220,8 +215,7 @@ public class ImgUtils {
                         file = new File(newPath);
                     }
 
-                    MagicMatch match = Magic.getMagicMatch(file, false, true);
-                    String contentType = match.getMimeType();
+					String contentType = FileUtil.getMimeType(file.toPath());
 
 					String strBuf = "\r\n" + "--" + BOUNDARY + "\r\n" +
 							"Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n" +
@@ -254,7 +248,7 @@ public class ImgUtils {
 			reader = null;
 		} catch (Exception e) {
 			System.out.println("发送POST请求出错。" + urlStr);
-			logger.error("调用丽晶图片上传服务异常：" + e);
+			log.error("调用丽晶图片上传服务异常：" + e);
 			e.printStackTrace();
             return null;
         } finally {
@@ -285,7 +279,7 @@ public class ImgUtils {
 			ImageIO.write(jpgImage, "jpg", new File(newPath));
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error("bmp格式图片转jpg异常：" + e.toString());
+			log.error("bmp格式图片转jpg异常：" + e.toString());
 		} finally {
 			if (null != out) {
 				try {

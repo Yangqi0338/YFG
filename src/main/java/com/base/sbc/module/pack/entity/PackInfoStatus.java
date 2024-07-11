@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -14,7 +16,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 /**
  * 类描述：资料包-状态 实体类
@@ -106,6 +107,7 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "大货制单员确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date bulkOrderClerkConfirmDate;
     /**
      * 大货工艺员确认:(0未确认,1已确认)

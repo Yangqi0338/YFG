@@ -32,7 +32,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,7 +112,6 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
         return sc.getId();
     }
 
-    @NotNull
     private List<SampleItem> getSampleItemsByItemIds(List<String> sampleItemIds) {
         List<SampleItem> sampleItems = sampleItemService.listByIds(sampleItemIds);
         if (CollectionUtils.isEmpty(sampleItems)) {

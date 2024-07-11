@@ -227,18 +227,14 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "尺寸表")
     private List<PackSizeVo> sizeList;
 
+    @ApiModelProperty(value = "是否高价值文本")
+    private String highValStr;
+
     private boolean pdfView = true;
 
     private float lrMargin = 20;
 
     public String toHtml() throws IOException, TemplateException {
-        //处理设计师
-        if (StrUtil.isNotBlank(designer)) {
-            this.designer = CollUtil.getFirst(StrUtil.split(designer, CharUtil.COMMA));
-        }
-        this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
-        this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
-
         // 找渲染的模板文件
         Configuration config = new Configuration();
         config.setDefaultEncoding("UTF-8");
@@ -259,6 +255,22 @@ public class GenTechSpecPdfFile {
         } else {
             template = config.getTemplate(GenTechSpecPdfFileProperties.processFtlUrl);
         }
+
+        StringWriter writer = new StringWriter();
+        template.process(dataModel(), writer);
+        String html = writer.toString();
+//        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
+//        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
+        return html;
+    }
+
+    public JSONObject dataModel() {
+        //处理设计师
+        if (StrUtil.isNotBlank(designer)) {
+            this.designer = CollUtil.getFirst(StrUtil.split(designer, CharUtil.COMMA));
+        }
+        this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
+        this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
 
         // 将当前对象转成模板变量
         String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
@@ -418,7 +430,7 @@ public class GenTechSpecPdfFile {
         List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
         List<PackTechSpecVo> zysxDataList = Optional.ofNullable(gyMap.get("注意事项")).orElse(CollUtil.newArrayList());
         dataModel.put("xbjDataList", xbjDataList);
-        getJCGYRows(zysxDataList);
+        getZYSXRows(zysxDataList);
         dataModel.put("zysxDataList", zysxDataList);
         dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(null));
         dataModel.put("xbjRowsPan", xbjDataList.size());
@@ -473,12 +485,8 @@ public class GenTechSpecPdfFile {
         dataModel.put("wfgyShow", printWaifuFlag);
         int wfgyDataRows = getJCGYRows(wfgyDataList);
         dataModel.put("wfgyDataRows", wfgyDataRows);
-        StringWriter writer = new StringWriter();
-        template.process(dataModel, writer);
-        String html = writer.toString();
-//        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
-//        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
-        return html;
+
+        return dataModel;
     }
 
     /**
@@ -527,7 +535,7 @@ public class GenTechSpecPdfFile {
      * @param list
      * @return
      */
-    public static int getWFGYRows(List<PackTechSpecVo> list) {
+    public static int getZYSXRows(List<PackTechSpecVo> list) {
         int totalRows = 0;
         int numberRows = 0;
         for (PackTechSpecVo packTechSpec : list) {
