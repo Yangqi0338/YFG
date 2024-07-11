@@ -242,8 +242,11 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
+    private Map<String, String> groupSqlSegment = new HashMap<>();
+
     /** 适配count */
     public Map<String, String> getGroupSqlSegment() {
+        if (MapUtil.isNotEmpty(groupSqlSegment)) return groupSqlSegment;
         Map<String, StringJoiner> map = new HashMap<>();
         MergeSegments expression = getExpression();
         List<ISqlSegment> linkKeyword = Arrays.asList(SqlKeyword.AND, SqlKeyword.OR);
@@ -304,7 +307,16 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             if (value.length() <= 2) return null;
             return value.toString();
         });
-        return MapUtil.removeNullValue(result);
+        groupSqlSegment.putAll(MapUtil.removeNullValue(result));
+        return getGroupSqlSegment();
+    }
+
+    public boolean hasAlias(String alias) {
+        return getGroupSqlSegment().containsKey(alias);
+    }
+
+    public String getSqlByAlias(String alias) {
+        return getGroupSqlSegment().getOrDefault(alias, "1 = 1");
     }
 
 }
