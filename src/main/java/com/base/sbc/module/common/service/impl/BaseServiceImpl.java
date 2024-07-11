@@ -41,6 +41,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Resource;
@@ -584,9 +585,16 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      */
     @Override
     public void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
-        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-        operaLogEntity.setJsonContent(jsonArray.toJSONString());
-        operaLogService.save(operaLogEntity);
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+                    operaLogEntity.setJsonContent(jsonArray.toJSONString());
+                    operaLogService.save(operaLogEntity);
+                }
+            });
+        }
     }
 
     /**
