@@ -149,7 +149,6 @@
             p.stitcher_remark,
             p.sample_bar_code,
             p.grading_date,
-            p.sample_making_score,
             p.sample_making_quality_score,
             p.second_processing,
             p.receive_sample,
