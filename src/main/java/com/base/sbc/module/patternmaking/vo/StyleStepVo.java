@@ -78,6 +78,12 @@ public class StyleStepVo {
         /** 中断打版(0正常，1中断) */
         private String breakOffPattern;
 
+        @ApiModelProperty(value = "供应商Id")
+        private String supplierId;
+        @ApiModelProperty(value = "供应商名称")
+        private String supplierName;
+        private String patternMakingDevtType;
+
         @ApiModelProperty(value = "节点信息")
         private Map<String, NodeStatus> nodeStatus;
     }
