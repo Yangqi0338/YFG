@@ -27,24 +27,43 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
 
     private static final long serialVersionUID = 1L;
 
+    //设计款号
     private String designNo;
+    //样板号
     private String patternNo;
+    //打版类型
     private String sampleType;
+    //打版类型名称
     private String sampleTypeName;
+    //打样顺序名称
     private String patSeqName;
+    //年份
     private String yearName;
+    //季节
     private String seasonName;
+    //品牌
     private String brandName;
+    //需求数量
     private String requirementNum;
+    //大货款号
     private String styleNo;
+    //颜色名称
     private String colorName;
+    //大货款图
     private String styleColorPic;
+    //设计款图
     private String stylePic;
+    //供应商名称
     private String patternRoom;
+    //外发部绑定时间
     private Date techReceiveTime;
-    private String status;
+    //产前样外发部状态
+    private String fobStatus;
+    //改版意见-外发部
     private String techRemarks;
+    //确认时间
     private Date processDepartmentDate;
+    //供应商
     private String supplierName;
 
     public String getSeason() {

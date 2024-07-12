@@ -26,7 +26,7 @@
                ts.style_pic,
                fob.pattern_room,
                fob.tech_receive_time,
-               fob.status,
+               fob.status as fobStatus,
                fob.tech_remarks,
                fob.process_department_date,
                tbs.supplier as supplierName
