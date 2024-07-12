@@ -18,6 +18,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-复盘评分 dao类
@@ -34,9 +35,15 @@ public interface ReplayRatingMapper extends BaseMapper<ReplayRating> {
 
     List<ReplayRatingStyleVO> queryStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
+    List<ReplayRatingStyleVO> queryStyleList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
+
     List<ReplayRatingPatternVO> queryPatternList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
+    List<Map<String, Object>> queryPatternList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
+
     List<ReplayRatingFabricVO> queryFabricList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
+
+    List<Map<String, Object>> queryFabricList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
 // 自定义方法区 不替换的区域【other_end】
 }

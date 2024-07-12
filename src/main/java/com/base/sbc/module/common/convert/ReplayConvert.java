@@ -12,6 +12,8 @@ import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO;
 import com.base.sbc.module.replay.entity.ReplayConfig;
 import com.base.sbc.module.replay.entity.ReplayRating;
 import com.base.sbc.module.replay.entity.ReplayRatingDetail;
+import com.base.sbc.module.replay.vo.ReplayRatingFabricTotalVO;
+import com.base.sbc.module.replay.vo.ReplayRatingPatternTotalVO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
 import com.base.sbc.module.style.entity.Style;
@@ -26,7 +28,9 @@ import org.mapstruct.Mappings;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code 描述：吊牌模块通用MapStruct转化}
@@ -60,6 +64,14 @@ public interface ReplayConvert {
     void copy2Entity(@MappingTarget ReplayRating replayRating, ReplayRatingSaveDTO source);
 
     ReplayRatingDetailDTO copy2DTO(ReplayRatingDetail source);
+
+    default BigDecimal objToBigDecimal(Object source) {
+        return new BigDecimal(source.toString());
+    }
+
+    ReplayRatingPatternTotalVO bean2PatternVO(Map<String, Object> source);
+
+    ReplayRatingFabricTotalVO bean2FabricVO(Map<String, Object> source);
 
     List<ReplayRatingDetailDTO> copy2DetailDTOList(List<ReplayRatingDetail> source);
 

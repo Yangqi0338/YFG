@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
@@ -120,4 +121,17 @@ public class ReplayRatingQO extends QueryFieldDto {
     @ApiModelProperty(value = "字段说明")
     private String fieldExplain;
 
+    public String getMaterialCodeSql() {
+        return "select 1 from t_pack_bom tpb left join t_pack_info tpi ON tpi.id = tpb.foreign_id " +
+                "where tpb.pack_type = 'packBigGoods' and tpb.del_flag = '0' AND tpb.status = '1' and tpi.style_color_id = tsc.id and tpi.del_flag = '0'" +
+                "AND tpb.material_code = %s";
+    }
+
+    public String getSilhouetteSql() {
+        return "select 1 from t_field_val tfv where tfv.foreign_id = ts.id AND tfv.del_flag = '0' AND tfv.data_group = %s AND tfv.field_explain = %s AND tfv.val = %s";
+    }
+
+    public boolean needSpecialTotalSum() {
+        return StrUtil.isNotBlank(planningSeasonId);
+    }
 }

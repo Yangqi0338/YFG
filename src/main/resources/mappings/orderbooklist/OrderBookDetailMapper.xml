@@ -125,16 +125,29 @@
     <select id="patternSuccessCountMap" resultType="java.util.Map">
         SELECT
         ${dto.groupBy} as mapKey,
-        count( DISTINCT tobd.id ) as count
+        count( DISTINCT ts.id ) as count
         FROM
         t_style ts
-        left join t_style_color tsc on tsc.style_id = ts.id and tsc.del_flag = '0'
         left join t_order_book tob on tob.season_id = ts.planning_season_id and tob.del_flag = '0'
-        left join t_order_book_detail tobd on tobd.order_book_id = tob.id and tobd.style_color_id = tsc.id and tobd.del_flag = '0'
         WHERE
         ts.del_flag = 0
-        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        and EXISTS (
+            SELECT 1 FROM t_order_book_detail tobd
+            LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.style_id = ts2.id AND tsc.del_flag = '0'
+            WHERE tobd.del_flag = '0'
+            AND tobd.order_book_id = tob.id
+            <if test="ew.hasAlias('tobd')">
+                and ${ ew.getSqlByAlias('tobd')}
+            </if>
+            <if test="ew.hasAlias('tsc')">
+                and ${ ew.getSqlByAlias('tsc')}
+            </if>
+        )
+        <if test="ew.hasAlias('tob')">
+            and ${ ew.getSqlByAlias('tob')}
+        </if>
+        <if test="ew.hasAlias('ts')">
+            and ${ ew.getSqlByAlias('ts')}
         </if>
         GROUP BY ${dto.groupBy}
     </select>

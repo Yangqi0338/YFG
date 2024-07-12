@@ -1,25 +1,23 @@
 package com.base.sbc.config.common;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
-import cn.hutool.core.lang.Pair;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -59,7 +57,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     public BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, ?> column, String str) {
-        this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
+        this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA).stream().distinct().collect(Collectors.toList()));
         return this;
     }
 

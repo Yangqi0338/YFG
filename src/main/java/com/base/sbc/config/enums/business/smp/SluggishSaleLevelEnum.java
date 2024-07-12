@@ -35,6 +35,7 @@ public enum SluggishSaleLevelEnum {
     }
 
     public static SluggishSaleLevelEnum startByCode(String code) {
+        if (StrUtil.isBlank(code)) return null;
         return Arrays.stream(SluggishSaleLevelEnum.values()).filter(it -> code.startsWith(it.code)).findFirst().orElse(null);
     }
 

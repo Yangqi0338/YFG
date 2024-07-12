@@ -342,11 +342,11 @@
     <select id="useCountMap" resultType="java.util.Map">
         SELECT
             ts.registering_id as registeringId,
-            count( DISTINCT tsc.id ) as count
+            count( DISTINCT ts.id ) as count
         FROM
-            t_style_color tsc left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
+            t_style ts
         WHERE
-        tsc.del_flag = 0
+        ts.id = tsc.style_id and ts.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

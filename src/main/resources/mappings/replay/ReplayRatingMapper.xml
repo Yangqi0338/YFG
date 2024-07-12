@@ -46,13 +46,6 @@
         left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = 'style'
         left join t_style ts on ts.id = tsc.style_id
         where tsc.del_flag = '0'
-        <if test="qo.materialCode != null and qo.materialCode != ''">
-            and EXISTS(
-                select 1 from t_pack_bom tpb left join t_pack_info tpi ON tpi.id = tpb.foreign_id
-                where tpb.pack_type = 'packBigGoods' and tpb.del_flag = '0' AND tpb.status = '1' AND tpb.material_code = #{qo.materialCode}
-                and tpi.style_color_id = tsc.id and tpi.del_flag = '0'
-            )
-        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -84,6 +77,7 @@
         tpl.code as patternLibraryCode,
         tpl.template_code,
         tpl.template_name,
+        ifnull(tpl.style_nos like CONCAT('%', tsc.style_no, '%'), 0) as transferPatternFlag,
         trr.*
     </sql>
 
@@ -101,14 +95,6 @@
         left join t_pattern_library tpl on tpl.style_id = ts.id AND tpl.del_flag = '0'
 
         where tsc.del_flag = '0'
-        <if test="qo.silhouette != null and qo.silhouette != ''">
-            and EXISTS(
-                select 1 from t_field_val tfv where tfv.foreign_id = ts.id AND tfv.del_flag = '0'
-                    AND tfv.data_group = #{qo.groupName}
-                    AND tfv.field_explain = #{qo.fieldExplain}
-                    AND tfv.val = #{qo.silhouette}
-            )
-        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -172,6 +158,115 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
 
+    </select>
+
+    <select id="queryStyleList_COUNT" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">
+        select
+            count(0)
+        from t_style_color tsc
+        where tsc.del_flag = '0'
+        <if test="ew.hasAlias('ts')">
+            and EXISTS(
+                select 1 from t_style ts where ts.id = tsc.style_id and ts.del_flag = '0'
+                and ${ ew.getSqlByAlias('ts')}
+            )
+        </if>
+        <if test="ew.hasAlias('trr')">
+            and EXISTS(
+                select 1 from t_replay_rating trr where trr.foreign_id = tsc.id and trr.type = 'style' and trr.del_flag = '0'
+                and ${ ew.getSqlByAlias('trr')}
+            )
+        </if>
+        <if test="ew.hasAlias('tsc')">
+            and ${ ew.getSqlByAlias('tsc')}
+        </if>
+    </select>
+
+    <select id="queryPatternList_COUNT" resultType="java.util.Map">
+        select
+            count(0) as count,
+            ifnull(sum( ts1.count ),0) AS useCount,
+            ifnull(sum( ts2.count ),0) AS productionCount
+            <if test="qo.needSpecialTotalSum == true">
+                , group_concat(tsc.style_no) AS bulkStyleNo
+            </if>
+        from t_style_color tsc
+        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = 'pattern'
+        left join t_style ts on ts.id = tsc.style_id
+        left join t_pattern_library tpl on tpl.style_id = ts.id AND tpl.del_flag = '0'
+        LEFT JOIN ( SELECT count(0) AS count, ts1.registering_id FROM t_style ts1 WHERE ts1.del_flag = '0' GROUP BY ts1.registering_id ) ts1 ON ts1.registering_id = tpl.id
+        LEFT JOIN (
+            SELECT
+                ts2.registering_id, count(0) AS count
+            FROM
+            t_style ts2
+            LEFT JOIN t_order_book tob ON tob.season_id = ts2.planning_season_id AND tob.del_flag = '0'
+            WHERE ts2.del_flag = '0'
+            AND EXISTS (
+                SELECT 1 FROM t_order_book_detail tobd
+                LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.style_id = ts2.id AND tsc.del_flag = '0'
+                WHERE tobd.del_flag = '0'
+                AND tobd.order_book_id = tob.id
+                AND tobd.order_status = '5'
+            )
+            GROUP BY ts2.registering_id
+        ) ts2 ON ts2.registering_id = tpl.id
+        where tsc.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="queryFabricList_COUNT" resultType="java.util.Map">
+        select count(0) as count,
+        <if test="qo.needSpecialTotalSum == true">
+            group_concat(temp.bulkStyleNo) AS bulkStyleNo,
+        </if>
+        sum(temp.bulkUnitUse) AS bulkUnitUse
+        from (
+        select SQL_BIG_RESULT
+            sum(temp.bulkUnitUse) AS bulkUnitUse
+            <if test="qo.needSpecialTotalSum == true">
+                , group_concat(temp.bulkStyleNo) AS bulkStyleNo
+            </if>
+        from t_pack_bom tpb
+        <if test="qo.needSpecialTotalSum == true">
+            LEFT JOIN t_pack_info tpi ON tpb.foreign_id = tpi.id and tpi.del_flag = '0' and tpi.style_color_id is not null
+        </if>
+        where tpb.material_code is not null
+        and tpb.pack_type = 'packBigGoods'
+        and tpb.del_flag = '0'
+        AND tpb.status = '1'
+        AND EXISTS (select 1 from t_basicsdatum_material tbm where tpb.material_id = tbm.id AND tbm.del_flag = '0' AND tbm.category1_code = 'C4241')
+        <if test="ew.hasAlias('tpi')">
+            <if test="qo.needSpecialTotalSum == true">
+                and ${ ew.getSqlByAlias('tpi')}
+            </if>
+            <if test="qo.needSpecialTotalSum != true">
+                and EXISTS(
+                select 1 from t_pack_info tpi where tpb.foreign_id = tpi.id and tpi.del_flag = '0' and tpi.style_color_id is not null
+                and ${ ew.getSqlByAlias('tpi')}
+                )
+            </if>
+
+        </if>
+        <if test="ew.hasAlias('ts')">
+            and EXISTS(
+            select 1 from t_style ts where tpi.foreign_id = ts.id AND ts.del_flag = '0'
+            and ${ ew.getSqlByAlias('ts')}
+            )
+        </if>
+        <if test="ew.hasAlias('trr')">
+            and EXISTS(
+            select 1 from t_replay_rating trr where trr.foreign_id = tpb.material_id AND trr.type = 'fabric' AND trr.del_flag = '0'
+            and ${ ew.getSqlByAlias('trr')}
+            )
+        </if>
+        <if test="ew.hasAlias('tpb')">
+            and ${ ew.getSqlByAlias('tpb')}
+        </if>
+        group by tpb.material_code, tpb.foreign_id
+        ) temp
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
