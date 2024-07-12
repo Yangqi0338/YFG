@@ -475,6 +475,7 @@ public class OpenSmpController extends BaseController {
             StyleColor styleColor = styleColorMap.get(code);
             fob.setStyleId(styleColor.getId());
             fob.setPlanningSeasonId(styleColor.getPlanningSeasonId());
+            fob.setNode("产前样衣任务FOB");
 
             String sampleBarCode = fob.getSampleBarCode();
             //样衣码 sampleBarCode
