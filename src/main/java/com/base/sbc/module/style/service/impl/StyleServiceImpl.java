@@ -125,7 +125,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -727,7 +726,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         // 已下发打版  按下发打版时间
         else if (StrUtil.equals(BasicNumber.TWO.getNumber(), dto.getStatus())) {
-            dto.setOrderBy("send_pattern_making_date desc  ");
+            dto.setOrderBy("send_pattern_making_date desc ,create_date desc,id  ");
         } else {
             qw.orderByDesc("create_date");
         }
