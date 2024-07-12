@@ -10,6 +10,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -65,6 +66,9 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
         qw.notEmptyIn("tpmbc.status", dto.getStatusList());
         qw.orderByDesc("tpmbc.create_date");
+
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,dto);
+
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         stylePicUtils.setStylePic(list, "stylePic");

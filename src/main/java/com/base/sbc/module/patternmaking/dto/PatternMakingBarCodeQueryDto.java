@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import lombok.Data;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  * @version 1.0
  */
 @Data
-public class PatternMakingBarCodeQueryDto extends Page {
+public class PatternMakingBarCodeQueryDto extends QueryFieldDto {
 
 	private static final long serialVersionUID = 1L;
 
