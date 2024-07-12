@@ -63,9 +63,10 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("ts.brand_name", dto.getBrandName());
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
+        qw.notEmptyIn("tpmbc.status", dto.getStatusList());
         qw.orderByDesc("tpmbc.create_date");
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
-        minioUtils.setObjectUrlToList(list,"img");
+        minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
@@ -84,7 +85,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.eq("tpmbc.bar_code", dto.getBarCode());
         qw.orderByDesc("tpmbc.create_date");
         List<PatternMakingBarCodeVo> list = baseMapper.findPageLog(qw);
-        minioUtils.setObjectUrlToList(list,"img");
+        minioUtils.setObjectUrlToList(list, "img");
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
@@ -99,13 +100,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
             stylePicUtils.setStylePic(list, "stylePic");
             stylePicUtils.setStyleColorPic2(list, "styleColorPic");
             PatternMakingBarCodeVo patternMakingBarCodeVo = list.get(0);
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"img");
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg");
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionVideo");
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg1");
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg2");
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg3");
-            minioUtils.setObjectUrlToObject(patternMakingBarCodeVo,"suggestionImg4");
+            minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
             return patternMakingBarCodeVo;
         }
         return null;
@@ -124,12 +119,12 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     public void saveMain(PatternMakingBarCode patternMakingBarCode) {
         //删除绑样时间
         List<PatternMakingBarCode> patternMakingBarCodes = listByCode(patternMakingBarCode.getHeadId(), patternMakingBarCode.getPitSite());
-        if(CollUtil.isNotEmpty(patternMakingBarCodes)){
+        if (CollUtil.isNotEmpty(patternMakingBarCodes)) {
             List<String> collect = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).distinct().collect(Collectors.toList());
             LambdaQueryWrapper<NodeStatus> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.in(NodeStatus::getDataId, collect);
-            queryWrapper.eq(NodeStatus::getNode,"FOB");
-            queryWrapper.eq(NodeStatus::getStatus,"绑样");
+            queryWrapper.eq(NodeStatus::getNode, "FOB");
+            queryWrapper.eq(NodeStatus::getStatus, "绑样");
             nodeStatusServiceImpl.remove(queryWrapper);
             LambdaQueryWrapper<PatternMakingBarCode> queryWrapper1 = new LambdaQueryWrapper<>();
             queryWrapper1.eq(PatternMakingBarCode::getHeadId, patternMakingBarCode.getHeadId());

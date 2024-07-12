@@ -8,6 +8,9 @@ package com.base.sbc.module.patternmaking.dto;
 
 import com.base.sbc.config.common.base.Page;
 import lombok.Data;
+
+import java.util.List;
+
 /**
  * 类描述：QueryDto 实体类
  * @address com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto
@@ -27,4 +30,6 @@ public class PatternMakingBarCodeQueryDto extends Page {
 	private String seasonName;
 	private String brandName;
 	private String barCode;
+	private List<String> statusList;
+
 }
