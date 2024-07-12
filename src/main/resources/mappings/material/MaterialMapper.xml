@@ -36,13 +36,13 @@
             and (file_info like concat('%',#{search},'%') or remarks like concat('%',#{search},'%') )
         </if>
         <if test="searchName != null and searchName != ''">
-            and  (tm.material_name like concat('%',#{searchName},'%') or tm.desc_info like concat('%',#{searchName},'%')
-                <if test="ids != null and ids.size > 0">
-                    or tm.id in
-                    <foreach collection="ids" item="id" separator="," open="(" close=")">
-                        #{id}
-                    </foreach>
-                 </if>
+
+            and tm.id in (select distinct tmm.id from t_material tmm left join t_material_label tml on tmm.id = tml.material_id  and tml.del_flag = '0' where
+            tmm.del_flag = '0' and
+            (tmm.material_name like concat('%',#{searchName},'%') or tmm.desc_info like concat('%',#{searchName},'%')  or  tml.label_name  like concat('%',#{searchName},'%'))
+            <if test="createId != null and createId != ''">
+                and tmm.create_id = #{createId}
+            </if>
                 )
         </if>
         <if test="categoryId != null and categoryId != ''">

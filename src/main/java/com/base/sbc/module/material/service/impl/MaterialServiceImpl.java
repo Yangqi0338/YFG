@@ -110,7 +110,6 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         HashSet<String> labelSet = null;
         HashSet<String> sizeSet = null;
         HashSet<String> colorSet = null;
-        HashSet<String> labelSet1 = null;
         //我的收藏筛选条件
         if (materialQueryDto.isCollect()) {
             collectSet = new HashSet<>();
@@ -146,14 +145,6 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
         }
 
-        //标签名称筛选条件
-        if (StringUtils.isNotEmpty(materialQueryDto.getSearchName())) {
-            labelSet1 = new HashSet<>();
-            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(null,materialQueryDto.getSearchName());
-            for (MaterialLabel materialLabel : materialLabels) {
-                labelSet1.add(materialLabel.getMaterialId());
-            }
-        }
 
         //标签名称模糊筛选条件
         if (StringUtils.isNotEmpty(materialQueryDto.getContent())) {
@@ -220,11 +211,6 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
                 materialQueryDto.setBrandList(Lists.newArrayList(brandList.getData().values()));
             }
 
-        }
-        if (labelSet1 != null && labelSet1.size() > 0){
-            List<String> ids = CollUtil.isNotEmpty(materialQueryDto.getIds()) ? materialQueryDto.getIds() : Lists.newArrayList();
-            ids.addAll(labelSet1);
-            materialQueryDto.setIds(ids);
         }
 
         //排序
