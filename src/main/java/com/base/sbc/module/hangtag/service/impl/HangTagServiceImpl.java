@@ -1232,7 +1232,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 * @return
 	 */
 	@Override
-	public Boolean copyPack(String styleNo, String newStyleNo) {
+	public Boolean copyPack(String styleNo, String newStyleNo, Boolean isCopyStatus) {
 		QueryWrapper queryWrapper = new QueryWrapper();
 		queryWrapper.eq("bulk_style_no", styleNo);
 		HangTag hangTag = baseMapper.selectOne(queryWrapper);
@@ -1240,7 +1240,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
-			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
+
+			if (null != isCopyStatus && isCopyStatus){
+				hangTag.setStatus(hangTag.getStatus());
+			}else {
+				hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
+			}
 			save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();

@@ -108,7 +108,7 @@ public interface HangTagService extends BaseService<HangTag> {
      * @param newStyleNo
      * @return
      */
-    Boolean copyPack(String styleNo, String newStyleNo);
+    Boolean copyPack(String styleNo, String newStyleNo, Boolean isCopyStatus);
 
     Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO);
 
