@@ -174,7 +174,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     @Override
     public List<PatternMakingBarCode> listbyHeadId(List<String> ids) {
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
-        qw.eq("head_id", ids);
+        qw.in("head_id", ids);
         List<PatternMakingBarCode> list = list(qw);
         return list;
     }
