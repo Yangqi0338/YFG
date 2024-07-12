@@ -71,6 +71,9 @@ public interface ReplayConvert {
 
     ReplayRatingPatternTotalVO bean2PatternVO(Map<String, Object> source);
 
+    @Mappings({
+            @Mapping(target = "unitConverter", ignore = true)
+    })
     ReplayRatingFabricTotalVO bean2FabricVO(Map<String, Object> source);
 
     List<ReplayRatingDetailDTO> copy2DetailDTOList(List<ReplayRatingDetail> source);
