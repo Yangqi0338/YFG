@@ -85,7 +85,8 @@
         </if>
         FROM
         t_pre_production_sample_task_fob t
-        left join t_style s on  s.id = t.style_id AND s.del_flag = '0'
+        left join t_style_color sc on sc.id = t.style_id AND sc.del_flag = '0'
+        left join t_style s on  s.id = sc.style_id AND s.del_flag = '0'
         left join t_pattern_making_bar_code tpmbc on t.id = tpmbc.head_id and tpmbc.del_flag = '0'
         WHERE
         t.del_flag = '0'
