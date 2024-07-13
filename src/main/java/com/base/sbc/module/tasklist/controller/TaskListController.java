@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,6 +58,19 @@ public class TaskListController {
     }
 
     /**
+     * 修改任务列表
+     *
+     * @param taskList 任务列表信息
+     * @return 修改结果
+     */
+    @PostMapping(value = "/updateTaskList")
+    @ApiOperation(value = "修改任务列表")
+    public ApiResult<String> updateTaskList(@RequestBody TaskListDTO taskList) {
+        taskListService.updateTaskList(taskList);
+        return ApiResult.success("操作成功");
+    }
+
+    /**
      * 查询任务列表列表分页
      *
      * @param queryPageTaskList 查询条件
@@ -76,9 +90,9 @@ public class TaskListController {
      * @param response          响应数据
      * @return 导出结果
      */
-    @PostMapping(value = "/exportTaskListExcel")
+    @GetMapping(value = "/exportTaskListExcel")
     @ApiOperation(value = "导出任务列表 Excel")
-    public ApiResult<String> exportTaskListExcel(@RequestBody QueryPageTaskListDTO queryPageTaskList, HttpServletResponse response) {
+    public ApiResult<String> exportTaskListExcel(QueryPageTaskListDTO queryPageTaskList, HttpServletResponse response) {
         taskListService.exportTaskListExcel(queryPageTaskList, response);
         return ApiResult.success("导出成功");
     }

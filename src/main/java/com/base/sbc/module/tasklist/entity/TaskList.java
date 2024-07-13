@@ -77,16 +77,7 @@ public class TaskList extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "接收人名称")
     private String receiveUserName;
-    /**
-     * 管理员 ID
-     */
-    @ApiModelProperty(value = "管理员 ID")
-    private String adminUserId;
-    /**
-     * 管理员名称
-     */
-    @ApiModelProperty(value = "管理员名称")
-    private String adminUserName;
+
     /**
      * 接收时间
      */

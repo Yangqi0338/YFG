@@ -35,4 +35,10 @@ public class QueryPageTaskListDetailDTO extends Page {
      */
     @ApiModelProperty("Excel 导出标记（0-否，1-是)")
     private Integer excelFlag;
+
+    /**
+     * 任务列表主表 ID（t_task_list）
+     */
+    @ApiModelProperty(value = "任务列表主表 ID（t_task_list）")
+    private String taskListId;
 }

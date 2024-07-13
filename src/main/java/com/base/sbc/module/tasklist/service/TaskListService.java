@@ -15,6 +15,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.validation.annotation.Validated;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 任务列表 Service
@@ -34,6 +35,14 @@ public interface TaskListService extends BaseService<TaskList> {
     Boolean saveTaskList(TaskListDTO taskList);
 
     /**
+     * 修改任务列表
+     *
+     * @param taskList 任务列表信息
+     * @return 修改结果
+     */
+    void updateTaskList(TaskListDTO taskList);
+
+    /**
      * 查询任务列表列表分页
      *
      * @param queryPageTaskList 查询条件
@@ -45,7 +54,7 @@ public interface TaskListService extends BaseService<TaskList> {
      * 导出任务列表 Excel
      *
      * @param queryPageTaskList 查询条件
-     * @param response 响应数据
+     * @param response          响应数据
      * @return 导出结果
      */
     void exportTaskListExcel(QueryPageTaskListDTO queryPageTaskList, HttpServletResponse response);

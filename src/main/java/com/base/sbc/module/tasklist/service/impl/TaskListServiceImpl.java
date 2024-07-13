@@ -13,9 +13,12 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.tasklist.constants.ResultConstant;
 import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
@@ -36,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -62,8 +66,13 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
     @Autowired
     @Lazy
     private StylePicUtils stylePicUtils;
+    @Autowired
+    @Lazy
+    private UserUtils userUtils;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
     public Boolean saveTaskList(TaskListDTO taskList) {
         if (ObjectUtil.isEmpty(taskList)) {
             throw new OtherException(ResultConstant.TASK_LIST_SAVE_DATA_CANT_EMPTY);
@@ -80,13 +89,36 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
         if (!save(taskList)) {
             throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_SAVE_FAILED));
         }
+        for (TaskListDetail taskListDetail : taskListDetailList) {
+            taskListDetail.setTaskListId(taskList.getId());
+        }
         if (!taskListDetailService.saveBatch(taskListDetailList)) {
             throw new OtherException(StrUtil.format("「{}」{}", taskList.getTaskName(), ResultConstant.TASK_LIST_DETAIL_SAVE_FAILED));
         }
         // 任务新增完毕后进行消息发送
         String message = StrUtil.format("{}任务：{}，详情请点击查看", TaskListTaskTypeEnum.getValueByCode(taskList.getTaskType()), taskList.getTaskContent());
-        messageUtils.sendCommonMessage(taskList.getReceiveUserId(), message, "/styleManagement/orderBook", stylePicUtils.getGroupUser());
+        String receiveUserId = taskList.getReceiveUserId();
+        if (ObjectUtil.isNotEmpty(receiveUserId)) {
+            for (String string : receiveUserId.split("/")) {
+                messageUtils.sendCommonMessage(string, message, "/columnDefine/toDoTasks", userUtils.getUser(string));
+            }
+        }
         return Boolean.TRUE;
+    }
+
+    @Override
+    public void updateTaskList(TaskListDTO taskList) {
+        if (ObjectUtil.isEmpty(taskList)) {
+            throw new OtherException(ResultConstant.OPERATION_DATA_NOT_EMPTY);
+        }
+        TaskList oldTaskList = getById(taskList.getId());
+        if (ObjectUtil.isEmpty(oldTaskList)) {
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
+        }
+        taskList.setTaskStatus(2);
+        if (!updateById(taskList)) {
+            throw new OtherException(ResultConstant.OPERATION_FAILED);
+        }
     }
 
     @Override
@@ -96,6 +128,18 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
             PageHelper.startPage(queryPageTaskList);
         }
         LambdaQueryWrapper<TaskList> taskListLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        taskListLambdaQueryWrapper.like(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskName()), TaskList::getTaskName, queryPageTaskList.getTaskName());
+        taskListLambdaQueryWrapper.like(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskCode()), TaskList::getTaskCode, queryPageTaskList.getTaskCode());
+        taskListLambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskStatus()), TaskList::getTaskStatus, queryPageTaskList.getTaskStatus());
+        taskListLambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskType()), TaskList::getTaskType, queryPageTaskList.getTaskType());
+        taskListLambdaQueryWrapper.like(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskContent()), TaskList::getTaskContent, queryPageTaskList.getTaskContent());
+        taskListLambdaQueryWrapper.orderByDesc(TaskList::getCreateDate);
+        if (ObjectUtil.isNotEmpty(queryPageTaskList.getReceiveDate())) {
+            taskListLambdaQueryWrapper.ge(TaskList::getReceiveDate, queryPageTaskList.getReceiveDate().get(0));
+        }
+        if (ObjectUtil.isNotEmpty(queryPageTaskList.getReceiveDate())) {
+            taskListLambdaQueryWrapper.le(TaskList::getReceiveDate, queryPageTaskList.getReceiveDate().get(1));
+        }
         List<TaskList> taskListList = list(taskListLambdaQueryWrapper);
         PageInfo<TaskList> taskListPageInfo = new PageInfo<>(taskListList);
         return CopyUtil.copy(taskListPageInfo, TaskListVO.class);
@@ -115,7 +159,7 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
             for (TaskListVO taskList : taskListList) {
                 ExportTaskListExcelVO exportTaskListExcel = BeanUtil.copyProperties(taskList, ExportTaskListExcelVO.class);
                 exportTaskListExcel.setTaskType(TaskListTaskTypeEnum.getValueByCode(taskList.getTaskType()));
-                exportTaskListExcel.setTaskStatus(TaskListTaskTypeEnum.getValueByCode(taskList.getTaskStatus()));
+                exportTaskListExcel.setTaskStatus(TaskListTaskStatusEnum.getValueByCode(taskList.getTaskStatus()));
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 exportTaskListExcel.setReceiveDate(simpleDateFormat.format(taskList.getReceiveDate()));
                 exportTaskListExcelList.add(exportTaskListExcel);

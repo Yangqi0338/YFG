@@ -50,8 +50,12 @@ public class TaskListDetailServiceImpl extends BaseServiceImpl<TaskListDetailMap
 
     @Override
     public PageInfo<TaskListDetailVO> queryTaskListDetailPage(QueryPageTaskListDetailDTO queryPageTaskListDetail) {
-        PageHelper.startPage(queryPageTaskListDetail);
+        if (queryPageTaskListDetail.getExcelFlag().equals(0)) {
+            PageHelper.startPage(queryPageTaskListDetail);
+        }
         LambdaQueryWrapper<TaskListDetail> taskListDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        taskListDetailLambdaQueryWrapper.eq(TaskListDetail::getTaskListId, queryPageTaskListDetail.getTaskListId());
+        taskListDetailLambdaQueryWrapper.orderByDesc(TaskListDetail::getCreateDate);
         List<TaskListDetail> taskListDetailList = list(taskListDetailLambdaQueryWrapper);
         PageInfo<TaskListDetail> taskListDetailPageInfo = new PageInfo<>(taskListDetailList);
         return CopyUtil.copy(taskListDetailPageInfo, TaskListDetailVO.class);

@@ -94,6 +94,7 @@ import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
 import com.base.sbc.module.tasklist.enums.TaskListTaskStatusEnum;
 import com.base.sbc.module.tasklist.enums.TaskListTaskTypeEnum;
+import com.base.sbc.module.tasklist.service.TaskListDetailService;
 import com.base.sbc.module.tasklist.service.TaskListService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
@@ -233,15 +234,19 @@ public class SmpService {
     @Lazy
     private TaskListService taskListService;
 
+    @Autowired
+    @Lazy
+    private TaskListDetailService taskListDetailService;
+
     @Resource
     public OperaLogService operaLogService;
 
     public Integer goods(String[] ids) {
-        return goods(ids,null,null);
+        return goods(ids,null,null, null);
     }
 
-    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
-        return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null);
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem, Map<String, String> taskListDetailMap) {
+        return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null, null, taskListDetailMap);
     }
 
     /**
@@ -257,7 +262,7 @@ public class SmpService {
         StringBuffer sbMsg1 = new StringBuffer();
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         try{
-            int i =goods(ids,targetBusinessSystem,yshBusinessSystem,1,msg);
+            int i =goods(ids,targetBusinessSystem,yshBusinessSystem,1,msg, numberByKeyDay, null);
             if (ids.length == i) {
                 sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条");
             } else {
@@ -279,7 +284,7 @@ public class SmpService {
     /**
      * 商品主数据下发
      */
-    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem,Integer type,List<String> msg) {
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem,Integer type,List<String> msg, String numberByKeyDay, Map<String, String> taskListDetailMap) {
         int i = 0;
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
@@ -317,11 +322,23 @@ public class SmpService {
         List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
         Map<String, List<StyleSpecFabric>> styleSpecFabricMap = styleSpecFabricList.stream().collect(Collectors.groupingBy(StyleSpecFabric::getStyleColorId));
 
-        // 初始化任务列表详情ji'he
+        // 初始化任务列表详情
         List<TaskListDetail> taskListDetailList = new ArrayList<>(ids.length);
+        Map<String, TaskListDetail> oldTaskListDetailMap = new HashMap<>();
+        if (ObjectUtil.isNotEmpty(taskListDetailMap)) {
+            // 如果此 map 不为空，说明是在任务列表详情中点击重新推送，那么不需要新生成任务，直接将结果回写到之前的数据中即可
+            List<TaskListDetail> listDetailList = taskListDetailService.listByIds(CollUtil.newArrayList(taskListDetailMap.values()));
+            if (ObjectUtil.isNotEmpty(listDetailList)) {
+                oldTaskListDetailMap = listDetailList.stream().collect(Collectors.toMap(TaskListDetail::getId, item -> item));
+            }
+        }
         for (StyleColor styleColor : styleColors) {
             // 初始化任务列表详情
             TaskListDetail taskListDetail = new TaskListDetail();
+            if (ObjectUtil.isNotEmpty(taskListDetailMap)) {
+                String taskListDetailId = taskListDetailMap.get(styleColor.getId());
+                taskListDetail = oldTaskListDetailMap.get(taskListDetailId);
+            }
             taskListDetail.setDataId(styleColor.getId());
             taskListDetail.setStyleNo(styleColor.getStyleNo());
 
@@ -751,25 +768,33 @@ public class SmpService {
             taskListDetailList.add(taskListDetail);
             styleColorService.updateById(styleColor);
         }
-        if (type.equals(1)) {
+        if (ObjectUtil.isNotEmpty(type) && type.equals(1)) {
             // 此时是款式打标下发
             TaskListDTO taskList = new TaskListDTO();
-            String taskCode = IdUtil.getSnowflakeNextIdStr();
-            taskList.setTaskCode(taskCode);
+            taskList.setTaskCode(numberByKeyDay);
             taskList.setTaskType(TaskListTaskTypeEnum.STYLE_MARKING_ISSUED.getCode());
             taskList.setTaskStatus(TaskListTaskStatusEnum.TO_DO.getCode());
-            taskList.setTaskName(TaskListTaskTypeEnum.STYLE_MARKING_ISSUED.getValue() + "：" + taskCode);
-            String taskContent = StrUtil.format("{}：总共下发 {} 条，成功 {} 条，失败 {} 条", taskCode, ids.length, i, ids.length - i);
+            taskList.setTaskName(TaskListTaskTypeEnum.STYLE_MARKING_ISSUED.getValue() + "\r\n" + numberByKeyDay);
+            String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条", numberByKeyDay, ids.length, i, ids.length - i);
             taskList.setTaskContent(taskContent);
             taskList.setInitiateUserId(userUtils.getUserId());
             taskList.setInitiateUserName(userUtils.getAliasUserName());
             // 写死通过工号查询任佳威和陈太超的用户信息 存入消息接收人
-            taskList.setReceiveUserId(userUtils.getUserId());
-            taskList.setReceiveUserName(userUtils.getAliasUserName());
+            taskList.setReceiveUserId(userUtils.getUserId() + "/1104794/1103293");
+            taskList.setReceiveUserName(userUtils.getAliasUserName() + "/陈太超/任佳威");
             taskList.setReceiveDate(new Date());
             taskList.setTaskListDetailList(taskListDetailList);
 
             taskListService.saveTaskList(taskList);
+        }
+
+        if (ObjectUtil.isNotEmpty(taskListDetailMap)) {
+            // 过滤掉未查询到数据的任务列表详情数据
+            List<TaskListDetail> newTaskListDetailList = taskListDetailList
+                    .stream().filter(item -> StrUtil.isNotBlank(item.getId())).collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(newTaskListDetailList)) {
+                taskListDetailService.updateBatchById(newTaskListDetailList);
+            }
         }
         return i;
     }
