@@ -15,7 +15,6 @@ import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -279,7 +278,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
         QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
         Page<? extends ReplayRatingVO> page = PageHelper.startPage(qo);
-        Map<String, Object> attributes = page.getAttributes();
+        Map<String, Object> totalMap = new HashMap<>();
         switch (qo.getType()) {
             case STYLE:
                 queryWrapper.orderByAsc("tsc.design_no");
@@ -287,7 +286,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 break;
             case PATTERN:
                 decoratePatternList(baseMapper.queryPatternList(queryWrapper, qo), qo);
-                ReplayRatingPatternTotalVO totalPatternVO = REPLAY_CV.bean2PatternVO(attributes);
+                ReplayRatingPatternTotalVO totalPatternVO = REPLAY_CV.bean2PatternVO(page.getAttributes());
                 if (qo.needSpecialTotalSum()) {
                     String bulkStyleNo = totalPatternVO.getBulkStyleNo();
                     if (StrUtil.isBlank(bulkStyleNo)) break;
@@ -301,7 +300,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                         else totalPatternVO.setSeasonSaleCount(sum);
                     });
                 }
-                attributes.putAll(BeanUtils.beanToMap(totalPatternVO));
+                totalMap.putAll(BeanUtil.beanToMap(totalPatternVO));
                 break;
             case FABRIC:
                 if (!qo.isColumnGroupSearch()) {
@@ -309,7 +308,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
                 }
                 decorateFabricList(baseMapper.queryFabricList(queryWrapper, qo), qo);
-                ReplayRatingFabricTotalVO totalFabricVO = REPLAY_CV.bean2FabricVO(attributes);
+                ReplayRatingFabricTotalVO totalFabricVO = REPLAY_CV.bean2FabricVO(page.getAttributes());
                 if (qo.needSpecialTotalSum()) {
                     String bulkStyleNo = totalFabricVO.getBulkStyleNo();
                     List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
@@ -321,7 +320,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     // TODO
                     totalFabricVO.setRemainingMaterial(new BigDecimal(Integer.MAX_VALUE));
                 }
-                attributes.putAll(BeanUtils.beanToMap(totalFabricVO));
+                totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
                 break;
             default:
                 throw new UnsupportedOperationException("不受支持的复盘类型");
@@ -330,7 +329,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         PageInfo<? extends ReplayRatingVO> pageInfo = page.toPageInfo();
 
         ReplayRatingPageVO<? extends ReplayRatingVO> pageVo = BeanUtil.copyProperties(pageInfo, ReplayRatingPageVO.class);
-        pageVo.setTotalMap(attributes);
+        pageVo.setTotalMap(totalMap);
         return pageVo;
     }
 

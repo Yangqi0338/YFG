@@ -37,7 +37,7 @@ public class ReplayRatingPageVO<T extends ReplayRatingVO> extends PageInfo<T> {
     }
 
     public void setTotalMap(Map<String, Object> totalMap) {
-        this.totalMap = MapUtil.map(totalMap, (key, value) -> value.toString());
+        this.totalMap = MapUtil.map(MapUtil.removeNullValue(totalMap), (key, value) -> value.toString());
     }
 
 }
