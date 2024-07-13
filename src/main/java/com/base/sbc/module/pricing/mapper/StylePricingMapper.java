@@ -9,6 +9,7 @@ package com.base.sbc.module.pricing.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -39,11 +40,13 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
      * @return
      */
     List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto,
-                                             @Param(Constants.WRAPPER) QueryWrapper qw);
+                                             @Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
     List<StyleColorVo> getByStyleList(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("dto") StyleColorsDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 
 
+//    List<StylePricingVO> getStylePricingList_COUNT(@Param("dto") StylePricingSearchDTO dto,
+//                                                   @Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }

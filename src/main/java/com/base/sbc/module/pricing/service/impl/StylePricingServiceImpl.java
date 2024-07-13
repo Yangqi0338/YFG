@@ -6,13 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -33,7 +31,11 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -48,7 +50,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -63,9 +65,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：款式定价 service类
@@ -118,9 +136,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.notEmptyEq("sd.year", dto.getYear());
+        qw.notEmptyEq("sd.band_code", dto.getBandCode());
         qw.notEmptyEq("sd.season", dto.getSeason());
         qw.notEmptyEq("sd.month", dto.getMonth());
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
+        qw.notEmptyEq("ht.product_name", dto.getProductName());
         qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
@@ -175,13 +195,16 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * @param stylePricingList
      * @param companyCode
      */
-    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode,boolean isPackType) {
+    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode, boolean isPackType, boolean decoratePic) {
+        if (CollUtil.isEmpty(stylePricingList)){
+            return;
+        }
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
         String packType="";
         if (isPackType){
-            packType ="packBigGoods";
+            packType = PackUtils.PACK_TYPE_BIG_GOODS;
         }
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
 //        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
@@ -191,8 +214,20 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 .build();
 
         try {
-        CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
-        for (StylePricingVO stylePricingVO : stylePricingList) {
+            CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
+            List<String> stylePricingIdList = stylePricingList.stream().map(StylePricingVO::getId).collect(Collectors.toList());
+            List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new LambdaQueryWrapper<PackPricingProcessCosts>()
+                    .select(PackPricingProcessCosts::getForeignId, PackPricingProcessCosts::getProcessPrice, PackPricingProcessCosts::getMultiple)
+                    .in(PackPricingProcessCosts::getForeignId, stylePricingIdList)
+                    .eq(PackPricingProcessCosts::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
+            );
+
+            List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>()
+                    .in("foreign_id", stylePricingIdList)
+                    .eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS)
+            );
+
+            for (StylePricingVO stylePricingVO : stylePricingList) {
             executor.submit(() -> {
                 // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
                 PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
@@ -223,30 +258,30 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
                 //加工费
-                List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-                if (!processCostsList.isEmpty()) {
+//                if (!processCostsList.isEmpty()) {
                     try {
                         processCostsList.stream()
+                                .filter(it-> it.getForeignId().equals(stylePricingVO.getId()))
                                 .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
                                 .reduce(BigDecimal::add)
                                 .ifPresent(stylePricingVO::setProcessingFee);
                     } catch (Exception e) {
                         logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常", e);
                     }
-
-                }
+//
+//                }
                 //二次加工费用
-                List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-                if (!pricingCraftCostsList.isEmpty()) {
+//                if (!pricingCraftCostsList.isEmpty()) {
                     try {
                         pricingCraftCostsList.stream()
+                                .filter(it-> it.getForeignId().equals(stylePricingVO.getId()))
                                 .map(costs -> costs.getPrice().multiply(costs.getNum()))
                                 .reduce(BigDecimal::add)
                                 .ifPresent(stylePricingVO::setSecondaryProcessingFee);
                     } catch (Exception e) {
                         logger.error("StylePricingServiceImpl#dataProcessing 二次加工费用计算异常", e);
                     }
-                }
+//                }
 
 
                 stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
@@ -285,17 +320,19 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 countDownLatch.countDown();
             });
         }
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
             executor.shutdown();
         }
-        stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
+        if (decoratePic) {
+            stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
+        }
     }
 
     public void dataProcessingExcelImport(List<StylePricingVO> stylePricingList, String companyCode) {
@@ -417,12 +454,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setPackId(packId);
-        stylePricingSearchDTO.setCompanyCode(companyCode);
-        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, new QueryWrapper<>());
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, new BaseQueryWrapper<>());
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }
-        this.dataProcessing(stylePricingList, companyCode,true);
+        this.dataProcessing(stylePricingList, companyCode,true, true);
         return stylePricingList.get(0);
     }
 

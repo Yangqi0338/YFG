@@ -6,15 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -125,6 +124,7 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
@@ -138,8 +138,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,6 +156,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import lombok.RequiredArgsConstructor;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -279,28 +291,41 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 			}
 		}
-		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
-			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
-			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
-			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
-		}
-
 		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
+		qw.notEmptyEq("tsd.planning_season_id", hangTagDTO.getPlanningSeasonId());
+		qw.notEmptyIn("tsd.prod_category", hangTagDTO.getProdCategory());
+		qw.notEmptyEq("tsd.year", hangTagDTO.getYear());
+		qw.notEmptyEq("tsd.devt_type_name", hangTagDTO.getProduceTypeName());
+		qw.likeList("tsd.design_no", StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE)
+				.append(hangTagDTO.getStyle()).append(hangTagDTO.getDesignNo()).toString());
+		qw.notEmptyEq("ht.second_packaging_form_code", hangTagDTO.getSecondPackagingFormCode());
+		qw.notEmptyEq("ht.packaging_form_code", hangTagDTO.getPackagingFormCode());
+		qw.notEmptyLike("ht.ingredient", hangTagDTO.getIngredient());
+		qw.notEmptyIn("ht.product_code", hangTagDTO.getProductCode());
+		qw.notEmptyEq("ht.status", hangTagDTO.getStatus());
+		qw.notEmptyIn("tssc.band_code", hangTagDTO.getBandName());
+		qw.likeList("tssc.style_no", hangTagDTO.getBulkStyleNo());
+		if (YesOrNoEnum.YES.getValueStr().equals(hangTagDTO.getLikeQueryFlag())) {
+			qw.notEmptyLike("tssc.style_no", hangTagDTO.getStyleNo());
+		} else {
+			qw.notEmptyEq("tssc.style_no", hangTagDTO.getStyleNo());
+		}
+
+		List<HangTagListVO> hangTagListVOS;
+		if ("packBigGoods".equals(hangTagDTO.getSelectType())) {
+			hangTagListVOS = hangTagMapper.queryList0(hangTagDTO, qw);
+		} else {
+			hangTagListVOS = hangTagMapper.queryList1(hangTagDTO, qw);
+		}
+
 		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
 		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
 		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
 		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
 		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
 
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");

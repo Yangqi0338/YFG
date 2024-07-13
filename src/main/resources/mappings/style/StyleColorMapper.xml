@@ -179,6 +179,51 @@
     </select>
 
 
+<!--    <select id="styleColorList_COUNT" resultType="com.base.sbc.module.style.vo.StyleColorVo">-->
+<!--        select count(0) FROM t_style ts-->
+<!--        <where>-->
+<!--            <if test="ew.hasAlias('tsc')">-->
+<!--                and EXISTS(select id from t_style_color tsc where-->
+<!--                ts.id = tsc.style_id  AND tsc.del_flag = '0'-->
+<!--                and ${ ew.getSqlByAlias('tsc')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tpi')">-->
+<!--                and EXISTS(select tsc.id from t_style_color tsc-->
+<!--                left join t_pack_info tpi on tpi.style_no = tsc.style_no-->
+<!--                where-->
+<!--                ts.id = tsc.style_id  AND tsc.del_flag = '0'-->
+<!--                and ${ ew.getSqlByAlias('tsc')}-->
+<!--                and ${ ew.getSqlByAlias('tpi')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tsp')">-->
+<!--                and EXISTS(select tsc.id from t_style_color tsc-->
+<!--                left join t_pack_info tpi on tpi.style_no = tsc.style_no-->
+<!--                left join t_style_pricing tsp on tsp.pack_id = tpi.id-->
+<!--                where-->
+<!--                ts.id = tsc.style_id  AND tsc.del_flag = '0'-->
+<!--                and ${ ew.getSqlByAlias('tsc')}-->
+<!--                and ${ ew.getSqlByAlias('tpi')}-->
+<!--                and ${ ew.getSqlByAlias('tsp')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tsma')">-->
+<!--                and EXISTS(select tsc.id from t_style_color tsc-->
+<!--                left join t_style_main_accessories tsma on tsma.del_flag='0' AND tsma.style_color_id = tsc.id-->
+<!--                where-->
+<!--                tsc.del_flag = '0'-->
+<!--                and ts.id = tsc.style_id-->
+<!--                and ${ ew.getSqlByAlias('tsc')}-->
+<!--                and ${ ew.getSqlByAlias('tsma')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tbs')">-->
+<!--                and EXISTS(select id from t_basicsdatum_size tbs where-->
+<!--                FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size-->
+<!--                and ${ ew.getSqlByAlias('tbs')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('ts')">-->
+<!--                and ${ ew.getSqlByAlias('ts')}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
     <select id="colorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
@@ -336,7 +381,44 @@
         LEFT JOIN (SELECT style_color_id ,GROUP_CONCAT(style_no) style_no  ,GROUP_CONCAT(color_name) color_name ,is_trim FROM t_style_main_accessories WHERE del_flag='0' GROUP BY style_color_id)  tsma on (tsma.style_color_id = tsc.id )
         LEFT JOIN t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
         ${ew.customSqlSegment}
+
     </select>
+<!--    <select id="colorList_COUNT" resultType="com.base.sbc.module.style.vo.StyleColorVo">-->
+<!--        select count(0) FROM t_style_color tsc-->
+<!--        <where>-->
+<!--            <if test="ew.hasAlias('ts')">-->
+<!--                and EXISTS(select id from t_style ts where-->
+<!--                ts.id = tsc.style_id-->
+<!--                and ${ ew.getSqlByAlias('ts')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tpi')">-->
+<!--                and EXISTS(select id from t_pack_info tpi where-->
+<!--                tpi.style_no = tsc.style_no-->
+<!--                and ${ ew.getSqlByAlias('tpi')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tsp')">-->
+<!--                and EXISTS(select tpi.id from t_pack_info tpi-->
+<!--                left join t_style_pricing tsp on tsp.pack_id = tpi.id-->
+<!--                where-->
+<!--                tpi.style_no = tsc.style_no-->
+<!--                and ${ ew.getSqlByAlias('tpi')}-->
+<!--                and ${ ew.getSqlByAlias('tsp')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tsma')">-->
+<!--                and EXISTS(select id from t_style_main_accessories tsma where-->
+<!--                tsma.del_flag='0' AND tsma.style_color_id = tsc.id-->
+<!--                and ${ ew.getSqlByAlias('tsma')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tbs')">-->
+<!--                and EXISTS(select id from t_basicsdatum_size tbs where-->
+<!--                FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size-->
+<!--                and ${ ew.getSqlByAlias('tbs')})-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tsc')">-->
+<!--                and ${ ew.getSqlByAlias('tsc')}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
 
     <select id="getStyleMainAccessories" resultType="com.base.sbc.module.style.entity.StyleColor">
         SELECT distinct tsc.*
