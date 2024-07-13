@@ -1100,19 +1100,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return list.get(0);
     }
 
-    @Override
-    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
-        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
-    }
-
-    @Override
-    public FabricSummary getMaterialSummaryInfo(String materialCode) {
-        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
-        baseQueryWrapper.eq("tbm.material_code",materialCode);
-        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
-        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
-    }
-
     @Transactional
     @Override
     public BasicsdatumMaterialUpdateVo updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto) {
