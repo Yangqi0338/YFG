@@ -101,6 +101,12 @@ public class StylePricingController extends BaseController {
         return stylePricingService.getStylePricingList(user,stylePricingSearchDTO);
     }
 
+    @ApiOperation(value = "获取款式定价列表")
+    @GetMapping("/getStylePricingByLine")
+    public PageInfo<StylePricingVO> getStylePricingByLine(Principal user, StylePricingSearchDTO stylePricingSearchDTO) {
+        return stylePricingService.getStylePricingByLine(user,stylePricingSearchDTO);
+    }
+
     /**
      * 导出款式定价列表
      */

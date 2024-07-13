@@ -165,5 +165,309 @@
         </if>
     </select>
 
+    <select id="getStylePricingByLine" resultType="com.base.sbc.module.pricing.vo.StylePricingVO">
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            SELECT
+            ${ew.sqlSelect}
+            from t_pack_info p
+            <if test="dto.getColumnMap().containsKey('ps')">
+                LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('sd')">
+                left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
+                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('sp')">
+                left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('tpp')">
+                left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
+            </if>
+            <if test="dto.getColumnMap().containsKey('ht')">
+                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+                left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
+            </if>
+            <where>
+                p.del_flag = '0'
+                and p.style_no is not null
+                and p.style_no !=''
+                <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
+                    and p.prod_category1st = #{dto.prodCategory1st}
+                </if>
+                <if test="dto.prodCategory != null and dto.prodCategory != ''">
+                    and p.prod_category = #{dto.prodCategory}
+                </if>
+                <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
+                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                </if>
+                <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
+                    and p.prod_category3rd = #{dto.prodCategory3rd}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    and p.planning_season_id = #{dto.planningSeasonId}
+                </if>
+                <if test="dto.devtType != null and dto.devtType != ''">
+                    and p.devt_type = #{dto.devtType}
+                </if>
+                <if test="dto.style != null and dto.style != ''">
+                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                </if>
+                <if test="dto.search != null and dto.search != ''">
+                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
+                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                </if>
+                <if test="dto.productName != null and dto.productName != ''">
+                    and ht.product_name = #{dto.productName}
+                </if>
+                <if test="dto.bandCode != null and dto.bandCode != ''">
+                    and sd.band_code = #{dto.bandCode}
+                </if>
+                <if test="dto.packId != null and dto.packId != ''">
+                    and p.id = #{dto.packId}
+                </if>
+                <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                    ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+                </if>
+            </where>
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            SELECT p.id as id,
+            ps.pack_type as packType,
+            p.code as code,
+            p.prod_category as middleClassif,
+            p.color as color,
+            p.color_code as colorCode,
+            CONCAT(p.design_no, p.style_name) as style,
+            p.design_no as designNo,
+            p.style_no as bulkStyleNo,
+            sd.product_cost as targetCost,
+            sd.devt_type_name as productionType,
+            sd.style_pic as sampleDesignPic,
+            sd.style_name as styleName,
+
+            sd.designer as designer,
+            sd.style_type_name as styleType,
+            sd.id as styleId,
+            ht.product_name as productName,
+            ht.ingredient,
+            ssc.tag_price as tagPrice,
+            ssc.supplier as supplierName,
+            ssc.supplier_abbreviation as supplierAbbreviation,
+            ssc.style_color_pic as styleColorPic,
+            ssc.order_flag as meetFlag, #临时改为取配色的是否下单
+            sp.id as stylePricingId,
+            sp.planning_rate as planningRatio,
+            sp.wages_confirm as wagesConfirm,
+            sp.control_confirm as planCostConfirm,
+            sp.product_hangtag_confirm as productTagPriceConfirm,
+            sp.control_hangtag_confirm as planTagPriceConfirm,
+            sp.series,
+            sp.series_name,
+            sp.product_style,
+            sp.product_style_name,
+            sp.control_plan_cost as controlPlanCost,
+            ps.bom_status as bomStage,
+            ht.down_content as downContent,
+            ht.print_or_not as tagPrintFlag,
+            tpp.calc_item_val as calcItemVal
+            from t_pack_info p
+            LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+            left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
+            left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+            left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
+            left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
+            left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
+            <where>
+                p.del_flag = '0'
+                and p.style_no is not null
+                and p.style_no !=''
+                <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
+                    and p.prod_category1st = #{dto.prodCategory1st}
+                </if>
+                <if test="dto.prodCategory != null and dto.prodCategory != ''">
+                    and p.prod_category = #{dto.prodCategory}
+                </if>
+                <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
+                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                </if>
+                <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
+                    and p.prod_category3rd = #{dto.prodCategory3rd}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    and p.planning_season_id = #{dto.planningSeasonId}
+                </if>
+                <if test="dto.devtType != null and dto.devtType != ''">
+                    and p.devt_type = #{dto.devtType}
+                </if>
+                <if test="dto.style != null and dto.style != ''">
+                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                </if>
+                <if test="dto.search != null and dto.search != ''">
+                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
+                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                </if>
+                <if test="dto.productName != null and dto.productName != ''">
+                    and ht.product_name = #{dto.productName}
+                </if>
+                <if test="dto.bandCode != null and dto.bandCode != ''">
+                    and sd.band_code = #{dto.bandCode}
+                </if>
+                <if test="dto.packId != null and dto.packId != ''">
+                    and p.id = #{dto.packId}
+                </if>
+                <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                    ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+                </if>
+            </where>
+        </if>
+    </select>
+
+    <select id="getStylePricingByLine_COUNT" resultType="java.lang.Long">
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            SELECT count(0) FROM(
+            SELECT
+            ${ew.sqlSelect}
+            from t_pack_info p
+            <if test="dto.getColumnMap().containsKey('ps')">
+                LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('sd')">
+                left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
+                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('sp')">
+                left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('tpp')">
+                left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type =
+                ps.pack_type)
+            </if>
+            <if test="dto.getColumnMap().containsKey('ht')">
+                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+                left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
+            </if>
+            <where>
+                p.del_flag = '0'
+                and p.style_no is not null
+                and p.style_no !=''
+                <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
+                    and p.prod_category1st = #{dto.prodCategory1st}
+                </if>
+                <if test="dto.prodCategory != null and dto.prodCategory != ''">
+                    and p.prod_category = #{dto.prodCategory}
+                </if>
+                <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
+                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                </if>
+                <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
+                    and p.prod_category3rd = #{dto.prodCategory3rd}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    and p.planning_season_id = #{dto.planningSeasonId}
+                </if>
+                <if test="dto.devtType != null and dto.devtType != ''">
+                    and p.devt_type = #{dto.devtType}
+                </if>
+                <if test="dto.style != null and dto.style != ''">
+                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like
+                    CONCAT('%',#{dto.style},'%')
+                </if>
+                <if test="dto.search != null and dto.search != ''">
+                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%')
+                    or
+                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                </if>
+                <if test="dto.productName != null and dto.productName != ''">
+                    and ht.product_name = #{dto.productName}
+                </if>
+                <if test="dto.bandCode != null and dto.bandCode != ''">
+                    and sd.band_code = #{dto.bandCode}
+                </if>
+                <if test="dto.packId != null and dto.packId != ''">
+                    and p.id = #{dto.packId}
+                </if>
+                <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                    ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+                </if>
+            </where>
+            ) as temp
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            SELECT count(0) FROM (
+            select
+            p.id
+            from t_pack_info p
+            <if test="dto.getColumnMap().containsKey('ps')">
+                LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('sd')">
+                left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('ssc')">
+                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('sp')">
+                left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
+            </if>
+            <if test="dto.getColumnMap().containsKey('tpp')">
+                left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type =
+                ps.pack_type)
+            </if>
+            <if test="dto.getColumnMap().containsKey('ht')">
+                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+                left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
+            </if>
+            <where>
+                p.del_flag = '0'
+                and p.style_no is not null
+                and p.style_no !=''
+                <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
+                    and p.prod_category1st = #{dto.prodCategory1st}
+                </if>
+                <if test="dto.prodCategory != null and dto.prodCategory != ''">
+                    and p.prod_category = #{dto.prodCategory}
+                </if>
+                <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
+                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                </if>
+                <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
+                    and p.prod_category3rd = #{dto.prodCategory3rd}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    and p.planning_season_id = #{dto.planningSeasonId}
+                </if>
+                <if test="dto.devtType != null and dto.devtType != ''">
+                    and p.devt_type = #{dto.devtType}
+                </if>
+                <if test="dto.style != null and dto.style != ''">
+                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like
+                    CONCAT('%',#{dto.style},'%')
+                </if>
+                <if test="dto.search != null and dto.search != ''">
+                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%')
+                    or
+                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                </if>
+                <if test="dto.productName != null and dto.productName != ''">
+                    and ht.product_name = #{dto.productName}
+                </if>
+                <if test="dto.bandCode != null and dto.bandCode != ''">
+                    and sd.band_code = #{dto.bandCode}
+                </if>
+                <if test="dto.packId != null and dto.packId != ''">
+                    and p.id = #{dto.packId}
+                </if>
+                <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                    ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+                </if>
+            </where>
+            ) as temp
+        </if>
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

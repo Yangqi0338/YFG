@@ -1,11 +1,14 @@
 package com.base.sbc.module.pricing.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
-public class StylePricingSearchDTO extends Page {
+public class StylePricingSearchDTO extends QueryFieldDto {
     private String companyCode;
     @ApiModelProperty(value = "大类id")
     private String prodCategory1st;
@@ -42,10 +45,14 @@ public class StylePricingSearchDTO extends Page {
     private String styleNo;
     @ApiModelProperty(value = "设计款号")
     private String designNo;
+    @ApiModelProperty(value = "大货款号(款式定价查询)")
+    private String bulkStyleNo;
 
     @ApiModelProperty(value = "图片标记")
     private String  imgFlag;
 
     @ApiModelProperty(value = "导出标记")
     private String deriveFlag;
+
+    private Map<String, String> columnMap;
 }

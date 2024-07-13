@@ -93,6 +93,8 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	 * @return
 	 */
 	String getCategoryMaxCode(@Param("category3Code") String category3Code);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 //	List<BasicsdatumMaterialPageVo> getMaterialSkuList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);

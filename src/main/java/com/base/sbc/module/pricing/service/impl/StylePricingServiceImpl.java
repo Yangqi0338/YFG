@@ -10,8 +10,11 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.segments.GroupBySegmentList;
+import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -20,8 +23,11 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
@@ -81,6 +87,12 @@ import java.util.stream.Collectors;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
@@ -125,6 +137,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
+    private final ColumnDefineService columnDefineService;
 
     // @Resource
     // @Lazy
@@ -187,6 +200,97 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             });
         }
         return countDownLatch;
+    }
+
+    @Override
+    public PageInfo<StylePricingVO> getStylePricingByLine(Principal user, StylePricingSearchDTO dto) {
+        dto.setCompanyCode(super.getCompanyCode());
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+        Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
+        qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getBulkStyleNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
+
+        MergeSegments mergeSegments = qw.getExpression();
+        String groupStr = null;
+        if (null != mergeSegments) {
+            GroupBySegmentList groupBySegmentList = mergeSegments.getGroupBy();
+            if (CollUtil.isNotEmpty(groupBySegmentList)) {
+                ISqlSegment segment = groupBySegmentList.get(0);
+                groupStr = segment.getSqlSegment();
+                groupBySegmentList.remove(0);
+            }
+        }
+        if (StrUtil.isBlank(groupStr)) {
+            qw.groupBy("p.id");
+        } else {
+            qw.groupBy(groupStr);
+        }
+
+        if (null == dto.getPageNum() || 0 == dto.getPageNum()) {
+            dto.setPageNum(1);
+        }
+        if (null == dto.getPageSize() || 0 == dto.getPageSize()) {
+            dto.setPageNum(20);
+        }
+        dto.setStartNum((dto.getPageNum()-1)*dto.getPageSize());
+        Map<String, String> columnMap = new HashMap<>();
+        Map<String,String> queryMap = dto.getFieldQueryMap();
+        if (StrUtil.isNotBlank(dto.getStyleNo())) {
+            columnMap.put("ssc", "style_no");
+        }
+        if (StrUtil.isNotBlank(dto.getDesignNo())) {
+            columnMap.put("sd", "design_no");
+        }
+        if (null != queryMap) {
+            List<ColumnDefine> list = columnDefineService.getByTableCode(dto.getTableCode(), false);
+            if (CollUtil.isNotEmpty(list)) {
+                for (ColumnDefine column : list) {
+                    for (String columnCode : dto.getFieldQueryMap().keySet()) {
+                        if (StrUtil.equals(column.getColumnCode(), columnCode)) {
+                            String sqlCode = column.getSqlCode();
+                            if (StrUtil.isNotEmpty(sqlCode)) {
+                                String[] tablePre = sqlCode.split("\\.");
+                                columnMap.put(tablePre[0], columnCode);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dto.setColumnMap(columnMap);
+        com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
+
+        if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("sd.") ) {
+            columnMap.put("sd", "design_no");
+        }
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
+        if (CollectionUtils.isEmpty(stylePricingList)) {
+            return page.toPageInfo();
+        }
+
+        if(StrUtil.equals(dto.getDeriveFlag(),BaseGlobal.YES) ){
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES) ){
+                if(stylePricingList.size() >1000){
+                    throw new OtherException("带图片最多只能导出1000条");
+                }else {
+                    stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
+                }
+            }else {
+                if(stylePricingList.size() >2000){
+                    throw new OtherException("不带图片最多只能导出2000条");
+                }
+            }
+        } else {
+            stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(stylePricingList);
+        }
+        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true, true);
+        PageInfo<StylePricingVO> packInfo = new PageInfo<>(stylePricingList);
+        return packInfo;
     }
 
     /**
