@@ -331,5 +331,7 @@ public class HangTagListVO extends HangTag {
     @ApiModelProperty(value = "是否可编辑")
     private Integer isEdit = 0;
 
+    private Integer groupCount;
+
 }
 
