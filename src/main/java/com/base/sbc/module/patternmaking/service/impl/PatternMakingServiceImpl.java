@@ -804,7 +804,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
-        qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
+
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
@@ -876,6 +876,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
             list = getBaseMapper().patternMakingTaskFOBList(qw);
         } else {
+            qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
             qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
             qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
             list = getBaseMapper().patternMakingTaskList(qw);
