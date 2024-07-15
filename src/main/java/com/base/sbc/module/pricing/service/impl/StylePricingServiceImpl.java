@@ -203,13 +203,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     }
 
     @Override
-    public PageInfo<StylePricingVO> getStylePricingByLine(Principal user, StylePricingSearchDTO dto) {
+    public PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
-        qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
-        qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getBulkStyleNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getBulkStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getBulkStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
 
         MergeSegments mergeSegments = qw.getExpression();
         String groupStr = null;
@@ -236,7 +236,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         dto.setStartNum((dto.getPageNum()-1)*dto.getPageSize());
         Map<String, String> columnMap = new HashMap<>();
         Map<String,String> queryMap = dto.getFieldQueryMap();
-        if (StrUtil.isNotBlank(dto.getStyleNo())) {
+        if (StrUtil.isNotBlank(dto.getBulkStyleNo())) {
             columnMap.put("ssc", "style_no");
         }
         if (StrUtil.isNotBlank(dto.getDesignNo())) {
@@ -260,7 +260,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         dto.setColumnMap(columnMap);
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
 
         if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("sd.") ) {
             columnMap.put("sd", "design_no");
