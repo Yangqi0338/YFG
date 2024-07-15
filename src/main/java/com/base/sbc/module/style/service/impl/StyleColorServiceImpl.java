@@ -4013,11 +4013,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             fieldValService.saveBatch(updateFieldValList);
         }
 
-        //保存修改记录
-        operaLogService.saveBatch(updateLogs);
-
         //生成流水号
         String numberByKeyDay = codeGen.getNumberByKeyDay("DB", 4);
+
+        //保存修改记录
+        updateLogs.forEach(o->o.setDocumentCode(numberByKeyDay));
+        operaLogService.saveBatch(updateLogs);
 
         if(CollUtil.isNotEmpty(goodsIds)){
             //推送下游系统
