@@ -20,7 +20,6 @@ import org.springframework.web.filter.CorsFilter;
  * @author Fred
  * @data 创建时间:2020/2/3
  */
-@EnableAsync
 @RefreshScope
 @SpringBootApplication
 @EnableDiscoveryClient
