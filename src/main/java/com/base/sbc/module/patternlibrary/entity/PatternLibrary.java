@@ -271,6 +271,7 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      * 下单大货款集合（设计款下面的所有已投产的大货款）
      */
     @ApiModelProperty("下单大货款集合（设计款下面的所有已投产的大货款）")
+    @TableField(exist = false)
     private List<String> placeOrderStyleNoList;
 
     /**

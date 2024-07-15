@@ -78,6 +78,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String styleNos;
 
     /**
+     * 下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）
+     */
+    @ApiModelProperty("下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）")
+    private String placeOrderStyleNos;
+
+    /**
      * 大类 code
      */
     @ApiModelProperty("大类 code")

@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -1003,19 +1004,13 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
-            // 判断已经投产的大货款号 逻辑是 当前大货款是否存在任意一个状态为已下单的订货本详情 orderStatus = 4
-            List<String> styleColorIdList = styleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
-            List<OrderBookDetail> orderBookDetailList = orderBookDetailService.list(
-                    new LambdaQueryWrapper<OrderBookDetail>()
-                            .in(OrderBookDetail::getStyleColorId, styleColorIdList)
-                            .eq(OrderBookDetail::getStatus, OrderBookDetailOrderStatusEnum.ORDER)
-            );
-            if (ObjectUtil.isNotEmpty(orderBookDetailList)) {
-                List<String> styleColorIds = orderBookDetailList.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
-                // 说明查到了投产的大货款号
-                List<String> styleNoList = styleColorList.stream().filter(item -> styleColorIds.contains(item.getId())).map(StyleColor::getStyleNo).collect(Collectors.toList());
-                patternLibrary.setPlaceOrderStyleNoList(styleNoList);
-            }
+            // 过滤报次款大货
+            patternLibrary.setPlaceOrderStyleNoList(styleColorList.stream()
+                    .map(StyleColor::getStyleNo)
+                    .filter(ObjectUtil::isNotEmpty)
+                    .filter(item -> !StrUtil.endWithAny(item, "-9", "-10", "-11", "-12", "-ZC"))
+                    .collect(Collectors.toList()));
+            
 
             patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
             // 初始化大货的图片 ID-URL 集合
