@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 
@@ -32,15 +34,22 @@ public class MessageSendClient {
     /**
      * yfg portal 地址
      */
-    private final String portalUrl = "http://portal-test.eifini.com";
+    private static final String portalUrl = "http://portal-test.eifini.com";
+
+    private static RedisUtils redisUtilsExt;
+
+    @PostConstruct
+    public void init(){
+        redisUtilsExt = redisUtils;
+    }
 
 
     /**
      * portal 单点登录
      */
-    private String authLoginSSO(){
+    private static String authLoginSSO(){
         String authAccessTokenKey = "SSO_ACCESS_TOKEN";
-        Object o = redisUtils.get(authAccessTokenKey);
+        Object o = redisUtilsExt.get(authAccessTokenKey);
         if (null != o){
             return (String) o;
         }
@@ -58,7 +67,7 @@ public class MessageSendClient {
         AuthLoginSSOResultBo authLoginSSOResultBo = JSON.parseObject(JSON.toJSONString( result.getData()),AuthLoginSSOResultBo.class);
 
         String accessToken =  authLoginSSOResultBo.getToken().getAccess_token();
-        redisUtils.set(authAccessTokenKey,accessToken,190);
+        redisUtilsExt.set(authAccessTokenKey,accessToken,190);
         return accessToken;
 
     }
@@ -69,7 +78,7 @@ public class MessageSendClient {
      * @param content 发送内容
      * @param userNames 工号
      */
-    public void dingMsg(String businesstype, String content, List<String> userNames){
+    public static void dingMsg(String businesstype, String content, List<String> userNames){
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("businesstype",businesstype);
         jsonObject.put("requestsysid","pdm");
