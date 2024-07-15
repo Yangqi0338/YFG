@@ -3645,7 +3645,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
                 updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
             }else{
-                // 暂时去掉水洗唛校验问题
+                // 暂时去掉水洗唛校验问题20240715
                 //errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
             }
             //endregion
