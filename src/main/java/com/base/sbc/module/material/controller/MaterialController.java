@@ -389,7 +389,7 @@ public class MaterialController extends BaseController {
             throw new OtherException("查询id不能为空");
         }
         MaterialQueryDto materialQueryDto = new MaterialQueryDto();
-        materialQueryDto.setIds(Lists.newArrayList(id));
+        materialQueryDto.setIds(StringUtils.convertList(id));
         List<MaterialVo> list = materialService.listQuery(materialQueryDto).getList();
         return ApiResult.success("查询成功",CollUtil.isEmpty(list) ? null : list.get(0));
     }
