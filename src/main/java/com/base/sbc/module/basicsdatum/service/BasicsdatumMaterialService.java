@@ -174,7 +174,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
-	/**
+
+    /**
 	 * 通过物料编码获取来源 和成分
 	 *
 	 * @param materialCode

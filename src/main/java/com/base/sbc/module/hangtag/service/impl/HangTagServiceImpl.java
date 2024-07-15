@@ -6,15 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -55,6 +54,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -125,6 +126,8 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+
+
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
@@ -138,8 +141,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,6 +159,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import lombok.RequiredArgsConstructor;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -166,6 +181,19 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：吊牌表 service类
@@ -217,7 +245,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Autowired
 	@Lazy
 	private PackTechPackagingService packTechPackagingService;
-
+	private final ColumnDefineService columnDefineService;
 
 	@Autowired
 	@Lazy
@@ -266,6 +294,137 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
+	public PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagDTO, String userCompany) {
+		hangTagDTO.setCompanyCode(userCompany);
+		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
+		Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw,hangTagDTO);
+		Map<String, String> columnMap = new HashMap<>();
+		Map<String,String> queryMap = hangTagDTO.getFieldQueryMap();
+		if (StrUtil.isNotBlank(hangTagDTO.getStyleNo())) {
+			columnMap.put("ssc", "style_no");
+		}
+		if (StrUtil.isNotBlank(hangTagDTO.getDesignNo())) {
+			columnMap.put("sd", "design_no");
+		}
+		if (null != queryMap) {
+			List<ColumnDefine> list = columnDefineService.getByTableCode(hangTagDTO.getTableCode(), false);
+			if (CollUtil.isNotEmpty(list)) {
+				for (ColumnDefine column : list) {
+					for (String columnCode : hangTagDTO.getFieldQueryMap().keySet()) {
+						if (StrUtil.equals(column.getColumnCode(), columnCode)) {
+							String sqlCode = column.getSqlCode();
+							if (StrUtil.isNotEmpty(sqlCode)) {
+								String[] tablePre = sqlCode.split("\\.");
+								columnMap.put(tablePre[0], columnCode);
+							}
+						}
+					}
+				}
+			}
+		}
+		hangTagDTO.setColumnMap(columnMap);
+		hangTagDTO.startPage();
+		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
+		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
+			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+		}
+		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
+			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
+		}
+		if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd.") ) {
+			columnMap.put("tsd", "tsd");
+		}
+		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryListByLine(hangTagDTO, qw);
+		if (CollUtil.isEmpty(hangTagListVOS)) {
+			return new PageInfo<>(hangTagListVOS);
+		}
+		if (isColumnHeard) {
+			if (hangTagDTO.getFieldQueryMap().containsKey("status")) {
+				List<HangTagListVO> hl = hangTagListVOS.stream().filter(h -> null != h.getStatus()).collect(Collectors.toList());
+				return new PageInfo<>(hl);
+			}
+			return new PageInfo<>(hangTagListVOS);
+		}
+
+		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
+			if(hangTagListVOS.size() > 2000){
+				throw new OtherException("带图片导出2000条数据");
+			}
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		}
+		if(!StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)){
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		}
+		if (hangTagListVOS.isEmpty()) {
+			return new PageInfo<>(hangTagListVOS);
+		}
+		/* 获取大货款号 */
+		List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo()))
+				.map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
+		/* 查询流程审批的结果 */
+		Map<String, FlowRecordVo> flowRecordVoMap;
+		if ("2".equals(hangTagDTO.getCheckType())) {
+			flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
+
+		} else {
+			flowRecordVoMap = null;
+		}
+		// 1A7290012
+		// IdGen idGen = new IdGen();
+		List<String> bulkStyleNos = new ArrayList<>();
+		hangTagListVOS.forEach(e -> {
+			if (flowRecordVoMap != null) {
+				FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
+				if (!ObjectUtils.isEmpty(flowRecordVo)) {
+//                判断流程是否完成
+					e.setExamineUserNema(flowRecordVo.getUserName());
+					e.setExamineUserId(flowRecordVo.getUserId());
+					if (BaseGlobal.YES.equals(flowRecordVo.getEndFlag())) {
+//                    e.setConfirmDate(flowRecordVo.getEndTime());
+						// e.setStatus("5"); 不需要设置为通过,通过或者不通过会在回调页面设置
+					} else {
+						// 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
+						if (HangTagStatusEnum.SUSPEND != e.getStatus()) {
+							switch (flowRecordVo.getName()) {
+								case "大货工艺员确认":
+									e.setStatus(HangTagStatusEnum.NOT_COMMIT);
+									break;
+								case "后技术确认":
+									e.setStatus(HangTagStatusEnum.TECH_CHECK);
+									break;
+								case "品控确认":
+									e.setStatus(HangTagStatusEnum.QC_CHECK);
+									break;
+								case "翻译确认":
+									e.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
+									break;
+								default:
+									break;
+							}
+						}
+
+					}
+				}
+			}
+			bulkStyleNos.add(e.getBulkStyleNo());
+		});
+		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
+		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
+			long size = countryLanguageService.getAllCountrySize();
+			hangTagListVOS.stream().filter(it-> it.getStatus() == HangTagStatusEnum.FINISH).forEach(hangTag-> {
+				if (styleCountryStatusService.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+						.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) < size) {
+					hangTag.setStatus(HangTagStatusEnum.PART_TRANSLATE_CHECK);
+				}
+			});
+		}
+
+		return new PageInfo<>(hangTagListVOS);
+	}
+
+	@Override
+	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
 		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
@@ -279,28 +438,41 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 			}
 		}
-		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
-			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
-			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
-			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
-		}
-
 		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
+		qw.notEmptyEq("tsd.planning_season_id", hangTagDTO.getPlanningSeasonId());
+		qw.notEmptyIn("tsd.prod_category", hangTagDTO.getProdCategory());
+		qw.notEmptyEq("tsd.year", hangTagDTO.getYear());
+		qw.notEmptyEq("tsd.devt_type_name", hangTagDTO.getProduceTypeName());
+		qw.likeList("tsd.design_no", StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE)
+				.append(hangTagDTO.getStyle()).append(hangTagDTO.getDesignNo()).toString());
+		qw.notEmptyEq("ht.second_packaging_form_code", hangTagDTO.getSecondPackagingFormCode());
+		qw.notEmptyEq("ht.packaging_form_code", hangTagDTO.getPackagingFormCode());
+		qw.notEmptyLike("ht.ingredient", hangTagDTO.getIngredient());
+		qw.notEmptyIn("ht.product_code", hangTagDTO.getProductCode());
+		qw.notEmptyEq("ht.status", hangTagDTO.getStatus());
+		qw.notEmptyIn("tssc.band_code", hangTagDTO.getBandName());
+		qw.likeList("tssc.style_no", hangTagDTO.getBulkStyleNo());
+		if (YesOrNoEnum.YES.getValueStr().equals(hangTagDTO.getLikeQueryFlag())) {
+			qw.notEmptyLike("tssc.style_no", hangTagDTO.getStyleNo());
+		} else {
+			qw.notEmptyEq("tssc.style_no", hangTagDTO.getStyleNo());
+		}
+
+		List<HangTagListVO> hangTagListVOS;
+		if ("packBigGoods".equals(hangTagDTO.getSelectType())) {
+			hangTagListVOS = hangTagMapper.queryList0(hangTagDTO, qw);
+		} else {
+			hangTagListVOS = hangTagMapper.queryList1(hangTagDTO, qw);
+		}
+
 		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
 		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
 		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
 		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
 		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
 
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");
@@ -410,8 +582,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			throws IOException {
 		/* 查询吊牌数据 */
 		hangTagSearchDTO.setDeriveFlag(BaseGlobal.YES);
-		List<HangTagListVO> list = queryPageInfo(hangTagSearchDTO, userCompany).getList();
+		hangTagSearchDTO.setPageNum(1);
+		hangTagSearchDTO.setPageSize(99999);
+		List<HangTagListVO> list = queryPageInfoByLine(hangTagSearchDTO, userCompany).getList();
 		List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
+		for (HangTagVoExcel h : hangTagVoExcels) {
+			h.setStatus(HangTagStatusEnum.getTextByCode(h.getStatus()));
+		}
 		ExcelUtils.executorExportExcel(hangTagVoExcels, HangTagVoExcel.class,"吊牌",hangTagSearchDTO.getImgFlag(),2000,response,"washingLabel");
 	}
 

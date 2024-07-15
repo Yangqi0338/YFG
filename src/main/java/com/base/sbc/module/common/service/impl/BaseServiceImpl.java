@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -740,6 +741,16 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Override
     public <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
         return this.list(wrapper.select(function)).stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+    }
+
+    @Override
+    public <K, R> Map<K, R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, K> keyFunction, SFunction<T, R> valueFunction) {
+        return this.list(wrapper.select(keyFunction, valueFunction)).stream().filter(it-> ObjectUtil.isNotEmpty(valueFunction.apply(it))).collect(CommonUtils.toMap(keyFunction,valueFunction));
+    }
+
+    @Override
+    public <R> Map<String, R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return mapOneField(wrapper, T::getId, function);
     }
 
     @Override
