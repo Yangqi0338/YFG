@@ -364,6 +364,7 @@ public class SmpService {
                     msg.add(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
                     taskListDetail.setErrorInfo(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
                     taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
+                    taskListDetailList.add(taskListDetail);
                     continue;
                 }else{
                     throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
@@ -682,6 +683,7 @@ public class SmpService {
                     msg.add(styleColor.getStyleNo()+"尺码不能为空");
                     taskListDetail.setErrorInfo(styleColor.getStyleNo()+"尺码不能为空");
                     taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
+                    taskListDetailList.add(taskListDetail);
                     continue;
                 }else{
                     throw new OtherException("尺码不能为空");
@@ -760,12 +762,13 @@ public class SmpService {
                 styleColor.setScmSendFlag("1");
                 taskListDetail.setErrorInfo("无");
                 taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.SUCCESS.getCode());
+                taskListDetailList.add(taskListDetail);
             } else {
                 styleColor.setScmSendFlag("2");
                 taskListDetail.setErrorInfo("款式打标下发失败，失败原因：" + httpResp.getMessage());
                 taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
+                taskListDetailList.add(taskListDetail);
             }
-            taskListDetailList.add(taskListDetail);
             styleColorService.updateById(styleColor);
         }
         if (ObjectUtil.isNotEmpty(type) && type.equals(1)) {
