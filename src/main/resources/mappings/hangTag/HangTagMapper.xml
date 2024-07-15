@@ -334,54 +334,54 @@
         ORDER BY   tssc.create_date DESC
     </select>
 
-    <select id="queryList0_COUNT" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
-        SELECT count(0) FROM t_pack_info tpi
-        <where>
-            EXISTS( select id from t_pack_info_status ps where tpi.id = ps.foreign_id AND ps.del_flag = '0' and ps.pack_type = 'packBigGoods')
-            and
-            EXISTS(
-            select id from t_style tsd where tsd.id = tpi.foreign_id and tsd.design_no is not null
-            <if test="ew.hasAlias('tsd')">
-                and ${ ew.getSqlByAlias('tsd')}
-            </if>
-            )
-            <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
-                and EXISTS(
-                select id from t_hang_tag ht where tpi.design_no = ht.bulk_style_no
-                and ${ ew.getSqlByAlias('ht')}
-                )
-            </if>
-            <if test="ew.hasAlias('tpi')">
-                and ${ ew.getSqlByAlias('tpi')}
-            </if>
-        </where>
-    </select>
+<!--    <select id="queryList0_COUNT" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">-->
+<!--        SELECT count(0) FROM t_pack_info tpi-->
+<!--        <where>-->
+<!--            EXISTS( select id from t_pack_info_status ps where tpi.id = ps.foreign_id AND ps.del_flag = '0' and ps.pack_type = 'packBigGoods')-->
+<!--            and-->
+<!--            EXISTS(-->
+<!--            select id from t_style tsd where tsd.id = tpi.foreign_id and tsd.design_no is not null-->
+<!--            <if test="ew.hasAlias('tsd')">-->
+<!--                and ${ ew.getSqlByAlias('tsd')}-->
+<!--            </if>-->
+<!--            )-->
+<!--            <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">-->
+<!--                and EXISTS(-->
+<!--                select id from t_hang_tag ht where tpi.design_no = ht.bulk_style_no-->
+<!--                and ${ ew.getSqlByAlias('ht')}-->
+<!--                )-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tpi')">-->
+<!--                and ${ ew.getSqlByAlias('tpi')}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
 
-    <select id="queryList1_COUNT" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
-        SELECT
-        count(0)
-        FROM
-        t_style_color tssc
-        <where>
-            tssc.del_flag = 0
-            AND tssc.company_code = #{dto.companyCode}
-            <if test="ew.hasAlias('tsd')">
-                and EXISTS(
-                select id from t_style tsd where tssc.style_id = tsd.id is not null
-                and ${ ew.getSqlByAlias('tsd')}
-                )
-            </if>
-            <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
-                and EXISTS(
-                select id from t_hang_tag ht where tssc.style_no = ht.bulk_style_no
-                and ${ ew.getSqlByAlias('ht')}
-                )
-            </if>
-            <if test="ew.hasAlias('tssc')">
-                and ${ ew.getSqlByAlias('tssc')}
-            </if>
-        </where>
-    </select>
+<!--    <select id="queryList1_COUNT" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">-->
+<!--        SELECT-->
+<!--        count(0)-->
+<!--        FROM-->
+<!--        t_style_color tssc-->
+<!--        <where>-->
+<!--            tssc.del_flag = 0-->
+<!--            AND tssc.company_code = #{dto.companyCode}-->
+<!--            <if test="ew.hasAlias('tsd')">-->
+<!--                and EXISTS(-->
+<!--                select id from t_style tsd where tssc.style_id = tsd.id is not null-->
+<!--                and ${ ew.getSqlByAlias('tsd')}-->
+<!--                )-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">-->
+<!--                and EXISTS(-->
+<!--                select id from t_hang_tag ht where tssc.style_no = ht.bulk_style_no-->
+<!--                and ${ ew.getSqlByAlias('ht')}-->
+<!--                )-->
+<!--            </if>-->
+<!--            <if test="ew.hasAlias('tssc')">-->
+<!--                and ${ ew.getSqlByAlias('tssc')}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </select>-->
 
     <!-- 备份 -->
     <select id="queryList" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
