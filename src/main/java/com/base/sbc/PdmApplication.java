@@ -15,11 +15,13 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
  */
+@EnableWebMvc
 @EnableAsync
 @RefreshScope
 @SpringBootApplication
