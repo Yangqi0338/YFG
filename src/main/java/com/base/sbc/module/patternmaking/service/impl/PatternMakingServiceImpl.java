@@ -1173,6 +1173,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
         List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
+        List<String> supplierIds = pmList.stream().map(PatternMaking::getSupplierId).distinct().collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(supplierIds)) {
+            List<BasicsdatumSupplier> bySupplierIds = basicsdatumSupplierService.getBySupplierIds(supplierIds);
+            Map<String, String> collect = bySupplierIds.stream().collect(Collectors.toMap(BasicsdatumSupplier::getSupplierCode, BasicsdatumSupplier::getSupplier, (v1, v2) -> v1));
+            for (StyleStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
+                if(StrUtil.isNotEmpty(patternMakingStepVo.getSupplierId()) && collect.containsKey(patternMakingStepVo.getSupplierId())){
+                    patternMakingStepVo.setSupplierName(collect.get(patternMakingStepVo.getSupplierId()));
+                }
+            }
+        }
         // 查询节点状态
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
         nsQw.in("data_id", pmIds);
