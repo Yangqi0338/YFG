@@ -1409,7 +1409,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         //region 临时注释 2024-01-29
         //当按照动态列增强查询时，不按照此排序逻辑
         if(MapUtils.isNotEmpty(dto.getFieldQueryMap()) && dto.getFieldQueryMap().containsKey("designNo") && ("designNo".equals(dto.getFieldQueryMap().get("designNo")) || "designNo".equals(dto.getColumnHeard()))){
-            dto.setOrderBy("s.create_date");
+            dto.setOrderBy("s.create_date desc");
         } else {
             if(StringUtils.isNotBlank(dto.getOrderBy())){
                 dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
