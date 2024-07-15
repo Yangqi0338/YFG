@@ -207,7 +207,7 @@ public class StylePricingController extends BaseController {
                 throw new OtherException("请先商品吊牌确认");
             }
 
-            if ("1".equals(dto.getControlHangtagConfirm()) && (null == stylePricing.getControlPlanCost() || 0 == stylePricing.getControlPlanCost().compareTo(BigDecimal.ZERO))) {
+            if ("1".equals(dto.getProductHangtagConfirm()) && (null == stylePricing.getControlPlanCost() || 0 == stylePricing.getControlPlanCost().compareTo(BigDecimal.ZERO))) {
                 throw new OtherException("请联系计控维护计控实际成本");
 
             }
