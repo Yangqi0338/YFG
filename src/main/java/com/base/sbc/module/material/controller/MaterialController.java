@@ -394,6 +394,18 @@ public class MaterialController extends BaseController {
         return ApiResult.success("查询成功",CollUtil.isEmpty(list) ? null : list.get(0));
     }
 
+    @GetMapping("/listDetails")
+    @ApiOperation(value = "查看详情", notes = "查看详情")
+    public ApiResult listDetails( String id){
+        if (StringUtils.isEmpty(id)){
+            throw new OtherException("查询id不能为空");
+        }
+        MaterialQueryDto materialQueryDto = new MaterialQueryDto();
+        materialQueryDto.setIds(StringUtils.convertList(id));
+        List<MaterialVo> list = materialService.listQuery(materialQueryDto).getList();
+        return ApiResult.success("查询成功",list);
+    }
+
     @PutMapping("/batchUpdate")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "批量更新", notes = "批量更新")
