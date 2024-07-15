@@ -488,22 +488,24 @@ public class OpenSmpController extends BaseController {
             saveList.add(fob);
             ids.add(fob.getId());
         }
-        preProductionSampleTaskFobService.saveOrUpdateBatch(saveList);
+        if(CollUtil.isNotEmpty(saveList)){
+            preProductionSampleTaskFobService.saveOrUpdateBatch(saveList);
 
-        List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listbyHeadId(ids);
-        List<String> dbIds = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).collect(Collectors.toList());
+            List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listbyHeadId(ids);
+            List<String> dbIds = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).collect(Collectors.toList());
 
-        List<PatternMakingBarCode> saveBarCodeList = new ArrayList<>();
-        for (PreProductionSampleTaskFob preProductionSampleTaskFob : saveList) {
-            if(!dbIds.contains(preProductionSampleTaskFob.getId())){
-                PatternMakingBarCode barCode = new PatternMakingBarCode();
-                barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
-                barCode.setStatus("10");
-                barCode.setHeadId(preProductionSampleTaskFob.getId());
-                saveBarCodeList.add(barCode);
+            List<PatternMakingBarCode> saveBarCodeList = new ArrayList<>();
+            for (PreProductionSampleTaskFob preProductionSampleTaskFob : saveList) {
+                if(!dbIds.contains(preProductionSampleTaskFob.getId())){
+                    PatternMakingBarCode barCode = new PatternMakingBarCode();
+                    barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
+                    barCode.setStatus("10");
+                    barCode.setHeadId(preProductionSampleTaskFob.getId());
+                    saveBarCodeList.add(barCode);
+                }
             }
+            patternMakingBarCodeService.saveBatch(saveBarCodeList);
         }
-        patternMakingBarCodeService.saveBatch(saveBarCodeList);
 
         return ApiResult.success("保存成功;"+msg);
     }
