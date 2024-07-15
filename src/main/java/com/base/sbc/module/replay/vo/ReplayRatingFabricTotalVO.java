@@ -54,6 +54,7 @@ public class ReplayRatingFabricTotalVO {
     /** 使用米数 */
     @ApiModelProperty(value = "使用米数")
     public BigDecimal getRealProduction() {
+        if (production == null) return null;
         return unitConverter.calculate(BigDecimalUtil.mul(production, bulkUnitUse));
     }
 

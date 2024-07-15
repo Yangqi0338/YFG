@@ -133,8 +133,8 @@ public class ReplayRatingVO extends ReplayRating {
     }
 
     protected StrJoiner categoryNameJoiner() {
-        return StrJoiner.of("\n").setNullMode(StrJoiner.NullMode.IGNORE).append(planningSeasonName).append(bandName).append(
-                StrJoiner.of("/").append(prodCategory1stName).append(prodCategoryName).append(prodCategory2ndName).append(prodCategory3rdName)
+        return StrJoiner.of("\n").setNullMode(StrJoiner.NullMode.TO_EMPTY).append(planningSeasonName).append(bandName).append(
+                StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE).append(prodCategory1stName).append(prodCategoryName).append(prodCategory2ndName).append(prodCategory3rdName)
         );
     }
 

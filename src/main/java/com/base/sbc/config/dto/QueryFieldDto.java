@@ -1,6 +1,7 @@
 package com.base.sbc.config.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import lombok.Data;
 
 import java.util.List;
@@ -29,4 +30,9 @@ public class QueryFieldDto extends Page {
 
     // 是否列头匹配
     private boolean columnGroupSearch;
+
+    public void notRequiredDownloadImage() {
+        YesOrNoEnum rightStatus = YesOrNoEnum.YES;
+        if (imgFlag.equals(rightStatus.getValueStr())) imgFlag = (rightStatus.getValue() + 1) + "";
+    }
 }

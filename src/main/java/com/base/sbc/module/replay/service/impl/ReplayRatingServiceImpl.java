@@ -124,7 +124,6 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -263,7 +262,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         if (dto.getType() != ReplayRatingType.STYLE) {
             qw.notEmptyEq("tpb.material_code", dto.getMaterialCode());
         }
-        qw.exists(StrUtil.isNotBlank(dto.getSilhouette()), dto.getSilhouetteSql(), dto.getGroupName(), dto.getFieldExplain(), dto.getSilhouette());
+        qw.exists(StrUtil.isNotBlank(dto.getSilhouetteName()), dto.getSilhouetteSql(), dto.getGroupName(), dto.getFieldExplain(), dto.getSilhouetteName());
         qw.exists(StrUtil.isNotBlank(dto.getMaterialCode()), dto.getMaterialCodeSql(), dto.getMaterialCode());
         qw.notEmptyEq("tpb.supplier_id", dto.getSupplierId());
         qw.notEmptyEq("tpl.color", dto.getColorCode());
@@ -277,7 +276,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         qo.setFieldExplain("廓形及代码");
         BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
         QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
-        Page<? extends ReplayRatingVO> page = PageHelper.startPage(qo);
+        Page<? extends ReplayRatingVO> page = qo.startPage();
         Map<String, Object> totalMap = new HashMap<>();
         switch (qo.getType()) {
             case STYLE:
@@ -286,7 +285,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 break;
             case PATTERN:
                 decoratePatternList(baseMapper.queryPatternList(queryWrapper, qo), qo);
-                ReplayRatingPatternTotalVO totalPatternVO = REPLAY_CV.bean2PatternVO(page.getAttributes());
+                ReplayRatingPatternTotalVO totalPatternVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingPatternTotalVO.class);
                 if (qo.needSpecialTotalSum()) {
                     String bulkStyleNo = totalPatternVO.getBulkStyleNo();
                     if (StrUtil.isBlank(bulkStyleNo)) break;
@@ -305,15 +304,15 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             case FABRIC:
                 if (!qo.isColumnGroupSearch()) {
                     queryWrapper.groupBy("tpb.material_code", "tpb.foreign_id");
-                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
+//                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
                 }
                 decorateFabricList(baseMapper.queryFabricList(queryWrapper, qo), qo);
-                ReplayRatingFabricTotalVO totalFabricVO = REPLAY_CV.bean2FabricVO(page.getAttributes());
+                ReplayRatingFabricTotalVO totalFabricVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingFabricTotalVO.class);
                 if (qo.needSpecialTotalSum()) {
                     String bulkStyleNo = totalFabricVO.getBulkStyleNo();
                     List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
                             .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
-                            .eq(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
+                            .in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
                             .select(SaleFac::getNum)
                     );
                     totalFabricVO.setProduction(CommonUtils.sumBigDecimal(saleFacList, SaleFac::getNum));
@@ -334,7 +333,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     private <T extends ReplayRatingVO> List<T> decorateList(List<T> list, ReplayRatingQO qo) {
-        if (qo.isColumnGroupSearch() || CollUtil.isEmpty(list)) return new ArrayList<>();
+        if (qo.isColumnGroupSearch()) return list;
         Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(
                 new LambdaQueryWrapper<PlanningSeason>().in(PlanningSeason::getId, list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList())), PlanningSeason::getId, PlanningSeason::getName);
         stylePicUtils.setStyleColorPic2(list);
@@ -343,8 +342,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     private void decorateStyleList(List<ReplayRatingStyleVO> styleVOList, ReplayRatingQO qo) {
-        styleVOList = decorateList(styleVOList, qo);
         if (CollUtil.isEmpty(styleVOList)) return;
+        decorateList(styleVOList, qo);
 
         Map<String, String> patternIdMap = patternLibraryService.mapOneField(new LambdaQueryWrapper<PatternLibrary>()
                         .eq(PatternLibrary::getStyleId, styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList()))
@@ -373,8 +372,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     private void decoratePatternList(List<ReplayRatingPatternVO> patternVOList, ReplayRatingQO qo) {
-        patternVOList = decorateList(patternVOList, qo);
         if (CollUtil.isEmpty(patternVOList)) return;
+        decorateList(patternVOList, qo);
 
         List<String> bulkStyleNoList = patternVOList.stream().map(ReplayRatingPatternVO::getBulkStyleNo).collect(Collectors.toList());
 
@@ -437,6 +436,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     private void decorateFabricList(List<ReplayRatingFabricVO> fabricVOList, ReplayRatingQO qo) {
+        if (qo.isColumnGroupSearch() || CollUtil.isEmpty(fabricVOList)) return;
+
         /* ----------------------------大货款维度数据---------------------------- */
         List<String> styleColorIdList = fabricVOList.stream().map(ReplayRatingFabricVO::getStyleColorId).collect(Collectors.toList());
         if (CollUtil.isEmpty(styleColorIdList)) return;
@@ -446,8 +447,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             fabric.setStyleColorPic(styleColorPicMap.getOrDefault(fabric.getStyleColorId(), ""));
         });
 
-        fabricVOList = decorateList(fabricVOList, qo);
-        if (CollUtil.isEmpty(fabricVOList)) return;
+        decorateList(fabricVOList, qo);
 
         /* ----------------------------面料自主研发 + 剩余备料---------------------------- */
         AtomicInteger remainingMaterial = new AtomicInteger(100);
@@ -566,6 +566,10 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         if (StrUtil.isBlank(result.getFabricComposition())) {
             qo.setFieldExplain("面料成分");
             decorateFieldVal(Collections.singletonList(result), qo, ReplayRatingStyleDTO::getStyleId, ReplayRatingStyleDTO::setFabricComposition, ReplayRatingStyleDTO::setFabricComposition);
+        }
+        if (StrUtil.isBlank(result.getPositioning())) {
+            qo.setFieldExplain("款式定位");
+            decorateFieldVal(Collections.singletonList(result), qo, ReplayRatingStyleDTO::getStyleId, ReplayRatingStyleDTO::setPositioning, ReplayRatingStyleDTO::setPositioningName);
         }
 
         // 设置能否跳到版型复盘
@@ -1188,6 +1192,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     public void exportExcel(ReplayRatingQO qo) {
         /* 查询吊牌数据 */
         qo.setFindTotalFlag(YesOrNoEnum.NO);
+        qo.notRequiredDownloadImage();
         qo.reset2QueryList();
         List<? extends ReplayRatingVO> list = queryPageInfo(qo).getList();
         ExcelUtils.exportExcelByTableCode(list, qo.getType().getText(), qo);

@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.column.entity.ColumnDefine;
@@ -731,6 +732,23 @@ public class ExcelUtils {
                 throw new OtherException(e.getMessage());
             } finally {
                 executor.shutdown();
+            }
+        }
+        if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), (YesOrNoEnum.YES.getValue() + 1) + "")) {
+            try {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
+                        String imgColumn = entry.getKey();
+                        jsonObject.put(imgColumn + "1", HttpUtil.downloadBytes(jsonObject.getString(imgColumn)));
+                    }
+                }
+            } catch (Exception e) {
+                throw new OtherException(e.getMessage());
             }
         }
         defaultExport(jsonArray, fileName, response, exportParams, excelParams);

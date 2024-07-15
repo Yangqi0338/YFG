@@ -83,8 +83,12 @@ public class Page implements Serializable {
         return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(this.getPageNum(), this.getPageSize());
     }
 
+    public boolean countCal() {
+        return true;
+    }
+
     public <E> com.github.pagehelper.Page<E> startPage(){
-        return startPage(true);
+        return startPage(countCal());
     }
 
     public <E> com.github.pagehelper.Page<E> startPage(boolean countCal) {

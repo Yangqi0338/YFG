@@ -32,7 +32,7 @@ public class ReplayRatingPatternTotalVO {
 
     /** 当季销售件数 */
     @ApiModelProperty(value = "当季销售件数")
-    private BigDecimal seasonSaleCount = BigDecimal.ZERO;
+    private BigDecimal seasonSaleCount;
 
     /** 当季投产件数(SCM) */
     @ApiModelProperty(value = "当季投产件数(SCM)")
@@ -53,7 +53,8 @@ public class ReplayRatingPatternTotalVO {
 
     /** 当季产销比 */
     public String getSeasonProductionSaleRate() {
-        return BigDecimalUtil.dividePercentage(seasonProductionCount, seasonSaleCount) + "%";
+        if (seasonSaleCount == null || seasonProductionCount == null) return null;
+        return BigDecimalUtil.dividePercentage(seasonSaleCount, seasonProductionCount) + "%";
     }
 
     /** 版型成功率 */

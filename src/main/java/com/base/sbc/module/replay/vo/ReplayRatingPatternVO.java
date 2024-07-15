@@ -92,7 +92,7 @@ public class ReplayRatingPatternVO extends ReplayRatingVO {
 
     /** 当季产销比 */
     public String getSeasonProductionSaleRate() {
-        return BigDecimalUtil.dividePercentage(seasonProductionCount, seasonSaleCount) + "%";
+        return BigDecimalUtil.dividePercentage(seasonSaleCount, seasonProductionCount) + "%";
     }
 
     /** 版型成功率 */
