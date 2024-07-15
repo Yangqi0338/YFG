@@ -48,13 +48,16 @@ public class ReplayConfigServiceImpl extends BaseServiceImpl<ReplayConfigMapper,
 
     @Override
     public PageInfo<ReplayConfigDTO> queryPageInfo(ReplayConfigQO qo) {
+        // 构建查询
         Page<ReplayConfig> page = qo.startPage();
         LambdaQueryWrapper<ReplayConfig> qw = new BaseLambdaQueryWrapper<ReplayConfig>()
                 .notEmptyEq(ReplayConfig::getBrand, qo.getBrand())
                 .notEmptyIn(ReplayConfig::getBrandName, qo.getBrandName());
         List<ReplayConfig> list = this.list(qw);
+        // 如果有品牌查询,直接查询库,而不会出现未生成配置的数据,所以不走下面的拼接逻辑
         if (StrUtil.isBlank(qo.getBrand())) {
             List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(brandDictKey);
+            // 将不存在数据库的数据进行拼接
             List<ReplayConfig> extendReplayConfig = dictInfoToList.stream().filter(dict -> list.stream().noneMatch(it -> dict.getValue().equals(it.getBrand()))).map(dict -> {
                 ReplayConfig replayConfig = new ReplayConfig();
                 replayConfig.setBrand(dict.getValue());
@@ -68,6 +71,7 @@ public class ReplayConfigServiceImpl extends BaseServiceImpl<ReplayConfigMapper,
 
     @Override
     public ReplayConfigDTO getDetailByBrand(String brand) {
+        // 根据品牌获取详情
         List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(brandDictKey);
         BasicBaseDict dict = dictInfoToList.stream().filter(it -> it.getValue().equals(brand)).findFirst().orElseThrow(() -> new OtherException("错误的品牌"));
         ReplayConfig replayConfig = this.findOne(new LambdaQueryWrapper<ReplayConfig>().eq(ReplayConfig::getBrand, dict.getValue()));

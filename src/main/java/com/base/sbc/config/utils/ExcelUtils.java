@@ -744,7 +744,7 @@ public class ExcelUtils {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
                         String imgColumn = entry.getKey();
-                        jsonObject.put(imgColumn + "1", HttpUtil.downloadBytes(jsonObject.getString(imgColumn)));
+                        jsonObject.put(imgColumn + "1", jsonObject.getString(imgColumn));
                     }
                 }
             } catch (Exception e) {

@@ -7,6 +7,8 @@
 package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
+import com.base.sbc.module.replay.dto.ProductionSaleDTO;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,6 +41,11 @@ public class ReplayRatingStyleVO extends ReplayRatingVO {
      */
     @ApiModelProperty(value = "跳转版型id")
     private String gotoPatternId;
+
+    /** 生产销售 */
+    @ApiModelProperty(value = "生产销售")
+    @JsonUnwrapped
+    private ProductionSaleDTO productionSaleDTO;
 
     @Override
     public ReplayRatingType getType() {

@@ -182,24 +182,6 @@ public class ReplayRatingStyleDTO extends ReplayRatingSaveDTO {
 
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    public static class ProductionSaleDTO extends ReplayRatingProductionSaleDTO {
-
-        /** 尺码 */
-        @ApiModelProperty(value = "尺码")
-        private String sizeName;
-
-        /** 投产次数 */
-        @ApiModelProperty(value = "投产次数")
-        private Integer productionCount = 0;
-
-        /** 库存款 */
-        @ApiModelProperty(value = "库存款")
-        private Integer storageCount = 0;
-
-    }
-
     @Data
     public static class ProductionInfoDTO {
 

@@ -61,7 +61,7 @@ public class ReplayRatingSaveDTO extends ReplayRating {
     }
 
     @JsonAnySetter
-    public void docrateWebDTO(String key, Object obj) {
+    public void decorateWebDTO(String key, Object obj) {
         getDetailListMap().forEach((replayRatingDetailType, replayRatingDetailListDTO) -> {
             if (replayRatingDetailType.getCode().equals(key) && obj.getClass().isAssignableFrom(ReplayRatingDetailList.class)) {
                 List<?> list = (List<?>) obj;

@@ -35,7 +35,7 @@ public interface ReplayRatingMapper extends BaseMapper<ReplayRating> {
 
     List<ReplayRatingStyleVO> queryStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
-    List<ReplayRatingStyleVO> queryStyleList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
+    List<Map<String, Object>> queryStyleList_COUNT(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 
     List<ReplayRatingPatternVO> queryPatternList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("qo") ReplayRatingQO qo);
 

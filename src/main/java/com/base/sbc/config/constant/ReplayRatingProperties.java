@@ -1,5 +1,7 @@
 package com.base.sbc.config.constant;
 
+import com.base.sbc.config.enums.UnitConverterEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.module.pack.utils.PackUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,11 +25,56 @@ public class ReplayRatingProperties {
     public static final String PREFIX = "replay";
 
     public static String category1Code = "C4241";
+    public static String yearCodeSuffix = ".0";
+    public static String yearNameSuffix = "年";
+    public static Integer monthRange = 1;
+    public static UnitConverterEnum cmtUnit = UnitConverterEnum.KILOMETER;
+    public static UnitConverterEnum fobUnit = UnitConverterEnum.PIECE;
+    public static String totalPrefix = "total";
+    public static String longTimeAgoPrefix = "longTimeAgo";
+    public static String noMaterialCode = "0000";
+    public static OrderBookDetailOrderStatusEnum orderBookStatus = OrderBookDetailOrderStatusEnum.ORDER;
     public static String packType = PackUtils.PACK_TYPE_BIG_GOODS;
     public static int[] years = IntStream.rangeClosed(Year.now().minusYears(2).getValue(), Year.now().getValue()).toArray();
 
     public void setCategory1Code(String category1Code) {
         ReplayRatingProperties.category1Code = category1Code;
+    }
+
+    public void setYearCodeSuffix(String yearCodeSuffix) {
+        ReplayRatingProperties.yearCodeSuffix = yearCodeSuffix;
+    }
+
+    public void setYearNameSuffix(String yearNameSuffix) {
+        ReplayRatingProperties.yearNameSuffix = yearNameSuffix;
+    }
+
+    public void setMonthRange(Integer monthRange) {
+        ReplayRatingProperties.monthRange = monthRange;
+    }
+
+    public void setCmtUnit(UnitConverterEnum cmtUnit) {
+        ReplayRatingProperties.cmtUnit = cmtUnit;
+    }
+
+    public void setFobUnit(UnitConverterEnum fobUnit) {
+        ReplayRatingProperties.fobUnit = fobUnit;
+    }
+
+    public void setTotalPrefix(String totalPrefix) {
+        ReplayRatingProperties.totalPrefix = totalPrefix;
+    }
+
+    public void setLongTimeAgoPrefix(String longTimeAgoPrefix) {
+        ReplayRatingProperties.longTimeAgoPrefix = longTimeAgoPrefix;
+    }
+
+    public void setNoMaterialCode(String noMaterialCode) {
+        ReplayRatingProperties.noMaterialCode = noMaterialCode;
+    }
+
+    public void setOrderBookStatus(OrderBookDetailOrderStatusEnum orderBookStatus) {
+        ReplayRatingProperties.orderBookStatus = orderBookStatus;
     }
 
     public void setPackType(String packType) {

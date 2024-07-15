@@ -47,6 +47,10 @@ public class ReplayRatingFabricVO extends ReplayRatingVO {
     @ApiModelProperty(value = "面料编号")
     private String materialCode;
 
+    /** 面料图片 */
+    @ApiModelProperty(value = "面料图片")
+    private String imageUrl;
+
     /** 面料成分 */
     @ApiModelProperty(value = "面料成分")
     private String ingredient;

@@ -33,6 +33,6 @@ public class QueryFieldDto extends Page {
 
     public void notRequiredDownloadImage() {
         YesOrNoEnum rightStatus = YesOrNoEnum.YES;
-        if (imgFlag.equals(rightStatus.getValueStr())) imgFlag = (rightStatus.getValue() + 1) + "";
+        if (rightStatus.getValueStr().equals(imgFlag)) imgFlag = (rightStatus.getValue() + 1) + "";
     }
 }

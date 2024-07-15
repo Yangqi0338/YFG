@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@code 描述：全量标准表类型}
@@ -37,6 +39,14 @@ public enum SaleFacResultType {
 
     public static SaleFacResultType startByCode(String code) {
         return Arrays.stream(SaleFacResultType.values()).filter(it -> code.startsWith(it.code)).findFirst().orElse(null);
+    }
+
+    public static List<SaleFacResultType> productionList() {
+        return Arrays.stream(SaleFacResultType.values()).filter(it -> it.name().contains("PRODUCTION")).collect(Collectors.toList());
+    }
+
+    public static List<SaleFacResultType> saleList() {
+        return Arrays.stream(SaleFacResultType.values()).filter(it -> it.name().contains("SALE")).collect(Collectors.toList());
     }
 
     @JsonValue

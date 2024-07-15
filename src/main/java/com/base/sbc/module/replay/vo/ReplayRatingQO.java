@@ -7,10 +7,11 @@
 package com.base.sbc.module.replay.vo;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.ReplayRatingProperties;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
-import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -58,14 +59,6 @@ public class ReplayRatingQO extends QueryFieldDto {
     /** 小类code */
     @ApiModelProperty(value = "小类code")
     private String prodCategory3rd;
-
-    /** 企划等级 */
-    @ApiModelProperty(value = "企划等级")
-    private SluggishSaleLevelEnum planningLevel;
-
-    /** 销售等级 */
-    @ApiModelProperty(value = "销售等级")
-    private SluggishSaleLevelEnum saleLevel;
 
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号")
@@ -120,6 +113,19 @@ public class ReplayRatingQO extends QueryFieldDto {
 
     @ApiModelProperty(value = "字段说明")
     private String fieldExplain;
+
+    /** 物料分类 */
+    @ApiModelProperty(value = "物料分类")
+    private String category1Code = ReplayRatingProperties.category1Code;
+
+    /** 非物料编码 */
+    @ApiModelProperty(value = "非物料编码")
+    private String noMaterialCode = ReplayRatingProperties.noMaterialCode;
+
+    /** 非物料编码 */
+    @ApiModelProperty(value = "订货本下单状态")
+    private OrderBookDetailOrderStatusEnum orderBookStatus = ReplayRatingProperties.orderBookStatus;
+
 
     public String getMaterialCodeSql() {
         return "select 1 from t_pack_bom tpb left join t_pack_info tpi ON tpi.id = tpb.foreign_id " +

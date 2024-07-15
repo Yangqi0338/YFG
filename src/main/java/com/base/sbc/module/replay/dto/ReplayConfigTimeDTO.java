@@ -49,6 +49,9 @@ public class ReplayConfigTimeDTO {
         this.season = season;
     }
 
+    /**
+     * 重写toString 为了复盘管理的列表显示,前端可以直接使用这个字符串
+     */
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月");

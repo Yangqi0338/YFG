@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.dto;
 
+import com.base.sbc.config.constant.ReplayRatingProperties;
 import com.base.sbc.config.enums.UnitConverterEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
@@ -99,10 +100,10 @@ public class ReplayRatingFabricDTO extends ReplayRatingSaveDTO {
     private List<Integer> yearList;
     /** cmt单位 */
     @ApiModelProperty(value = "cmt单位")
-    private UnitConverterEnum cmtUnit;
+    private UnitConverterEnum cmtUnit = ReplayRatingProperties.cmtUnit;
     /** fob单位 */
     @ApiModelProperty(value = "fob单位")
-    private UnitConverterEnum fobUnit;
+    private UnitConverterEnum fobUnit = ReplayRatingProperties.fobUnit;
 
     public List<String> getYears() {
         return yearList.stream().map(it -> it + "年").collect(Collectors.toList());

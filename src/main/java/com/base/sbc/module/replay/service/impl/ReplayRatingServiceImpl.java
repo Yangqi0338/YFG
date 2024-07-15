@@ -19,6 +19,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.constant.BusinessProperties;
+import com.base.sbc.config.constant.FieldValProperties;
 import com.base.sbc.config.constant.ReplayRatingProperties;
 import com.base.sbc.config.enums.UnitConverterEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -73,6 +74,7 @@ import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.replay.dto.ProductionSaleDTO;
 import com.base.sbc.module.replay.dto.ReplayConfigDTO;
 import com.base.sbc.module.replay.dto.ReplayConfigDetailDTO;
 import com.base.sbc.module.replay.dto.ReplayConfigTimeDTO;
@@ -82,7 +84,6 @@ import com.base.sbc.module.replay.dto.ReplayRatingPatternDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingSaveDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO.ProductionInfoDTO;
-import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO.ProductionSaleDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO.SaleLevelDTO;
 import com.base.sbc.module.replay.dto.ReplayRatingStyleDTO.SupplierInfo;
 import com.base.sbc.module.replay.dto.ReplayRatingTransferDTO;
@@ -102,6 +103,7 @@ import com.base.sbc.module.replay.vo.ReplayRatingPageVO;
 import com.base.sbc.module.replay.vo.ReplayRatingPatternTotalVO;
 import com.base.sbc.module.replay.vo.ReplayRatingPatternVO;
 import com.base.sbc.module.replay.vo.ReplayRatingQO;
+import com.base.sbc.module.replay.vo.ReplayRatingStyleTotalVO;
 import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearQO;
@@ -148,7 +150,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.enums.UnitConverterEnum.KILOMETER;
 import static com.base.sbc.module.common.convert.ConvertContext.BI_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.REPLAY_CV;
 import static com.base.sbc.module.replay.dto.ReplayRatingFabricDTO.FabricMonthDataDto;
@@ -272,70 +273,106 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Override
     public ReplayRatingPageVO<? extends ReplayRatingVO> queryPageInfo(ReplayRatingQO qo) {
+        // 设置廓形请求参
         qo.setGroupName(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-        qo.setFieldExplain("廓形及代码");
+        qo.setFieldExplain(FieldValProperties.silhouette);
+        // 构建基础ew
         BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
+        // 加入动态列和数据权限
         QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
+        // 开启分页
         Page<? extends ReplayRatingVO> page = qo.startPage();
         Map<String, Object> totalMap = new HashMap<>();
         switch (qo.getType()) {
             case STYLE:
+                // 单款复盘以设计款排序
                 queryWrapper.orderByAsc("tsc.design_no");
+                // 装饰列表
                 decorateStyleList(baseMapper.queryStyleList(queryWrapper, qo), qo);
+                // 会从queryStyleList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
+                ReplayRatingStyleTotalVO totalStyleVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingStyleTotalVO.class);
+                if (qo.needSpecialTotalSum()) {
+                    // 根据大货款号获取生产销售数据
+                    String bulkStyleNo = totalStyleVO.getBulkStyleNo();
+                    if (StrUtil.isBlank(bulkStyleNo)) break;
+                    SaleFacQO saleFacQO = new SaleFacQO();
+                    saleFacQO.setBulkStyleNo(bulkStyleNo);
+                    List<ProductionSaleDTO> productionSaleList = findProductionSaleList(saleFacQO);
+                    // 直接通过多个计算合计
+                    totalStyleVO.decorateTotal(productionSaleList);
+                }
+                // 最后将汇总实体类转成map
+                if (totalStyleVO != null) totalMap.putAll(BeanUtil.beanToMap(totalStyleVO));
                 break;
             case PATTERN:
+                // 装饰列表
                 decoratePatternList(baseMapper.queryPatternList(queryWrapper, qo), qo);
+                // 会从queryPatternList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
                 ReplayRatingPatternTotalVO totalPatternVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingPatternTotalVO.class);
+                // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
                 if (qo.needSpecialTotalSum()) {
+                    // 根据大货款号获取生产销售数据
                     String bulkStyleNo = totalPatternVO.getBulkStyleNo();
                     if (StrUtil.isBlank(bulkStyleNo)) break;
                     List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
                             .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
                             .select(SaleFac::getProductionType, SaleFac::getNum)
                     );
+                    // 判断其是否投产,设置到对应的合计数据
                     saleFacList.stream().collect(Collectors.groupingBy(SaleFac::isProduction)).forEach((isProduction, sameTypeList) -> {
                         BigDecimal sum = CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum);
                         if (isProduction) totalPatternVO.setSeasonProductionCount(sum);
                         else totalPatternVO.setSeasonSaleCount(sum);
                     });
                 }
-                totalMap.putAll(BeanUtil.beanToMap(totalPatternVO));
+                // 最后将汇总实体类转成map
+                if (totalPatternVO != null) totalMap.putAll(BeanUtil.beanToMap(totalPatternVO));
                 break;
             case FABRIC:
+                // 若不是动态列,加入groupBy
                 if (!qo.isColumnGroupSearch()) {
                     queryWrapper.groupBy("tpb.material_code", "tpb.foreign_id");
 //                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
                 }
+                // 装饰列表
                 decorateFabricList(baseMapper.queryFabricList(queryWrapper, qo), qo);
+                // 会从queryFabricList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
                 ReplayRatingFabricTotalVO totalFabricVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingFabricTotalVO.class);
+                // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
                 if (qo.needSpecialTotalSum()) {
+                    // 根据大货款号获取生产数据
                     String bulkStyleNo = totalFabricVO.getBulkStyleNo();
+                    if (StrUtil.isBlank(bulkStyleNo)) break;
                     List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
                             .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
-                            .in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
+                            .in(SaleFac::getResultType, SaleFacResultType.productionList())
                             .select(SaleFac::getNum)
                     );
                     totalFabricVO.setProduction(CommonUtils.sumBigDecimal(saleFacList, SaleFac::getNum));
                     // TODO
                     totalFabricVO.setRemainingMaterial(new BigDecimal(Integer.MAX_VALUE));
                 }
-                totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
+                if (totalFabricVO != null) totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
                 break;
             default:
                 throw new UnsupportedOperationException("不受支持的复盘类型");
         }
-
         PageInfo<? extends ReplayRatingVO> pageInfo = page.toPageInfo();
 
+        // 设置汇总数据,通过JsonAnyGetter平铺数据
         ReplayRatingPageVO<? extends ReplayRatingVO> pageVo = BeanUtil.copyProperties(pageInfo, ReplayRatingPageVO.class);
         pageVo.setTotalMap(totalMap);
         return pageVo;
     }
 
     private <T extends ReplayRatingVO> List<T> decorateList(List<T> list, ReplayRatingQO qo) {
+        // 若是动态列, 直接返回
         if (qo.isColumnGroupSearch()) return list;
-        Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(
-                new LambdaQueryWrapper<PlanningSeason>().in(PlanningSeason::getId, list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList())), PlanningSeason::getId, PlanningSeason::getName);
+        // 获取产品季名字和大货款图
+        List<String> planningSeasonIdList = list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList());
+        Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(new LambdaQueryWrapper<PlanningSeason>()
+                        .in(PlanningSeason::getId, planningSeasonIdList)
+                , PlanningSeason::getId, PlanningSeason::getName);
         stylePicUtils.setStyleColorPic2(list);
         list.forEach(it -> it.setPlanningSeasonName(planningSeasonNameMap.getOrDefault(it.getPlanningSeasonId(), "")));
         return list;
@@ -343,36 +380,52 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     private void decorateStyleList(List<ReplayRatingStyleVO> styleVOList, ReplayRatingQO qo) {
         if (CollUtil.isEmpty(styleVOList)) return;
+        // 先普通装饰
         decorateList(styleVOList, qo);
 
+        // 获取版型id 用于版型复盘跳转
+        List<String> styleIdList = styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList());
         Map<String, String> patternIdMap = patternLibraryService.mapOneField(new LambdaQueryWrapper<PatternLibrary>()
-                        .eq(PatternLibrary::getStyleId, styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList()))
+                        .in(PatternLibrary::getStyleId, styleIdList)
                 , PatternLibrary::getStyleId, PatternLibrary::getId);
+
+        SaleFacQO saleFacQO = new SaleFacQO();
+        saleFacQO.setBulkStyleNo(styleVOList.stream().map(ReplayRatingStyleVO::getBulkStyleNo).collect(Collectors.joining(COMMA)));
+        List<ProductionSaleDTO> productionSaleList = findProductionSaleList(saleFacQO);
         styleVOList.forEach(styleDTO -> {
             // 版型id
             styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
+            // 获取所有销售记录
+            styleDTO.setProductionSaleDTO(new ProductionSaleDTO().decorateTotal(
+                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList()))
+            );
         });
     }
 
+    /**
+     * 根据某个key,获取维度数据,并将val和valName设置到对应的值上
+     */
     private <T> void decorateFieldVal(List<T> sourceList, QueryFieldManagementDto qo, Function<T, String> keyFunc, BiConsumer<T, String> codeSetFunc, BiConsumer<T, String> nameSetFunc) {
         List<FieldVal> fieldValList = fieldValService.list(new BaseLambdaQueryWrapper<FieldVal>()
                 .in(FieldVal::getForeignId, sourceList.stream().map(keyFunc).collect(Collectors.toList()))
                 .eq(FieldVal::getDataGroup, qo.getGroupName())
                 .eq(FieldVal::getFieldExplain, qo.getFieldExplain())
         );
-        sourceList.forEach(pattern -> {
+        sourceList.forEach(source -> {
+            // 获取时间最新的
             fieldValList.stream()
-                    .filter(it -> it.getForeignId().equals(keyFunc.apply(pattern)))
+                    .filter(it -> it.getForeignId().equals(keyFunc.apply(source)))
                     .max(Comparator.comparing(FieldVal::getUpdateDate))
                     .ifPresent(fieldVal -> {
-                        nameSetFunc.accept(pattern, fieldVal.getValName());
-                        codeSetFunc.accept(pattern, fieldVal.getVal());
+                        nameSetFunc.accept(source, fieldVal.getValName());
+                        codeSetFunc.accept(source, fieldVal.getVal());
                     });
         });
     }
 
     private void decoratePatternList(List<ReplayRatingPatternVO> patternVOList, ReplayRatingQO qo) {
         if (CollUtil.isEmpty(patternVOList)) return;
+        // 先普通装饰
         decorateList(patternVOList, qo);
 
         List<String> bulkStyleNoList = patternVOList.stream().map(ReplayRatingPatternVO::getBulkStyleNo).collect(Collectors.toList());
@@ -442,10 +495,12 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         List<String> styleColorIdList = fabricVOList.stream().map(ReplayRatingFabricVO::getStyleColorId).collect(Collectors.toList());
         if (CollUtil.isEmpty(styleColorIdList)) return;
         Map<String, String> styleColorPicMap = styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
-                .in(StyleColor::getId, styleColorIdList), StyleColor::getId, StyleColor::getStyleColorPic);
+                        .in(StyleColor::getId, styleColorIdList)
+                , StyleColor::getId, StyleColor::getStyleColorPic);
         fabricVOList.forEach(fabric -> {
             fabric.setStyleColorPic(styleColorPicMap.getOrDefault(fabric.getStyleColorId(), ""));
         });
+        stylePicUtils.setStyleColorPic2(fabricVOList, "imageUrl");
 
         decorateList(fabricVOList, qo);
 
@@ -454,7 +509,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         AtomicInteger fabricOwnDevelopFlagAtomic = new AtomicInteger();
         fabricVOList.forEach(fabric -> {
             int increment = fabricOwnDevelopFlagAtomic.getAndIncrement();
+            // 是否交替 TODO
             fabric.setFabricOwnDevelopFlag(YesOrNoEnum.findByValue(increment < 2 ? increment : (increment / 2) % 2));
+            // TODO
             fabric.setRemainingMaterial(BigDecimal.valueOf(remainingMaterial.getAndIncrement()));
         });
 
@@ -462,7 +519,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         List<String> bulkStyleNoList = fabricVOList.stream().map(ReplayRatingFabricVO::getBulkStyleNo).collect(Collectors.toList());
         if (CollUtil.isEmpty(bulkStyleNoList)) return;
         List<SaleFac> saleFacList = saleFacMapper.selectList(new LambdaQueryWrapper<SaleFac>().in(SaleFac::getBulkStyleNo, bulkStyleNoList)
-                .in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
+                .in(SaleFac::getResultType, SaleFacResultType.productionList())
                 .select(SaleFac::getBulkStyleNo, SaleFac::getNum)
         );
         fabricVOList.forEach(fabric -> {
@@ -474,6 +531,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String doSave(ReplayRatingSaveDTO replayRatingSaveDTO) {
+        /* ----------------------------保存主体---------------------------- */
         String id = replayRatingSaveDTO.getId();
         ReplayRating replayRating = new ReplayRating();
         if (StrUtil.isNotBlank(id)) {
@@ -484,27 +542,35 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
         this.saveOrUpdate(replayRating);
 
+        /* ----------------------------保存评分和后续改善---------------------------- */
         String replayRatingId = replayRating.getId();
 
         List<ReplayRatingDetail> replayRatingDetailList = replayRatingDetailService.list(new LambdaQueryWrapper<ReplayRatingDetail>()
                 .eq(ReplayRatingDetail::getReplayRatingId, replayRatingId));
 
+        // 根据详情类型分割
         replayRatingSaveDTO.getDetailListMap().forEach((replayRatingDetailType, replayRatingDetailListDTO) -> {
-            // 获取跟进人
             List<ReplayRatingDetail> newReplayRatingDetailList = replayRatingDetailListDTO.stream().map(replayRatingDetailDTO -> {
+                // 数据库存在的 > 新创建
                 ReplayRatingDetail newReplayRatingDetail = replayRatingDetailList.stream()
                         .filter(it -> it.getId().equals(replayRatingDetailDTO.getId())).findFirst().orElse(new ReplayRatingDetail());
+                // 移除数据库数据
                 replayRatingDetailList.remove(newReplayRatingDetail);
 
+                // 修正详情数据
                 replayRatingDetailDTO.setType(replayRatingDetailType);
                 replayRatingDetailDTO.setReplayRatingId(replayRatingId);
                 REPLAY_CV.copy(newReplayRatingDetail, replayRatingDetailDTO);
                 newReplayRatingDetail.updateInit();
+
+                // 发送钉钉消息
+//                MessageSendClient.dingMsg(ReplayRatingProperties.dingMsgCode,ReplayRatingProperties.dingMsgContent,
+//                        Arrays.asList(replayRatingDetailDTO.getUserId(), replayRatingDetailDTO.getFollowUserId()));
                 return newReplayRatingDetail;
             }).collect(Collectors.toList());
             replayRatingDetailService.saveOrUpdateBatch(newReplayRatingDetailList);
         });
-
+        // 移除修改后需要删除的数据
         if (CollUtil.isNotEmpty(replayRatingDetailList)) {
             replayRatingDetailService.removeByIds(replayRatingDetailList);
         }
@@ -514,7 +580,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Override
     public ReplayRatingStyleDTO getStyleById(String styleColorId) {
-        // 获取主表数据
+        /* ----------------------------获取大货款/设计款/复盘评分/复盘管理---------------------------- */
         styleColorService.warnMsg("未找到对应大货款");
         StyleColor styleColor = styleColorService.findOne(styleColorId);
         styleColor.setStyleColorPic(stylePicUtils.getStyleUrl(styleColor.getStyleColorPic()));
@@ -533,21 +599,15 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         configQO.setBrand(style.getBrand());
         ReplayConfigDTO replayConfig = replayConfigService.queryPageInfo(configQO).getList().stream().findFirst().orElse(new ReplayConfigDTO());
 
+        /* ----------------------------组装数据---------------------------- */
         REPLAY_CV.copy(result, style);
         REPLAY_CV.copy(result, styleColor);
 
         if (replayRating != null) {
+            // 获取评分详情
             REPLAY_CV.copy(result, replayRating);
-            List<ReplayRatingDetail> replayRatingDetailList = replayRatingDetailService.list(new LambdaQueryWrapper<ReplayRatingDetail>()
-                    .eq(ReplayRatingDetail::getReplayRatingId, replayRating.getId())
-            );
-            replayRatingDetailList.stream().map(REPLAY_CV::copy2DTO).peek(it -> {
-                it.setFileUrl(minioUtils.getObjectUrl(it.getFileUrl()));
-            }).collect(Collectors.groupingBy(ReplayRatingDetail::getType)).forEach((type, list) -> {
-                result.getDetailListMap().put(type, new ReplayRatingDetailList(list));
-            });
+            decorateReplayRatingDetail(result);
         }
-
         // 销售等级周
         List<String> saleCycleList = StrUtil.split(replayConfig.getSaleCycle(), COMMA);
         result.setSaleLevelWeekends(CollUtil.removeEmpty(saleCycleList));
@@ -556,19 +616,19 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         QueryFieldManagementDto qo = new QueryFieldManagementDto();
         qo.setGroupName(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         if (StrUtil.isBlank(result.getSilhouetteCode())) {
-            qo.setFieldExplain("廓形及代码");
+            qo.setFieldExplain(FieldValProperties.silhouette);
             decorateFieldVal(Collections.singletonList(result), qo, ReplayRatingStyleDTO::getStyleId, ReplayRatingStyleDTO::setSilhouetteCode, ReplayRatingStyleDTO::setSilhouetteName);
         }
         if (StrUtil.isBlank(result.getColorSystemCode())) {
-            qo.setFieldExplain("色系");
+            qo.setFieldExplain(FieldValProperties.colorSystem);
             decorateFieldVal(Collections.singletonList(result), qo, ReplayRatingStyleDTO::getStyleId, ReplayRatingStyleDTO::setColorSystemCode, ReplayRatingStyleDTO::setColorSystem);
         }
         if (StrUtil.isBlank(result.getFabricComposition())) {
-            qo.setFieldExplain("面料成分");
+            qo.setFieldExplain(FieldValProperties.fabricComposition);
             decorateFieldVal(Collections.singletonList(result), qo, ReplayRatingStyleDTO::getStyleId, ReplayRatingStyleDTO::setFabricComposition, ReplayRatingStyleDTO::setFabricComposition);
         }
         if (StrUtil.isBlank(result.getPositioning())) {
-            qo.setFieldExplain("款式定位");
+            qo.setFieldExplain(FieldValProperties.positioning);
             decorateFieldVal(Collections.singletonList(result), qo, ReplayRatingStyleDTO::getStyleId, ReplayRatingStyleDTO::setPositioning, ReplayRatingStyleDTO::setPositioningName);
         }
 
@@ -581,6 +641,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             }
         }
 
+        // 获取特定年份 + 复盘管理定义周 的款式等级数据
         GoodsSluggishSalesQO sluggishSalesQO = new GoodsSluggishSalesQO();
         sluggishSalesQO.setBulkStyleNo(result.getBulkStyleNo());
         sluggishSalesQO.setYear(Arrays.stream(ReplayRatingProperties.years).boxed().collect(Collectors.toList()));
@@ -588,10 +649,12 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         sluggishSalesQO.setBrand(result.getBrand());
         result.setSaleLevelList(findSaleLevelList(sluggishSalesQO));
 
+        // 获取所有销售记录
         SaleFacQO saleFacQO = new SaleFacQO();
         saleFacQO.setBulkStyleNo(result.getBulkStyleNo());
         result.setProductionSaleList(findProductionSaleList(saleFacQO));
 
+        // 获取所有生产记录
         FactoryMissionRateQO factoryMissionRateQO = new FactoryMissionRateQO();
         factoryMissionRateQO.setBulkStyleNo(result.getBulkStyleNo());
         result.setProductionInfoList(findProductionInfoList(factoryMissionRateQO));
@@ -599,10 +662,12 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         return result;
     }
 
-    // 销售等级
+    /**
+     * 获取
+     */
     private List<SaleLevelDTO> findSaleLevelList(GoodsSluggishSalesQO sluggishSalesQO) {
         List<String> saleCycleList = sluggishSalesQO.getWeekends();
-        List<String> years = sluggishSalesQO.getYear().stream().map(it -> it + ".0").collect(Collectors.toList());
+        List<String> years = sluggishSalesQO.getYear().stream().map(it -> it + ReplayRatingProperties.yearCodeSuffix).collect(Collectors.toList());
         List<SaleLevelDTO> list = new ArrayList<>();
 
         String bulkStyleNo = sluggishSalesQO.getBulkStyleNo();
@@ -627,10 +692,10 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             int yearInt = (int) Double.parseDouble(year);
             SaleLevelDTO levelDTO = new SaleLevelDTO();
             levelDTO.setType(ReplayRatingLevelType.LEVEL);
-            levelDTO.setYear(yearInt + "年");
+            levelDTO.setYear(yearInt + ReplayRatingProperties.yearNameSuffix);
             SaleLevelDTO avgDTO = new SaleLevelDTO();
             avgDTO.setType(ReplayRatingLevelType.AVG);
-            avgDTO.setYear(yearInt + "年");
+            avgDTO.setYear(yearInt + ReplayRatingProperties.yearNameSuffix);
 
             if (CollUtil.isNotEmpty(weekendsTypeList)) {
                 weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) ->
@@ -675,6 +740,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                         list.add(saleDTO);
                         return saleDTO;
                     });
+                    productionSaleDTO.setBulkStyleNo(saleFac.getBulkStyleNo());
                     productionSaleDTO.setSizeName(sizeName);
                     // 投产
                     if (StrUtil.isNotBlank(saleFac.getProductionType())) {
@@ -720,11 +786,11 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Override
     public ReplayRatingPatternDTO getPatternById(String styleColorId) {
+        /* ----------------------------获取设计款/版型库/复盘评分/复盘管理---------------------------- */
         // 复盘评分维度是大货款, 但其他数据维度是设计款, 所以这里只要styleId即可
         styleColorService.warnMsg("未找到对应大货款");
         String styleId = styleColorService.findByIds2OneField(styleColorId, StyleColor::getStyleId);
 
-        // 获取主表数据
         patternLibraryService.warnMsg("未找到对应的版型数据");
         PatternLibrary patternLibrary = patternLibraryService.findOne(new LambdaQueryWrapper<PatternLibrary>().eq(PatternLibrary::getStyleId, styleId));
         patternLibrary.setPicUrl(uploadFileService.getReviewUrlById(patternLibrary.getPicId()));
@@ -740,20 +806,15 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         configQO.setBrandName(patternLibrary.getBrandNames());
         ReplayConfigDTO replayConfig = replayConfigService.queryPageInfo(configQO).getList().stream().findFirst().orElse(new ReplayConfigDTO());
 
+        /* ----------------------------组装数据---------------------------- */
         result.setStyleColorId(styleColorId);
         REPLAY_CV.copy(result, patternLibrary);
 
         result.setSaleSeason(replayConfig.getSaleSeason());
         if (replayRating != null) {
+            // 获取评分详情
             REPLAY_CV.copy(result, replayRating);
-            List<ReplayRatingDetail> replayRatingDetailList = replayRatingDetailService.list(new LambdaQueryWrapper<ReplayRatingDetail>()
-                    .eq(ReplayRatingDetail::getReplayRatingId, replayRating.getId())
-            );
-            replayRatingDetailList.stream().map(REPLAY_CV::copy2DTO).peek(it -> {
-                it.setFileUrl(minioUtils.getObjectUrl(it.getFileUrl()));
-            }).collect(Collectors.groupingBy(ReplayRatingDetail::getType)).forEach((type, list) -> {
-                result.getDetailListMap().put(type, new ReplayRatingDetailList(list));
-            });
+            decorateReplayRatingDetail(result);
         }
 
         /* ----------------------------获取版型成功率---------------------------- */
@@ -781,7 +842,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Override
     public ReplayRatingFabricDTO getFabricById(String materialId) {
-        // 获取主表数据
+        /* ----------------------------获取物料库/物料颜色/物料规格/复盘评分---------------------------- */
         basicsdatumMaterialService.warnMsg("未找到对应物料数据");
         BasicsdatumMaterial material = basicsdatumMaterialService.findOne(materialId);
 
@@ -807,59 +868,78 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 .eq(ReplayRating::getForeignId, materialId)
         );
 
+        /* ----------------------------组装数据---------------------------- */
         REPLAY_CV.copy(result, material);
         result.setColor(String.join("/", colorMap.values()));
         result.setColorCode(String.join(COMMA, colorMap.keySet()));
+        // 使用nacos配置的年份
         result.setYearList(Arrays.stream(ReplayRatingProperties.years).boxed().collect(Collectors.toList()));
-        result.setCmtUnit(KILOMETER);
-        result.setFobUnit(UnitConverterEnum.PIECE);
         result.setTranslate(String.join("/", materialWidthMap.keySet()));
         result.setTranslateCode(String.join(COMMA, materialWidthMap.values()));
 
         if (replayRating != null) {
+            // 获取评分详情
             REPLAY_CV.copy(result, replayRating);
-            List<ReplayRatingDetail> replayRatingDetailList = replayRatingDetailService.list(new LambdaQueryWrapper<ReplayRatingDetail>()
-                    .eq(ReplayRatingDetail::getReplayRatingId, replayRating.getId())
-            );
-            replayRatingDetailList.stream().map(REPLAY_CV::copy2DTO).peek(it -> {
-                it.setFileUrl(minioUtils.getObjectUrl(it.getFileUrl()));
-            }).collect(Collectors.groupingBy(ReplayRatingDetail::getType)).forEach((type, list) -> {
-                result.getDetailListMap().put(type, new ReplayRatingDetailList(list));
-            });
+            decorateReplayRatingDetail(result);
         }
 
         /* ----------------------------获取大货款号以及物料清单---------------------------- */
 
+        // key: devtType value: bulkStyleNo, bulkUnitUse
         Map<ProductionType, Map<String, BigDecimal>> bulkUnitUseMap = findBulkUnitUseMap(materialId);
         if (MapUtil.isNotEmpty(bulkUnitUseMap)) {
+            // 设置基础map
             Map<ProductionType, List<FabricMonthDataDto>> monthDataMap = Arrays.stream(ProductionType.values()).collect(Collectors.toMap(Function.identity(), (it) -> new ArrayList<>()));
             bulkUnitUseMap.forEach((productionType, bulkUseMap) -> {
+                // 根据大货款号 获取生产数据
                 List<SaleFac> saleFacList = saleFacMapper.selectList(new LambdaQueryWrapper<SaleFac>()
                         .in(SaleFac::getBulkStyleNo, bulkUseMap.keySet())
                         .in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION))
                         .in(SaleFac::getYear, result.getYearList())
                         .select(SaleFac::getBulkStyleNo, SaleFac::getNum, SaleFac::getMonth)
                 );
+                // 获取单位转换枚举
                 UnitConverterEnum converterEnum = productionType == ProductionType.CMT ? result.getCmtUnit() : result.getFobUnit();
                 List<FabricMonthDataDto> dataList = monthDataMap.get(productionType);
+                // 根据月份遍历
                 for (Month month : Month.values()) {
                     int value = month.getValue();
+                    // 根据年份遍历
                     for (int year : result.getYearList()) {
                         // 生成查询时间
                         YearMonth startDate = YearMonth.of(year, value);
-                        YearMonth endDate = startDate.plusMonths(1);
+                        // 结束时间大一个月
+                        YearMonth endDate = startDate.plusMonths(ReplayRatingProperties.monthRange);
+                        // 获取时间段内的数据
+                        List<SaleFac> timeSaleFacList = saleFacList.stream().filter(it -> it.isBetween(startDate, endDate)).collect(Collectors.toList());
                         dataList.add(new FabricMonthDataDto(startDate, endDate, CommonUtils.sumBigDecimal(
-                                saleFacList.stream().filter(it -> !it.getMonth().isBefore(startDate) && !it.getMonth().isAfter(endDate)).collect(Collectors.toList()),
-                                (saleFac) -> {
+                                timeSaleFacList, (saleFac) -> {
+                                    // 获取每单位用量, 根据单位转换枚举 计算最终值
                                     BigDecimal bulkUnitUse = bulkUseMap.getOrDefault(saleFac.getBulkStyleNo(), BigDecimal.ZERO);
                                     return converterEnum.calculate(BigDecimalUtil.mul(saleFac.getNum(), bulkUnitUse));
                                 })));
                     }
                 }
             });
+            // 设置月份数据
             result.setMonthData(monthDataMap);
         }
         return result;
+    }
+
+    private void decorateReplayRatingDetail(ReplayRatingSaveDTO replayRatingSaveDTO) {
+        if (StrUtil.isNotBlank(replayRatingSaveDTO.getId())) {
+            List<ReplayRatingDetail> replayRatingDetailList = replayRatingDetailService.list(new LambdaQueryWrapper<ReplayRatingDetail>()
+                    .eq(ReplayRatingDetail::getReplayRatingId, replayRatingSaveDTO.getId())
+            );
+            // copy2DTO 会自动调用 build 组装extend 并 获取图片/视频/附件的预览路径
+            replayRatingDetailList.stream().map(REPLAY_CV::copy2DTO).peek(it -> {
+                it.setFileUrl(minioUtils.getObjectUrl(it.getFileUrl()));
+            }).collect(Collectors.groupingBy(ReplayRatingDetail::getType)).forEach((type, list) -> {
+                // 放入数据并平铺
+                replayRatingSaveDTO.getDetailListMap().put(type, new ReplayRatingDetailList(list));
+            });
+        }
     }
 
     // 获取款式配色-用量映射关系
@@ -932,7 +1012,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
             ReplayRatingYearProductionSaleDTO yearProductionSaleDTO = new ReplayRatingYearProductionSaleDTO();
             // 设置合计字段的前缀
-            yearProductionSaleDTO.setKey("total");
+            yearProductionSaleDTO.setKey(ReplayRatingProperties.totalPrefix);
             replayRatingYearVO.setReplayRatingYearProductionSaleDTO(yearProductionSaleDTO);
             List<ReplayRatingYearProductionSaleDTO> childrenList = yearProductionSaleDTO.getChildrenList();
 
@@ -992,7 +1072,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         // 设置廓形
         QueryFieldManagementDto queryDto = new QueryFieldManagementDto();
         queryDto.setGroupName(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-        queryDto.setFieldExplain("廓形及代码");
+        queryDto.setFieldExplain(FieldValProperties.silhouette);
         decorateFieldVal(list, queryDto, ReplayRatingYearVO::getStyleId, ReplayRatingYearVO::setSilhouetteCode, ReplayRatingYearVO::setSilhouetteName);
 
         list.forEach(replayRatingYearVO -> {
@@ -1000,7 +1080,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             // 设置除前年去年今年之外的时间的构建体
             ReplayRatingYearProductionSaleDTO longTimeAgoChildren = new ReplayRatingYearProductionSaleDTO();
             // 设置前缀 任意,前端不显示
-            longTimeAgoChildren.setKey("longTimeAgo");
+            longTimeAgoChildren.setKey(ReplayRatingProperties.longTimeAgoPrefix);
             saleFacList.stream()
                     .filter(it -> it.getBulkStyleNo().equals(replayRatingYearVO.getBulkStyleNo()))
                     .collect(Collectors.groupingBy(SaleFac::isProduction)).forEach((isProduction, sameTypeList) -> {
@@ -1031,20 +1111,23 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 configList.addAll(replayConfigService.list(new LambdaQueryWrapper<ReplayConfig>().in(ReplayConfig::getBrand, brandList)));
                 break;
             case FABRIC:
-                queryWrapper.in(SaleFac::getResultType, Arrays.asList(SaleFacResultType.FIRST_PRODUCTION, SaleFacResultType.APPEND_PRODUCTION));
+                queryWrapper.in(SaleFac::getResultType, SaleFacResultType.productionList());
                 // 版型复盘需要 大货款的对应的特定物料清单列表
                 List<String> styleColorIdList = list.stream().map(ReplayRatingVO::getStyleColorId).distinct().collect(Collectors.toList());
                 Map<String, String> styleColorIdMap = packInfoService.mapOneField(
                         new LambdaQueryWrapper<PackInfo>().in(PackInfo::getStyleColorId, styleColorIdList)
                         , PackInfo::getStyleColorId, PackInfo::getId
                 );
+                // 存在大货款
                 if (MapUtil.isNotEmpty(styleColorIdMap)) {
+                    // 获取大货款的物料清单
                     List<PackBom> packBomList = packBomService.list(new LambdaQueryWrapper<PackBom>()
                             .select(PackBom::getForeignId, PackBom::getCollocationCode, PackBom::getCollocationName, PackBom::getBulkUnitUse)
                             .eq(PackBom::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
                             .in(PackBom::getForeignId, styleColorIdMap.values())
                             .eq(PackBom::getStatus, YesOrNoEnum.YES)
                     );
+                    // key:styleColorId, value:PackBomList
                     stylePackBomListMap.putAll(
                             MapUtil.map(styleColorIdMap, (styleColorId, packInfoId) ->
                                     packBomList.stream().filter(it -> it.getForeignId().equals(packInfoId)).collect(Collectors.toList())
@@ -1060,6 +1143,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Override
     public String transferPatternLibrary(ReplayRatingTransferDTO transferDTO) {
+        // 获取大货款
         String styleColorId = transferDTO.getStyleColorId();
         String styleId = transferDTO.getStyleId();
         String bulkStyleNo = styleColorService.findOneField(new LambdaQueryWrapper<StyleColor>().eq(StyleColor::getStyleId, styleId).eq(StyleColor::getId, styleColorId), StyleColor::getStyleNo);
@@ -1068,10 +1152,13 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         styleService.warnMsg("未找到对应设计款");
         Style style = styleService.findOne(styleId);
 
+        // 获取版型库
         PatternLibrary patternLibrary = patternLibraryService.findOne(new LambdaQueryWrapper<PatternLibrary>().eq(PatternLibrary::getStyleId, styleId));
 
         if (patternLibrary == null) {
+            // 版型库为空 则必须传入转入父编码
             if (transferDTO.getTransferParentFlag() == null) throw new OtherException("未找到对应的版型库");
+            // 构建基础数据
             PatternLibraryDTO libraryDTO = new PatternLibraryDTO();
             libraryDTO.setPlanningSeasonId(style.getPlanningSeasonId());
             libraryDTO.setCode(style.getDesignNo());
@@ -1116,6 +1203,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             basicCategoryDot.setValue(BusinessProperties.getStructureCode(prodCategory1st, "长度数据"));
             BasicCategoryDot lengthTree = ccmFeignService.getTreeByName(basicCategoryDot, null);
 
+            // 获取围度数据和长度数据
             List<PatternLibraryItem> patternLibraryItemList = new ArrayList<>();
             List<FieldVal> fieldValList = fieldValService.list(new LambdaQueryWrapper<FieldVal>().eq(FieldVal::getForeignId, styleId));
             fieldValList.forEach(fieldVal -> {
@@ -1139,6 +1227,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 }
             });
 
+            // 获取模板部件
             if (StrUtil.isNotBlank(style.getPatternParts())) {
                 ProcessDatabasePageDto processDatabasePageDto = new ProcessDatabasePageDto();
                 processDatabasePageDto.setStatus("0");
@@ -1161,12 +1250,18 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     patternLibraryItemList.add(patternLibraryItem);
                 });
             }
-
             libraryDTO.setPatternLibraryItemList(patternLibraryItemList);
+
+            // 设置父编码
+            if (transferDTO.getTransferParentFlag() == YesOrNoEnum.YES) {
+                libraryDTO.setParentId(style.getRegisteringId());
+            }
             patternLibraryService.saveOrUpdateDetails(libraryDTO);
             return libraryDTO.getId();
         } else {
+            // 设置热销大货款
             patternLibrary.setStyleNos(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(patternLibrary.getStyleNos()).append(bulkStyleNo).toString());
+            // 设置父编码
             if (transferDTO.getTransferParentFlag() == YesOrNoEnum.YES) {
                 patternLibrary.setParentId(style.getRegisteringId());
             }

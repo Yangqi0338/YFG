@@ -36,6 +36,9 @@ public class ReplayConfigDTO extends ReplayConfig {
         this.setBrandName(baseDict.getName());
     }
 
+    /**
+     * 将多条数据用换行符拼接, 适应 BaseDataExtendEntity 的前端显示
+     */
     @Override
     public void decorateMapByDetail(Map<Object, Object> map, String key, List<?> objects) {
         map.put(key, objects.stream().map(Object::toString).collect(Collectors.joining("\n")));

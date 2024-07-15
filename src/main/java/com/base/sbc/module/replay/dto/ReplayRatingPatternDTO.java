@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.dto;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
@@ -171,12 +175,12 @@ public class ReplayRatingPatternDTO extends ReplayRatingSaveDTO {
      * 部件库-子表围度数据
      */
     @ApiModelProperty("部件库-子表围度数据")
-    private String patternLibraryItemPattern;
+    private Map<String, String> patternLibraryItemPattern;
     /**
      * 部件库-子表长度数据
      */
     @ApiModelProperty("部件库-子表长度数据")
-    private String patternLibraryItemLength;
+    private Map<String, String> patternLibraryItemLength;
     /** 使用款 */
     @ApiModelProperty(value = "使用款")
     private BigDecimal useCount;
@@ -208,33 +212,32 @@ public class ReplayRatingPatternDTO extends ReplayRatingSaveDTO {
         return Opt.ofNullable(patternLibraryTemplate).map(PatternLibraryTemplate::getPatternType).orElse("");
     }
 
-//    /**
-//     * 部件库-子表围度数据
-//     */
-//    @ApiModelProperty("部件库-子表围度数据")
-//    public String getPatternLibraryItemPattern() {
-//        if (StrUtil.isBlank(patternLibraryItemPattern)) {
-//            patternLibraryItemPattern = decoratePatternLibrary(1);
-//        }
-//        return patternLibraryItemPattern;
-//    }
-//
-//    /**
-//     * 部件库-子表长度数据
-//     */
-//    @ApiModelProperty("部件库-子表长度数据")
-//    public String getPatternLibraryItemLength() {
-//        if (StrUtil.isBlank(patternLibraryItemLength)) {
-//            patternLibraryItemLength = decoratePatternLibrary(2);
-//        }
-//        return patternLibraryItemLength;
-//    }
-//
-//    private String decoratePatternLibrary(Integer type) {
-//        return CollUtil.removeWithAddIf(patternLibraryItemList, (it) -> it.getType().equals(type)).stream().map(item -> item.getName()
-//                + "："
-//                + (ObjectUtil.isNotEmpty(item.getStructureValue()) ? item.getStructureValue() : "暂无")).collect(Collectors.joining("\t"));
-//    }
+    /**
+     * 部件库-子表围度数据
+     */
+    @ApiModelProperty("部件库-子表围度数据")
+    public Map<String, String> getPatternLibraryItemPattern() {
+        if (MapUtil.isEmpty(patternLibraryItemPattern)) {
+            patternLibraryItemPattern = decoratePatternLibrary(1);
+        }
+        return patternLibraryItemPattern;
+    }
+
+    /**
+     * 部件库-子表长度数据
+     */
+    @ApiModelProperty("部件库-子表长度数据")
+    public Map<String, String> getPatternLibraryItemLength() {
+        if (MapUtil.isEmpty(patternLibraryItemLength)) {
+            patternLibraryItemLength = decoratePatternLibrary(2);
+        }
+        return patternLibraryItemLength;
+    }
+
+    private Map<String, String> decoratePatternLibrary(Integer type) {
+        return CollUtil.removeWithAddIf(patternLibraryItemList, (it) -> it.getType().equals(type)).stream()
+                .collect(CommonUtils.toMap(PatternLibraryItem::getName, PatternLibraryItem::getStructureValue));
+    }
 
     /** 版型成功率 */
     @ApiModelProperty(value = "版型成功率")
