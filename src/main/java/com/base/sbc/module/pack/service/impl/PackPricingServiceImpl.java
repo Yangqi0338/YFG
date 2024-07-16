@@ -52,6 +52,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -98,18 +99,19 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     @Resource
     PricingTemplateItemService pricingTemplateItemService;
 
-    @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/information/pdm}")
+    @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/bill/readyWearContractBill}")
     private String SCM_URL;
 
     @Override
     public ApiResult getContractPrice(QueryContractPriceDTO dto) {
         JSONObject paramJson = new JSONObject();
-        paramJson.put("styleNo", dto.getStyleNo());
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/getContractPriceByStyle", paramJson.toJSONString(),
+        paramJson.put("styleNo", Arrays.asList(dto.getStyleNo()));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/getUnitPrice", paramJson.toJSONString(),
                 Pair.of("moduleName","scm"),
                 Pair.of("functionName","获取成衣合同价")
         );
-        if (!httpResp.isSuccess()) {
+        return ApiResult.error(JSON.toJSONString(httpResp), 500);
+        /*if (!httpResp.isSuccess()) {
             throw new OtherException(httpResp.getMessage());
         }
         // TODO 保存日志
@@ -117,11 +119,11 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             saveOperaLog(genOperaLogEntity(dto, "同步成衣合同价"));
         }
         // 无数据
-        if (org.apache.commons.lang.StringUtils.equals("成功", httpResp.getMessage())) {
+        if (null == httpResp.getData()) {
             return ApiResult.success("查询成功");
         } else {
-            return ApiResult.success("查询成功", httpResp.getMessage());
-        }
+            return ApiResult.success("查询成功", httpResp.getData());
+        }*/
     }
 
     @Override
