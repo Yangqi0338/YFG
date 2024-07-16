@@ -1,7 +1,11 @@
 package com.base.sbc.config.security;
 
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.UserCompanyUtils;
+import com.base.sbc.module.common.dto.VirtualDept;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -17,7 +21,9 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
@@ -33,6 +39,7 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 	private final FilterInvocationSecurityMetadataSource securityMetadataSource;
 
 	private final UserCompanyUtils userCompanyUtils;
+	private final AmcService amcService;
 
 	@Autowired
 	public void setMyAccessDecisionManager(DecideAccessDecisionManager accessDecisionManager) {
@@ -105,6 +112,12 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 			String username = authentication.getPrincipal().toString();
 			userCompany.setUsername(username);
 		}
+		if(StrUtil.isNotBlank(userCompany.getUserId()) && !"0".equals(userCompany.getUserId())){
+			ApiResult<List<VirtualDept>> virtualDeptByUserId = amcService.getVirtualDeptByUserId(userCompany.getUserId());
+			List<VirtualDept> data = virtualDeptByUserId.getData();
+			userCompany.setVirtualDeptIds(data.stream().map(VirtualDept::getId).collect(Collectors.toList()));
+		}
+
 		companyUserInfo.set(userCompany);
 	}
 }

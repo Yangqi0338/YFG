@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
@@ -65,6 +66,11 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
      */
     List<PackTechAttachmentVo> picList(PackTechSpecSearchDto dto);
 
+    /**
+     * 图片列表排序
+     * @param attachmentList
+     */
+    void picListSort(List<Attachment> attachmentList);
     public void copyItem(String id, String packType, String targetForeignId, String targetPackType, String item);
 
     /**

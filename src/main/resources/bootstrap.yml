@@ -4,15 +4,17 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: 10.8.252.12:8848   # 测试环境
-#        server-addr: 10.98.250.58:8848   # 配置中心地址
+#        server-addr: 10.8.252.12:8848   # 测试环境
+        server-addr: 10.98.250.58:8848   # 配置中心地址
         #        server-addr: 47.97.254.249:8848   # 配置中心地址 笛莎
         namespace: test
         file-extension: yml # 假如不配置，则nacos远程配置文件的后缀为.properties
-        ext-config:
+        extension-configs:
           - data-id: common-pdm.yml
             refresh: true
           - data-id: dbSync-pdm.yml
+            refresh: true
+          - data-id: url-pdm.yml
             refresh: true
           - data-id: mysql-pdm.yml
 #            group: prod

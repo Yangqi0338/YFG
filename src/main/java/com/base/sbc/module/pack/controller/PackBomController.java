@@ -15,6 +15,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
@@ -23,7 +24,8 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -36,6 +38,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -62,6 +65,9 @@ public class PackBomController extends BaseController{
 
     @Autowired
     private PackBomVersionService packBomVersionService;
+
+    @Autowired
+    private ColumnUserDefineService columnUserDefineService;
 
     @ApiOperation(value = "版本列表")
     @GetMapping("/version")
@@ -208,8 +214,99 @@ public class PackBomController extends BaseController{
         if(StringUtils.isBlank(id) || StringUtils.isBlank(colorCode)){
             return selectAttributeNotRequirements("id, color");
         }
-
         return packBomService.packBomMaterialColor(userCompany, id, colorCode);
+    }
+
+    @PostMapping("/bomFabricList")
+    @ApiOperation(value = "BOM使用物料列表")
+    public PageInfo<BomFabricVo> bomFabricList(@RequestBody @Valid BomFabricDto bomFabricDto) {
+        bomFabricDto.setCompanyCode(super.getUserCompany());
+        return  packBomService.bomFabricList(bomFabricDto,true);
+    }
+
+    @PostMapping("/fabricSummary")
+    @ApiOperation(value = "面料汇总-添加")
+    public boolean saveFabricSummary(@RequestBody @Valid  FabricSummarySaveDTO feedSummarySaveDTO) {
+        feedSummarySaveDTO.setCompanyCode(super.getUserCompany());
+        return packBomService.saveFabricSummary(feedSummarySaveDTO);
+    }
+
+    @GetMapping("/fabricSummary")
+    @ApiOperation(value = "面料汇总列表")
+    public PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        return packBomService.fabricSummaryListV2(dto);
+    }
+
+    @PutMapping("/fabricSummary")
+    @ApiOperation(value = "面料汇总列表修改")
+    public FabricStyleUpdateResultVo updateFabricSummary(@RequestBody @Valid FabricSummaryV2Dto dto) {
+        return packBomService.updateFabricSummary(dto);
+    }
+
+    @DeleteMapping ("/fabricSummary")
+    @ApiOperation(value = "面料汇总-删除")
+    public boolean deleteFabricSummary(String id) {
+        return packBomService.deleteFabricSummary(id);
+    }
+
+
+    @PostMapping("/fabricStyleList")
+    @ApiOperation(value = "物料对应款式列表")
+    public  PageInfo<FabricStyleVo> fabricStyleList(@RequestBody @Valid  FabricStyleDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        return  packBomService.fabricStyleList(dto);
+    }
+
+    @PostMapping("/fabricSummaryStyle")
+    @ApiOperation(value = "面料汇总-款式添加")
+    public boolean addFabricSummaryStyle(@RequestBody @Valid  FabricSummaryStyleSaveDto dto) {
+        return  packBomService.saveFabricSummaryStyle(dto);
+    }
+
+    @PutMapping("/fabricSummaryStyle")
+    @ApiOperation(value = "面料汇总-款式修改")
+    public FabricStyleUpdateResultVo updateFabricSummaryStyle(@RequestBody @Valid  FabricSummaryStyleDto fabricSummaryStyleDto) {
+        return  packBomService.updateFabricSummaryStyle(fabricSummaryStyleDto);
+    }
+
+    @DeleteMapping ("/fabricSummaryStyle")
+    @ApiOperation(value = "面料汇总-款式删除")
+    public boolean deleteFabricSummaryStyle(String id) {
+        return  packBomService.deleteFabricSummaryStyle(id);
+    }
+
+
+    @ApiOperation(value = "/面料汇总导出")
+    @GetMapping("/fabricSummaryExcel")
+    @DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
+    public void fabricSummaryExcel(HttpServletResponse response , FabricSummaryV2Dto dto) throws Exception {
+        dto.setCompanyCode(super.getUserCompany());
+        packBomService.fabricSummaryExcel(response,dto);
+    }
+
+    @ApiOperation(value = "/面料是否需要更新")
+    @GetMapping("/ifNeedUpdate")
+    public NeedUpdateVo ifNeedUpdate(String id) {
+        return packBomService.ifNeedUpdate(id);
+    }
+
+    @ApiOperation(value = "/面料更新同步")
+    @PutMapping("/fabricSummarySync")
+    public boolean fabricSummarySync(String id) {
+        return packBomService.fabricSummarySync(id);
+    }
+    @ApiOperation(value = "/面料汇总组查询")
+    @GetMapping("/fabricSummaryGroup")
+    public PageInfo<FabricStyleGroupVo>  fabricSummaryGroup(FabricSummaryGroupDto dto) {
+        return packBomService.fabricSummaryGroup(dto);
+    }
+
+
+    @ApiOperation(value = "设计师确认")
+    @PostMapping("designAffirm")
+    public boolean designAffirm(@RequestBody PackBomVo dto) {
+        return packBomService.designAffirm(dto);
     }
 
     @GetMapping("/getRenovatePackBomInfo/{id}")
@@ -222,6 +319,13 @@ public class PackBomController extends BaseController{
     @ApiOperation(value = "刷新物料信息")
     public Boolean renovatePackBom(@RequestBody IdDto dto) {
         return packBomService.renovatePackBom(dto.getId());
+    }
+
+
+    @ApiOperation(value = "版本反审")
+    @GetMapping("/version/reverseApproval")
+    public boolean reverseApproval(@Valid IdDto ids) {
+        return packBomVersionService.reverseApproval(ids.getId());
     }
 
 }

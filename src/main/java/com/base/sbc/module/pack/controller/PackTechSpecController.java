@@ -9,10 +9,11 @@ package com.base.sbc.module.pack.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -28,6 +29,7 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -35,8 +37,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 类描述：资料包-工艺说明 Controller类
@@ -80,6 +80,13 @@ public class PackTechSpecController extends BaseController{
     @GetMapping("/picList")
     public List<PackTechAttachmentVo> picList(PackTechSpecSearchDto dto) {
         return packTechSpecService.picList(dto);
+    }
+
+    @ApiOperation(value = "文件列表(图片)排序")
+    @PostMapping("/picListSort")
+    public ApiResult<String> picListSort(@RequestBody List<Attachment> attachmentList) {
+        packTechSpecService.picListSort(attachmentList);
+        return ApiResult.success();
     }
 
     @ApiOperation(value = "保存图片")

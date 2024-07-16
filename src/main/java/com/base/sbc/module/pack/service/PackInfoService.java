@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import cn.hutool.core.lang.Pair;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -17,6 +19,8 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.PageInfo;
 
@@ -200,6 +204,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     GenTechSpecPdfFile queryGenTechSpecPdfFile(GroupUser groupUser, PackCommonSearchDto dto);
 
+    Pair<String, JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto);
+
     CopyItemsVo copyItems(GroupUser user, PackCopyDto dto);
 
     BomPrintVo getBomPrint(GroupUser user, PackCommonSearchDto dto);
@@ -239,6 +245,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     Boolean updateBomName(String infoCode, String styleNo);
+
+    PageInfo<FabricSummaryInfoVo> selectFabricSummaryStyle(FabricSummaryV2Dto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

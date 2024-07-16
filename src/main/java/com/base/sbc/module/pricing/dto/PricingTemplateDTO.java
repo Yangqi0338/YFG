@@ -70,5 +70,13 @@ public class PricingTemplateDTO {
      */
     @ApiModelProperty(value = "核价模板明细")
     private List<PricingTemplateItemDTO> pricingTemplateItems;
+
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名"  )
+    private String brandName;
 }
 

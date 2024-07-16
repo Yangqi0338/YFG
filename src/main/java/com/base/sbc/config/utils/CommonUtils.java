@@ -13,6 +13,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.google.common.base.Functions;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.poi.ss.formula.functions.T;
 
@@ -356,6 +357,14 @@ public class CommonUtils {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.mapping(mapper, Collectors.toList()));
     }
 
+    public static <T, K> Collector<T, ?, Map<K, T>> toMap(Function<? super T, ? extends K> classifier) {
+        return toMap(classifier, Function.identity());
+    }
+
+    public static <T, K, U> Collector<T, ?, Map<K, U>> toMap(Function<? super T, ? extends K> classifier, Function<? super T, ? extends U> mapper) {
+        return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.collectingAndThen(Collectors.toList(),value-> mapper.apply(value.get(0))));
+    }
+
     public static <T, U extends Enum<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor) {
         Objects.requireNonNull(keyExtractor);
         return (Comparator<T> & Serializable)
@@ -400,12 +409,8 @@ public class CommonUtils {
     }
 
     public static boolean judge(Collection<Integer> judgeList, int index, int defaultValue, Function<Integer, Boolean> handler) {
-        try {
-            Integer result = CollUtil.get(judgeList, index);
-            return handler.apply(result);
-        }catch (Exception ignored) {
-            return handler.apply(defaultValue);
-        }
+        Integer result = CollUtil.get(judgeList, index);
+        return result == null ? handler.apply(defaultValue) : handler.apply(result);
     }
 
 }

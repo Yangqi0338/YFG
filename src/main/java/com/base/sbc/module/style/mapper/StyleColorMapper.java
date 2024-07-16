@@ -10,14 +10,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.module.style.vo.DemandOrderSkcVo;
-import com.base.sbc.module.style.vo.StyleColorAgentVo;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
-import org.apache.ibatis.annotations.Mapper;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.vo.*;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -39,25 +36,42 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     int isStyleNoExist(String styleNo);
 
     /*查询款式下的额配色*/
-    String getStyleColorNumber(@Param("styleNo") String styleNo,@Param("length1") Integer length1);
+    String getStyleColorNumber(@Param("styleNo") String styleNo, @Param("length1") Integer length1);
 
     /**
      * 查询款式配色
+     *
      * @param qw
      * @return
      */
-    List<StyleColorVo> styleColorList(@Param(Constants.WRAPPER) QueryWrapper qw );
+    List<StyleColorVo> styleColorList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    /**
+     * 查询款式设计
+     *
+     * @return
+     */
+    List<Style> pageBySampleDesign(@Param(Constants.WRAPPER) BaseQueryWrapper<Style> qw);
 
 
     /**
      * 查询配色列表
+     *
      * @param qw
      * @return
      */
-    List<StyleColorVo>  colorList(@Param(Constants.WRAPPER) QueryWrapper qw );
+    List<StyleColorVo> colorList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    /**
+     * 大货款列表
+     * @param qw
+     * @return
+     */
+    List<CompleteStyleVo> pageCompleteStyle(@Param(Constants.WRAPPER) QueryWrapper qw );
 
     /**
      * 修改所有引用的大货款号
+     *
      * @param styleNo
      * @param nweStyleNo
      * @return
@@ -83,15 +97,19 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     /**
      * 查询出配色中关联的主款或配饰
+     *
      * @param ids
      * @return
      */
     List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
 
+    List<StyleColor> getStyleMainAccessoriesNoSendFlag(@Param("ids") List<String> ids);
+
     List<StyleMarkingCheckVo> markingCheckPage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
     /**
      * 根据大货款获取设计师，版师，样衣工信息
+     *
      * @param styleNos
      * @return
      */
@@ -100,4 +118,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     List<StyleColorAgentVo> agentList(@Param(Constants.WRAPPER) BaseQueryWrapper queryWrapper);
 
 // 自定义方法区 不替换的区域【other_end】
+
+//    List<StyleColorVo> styleColorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+//    List<StyleColorVo> colorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

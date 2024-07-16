@@ -5,6 +5,8 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -71,6 +73,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     @Lazy
     @Autowired
     private PlanningProjectService planningProjectService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 
     /**
@@ -80,6 +84,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     @Override
     public List<CategoryPlanningVo> queryList(CategoryPlanningQueryDto categoryPlanningQueryDto) {
         BaseQueryWrapper<CategoryPlanning> queryWrapper = this.buildQueryWrapper(categoryPlanningQueryDto);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.categoryPlanning.getK());
         return baseMapper.listByQueryWrapper(queryWrapper);
     }
 
@@ -219,7 +224,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             queryFieldManagementDto.setCompanyCode(userUtils.getCompanyCode());
             queryFieldManagementDto.setIds(fieldIdList);
             List<FieldManagementVo> fieldManagementList
-                    = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+                    = fieldManagementService.getFieldManagementListMapper(queryFieldManagementDto);
             if (ObjectUtil.isNotEmpty(fieldManagementList)) {
                 fieldManagementMap = fieldManagementList.stream().collect(Collectors.toMap(FieldManagementVo::getId, item -> item));
             }
@@ -740,10 +745,10 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
      */
     private BaseQueryWrapper<CategoryPlanning> buildQueryWrapper(CategoryPlanningQueryDto categoryPlanningQueryDto) {
         BaseQueryWrapper<CategoryPlanning> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("channel_code", categoryPlanningQueryDto.getChannelCode());
-        queryWrapper.notEmptyEq("season_id", categoryPlanningQueryDto.getSeasonId());
-        queryWrapper.notEmptyLike("name", categoryPlanningQueryDto.getYearName());
-        queryWrapper.orderByDesc("id");
+        queryWrapper.notEmptyEq("tcp.channel_code", categoryPlanningQueryDto.getChannelCode());
+        queryWrapper.notEmptyEq("tcp.season_id", categoryPlanningQueryDto.getSeasonId());
+        queryWrapper.notEmptyLike("tcp.name", categoryPlanningQueryDto.getYearName());
+        queryWrapper.orderByDesc("tcp.id");
         return queryWrapper;
     }
 

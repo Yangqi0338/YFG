@@ -4,6 +4,8 @@ import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 /*查询款式配色*/
 public class QueryStyleColorDto extends QueryFieldDto {
@@ -92,6 +94,9 @@ public class QueryStyleColorDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "品牌名称")
     private String brandName;
+
+    @ApiModelProperty(value = "品牌")
+    private String brand;
 
     @ApiModelProperty(value = "设计师")
     private String designer;
@@ -257,4 +262,16 @@ public class QueryStyleColorDto extends QueryFieldDto {
     /** SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开 */
     @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String scmSendFlag;
+
+    @ApiModelProperty(value = "数据权限类型")
+    private String businessType;
+
+    @ApiModelProperty(value = "目标下游系统")
+    private String targetBusinessSystem;
+
+    private String yshBusinessSystem;
+
+    private String rePushFlag;
+
+    private Map<String,String> idsMap;
 }

@@ -43,6 +43,10 @@ public class TagConfirmDateDto {
      * 是否计控成本确认 0:未确认，1:已确认
      */
     private Integer planCostConfirm;
+    /**
+     * 工时部工价确认 0:未确认，1:已确认
+     */
+    private Integer workingHourConfirm;
 
     /**
      * 工艺员确认时间
@@ -86,6 +90,16 @@ public class TagConfirmDateDto {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planControlDate;
+    /**
+     * 吊牌翻译确认时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date translateConfirmDate;
+    /**
+     * 工时部工价确认时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date workingHourConfirmDate;
 
     /**
      * 枚举：正确样：correct_sample

@@ -225,9 +225,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         List<String> result = new ArrayList<>();
         //ED 取E
-        if (StrUtil.equals(brand, "6")) {
+        /*if (StrUtil.equals(brand, "6")) {
             brand = "1";
-        }
+        }*/
         String qx = brand + year.substring(year.length() - 2) + season + category;
         for (int i = 0; i < count; i++) {
             result.add(qx + String.format("%0" + length + "d", ++maxNo));
@@ -853,12 +853,16 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> seatIds = new ArrayList<>(2);
         for (PlanningCategoryItem planningCategoryItem : list) {
             seatIds.add(planningCategoryItem.getId());
-
+            if(StrUtil.isEmpty(planningCategoryItem.getSendDeptId()) || StrUtil.isEmpty(planningCategoryItem.getReceiveDeptId())){
+                throw new OtherException("发送部门和接收部门不能为空");
+            }
         }
         Date sendDate = new Date();
         UpdateWrapper<PlanningCategoryItem> seatUw = new UpdateWrapper<>();
         seatUw.set("status", BasicNumber.ONE.getNumber());
         seatUw.set("send_date", sendDate);
+        seatUw.set("send_dept_id", list.get(0).getSendDeptId());
+        seatUw.set("receive_dept_id", list.get(0).getReceiveDeptId());
         seatUw.in("status", BasicNumber.ZERO.getNumber(), "-1");
         seatUw.in("id", seatIds);
         update(seatUw);
@@ -1179,15 +1183,18 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
         uw.in("id", seatIds);
         uw.set("status", "-1");
+        uw.set("send_dept_id", "");
+        uw.set("receive_dept_id", "");
         update(uw);
         styleService.remove(sdQw);
         return true;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class )
     public boolean del(String ids) {
         // 查询款式设计数据
-        QueryWrapper<Style> sdQw = new QueryWrapper();
+        QueryWrapper sdQw = new QueryWrapper();
         List<String> seatIds = StrUtil.split(ids, CharUtil.COMMA);
         sdQw.in("planning_category_item_id", seatIds);
         List<Style> sdList = styleService.list(sdQw);
@@ -1201,6 +1208,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             }
         }
         removeBatchByIds(seatIds);
+        //删除关联的素材库
+        planningCategoryItemMaterialService.remove(sdQw);
         styleService.remove(sdQw);
         return true;
     }

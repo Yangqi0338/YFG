@@ -6,18 +6,25 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.MATERIAL_CREATE_PURCHASEDEMAND;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -33,6 +40,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -57,19 +65,70 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.dto.BomPrintVo;
+import com.base.sbc.module.pack.dto.CopyBomDto;
+import com.base.sbc.module.pack.dto.CreatePackInfoByStyleDto;
+import com.base.sbc.module.pack.dto.PackBomVersionDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackCopyDto;
+import com.base.sbc.module.pack.dto.PackInfoAssociationDto;
+import com.base.sbc.module.pack.dto.PackInfoDto;
+import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.dto.PackInfoSetPatternNoDto;
+import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
+import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomColor;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomColorService;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackBusinessOpinionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.PackProcessPriceService;
+import com.base.sbc.module.pack.service.PackSampleReviewService;
+import com.base.sbc.module.pack.service.PackSizeConfigService;
+import com.base.sbc.module.pack.service.PackSizeService;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
+import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
+import com.base.sbc.module.pack.vo.CopyItemsVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.vo.PackInfoStatusVo;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
+import com.base.sbc.module.pack.vo.PackSizeVo;
+import com.base.sbc.module.pack.vo.PricingSelectListVO;
+import com.base.sbc.module.pack.vo.StylePackInfoListVo;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
@@ -85,6 +144,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -97,16 +157,32 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
+import javax.annotation.Resource;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 
 /**
  * 类描述：资料包 service类
@@ -226,27 +302,31 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Lazy
     private SmpService smpService;
 
+    @Resource
+    private FieldValService fieldValService;
+
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
         // 查询款式设计数据
         BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
-        sdQw.in("status", "1", "2");
-        sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
-        sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
-        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
-        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
-        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
-        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getDesignNo() ) ,"design_no", StringUtils.convertList(pageDto.getDesignNo()) );
-        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"style_no", StringUtils.convertList(pageDto.getStyleNo()) );
-        sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
-        sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        sdQw.orderByDesc("create_date");
+        sdQw.in("ts.status", "1", "2");
+        sdQw.notEmptyEq("ts.prod_category1st", pageDto.getProdCategory1st());
+        sdQw.notEmptyEq("ts.prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("ts.prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("ts.prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("ts.planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getDesignNo() ) ,"ts.design_no", StringUtils.convertList(pageDto.getDesignNo()) );
+        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"tsc.style_no", StringUtils.convertList(pageDto.getStyleNo()) );
+        sdQw.andLike(pageDto.getSearch(), "ts.design_no", "tsc.style_no", "ts.style_name");
+        sdQw.notEmptyEq("ts.devt_type", pageDto.getDevtType());
+        sdQw.groupBy("ts.id");
+        sdQw.orderByDesc("ts.create_date");
 
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packDesign.getK());
+        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packDesign.getK(), "ts.");
         Page<Style> page = PageHelper.startPage(pageDto);
-        styleService.list(sdQw);
+        styleColorMapper.pageBySampleDesign(sdQw);
         PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
         //查询bom列表
         List<StylePackInfoListVo> sdpList = pageInfo.getList();
@@ -444,6 +524,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 .or().likeRight("name",pageDto.getPackType()));
 //        qw.eq("path", pageDto.getPackType()).or().likeRight("name",pageDto.getPackType());
         qw.orderByDesc("id");
+        qw.ne("json_content", "[]");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);
         return objects.toPageInfo();
@@ -760,6 +841,31 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 BeanUtil.copyProperties(tag, vo);
             }
         }
+        // 获取versionId
+        String bomVersionId = packBomVersionService.findOneField(new LambdaQueryWrapper<PackBomVersion>()
+                        .eq(PackBomVersion::getForeignId, detail.getId())
+                        .eq(PackBomVersion::getPackType, detail.getPackType())
+                        .orderByDesc(PackBomVersion::getVersion)
+                , PackBomVersion::getId);
+        if (StrUtil.isNotBlank(bomVersionId)) {
+            // 获取物料清单id
+            List<String> materialIdList = packBomService.listOneField(new LambdaQueryWrapper<PackBom>()
+                            .eq(PackBom::getBomVersionId, bomVersionId)
+                            .eq(PackBom::getForeignId, detail.getId())
+                            .eq(PackBom::getPackType, detail.getPackType())
+                    , PackBom::getMaterialId);
+            if (CollUtil.isNotEmpty(materialIdList)) {
+                // 获取动态表值
+                String highVal = fieldValService.findOneField(new LambdaQueryWrapper<FieldVal>()
+                        .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.MATERIAL)
+                        .eq(FieldVal::getFieldName, "fabric_value")
+                        .in(FieldVal::getForeignId, materialIdList)
+                        .eq(FieldVal::getVal, "JZ001")
+                , FieldVal::getValName);
+                vo.setHighValStr(highVal);
+            }
+        }
+
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(stylePicUtils.getStyleUrl(vo.getStylePic()));
         }
@@ -817,6 +923,30 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         ByteArrayOutputStream gen = vo.gen();
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
         try {
+            // 校验重量体积是否有填写
+            String value = ccmFeignService.queryCompanySettingData("product_type_check");
+            if (StrUtil.isNotBlank(value)) {
+                PackInfo packInfo = getById(dto.getForeignId());
+                if (CollUtil.newArrayList(value.split(",")).contains(packInfo.getDevtType())) {
+                    PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+                    String weight = packTechPackaging.getWeight();
+                    String volume = packTechPackaging.getVolume();
+                    String stackedVolume = packTechPackaging.getStackedVolume();
+                    String packagingFormName = packTechPackaging.getPackagingFormName();
+                    if (ObjectUtils.isEmpty(weight) || !(new BigDecimal(weight).compareTo(BigDecimal.ZERO) > 0)) {
+                        throw new OtherException("请先填写重量！");
+                    }
+                    if (ObjectUtils.isEmpty(volume) || !(new BigDecimal(volume).compareTo(BigDecimal.ZERO) > 0)) {
+                        throw new OtherException("请先计算体积！");
+                    }
+                    if (ObjectUtil.isNotEmpty(packagingFormName) && "叠装".equals(packagingFormName)) {
+                        if (ObjectUtils.isEmpty(stackedVolume) || !(new BigDecimal(stackedVolume).compareTo(BigDecimal.ZERO) > 0)) {
+                            throw new OtherException("请先计算叠装体积！");
+                        }
+                    }
+                }
+            }
+
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName() + fileName);
             // 将文件id保存到状态表
@@ -828,10 +958,25 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     packInfoStatus.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new OtherException("生成工艺文件失败");
+            log.error("生成工艺文件失败", e);
+            throw new OtherException("生成工艺文件失败，失败原因：" + e.getMessage());
         }
 
+    }
+
+
+    @Override
+    public Pair<String, com.alibaba.fastjson2.JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto) {
+        GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
+        String devtType = vo.getDevtType();
+        Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        Map<String, Map<String, String>> proccessStyleMap = ccmFeignService.getDictInfoToMap("Process-Style");
+        boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        boolean ctBasicPage = proccessStyleMap.containsKey("Process-Style") &&proccessStyleMap.get("Process-Style").containsKey("CBasicPage") ;
+        vo.setCtBasicPage(ctBasicPage);
+        vo.setFob(fob);
+        vo.setDevtType(fob ? "FOB" : devtType);
+        return Pair.of("ftl/process.html.ftl",vo.dataModel());
     }
 
 
@@ -1181,6 +1326,24 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
+    public PageInfo<FabricSummaryInfoVo> selectFabricSummaryStyle(FabricSummaryV2Dto dto) {
+        UserCompany userCompany = companyUserInfo.get();
+        BaseQueryWrapper qw = new BaseQueryWrapper<>();
+        qw.eq("tpi.company_code", userCompany.getCompanyCode());
+        qw.eq("ts.planning_season_id", dto.getPlanningSeasonId());
+        qw.in(StringUtils.isNotEmpty(dto.getFormerSupplierCode()),"tpb.supplier_id",StringUtils.convertList(dto.getFormerSupplierCode()));
+        qw.like(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
+        qw.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tpb.material_code", dto.getMaterialCode());
+        qw.in(!CollectionUtils.isEmpty(dto.getBomList()),"tpb.id", dto.getBomList());
+        qw.in(!CollectionUtils.isEmpty(dto.getStyleNos()),"tsc.style_no", dto.getStyleNos());
+        qw.orderByDesc("tpb.design_verify");
+        qw.eq(StringUtils.isNotEmpty(dto.getFabricSummaryCode()),"tpb.supplier_material_code", dto.getFabricSummaryCode());
+        Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
+        baseMapper.selectFabricSummaryStyle(dto,qw);
+        return page.toPageInfo();
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);
@@ -1361,22 +1524,22 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Override
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
-        sdQw.notEmptyEq("bom_status", pageDto.getBomStatus());
+        sdQw.notEmptyEq("ps.bom_status", pageDto.getBomStatus());
 //        sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
-        sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
-        sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
-        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
-        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
-        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
-        sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
-        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"design_no",StringUtils.convertList(pageDto.getDesignNo()));
-        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"style_no",StringUtils.convertList(pageDto.getStyleNo()));
-        sdQw.isNotNull("style_no");
-        sdQw.ne("style_no","");
-        sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        sdQw.orderByDesc("create_date");
+        sdQw.notEmptyEq("p.prod_category1st", pageDto.getProdCategory1st());
+        sdQw.notEmptyEq("p.prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("p.prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("p.prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("p.planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.andLike(pageDto.getSearch(), "p.design_no", "p.style_no", "p.style_name");
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"p.design_no",StringUtils.convertList(pageDto.getDesignNo()));
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"p.style_no",StringUtils.convertList(pageDto.getStyleNo()));
+        sdQw.isNotNull("p.style_no");
+        sdQw.ne("p.style_no","");
+        sdQw.notEmptyEq("sd.devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("p.create_date");
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK());
+        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK(),"sd.");
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos =  baseMapper.queryByListQw(sdQw);

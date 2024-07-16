@@ -185,6 +185,8 @@ public interface BaseService<T> extends IService<T> {
     T findOne(QueryWrapper<T> wrapper);
     T findOne(LambdaQueryWrapper<T> wrapper);
     <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <K,R> Map<K,R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,K> keyFunction, SFunction<T,R> valueFunction);
+    <R> Map<String,R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
     <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);
 
     /**
@@ -194,5 +196,6 @@ public interface BaseService<T> extends IService<T> {
         return null;
     }
     <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <R> R findByIds2OneField(String id, SFunction<T,R> function);
     <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

@@ -1,7 +1,5 @@
 package com.base.sbc.module.orderbook.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
@@ -20,6 +18,7 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
@@ -28,11 +27,25 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.PutInProductionType;
-import com.base.sbc.config.enums.business.orderBook.*;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.ValidationUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -56,7 +69,16 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.*;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
+import com.base.sbc.module.orderbook.vo.UpdateResultVo;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -65,7 +87,6 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -77,6 +98,8 @@ import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetQueryDto;
 import com.base.sbc.module.smp.dto.ScmProductionDto;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
@@ -87,7 +110,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.jetty.util.ArrayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -96,6 +118,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -104,7 +128,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -131,6 +167,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
+    @Lazy
     private final StyleColorService styleColorService;
     private final StyleService styleService;
 
@@ -162,7 +199,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
-        this.querylist(queryWrapper,1, isColumnHeard ? 1 : 0, 1);
+        this.querylist(queryWrapper, 1, isColumnHeard ? 1 : 0, 1, 1, 1);
         OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(page.toPageInfo(),OrderBookDetailPageVo.class);
         if (!isColumnHeard) {
             pageVo.setTotalMap(this.queryCount(dto));
@@ -170,81 +207,107 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return pageVo;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void updateBatchOrderBookDetail(List<OrderBookDetail> orderBookDetailList) {
+        if (ObjectUtil.isEmpty(orderBookDetailList)) {
+            throw new OtherException("未勾选编辑数据！");
+        }
+        // 看拿到的id是否是空值 都是空的 则有问题，部分为空放到下面查询订货本详情的时候判断数量即可
+        List<String> orderBookDetailIdList = orderBookDetailList
+                .stream().map(OrderBookDetail::getId).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+        if (ObjectUtil.isEmpty(orderBookDetailIdList)) {
+            throw new OtherException("数据不存在，请刷新后重试！");
+        }
+        // 根据过滤后的id查询订货本详情信息 如果查到的订货本详情数据集合的长度和传入的集合长度不一致 说明详情不存在
+        List<OrderBookDetail> oldOrderBookDetailList = listByIds(orderBookDetailIdList);
+        if (ObjectUtil.isEmpty(oldOrderBookDetailList) || oldOrderBookDetailList.size() != orderBookDetailList.size()) {
+            throw new OtherException("数据不存在，请刷新后重试！");
+        }
+        // 最新进行批量更新
+        updateBatchById(orderBookDetailList);
+    }
+
 
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1);
+        boolean imageFlag = YesOrNoEnum.YES.getValueStr().equals(dto.getImgFlag());
+        if (imageFlag) {
+            dto.setPageNum(1);
+            dto.setPageSize(3000);
+            dto.startPage();
+        }
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1,0,1,imageFlag ? 1 : 0);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
-        List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
+//        List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
         //导出
         // ExcelUtils.executorExportExcel();
-        ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
-        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
+//        ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
+//        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
+
+        orderBookDetailVos.forEach(OrderBookDetailVo::setReplenishInfo);
+
+        ExcelUtils.exportExcelByTableCode(orderBookDetailVos, "订货本详情", response, dto);
     }
 
+    @Value("${baseFrontEndAddress}")
+    private String baseFrontEndAddress;
+
+    /**
+     * queryWrapper 查询构造器
+     * judgeGroup 判断参数组
+     *  - 是否需要数据权限
+     *  - 是否是动态列的total查询,提前返回
+     *  - 是否查询多数据源的参考款
+     *  - 是否装饰图片路径
+     * */
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer... judgeGroup) {
-        List<Integer> judgeList = ArrayUtil.asMutableList(judgeGroup);
+        List<Integer> judgeList = Arrays.asList(judgeGroup);
+        // 是否需要数据权限
         boolean openDataAuth = CommonUtils.judge(judgeList, 0, 1);
         if (openDataAuth) {
-            dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
+        // 若是动态列的total查询或没数据就直接返回
         if (CommonUtils.judge(judgeList, 1, 0) || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
-
-        List<OrderBook> orderBookList = orderBookService.list(new LambdaQueryWrapper<OrderBook>()
-                .in(OrderBook::getId, orderBookDetailVos.stream().map(OrderBookDetailVo::getOrderBookId).collect(Collectors.toList())));
         /*设置图片分辨路*/
-        stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
-        stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
+        // 第四个参数决定是否装饰图片路径, 默认是
+        if (CommonUtils.judge(judgeList, 3, 1)) {
+            stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
+            stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
+            orderBookDetailVos.forEach((it)-> {
+                it.setStylePic(StrUtil.replace(it.getStylePic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image"));
+                it.setStyleColorPic(StrUtil.replace(it.getStyleColorPic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image"));
+            });
+        }
+        // 获取页面默认的尺码,用于能否编辑的判断
         OrderBookDetailQueryDto pageConfigQueryDto = new OrderBookDetailQueryDto();
         pageConfigQueryDto.setCompanyCode(orderBookDetailVos.get(0).getCompanyCode());
         Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig = pageConfig(pageConfigQueryDto);
-
-        //查询BOM版本
-        for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
-            QueryWrapper<PackBomVersion> queryWrapper1 =new BaseQueryWrapper<>();
-            queryWrapper1.eq("foreign_id",orderBookDetailVo.getPackInfoId());
-            orderBookDetailVo.setPackType("0".equals(orderBookDetailVo.getBomStatus())?"packDesign":"packBigGoods");
-            queryWrapper1.eq("pack_type",orderBookDetailVo.getPackType());
-            queryWrapper1.eq("status","1");
-            queryWrapper1.orderByDesc("version");
-            queryWrapper1.last("limit 1");
-            PackBomVersion packBomVersion = packBomVersionService.getOne(queryWrapper1);
-            if (packBomVersion!=null){
-                orderBookDetailVo.setBomVersionId(packBomVersion.getId());
-            }
-
-        }
+        //查询BOM版本 xml解决
+//        for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
+//            BaseLambdaQueryWrapper<PackBomVersion> queryWrapper1 =new BaseLambdaQueryWrapper<>();
+//            queryWrapper1.eq(PackBomVersion::getForeignId,orderBookDetailVo.getPackInfoId());
+//            queryWrapper1.eq(PackBomVersion::getPackType,orderBookDetailVo.getPackType());
+//            queryWrapper1.eq(PackBomVersion::getStatus,YesOrNoEnum.YES.getValueStr());
+//            queryWrapper1.orderByDesc(PackBomVersion::getVersion);
+//            orderBookDetailVo.setBomVersionId(packBomVersionService.findOneField(queryWrapper1, PackBomVersion::getId));
+//        }
 
         /*款式定价相关参数*/
         this.queryStylePrice(orderBookDetailVos,openDataAuth);
-        /*按配色id获取到里面的围度数据*/
-        // Map<String, FieldVal> map = new HashMap<>();
-        /*获取配色中的围度里面的动态数据*/
-        // // List<String> stringList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleColorId).collect(Collectors.toList());
-        // if(CollUtil.isNotEmpty(stringList)){
-            // QueryWrapper<FieldVal> fieldValQueryWrapper = new QueryWrapper<>();
-            // fieldValQueryWrapper.in("foreign_id",stringList);
-            // fieldValQueryWrapper.eq("data_group", FieldValDataGroupConstant.STYLE_COLOR);
-            // /*版型定位*/
-            // fieldValQueryWrapper.eq("field_name","positioningCode");
-            // List<FieldVal> list = fieldValService.list(fieldValQueryWrapper);
-
-            // if(CollUtil.isNotEmpty(list)){
-            //     // map =   Optional.ofNullable(list).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(FieldVal::getForeignId, v -> v, (a, b) -> b));
-            // }
-        // }
-
+        // 根据
         String sizeCodes = orderBookDetailVos.stream().map(OrderBookDetailVo::getSizeCodes).filter(StrUtil::isNotBlank)
                 .flatMap(it-> Stream.of(it.split(COMMA))).distinct().collect(Collectors.joining(COMMA));
         List<BasicsdatumSize> sizeList = sizeService.list(new BaseLambdaQueryWrapper<BasicsdatumSize>()
                 .notEmptyIn(BasicsdatumSize::getCode, sizeCodes)
                 .select(BasicsdatumSize::getModel, BasicsdatumSize::getInternalSize, BasicsdatumSize::getCode));
-
         List<String> packBomIds = orderBookDetailVos.stream().map(it ->
                 Opt.ofNullable(it.getUnitFabricDosageIds()).orElse("")
                         + COMMA +
@@ -253,9 +316,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         List<PackBom> packBoms = new ArrayList<>();
         if (CollUtil.isNotEmpty(packBomIds)) {
-            packBoms.addAll(packBomService.list(new LambdaQueryWrapper<PackBom>().in(PackBom::getId, packBomIds)));
+            packBoms.addAll(packBomService.list(new LambdaQueryWrapper<PackBom>()
+                    .in(PackBom::getId, packBomIds)));
         }
-
         // 获取维度系数的面料数据
         List<String> styleIdList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleId).collect(Collectors.toList());
         List<FieldVal> fvList = fieldValService.list(new LambdaQueryWrapper<FieldVal>()
@@ -264,15 +327,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY)
                 .eq(FieldVal::getFieldName, "MaterialQuality")
         );
-
+        Map<String, String> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
+                .in(PackBom::getBomVersionId, orderBookDetailVos.stream().map(OrderBookDetailVo::getBomVersionId).filter(Objects::nonNull).collect(Collectors.toList()))
+                .eq(PackBom::getMainFlag, YesOrNoEnum.YES)
+                .orderByAsc(PackBom::getBomVersionId).orderByDesc(PackBom::getId),
+                PackBom::getBomVersionId, PackBom::getStatus
+        );
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
-
-            // /*版型定位字段*/
-            // FieldVal fieldValList = map.get(orderBookDetailVo.getStyleColorId());
-            // if(!ObjectUtil.isEmpty(fieldValList)){
-            //     orderBookDetailVo.setPatternPositioningCode(fieldValList.getVal());
-            //     orderBookDetailVo.setPatternPositioningName(fieldValList.getValName());
-            // }
             Function<String, String> getDosageName = (String dosageId) -> {
                 if (StrUtil.isBlank(dosageId)) return null;
                 return packBoms.stream().filter(it -> dosageId.contains(it.getId())).map(it ->
@@ -289,74 +350,39 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 orderBookDetailVo.setFabricCompositionType(fv.getValName());
             });
 
-
-            if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
-                // orderBookDetailVo.setSupplierNo("");
-                // orderBookDetailVo.setSupplierColor("");
-                // orderBookDetailVo.setSupplierAbbreviation("");
-                // /*"FOB取配色 cmt设置为空*/
-                // orderBookDetailVo.setFobClothingFactoryName("");
-                // orderBookDetailVo.setFobClothingFactoryCode("");
-
-//                orderBookDetailVo.setCost("")
-
-                String styleColorId = orderBookDetailVo.getStyleColorId();
-
-                PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", orderBookDetailVo.getBom()).eq("pack_type",
-                        "0".equals(orderBookDetailVo.getBomStatus()) ?
-                                PackUtils.PACK_TYPE_DESIGN :
-                                PackUtils.PACK_TYPE_BIG_GOODS).eq("style_color_id", styleColorId));
-                if (packInfo != null) {
-                    String packType = "0".equals(orderBookDetailVo.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
-                    PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
-                    if (enableVersion != null) {
-                        List<PackBom> packBoms1 = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
-                        for (PackBom packBom : packBoms1) {
-                            if ("1".equals(packBom.getMainFlag())) {
-                                orderBookDetailVo.setFabricState(packBom.getStatus());
-                                // orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
-                                // orderBookDetailVo.setFabricFactoryName(packBom.getSupplierName());
-//                                QueryWrapper<BasicsdatumMaterialColor> basicsdatumMaterialColorQueryWrapper = new QueryWrapper<>();
-//                                basicsdatumMaterialColorQueryWrapper.eq("material_code", packBom.getMaterialCode());
-//                                basicsdatumMaterialColorQueryWrapper.eq("color_code", packBom.getColorCode());
-//                                BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorService.getOne(basicsdatumMaterialColorQueryWrapper);
-//                                orderBookDetailVo.setFabricFactoryColorNumber(basicsdatumMaterialColor.getSupplierColorCode());
-                                // orderBookDetailVo.setFabricCode(packBom.getMaterialCode());
-                                // orderBookDetailVo.setFabricComposition(packBom.getIngredient());
-                            }
-                        }
-                    }
-                }
+            if (orderBookDetailVo.getDevtType() == PutInProductionType.CMT){
+//                String styleColorId = orderBookDetailVo.getStyleColorId();
+//
+//                PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", orderBookDetailVo.getBom()).eq("pack_type",
+//                        "0".equals(orderBookDetailVo.getBomStatus()) ?
+//                                PackUtils.PACK_TYPE_DESIGN :
+//                                PackUtils.PACK_TYPE_BIG_GOODS).eq("style_color_id", styleColorId));
+//                if (packInfo != null) {
+//                    String packType = "0".equals(orderBookDetailVo.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
+//                    PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
+//                    if (enableVersion != null) {
+//                        List<PackBom> packBomList = packBomService.list(new LambdaQueryWrapper<PackBom>()
+//                                .eq(PackBom::getBomVersionId, orderBookDetailVo.getBomVersionId())
+//                                .eq(PackBom::getMainFlag, YesOrNoEnum.YES)
+//                                .orderByDesc(PackBom::getId)
+//                        );
+//                        for (PackBom packBom : packBomList) {
+                            orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(),""));
+//                        }
+//                    }
+//                }
             }
 
-            String orderBookChannel = orderBookList.stream().filter(it -> it.getId().equals(orderBookDetailVo.getOrderBookId())).findFirst().map(OrderBook::getChannel).orElse("");
-//            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
             Map<String, String> sizeModelMap = sizeList.stream().filter(it -> StrUtil.contains(orderBookDetailVo.getSizeCodes(), it.getCode()))
                     .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
             //数据补偿
             getCommissioningSize(orderBookDetailVo, sizeModelMap);
 
             //填充补全 线上/线下充各种状态
-            orderBookDetailVo.setOfflineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOfflineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.OFFLINE));
-            orderBookDetailVo.setOnlineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOnlineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.ONLINE));
+            orderBookDetailVo.setOfflineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOfflineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookDetailVo.getChannel(), OrderBookChannelType.OFFLINE));
+            orderBookDetailVo.setOnlineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOnlineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookDetailVo.getChannel(), OrderBookChannelType.ONLINE));
             //投产占比
             setLinkSizeProportion(orderBookDetailVo);
-//            sizeModelMap.forEach((key,value)-> {
-//                for (OrderBookChannelType channel : OrderBookChannelType.values()) {
-//                    jsonObject.put(key+ channel.getFill() + "Size",value);
-//                }
-//            });
-//            channelPageConfig.forEach((channel, pageConfig)-> {
-//                List<String> sizeRange = pageConfig.getSizeRange();
-//                if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
-//                    sizeRange.forEach(size-> {
-//                        String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
-//                        jsonObject.put(size+ channel.getFill() + "Status", status);
-//                        jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
-//                    });
-//                };
-//            });
-//            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
 
             if (orderBookDetailVo.getPlaceOrderType() == null) {
                 orderBookDetailVo.setPlaceOrderType(StylePutIntoType.FIRST);
@@ -376,6 +402,22 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (StringUtils.isNotBlank(item.getSimilarBulkStyleNo()) && !CollectionUtils.isEmpty(map.get(item.getSimilarBulkStyleNo()))){
                     item.setSimilarStyle(map.get(item.getSimilarBulkStyleNo()).get(0));
                 }
+            });
+        }
+
+        //预算号
+        if (CommonUtils.judge(judgeList, 4, 0)) {
+            ScmProductionBudgetQueryDto scmProductionBudgetQueryDto = new ScmProductionBudgetQueryDto();
+            scmProductionBudgetQueryDto.setBrandList(orderBookDetailVos.stream().map(OrderBookDetailVo::getBrandName).distinct().collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setYearList(orderBookDetailVos.stream().map(OrderBookDetailVo::getYearName).distinct().collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setSeasonList(orderBookDetailVos.stream().map(OrderBookDetailVo::getSeasonName).distinct().collect(Collectors.toList()));
+            List<ScmProductionBudgetDto> productionBudgetList = smpService.productionBudgetList(scmProductionBudgetQueryDto).getData();
+            orderBookDetailVos.forEach(orderBookDetail -> {
+                orderBookDetail.setProductionBudgetNoList(productionBudgetList.stream().filter(it ->
+                        it.getBrandName().equals(orderBookDetail.getBrandName()) &&
+                                it.getYearName().equals(orderBookDetail.getYearName()) &&
+                                it.getSeasonName().equals(orderBookDetail.getSeasonName())
+                ).collect(Collectors.toList()));
             });
         }
         return orderBookDetailVos;
@@ -465,7 +507,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.braiding", dto.getBraiding());
         queryWrapper.notEmptyLike("tobl.dimension_info", dto.getDimensionInfo());
         queryWrapper.notEmptyLike("tobl.gram_weight", dto.getGramWeight());
-
+        if (StringUtils.isNotBlank(dto.getBulkStyleNoFull())){
+            queryWrapper.eq("tsc.style_no", dto.getBulkStyleNoFull());
+        }
         // //有权限则查询全部数据
         // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
         //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
@@ -624,7 +668,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public Map<String, BigDecimal> queryCount(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
         HashMap<String, Double> hashMap =new HashMap<>();
         double materialMoneySum = 0;
@@ -881,13 +925,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     public Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto) {
-//        List<String> sizeRange = sizeService.listOneField(new LambdaQueryWrapper<BasicsdatumSize>()
-//                .eq(BasicsdatumSize::getStatus, "1")
-//                .eq(BasicsdatumSize::getCompanyCode, dto.getCompanyCode())
-//                .orderByAsc(BasicsdatumSize::getSort), BasicsdatumSize::getInternalSize);
-//        Set<String> sizeRangeSet = sizeRange.stream()
-//                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.toList()))
-//                .keySet();
         // 仅线上线下
         return Arrays.stream(OrderBookChannelType.values()).map(channel-> {
             // 找对应渠道配置
@@ -1188,8 +1225,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 String fill = channelType.getFill();
                 Map<String, String> map = productionDto.getAllSizeMap().getOrDefault(channelType, new HashMap<>(8));
                 jsonObject.forEach((key,value)-> {
-                    if (key.endsWith(fill)) {
-                        map.put(StrUtil.replaceLast(key,fill,""), value.toString());
+                    String num = value.toString();
+                    if (key.endsWith(fill) && StrUtil.isNotBlank(num)) {
+                        map.put(StrUtil.replaceLast(key, fill, ""), num);
                     }
                 });
                 productionDto.getAllSizeMap().put(channelType, map);
@@ -1229,10 +1267,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            production.decorateUserId(userCompanyList);
 //        });
 
-        asyncExecutor.execute(()-> handlePlaceAnProduction(
-                orderBookDetails1,
-                productionList.stream().map(production -> smpService.saveFacPrdOrder(production)).collect(Collectors.toList())
-        ));
+        //设置子线程共享
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        RequestContextHolder.setRequestAttributes(servletRequestAttributes,true);
+        productionList.forEach(production -> {
+            asyncExecutor.execute(()-> handlePlaceAnProduction(
+                    orderBookDetails1,
+                    Collections.singletonList(smpService.saveFacPrdOrder(production))
+            ));
+        });
 
         return productionList.stream().map(ScmProductionDto::getName).collect(Collectors.joining(","));
     }
@@ -1267,7 +1310,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }else {
             PushRecordsDto pushRecordsDto = new PushRecordsDto();
             pushRecordsDto.setRelatedId(list.stream().map(relatedIdFunc).collect(Collectors.joining(",")));
-            pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
+            pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL.toString());
             pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
             pushRecordsDto.setUpdateDate(new String[]{ LocalDateTime.now().minusMinutes(15).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) });
             pushRecordsDto.reset2QueryList();
@@ -1321,58 +1364,63 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return this.getBaseMapper().querySeasonalPlanningOrder(dto);
     }
 
+    @Override
+    public List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        return this.querylist(queryWrapper,1);
+    }
+
+    @Override
+    public String getByStyleNoTotalProduction(String styleNo) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.eq("tsc.style_no",styleNo);
+        return baseMapper.getByStyleNoTotalProductionList(queryWrapper);
+    }
+
     /**
      * 查询款式定价数据
      */
 
     private void queryStylePrice(List<OrderBookDetailVo> orderBookDetailVos,boolean openDataAuth) {
-        if (orderBookDetailVos != null && !orderBookDetailVos.isEmpty()) {
+        if (CollUtil.isNotEmpty(orderBookDetailVos)) {
             List<String> bulkStyleNos = orderBookDetailVos.stream().map(OrderBookDetailVo::getBulkStyleNo).collect(Collectors.toList());
-            BaseQueryWrapper qw = new BaseQueryWrapper();
+            BaseQueryWrapper<StylePricingVO> qw = new BaseQueryWrapper<>();
             qw.in("ssc.style_no", bulkStyleNos);
             if (openDataAuth) {
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
             }
             /*获取款式定价的列表*/
-            List<StylePricingVO> stylePricingList = stylePricingServiceimpl.getBaseMapper().getStylePricingList(new StylePricingSearchDTO(), qw);
-            // List<StylePricingVO> stylePricingVOS = BeanUtil.copyToList(stylePricingList, StylePricingVO.class);
+            StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
+            List<StylePricingVO> stylePricingList = stylePricingServiceimpl.getBaseMapper().getStylePricingList(stylePricingSearchDTO, qw);
             /*款式定价数据组装处理*/
-            stylePricingServiceimpl.dataProcessing(stylePricingList, orderBookDetailVos.get(0).getCompanyCode(),false);
+            stylePricingServiceimpl.dataProcessing(stylePricingList, orderBookDetailVos.get(0).getCompanyCode(),false, false);
             /*按大货款号分类*/
-            Map<String, StylePricingVO> map = Optional.of(stylePricingList).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(StylePricingVO::getBulkStyleNo, v -> v, (a, b) -> b));
+            Map<String, StylePricingVO> map = stylePricingList.stream().collect(CommonUtils.toMap(StylePricingVO::getBulkStyleNo));
 
             for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
                 /*获取款式定价的数据*/
-                StylePricingVO stylePricingVO = map.get(orderBookDetailVo.getBulkStyleNo());
-                if (!ObjectUtil.isEmpty(stylePricingVO)) {
+                String key = orderBookDetailVo.getBulkStyleNo();
+                if (map.containsKey(key)) {
+                    StylePricingVO stylePricingVO = map.get(key);
                     orderBookDetailVo.setStylePricingId(stylePricingVO.getStylePricingId());
 
-                    if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
+                    orderBookDetailVo.setFobCost(new BigDecimal(0));
+                    orderBookDetailVo.setCmtCost(new BigDecimal(0));
+                    orderBookDetailVo.setCmtCarpetCost(new BigDecimal(0));
+                    orderBookDetailVo.setCmtTotalCost(new BigDecimal(0));
+                    if (orderBookDetailVo.getDevtType() == PutInProductionType.CMT){
                         orderBookDetailVo.setCmtCost(stylePricingVO.getTotalCost());
                         orderBookDetailVo.setCmtCarpetCost(stylePricingVO.getSewingProcessingFee());
                         orderBookDetailVo.setCmtTotalCost(stylePricingVO.getTotalCost());
-
-
-                        orderBookDetailVo.setFobCost(new BigDecimal(0));
                     }else {
                         orderBookDetailVo.setFobCost(stylePricingVO.getCoordinationProcessingFee());
-
-
-                        orderBookDetailVo.setCmtCost(new BigDecimal(0));
-                        orderBookDetailVo.setCmtCarpetCost(new BigDecimal(0));
-                        orderBookDetailVo.setCmtTotalCost(new BigDecimal(0));
                     }
                     orderBookDetailVo.setCost(stylePricingVO.getTotalCost());
-
-                    orderBookDetailVo.setRate(stylePricingVO.getPlanningRatio());
-
-                    if (orderBookDetailVo.getRate() == null){
-                        orderBookDetailVo.setRate(new BigDecimal(4));
-                    }
+                    orderBookDetailVo.setRate(Opt.ofNullable(stylePricingVO.getPlanningRatio()).orElse(new BigDecimal(4)));
                     orderBookDetailVo.setHonest(stylePricingVO.getPackagingFee());
                     /*产品风格*/
                     /*系数取款式定价中的产品风格 没有值时是D*/
-                    orderBookDetailVo.setCoefficientCode(StrUtil.isEmpty(stylePricingVO.getProductStyle())?"D":stylePricingVO.getProductStyle());
+                    orderBookDetailVo.setCoefficientCode(StrUtil.isBlank(stylePricingVO.getProductStyle())?"D":stylePricingVO.getProductStyle());
                 }
 
             }

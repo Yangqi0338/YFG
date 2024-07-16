@@ -6,11 +6,11 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -21,16 +21,15 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.base.sbc.config.annotation.QueryField;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicProcessGallery;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
@@ -43,6 +42,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Resource;
@@ -70,7 +70,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     private JdbcTemplate jdbcTemplate;
 
     @Resource
-    private OperaLogService operaLogService;
+    public OperaLogService operaLogService;
 
     /**
      * 获取企业编码
@@ -83,6 +83,12 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     public String getUserId() {
         return userUtils.getUserCompany().getUserId();
+    }
+
+    public String getVirtualDeptIds() {
+        List<String> virtualDeptIds = userUtils.getUserCompany().getVirtualDeptIds();
+        if (virtualDeptIds.size() > 1) throw new OtherException("!当前操作人非法存在于两个及以上的虚拟部门!");
+        return virtualDeptIds.get(0);
     }
 
     public String getUserName() {
@@ -580,9 +586,16 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      */
     @Override
     public void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
-        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-        operaLogEntity.setJsonContent(jsonArray.toJSONString());
-        operaLogService.save(operaLogEntity);
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+                    operaLogEntity.setJsonContent(jsonArray.toJSONString());
+                    operaLogService.save(operaLogEntity);
+                }
+            });
+        }
     }
 
     /**
@@ -731,8 +744,18 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     @Override
+    public <K, R> Map<K, R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, K> keyFunction, SFunction<T, R> valueFunction) {
+        return this.list(wrapper.select(keyFunction, valueFunction)).stream().filter(it-> ObjectUtil.isNotEmpty(valueFunction.apply(it))).collect(CommonUtils.toMap(keyFunction,valueFunction));
+    }
+
+    @Override
+    public <R> Map<String, R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return mapOneField(wrapper, T::getId, function);
+    }
+
+    @Override
     public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
-        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+        return listOneField(new LambdaQueryWrapper<T>().in(T::getId, ids), function);
     }
 
 
@@ -772,6 +795,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         // https://blog.csdn.net/qq_42696265/article/details/131944397
         SqlUtil.clearLocalPage();
         return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
+    }
+
+    @Override
+    public <R> R findByIds2OneField(String id, SFunction<T, R> function) {
+        return findOneField(new LambdaQueryWrapper<T>().eq(T::getId, id), function);
     }
 
     @Override

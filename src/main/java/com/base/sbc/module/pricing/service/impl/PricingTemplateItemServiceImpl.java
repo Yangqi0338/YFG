@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -19,7 +20,6 @@ import com.base.sbc.module.pricing.mapper.PricingTemplateItemMapper;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.beust.jcommander.internal.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,7 @@ public class PricingTemplateItemServiceImpl extends BaseServiceImpl<PricingTempl
     @Override
     public void saveBatch(List<PricingTemplateItemDTO> pricingTemplateItemDTOS,
                           String pricingTemplateId, String userCompany) {
-        if (CollectionUtils.isEmpty(pricingTemplateItemDTOS)) {
+        if (CollUtil.isEmpty(pricingTemplateItemDTOS)) {
             LambdaQueryWrapper<PricingTemplateItem> queryWrapper = new QueryWrapper<PricingTemplateItem>()
                     .lambda()
                     .eq(PricingTemplateItem::getPricingTemplateId, pricingTemplateId)
@@ -89,7 +89,7 @@ public class PricingTemplateItemServiceImpl extends BaseServiceImpl<PricingTempl
                     return pricingTemplateItem;
                 }).collect(Collectors.toList());
         super.saveOrUpdateBatch(pricingTemplateItems);
-        if (CollectionUtils.isNotEmpty(ids)) {
+        if (CollUtil.isNotEmpty(ids)) {
             super.getBaseMapper().deleteBatchIds(ids);
         }
     }
@@ -100,7 +100,7 @@ public class PricingTemplateItemServiceImpl extends BaseServiceImpl<PricingTempl
                 .eq(PricingTemplateItem::getDelFlag, "0")
                 .select(PricingTemplateItem::getId);
         List<PricingTemplateItem> list = super.list(qw);
-        return CollectionUtils.isEmpty(list) ? Lists.newArrayList() : list.stream()
+        return CollUtil.isEmpty(list) ? Lists.newArrayList() : list.stream()
                 .map(PricingTemplateItem::getId)
                 .collect(Collectors.toList());
     }

@@ -1,17 +1,17 @@
 package com.base.sbc.module.basicsdatum.dto;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -38,10 +38,11 @@ public class BasicsdatumMaterialSaveDto {
 	 */
 	private String attachmentName;
 
-	@NotBlank(message = "ID必填,新增-1")
-	@ApiModelProperty(value = "id", required = true)
+	@ApiModelProperty(value = "id")
 	private String id;
 	/** 物料编号 */
+	@Size(min = 6, max = 12, message = "编号长度不能小于6位，最长不能超过12位!")
+	@Pattern(regexp ="^[a-zA-Z0-9_-]+$", message= "不能输入特殊字符，只能输入数字，字母，下划线和横杠！")
 	@ApiModelProperty(value = "物料编号")
 	private String materialCode;
 	/** 物料名称 */
@@ -380,5 +381,8 @@ public class BasicsdatumMaterialSaveDto {
 
 	@ApiModelProperty(value = "是否战略备料(0是，1否)")
 	private String isStrategic;
+
+	@ApiModelProperty(value = "物料库动态字段")
+	List<FieldVal> fieldValList;
 
 }

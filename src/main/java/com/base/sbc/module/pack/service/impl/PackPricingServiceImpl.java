@@ -156,8 +156,11 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         for(String key:otherStatistics.keySet()){
             hashMap.put(key,otherStatistics.get(key));
         }
-        BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap,decimal);
-        return  formula;
+        if(CollUtil.isNotEmpty(collect)){
+            BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap,decimal);
+            return  formula;
+        }
+        return BigDecimal.ZERO;
     }
 
     /**

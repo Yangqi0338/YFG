@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
+        <id column="serial_number" property="serialNumber"/>
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="design_no" property="designNo"/>
+        <result column="style_id" property="styleId"/>
+        <result column="prod_category1st" property="prodCategory1st"/>
+        <result column="prod_category1st_name" property="prodCategory1stName"/>
+        <result column="prod_category" property="prodCategory"/>
+        <result column="prod_category_name" property="prodCategoryName"/>
+        <result column="prod_category2nd" property="prodCategory2nd"/>
+        <result column="prod_category2nd_name" property="prodCategory2ndName"/>
+        <result column="prod_category3rd" property="prodCategory3rd"/>
+        <result column="prod_category3rd_name" property="prodCategory3rdName"/>
+        <result column="silhouette_code" property="silhouetteCode"/>
+        <result column="silhouette_name" property="silhouetteName"/>
+        <result column="template_code" property="templateCode"/>
+        <result column="template_name" property="templateName"/>
+        <result column="file_id" property="fileId"/>
+        <result column="file_address" property="fileAddress"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="material_name" property="materialName"/>
+        <result column="pic_id" property="picId"/>
+        <result column="pic_url" property="picUrl"/>
+        <result column="status" property="status"/>
+        <result column="enable_flag" property="enableFlag"/>
+        <result column="create_id" property="createId"/>
+        <result column="create_name" property="createName"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_id" property="updateId"/>
+        <result column="update_name" property="updateName"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="company_code" property="companyCode"/>
+    </resultMap>
+
+    <select id="listPages" resultType="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
+        SELECT
+        tpl.serial_number,
+        tpl.id,
+        tpl.`code`,
+        tpl.design_no,
+        tpl.style_id,
+        tpl.prod_category1st,
+        tpl.prod_category1st_name,
+        tpl.prod_category,
+        tpl.prod_category_name,
+        tpl.prod_category2nd,
+        tpl.prod_category2nd_name,
+        tpl.prod_category3rd,
+        tpl.prod_category3rd_name,
+        tpl.silhouette_code,
+        tpl.silhouette_name,
+        tpl.template_code,
+        tpl.template_name,
+        tpl.ever_green_code,
+        tpl.file_id,
+        tpl.material_code,
+        tpl.material_name,
+        tpl.pic_id,
+        tpl.pic_url,
+        tpl.`status`,
+        tpl.enable_flag,
+        tpl.create_id,
+        tpl.create_name,
+        tpl.create_date,
+        tpl.update_name,
+        tpl.update_date,
+        tpl.del_flag,
+        tpl.company_code,
+        tpl.style_nos,
+        tpl.parent_id,
+        tpl.parent_ids,
+        ifnull((SELECT
+        count( 1 )
+        FROM
+        t_style ts
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
+        AND tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = 0
+        AND ts.registering_id = tpl.id
+        AND ts.registering_id IS NOT NULL
+        ), 0) useStyleNum,
+        ifnull(round((SELECT
+        count( 1 )
+        FROM
+        t_style ts
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
+        AND tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = 0
+        AND ts.registering_id = tpl.id
+        AND ts.registering_id IS NOT NULL
+        )/(SELECT
+        count( 1 )
+        FROM
+        t_style ts
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
+        AND tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = 0
+        AND ts.registering_id IS NOT NULL
+        ), 2),0) * 100 patternLibraryUtilization
+        FROM
+        t_pattern_library tpl
+        LEFT JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
+        AND tpli.del_flag = '0'
+        LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
+        LEFT JOIN t_style ts ON ts.id = tpl.style_id AND ts.del_flag = '0'
+        left JOIN t_style_color tsc ON ts.id = tsc.style_id AND tsc.del_flag = '0'
+        WHERE
+        tpl.del_flag = '0'
+        <if test="patternLibraryPageDTO.partsNameList != null and patternLibraryPageDTO.partsNameList.size > 0">
+            AND tpli.name IN
+            <foreach collection="patternLibraryPageDTO.partsNameList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="patternLibraryPageDTO.brandNameList != null and patternLibraryPageDTO.brandNameList.size > 0">
+            AND tplb.brand_name IN
+            <foreach collection="patternLibraryPageDTO.brandNameList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="listEverGreenCode" resultType="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
+        SELECT
+        tpl.id,
+        tpl.`code`
+        FROM
+        t_pattern_library tpl
+        LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
+        WHERE
+        tpl.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="listUseStyle" resultType="com.base.sbc.module.patternlibrary.vo.UseStyleVO">
+        SELECT
+        tsc.style_color_pic stylePic,ts.design_no, tsc.style_no, tsc.band_code, tsc.band_name
+        FROM
+        t_style ts
+        join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="listUseStyleByStyle" resultType="com.base.sbc.module.patternlibrary.vo.UseStyleVO">
+        SELECT
+        tsc.style_color_pic stylePic,ts.design_no, tsc.style_no, tsc.band_code, tsc.band_name
+        FROM
+        t_style ts
+        join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <!-- 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-涉及部件 7-审核状态 8-是否启用）-->
+    <select id="getAllFilterCriteria" resultType="com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO">
+        SELECT
+        <if test="type == 1">
+            tpl.`code`
+        </if>
+        <if test="type == 2">
+            tplb.brand_name
+        </if>
+        <if test="type == 3">
+            tpl.prod_category1st_name,tpl.prod_category_name,
+            tpl.prod_category2nd_name, tpl.prod_category3rd_name
+        </if>
+        <if test="type == 4">
+            tpl.silhouette_name
+        </if>
+        <if test="type == 5">
+            tpl.template_name
+        </if>
+        <if test="type == 6">
+            tpli.name as parts_name
+        </if>
+        <if test="type == 7">
+            tpl.`status`
+        </if>
+        <if test="type == 8">
+            tpl.enable_flag
+        </if>
+        FROM t_pattern_library tpl
+        <if test="type == 6">
+            left JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
+        AND tpli.del_flag = '0' and tpli.type = 4
+        </if>
+        <if test="type == 2">
+            left JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
+        </if>
+        WHERE
+        tpl.del_flag = '0'
+        <if test="type == 2">
+            and
+                (tplb.brand_name is not null and tplb.brand_name != '')
+        </if>
+        <if test="type == 3">
+            and
+            (tpl.prod_category1st_name is not null and tpl.prod_category1st_name != '')
+        </if>
+        <if test="type == 4">
+            and
+                (tpl.silhouette_name is not null and tpl.silhouette_name != '')
+        </if>
+        <if test="type == 5">
+            and
+                (tpl.template_name is not null and tpl.template_name != '')
+        </if>
+        <if test="type == 6">
+            and
+                (tpli.name is not null and tpli.name != '')
+        </if>
+        <if test="type == 7">
+            and tpl.`status` is not null
+        </if>
+        <if test="type == 8">
+            and tpl.enable_flag is not null
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        <if test="type == 2">
+            group by tplb.brand_name
+        </if>
+        <if test="type == 3">
+            group by tpl.prod_category1st_name, tpl.prod_category_name,
+            tpl.prod_category2nd_name,tpl.prod_category3rd_name
+        </if>
+        <if test="type == 4">
+            group by tpl.silhouette_name
+        </if>
+        <if test="type == 5">
+            group by tpl.template_name
+        </if>
+        <if test="type == 6">
+            group by tpli.name
+        </if>
+        <if test="type == 7">
+            group by tpl.`status`
+        </if>
+        <if test="type == 8">
+            group by tpl.enable_flag
+        </if>
+        ORDER BY
+        tpl.serial_number DESC
+    </select>
+    <select id="listStyleNoCode" resultType="com.base.sbc.module.style.entity.Style">
+        SELECT
+        s.design_no
+        FROM t_style s
+        <where>
+            not EXISTS(select 1 from t_pattern_library tpl where tpl.style_id = s.id
+            AND tpl.del_flag = '0')
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
+        limit 200
+    </select>
+    <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
+        SELECT
+        s.*
+        FROM t_style s
+        <where>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
+    </select>
+    <select id="listStyleToPatternLibrary" resultType="com.base.sbc.module.style.entity.Style">
+        SELECT
+        s.id, s.design_no, s.brand_name, s.style_pic, s.prod_category1st_name, s.prod_category_name,
+        s.prod_category2nd_name, s.prod_category3rd_name,
+        s.silhouette_name, s.pattern_parts, s.planning_season_id, s.prod_category2nd, s.prod_category,
+        tfv.val_name silhouetteName,
+        ifnull(usc.useStyleNum, 0) as useStyleNum,
+        tpl.id registeringId,
+        tpl.code registeringNo
+        FROM t_style s
+        LEFT JOIN (
+        SELECT
+        ts.serial_style_id,
+        COUNT( 1 ) AS useStyleNum
+        FROM
+        t_style ts
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
+        AND tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = 0
+        AND ts.serial_style_id IS NOT NULL
+        GROUP BY
+        ts.serial_style_id
+        ) usc ON usc.serial_style_id = s.id
+        left JOIN t_style_color tsc ON s.id = tsc.style_id AND tsc.del_flag = '0'
+        left join t_field_val tfv on tfv.foreign_id = s.id and tfv.del_flag = '0' and tfv.data_group =
+        'SAMPLE_DESIGN_TECHNOLOGY'
+        and tfv.field_explain = '廓形及代码'
+        left join t_pattern_library tpl on tpl.style_id = s.id AND tpl.del_flag = '0'
+        <where>
+            <if test="patternLibraryDTO.silhouetteName != null and patternLibraryDTO.silhouetteName != ''">
+                and tfv.val_name =
+                #{patternLibraryDTO.silhouetteName}
+            </if>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
+    </select>
+    <select id="queryAllUseStyle" resultType="String">
+        SELECT count(1)
+        FROM t_style ts
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
+        AND tsc.del_flag = '0'
+        WHERE ts.del_flag = 0
+        AND ts.serial_style_id IS NOT NULL
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

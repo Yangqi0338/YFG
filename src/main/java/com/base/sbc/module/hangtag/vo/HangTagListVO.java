@@ -64,6 +64,15 @@ public class HangTagListVO extends HangTag {
     @ApiModelProperty(value = "生产类型")
     private String produceType;
 
+    /**
+     * 生产类型
+     */
+    @ApiModelProperty(value = "生产类型")
+    private String devtType;
+    /** 接收部门 */
+    @ApiModelProperty(value = "接收部门"  )
+    private String receiveDeptId;
+
     /** 波段名称 */
     @ApiModelProperty(value = "波段名称"  )
     private String bandName;
@@ -316,6 +325,13 @@ public class HangTagListVO extends HangTag {
     private String attachment;
 
     private String isTrim;
+    /**
+     * 是否可编辑
+     */
+    @ApiModelProperty(value = "是否可编辑")
+    private Integer isEdit = 0;
+
+    private Integer groupCount;
 
 }
 

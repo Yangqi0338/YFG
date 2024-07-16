@@ -1,9 +1,8 @@
 package com.base.sbc.client.flowable.service;
 
-import com.base.sbc.client.flowable.vo.FlowQueryVo;
 import com.base.sbc.config.common.ApiResult;
 import io.swagger.annotations.ApiParam;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,7 +53,16 @@ public interface FlowableFeignService {
 
 
     @GetMapping(value = "/flowable/api/saas/task/todoList")
-    public ApiResult todoList(@RequestParam Map<String,Object> queryVo);
+    public ApiResult<Map<String, Object>> todoList(@RequestParam Map<String,Object> queryVo);
+
+    @PostMapping(value = "/flowable/api/saas/task/complete")
+    ApiResult complete(@RequestParam("taskId") String taskId,
+                       @RequestParam("instanceId") String instanceId,
+                       @RequestParam("comment") String comment);
+
+    @PostMapping(value = "/flowable/api/saas/task/reject")
+    ApiResult reject(@RequestParam("taskId") String taskId,
+                     @RequestParam("comment") String comment);
 
     @GetMapping(value = "/flowable/api/saas/task/finishedList")
     public ApiResult finishedList(@RequestParam Map<String, Object> queryVo);

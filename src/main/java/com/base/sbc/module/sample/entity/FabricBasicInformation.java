@@ -5,17 +5,18 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：面料基本信息 实体类
  * @address com.base.sbc.module.sample.entity.FabricBasicInformation
@@ -183,6 +184,10 @@ public class FabricBasicInformation extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remark;
+
+    /** 创建部门 */
+    @ApiModelProperty(value = "创建部门"  )
+    private String createDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

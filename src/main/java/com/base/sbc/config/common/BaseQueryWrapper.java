@@ -1,19 +1,36 @@
 package com.base.sbc.config.common;
 
-import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
+import com.baomidou.mybatisplus.core.conditions.SharedString;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
+import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
+import com.baomidou.mybatisplus.core.enums.SqlKeyword;
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.google.common.collect.Sets;
+
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
-import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
-import org.springframework.util.StringUtils;
-
-import java.util.Collection;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 /**
  * @author 卞康
@@ -21,7 +38,22 @@ import java.util.List;
  * @mail 247967116@qq.com
  */
 @Data
+@NoArgsConstructor
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
+    public BaseQueryWrapper(T entity, Class<T> entityClass, AtomicInteger paramNameSeq,
+                         Map<String, Object> paramNameValuePairs, MergeSegments mergeSegments, SharedString paramAlias,
+                         SharedString lastSql, SharedString sqlComment, SharedString sqlFirst) {
+        super.setEntity(entity);
+        super.setEntityClass(entityClass);
+        this.paramNameSeq = paramNameSeq;
+        this.paramNameValuePairs = paramNameValuePairs;
+        this.expression = mergeSegments;
+        this.paramAlias = paramAlias;
+        this.lastSql = lastSql;
+        this.sqlComment = sqlComment;
+        this.sqlFirst = sqlFirst;
+    }
+
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
         return this.eq(!StringUtils.isEmpty(val), column, val);
     }
@@ -150,7 +182,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         this.and(wrapper -> {
             wrapper.and(i -> {
                 for (int j = 0; j < val.size(); j++) {
-                    i.like(columns, val.get(j)).or(j < val.size() - 1);
+                    String value = val.get(j);
+                    i.like(StrUtil.isNotBlank(value),columns, value).or(j < val.size() - 1);
                 }
             });
         });
@@ -213,8 +246,166 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
-//    @Override
-//    public BaseLambdaQueryWrapper<T> lambda() {
-//        return BeanUtil.copyProperties(super.lambda(), BaseLambdaQueryWrapper.class );
-//    }
+    private Map<String,String> groupSqlSegment = new HashMap<>();
+
+    /** 适配count */
+    public Map<String,String> getGroupSqlSegment(){
+        if (MapUtil.isNotEmpty(groupSqlSegment)) {
+            return groupSqlSegment;
+        }
+        Map<String,StringJoiner> map = new HashMap<>();
+        MergeSegments expression = getExpression();
+        List<ISqlSegment> linkKeyword = Arrays.asList(SqlKeyword.AND, SqlKeyword.OR);
+        if (Objects.nonNull(expression)) {
+            NormalSegmentList normal = expression.getNormal();
+            // 遍历
+            StringJoiner joiner = new StringJoiner(StringPool.SPACE);
+            AtomicInteger handlerNum = new AtomicInteger(0);
+            for (int i = 0, normalSize = normal.size() - 1; i <= normalSize; i++) {
+                boolean lastElement = i == normalSize;
+                int num = handlerNum.get();
+                boolean nonFinish = IntStream.of(1, 2).anyMatch(it -> it == num);
+                boolean isFinish = num > 2;
+                ISqlSegment iSqlSegment = normal.get(i);
+                String sqlSegment = iSqlSegment.getSqlSegment();
+                // 支持嵌套 TODO
+                if (iSqlSegment instanceof QueryWrapper) {
+                    continue;
+                }
+                if (linkKeyword.contains(iSqlSegment) && isFinish) {
+                    if (iSqlSegment == SqlKeyword.AND && (!lastElement) && !normal.get(i+1).getSqlSegment().contains("REGEXP")) {
+                        // 若下一个的前缀和之前一
+                        if ((i+1) != normalSize) {
+                            String[] split = normal.get(i+1).getSqlSegment().split(Pattern.quote(StringPool.DOT));
+                            // 有前缀
+                            String key = split[0];
+                            if (split.length > 1 && map.containsKey(key)) {
+                                map.get(key).add(sqlSegment);
+                                handlerNum.set(0);
+                            }
+                        }
+                        continue;
+                    }
+                    // 支持OR TODO
+//                    if (iSqlSegment == SqlKeyword.OR)
+                }
+                // 找 ColumnSegment, 直到下一个为止
+                if (!nonFinish && !lastElement && normal.get(i+1) instanceof SqlKeyword && !linkKeyword.contains(iSqlSegment)) {
+                    String[] split = sqlSegment.split("[^a-zA-Z0-9._]");
+                    Set<String> keySet = Sets.newHashSet();
+                    // 有前缀
+                    for (String mayKey : split) {
+                        String[] keySplit = mayKey.split(Pattern.quote(StringPool.DOT));
+                        if (keySplit.length > 1) {
+                            String newKey = keySplit[0];
+                            keySet.add(newKey);
+                        }
+                    }
+                    //是权限列表有多个别名
+                    String key = "";
+                    if (keySet.size() > 1){
+                        key = "permission";
+                    }else {
+                        if (CollUtil.isNotEmpty(keySet)){
+                            key = keySet.iterator().next();
+                        }
+                    }
+                    joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
+                    if (StrUtil.isNotBlank(joiner.toString()) &&!joiner.toString().endsWith(SqlKeyword.AND.name())){
+                        joiner.add(SqlKeyword.AND.name());
+                    }
+                    joiner.add(sqlSegment);
+                    map.put(key, joiner);
+                    handlerNum.set(1);
+                } else {
+
+                   if (sqlSegment.contains("1=0")){
+                       joiner.add(SqlKeyword.AND.name()+ " " + "1=0");
+                       continue;
+                   }
+
+                   if (!linkKeyword.contains(iSqlSegment) && lastElement && !sqlSegment.contains("ew.")){
+                       Set<String> keySet = getPrefixKey(sqlSegment);
+                       //有前缀
+                       if (CollUtil.isNotEmpty(keySet)){
+                           //是权限列表有多个别名
+                           String key = "";
+                           if (keySet.size() > 1){
+                               key = "permission";
+                           }else {
+                               if (CollUtil.isNotEmpty(keySet)){
+                                   key = keySet.iterator().next();
+                               }
+                           }
+                           joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
+                           if (StrUtil.isNotBlank(joiner.toString()) &&!joiner.toString().endsWith(SqlKeyword.AND.name())){
+                               joiner.add(SqlKeyword.AND.name());
+                           }
+                           joiner.add(sqlSegment);
+                           map.put(key, joiner);
+                           handlerNum.set(1);
+                           continue;
+                       }
+                   }
+                   if (linkKeyword.contains(iSqlSegment) && (joiner.toString().endsWith(SqlKeyword.AND.name()) || joiner.toString().endsWith(SqlKeyword.OR.name()))){
+                       handlerNum.incrementAndGet();
+                       continue;
+                    }
+                    joiner.add(sqlSegment);
+                    handlerNum.incrementAndGet();
+                }
+            }
+
+        }
+        map.remove("");
+        Map<String, String> result = MapUtil.map(map, (key, value) -> {
+            if (value.length() <= 2){
+                return null;
+            }
+            String str = value.toString();
+            if (str.endsWith(SqlKeyword.AND.name())){
+                return str.substring(0,str.length() -3);
+            }
+            if (str.endsWith(SqlKeyword.OR.name())){
+                return str.substring(0,str.length() -2);
+            }
+
+            return value.toString();
+        });
+        groupSqlSegment.putAll(MapUtil.removeNullValue(result));
+        return groupSqlSegment;
+    }
+
+    public boolean hasAlias(String alias){
+        return getGroupSqlSegment().containsKey(alias);
+    }
+
+    public String getSqlByAlias(String alias){
+        return getGroupSqlSegment().getOrDefault(alias, "1 = 1");
+    }
+
+    private Set<String> getPrefixKey(String sqlSegment) {
+        Set<String> keySet = Sets.newHashSet();
+        String[] split = sqlSegment.split("[^a-zA-Z0-9._]");
+        // 有前缀
+        for (String mayKey : split) {
+            String[] keySplit = mayKey.split(Pattern.quote(StringPool.DOT));
+            if (keySplit.length > 1) {
+                String newKey = keySplit[0];
+                keySet.add(newKey);
+            }
+        }
+        return keySet;
+    }
+
+    public static void main(String[] args) {
+        String s = "concat(ts.year_name,\" \",ts.season_name,\" \",ts.brand_name)";
+        String[] tokens = s.split("[^a-zA-Z0-9._]");
+
+        for (String token : tokens) {
+            System.out.println(token);
+        }
+        System.out.println();
+    }
+
 }

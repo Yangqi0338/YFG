@@ -147,19 +147,19 @@
     <select id="querySaleIntoPage" resultType="java.util.Map">
         select
         <if test="total == 1">
-            T.PROD_CODE, T.BRAND_NAME
+            tobl.PROD_CODE, tobl.BRAND_NAME
         </if>
         <if test="total == 0">
-            T.*
+            tobl.*
         </if>
-        from (select *, BRAND_NAME as brand from DM_SALE_FAC) T
+        from (select *, BRAND_NAME as brand from DM_SALE_FAC) tobl
         where
-        (T.ORDER_TYPE is null OR T.ORDER_TYPE != '追单')
+        (tobl.ORDER_TYPE is null OR tobl.ORDER_TYPE != '追单')
         <include refid="ewSelect"/>
         <if test="total == 1">
-            group by T.PROD_CODE, T.BRAND_NAME
+            group by tobl.PROD_CODE, tobl.BRAND_NAME
         </if>
-        order by T.PROD_CODE
+        order by tobl.PROD_CODE
     </select>
 
 

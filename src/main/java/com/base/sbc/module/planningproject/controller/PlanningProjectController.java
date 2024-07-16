@@ -29,7 +29,7 @@ import com.base.sbc.module.style.service.StyleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.simpleframework.xml.core.Validate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +42,7 @@ import java.util.*;
 @RestController
 @Api(tags = "企划看板规划-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningProject", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-@Validate
+@Validated
 @RequiredArgsConstructor
 public class PlanningProjectController extends BaseController {
     private final PlanningProjectService planningProjectService;

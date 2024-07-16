@@ -37,5 +37,7 @@ public class ResearchProgressPageDto extends Page {
     /**公司编号*/
     private String companyCode;
 
+    /**模板id集合 */
+    private List<String> templateIds;
 
 }

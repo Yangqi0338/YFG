@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.terracotta.offheapstore.jdk8.Function;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

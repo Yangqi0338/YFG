@@ -6,14 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.RFIDType;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -201,6 +200,7 @@ public class StyleColor extends BaseDataEntity<String> {
     private Date designCorrectDate;
     /** 吊牌价 */
     @ApiModelProperty(value = "吊牌价"  )
+//    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal tagPrice;
     /** 供应商 */
     @ApiModelProperty(value = "供应商"  )
@@ -346,6 +346,13 @@ public class StyleColor extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "设计下正确样逾期原因"  )
     private String designCorrectOverdueReason;
+
+    /** 发送部门 */
+    @ApiModelProperty(value = "发送部门"  )
+    private String sendDeptId;
+    /** 接收部门 */
+    @ApiModelProperty(value = "接收部门"  )
+    private String receiveDeptId;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

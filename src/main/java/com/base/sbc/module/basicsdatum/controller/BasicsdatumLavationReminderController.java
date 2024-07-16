@@ -68,6 +68,11 @@ public class BasicsdatumLavationReminderController{
 	return basicsdatumLavationReminderService.startStopBasicsdatumLavationReminder(startStopDto);
 	}
 
+	@ApiOperation(value = "新增修改基础资料-洗涤图标与温馨提示")
+	@PostMapping("/{id}")
+	public Boolean copyById(@PathVariable("id") String id) {
+		return basicsdatumLavationReminderService.copyById(id);
+	}
 
 	@ApiOperation(value = "新增修改基础资料-洗涤图标与温馨提示")
 	@PostMapping("/addRevampBasicsdatumLavationReminder")

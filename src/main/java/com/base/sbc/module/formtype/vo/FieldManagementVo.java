@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Data
 @JsonIgnoreProperties(value = {"handler"})

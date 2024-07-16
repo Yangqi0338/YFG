@@ -11,7 +11,6 @@ import com.base.sbc.module.pack.mapper.PackingDictionaryMapper;
 import com.base.sbc.module.pack.service.PackingDictionaryService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
-import org.openqa.selenium.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +51,7 @@ public class PackingDictionaryServiceImpl extends BaseServiceImpl<PackingDiction
     }
 
     @Override
-    public PackingDictionary queryPackingDictionary(PackingDictionary dto) throws NotFoundException {
+    public PackingDictionary queryPackingDictionary(PackingDictionary dto) {
         PackingDictionary packingDictionary =  packingDictionaryMapper.queryPacking(dto.getParentId(),dto.getName());
         if (packingDictionary == null) {
             return new PackingDictionary();

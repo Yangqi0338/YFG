@@ -62,14 +62,14 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         /*分页*/
         PageHelper.startPage(dto);
         BaseQueryWrapper<PlanningProject> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("season_id", dto.getSeasonId());
-        queryWrapper.notEmptyEq("planning_channel_code", dto.getPlanningChannelCode());
-        queryWrapper.notEmptyLike("season_name", dto.getYear());
-        queryWrapper.notEmptyLike("planning_project_name", dto.getPlanningProjectName());
-        queryWrapper.orderByDesc("create_date");
+        queryWrapper.notEmptyEq("tpp.season_id", dto.getSeasonId());
+        queryWrapper.notEmptyEq("tpp.planning_channel_code", dto.getPlanningChannelCode());
+        queryWrapper.notEmptyLike("tpp.season_name", dto.getYear());
+        queryWrapper.notEmptyLike("tpp.planning_project_name", dto.getPlanningProjectName());
+        queryWrapper.orderByDesc("tpp.create_date");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.planningProject.getK());
 
-
-        List<PlanningProject> list = this.list(queryWrapper);
+        List<PlanningProject> list = baseMapper.listByQueryWrapper(queryWrapper);
         List<PlanningProjectVo> planningProjectVos = BeanUtil.copyToList(list, PlanningProjectVo.class);
         for (PlanningProjectVo planningProjectVo : planningProjectVos) {
             List<PlanningProjectDimension> planningProjectDimensions = planningProjectDimensionService.list(new QueryWrapper<PlanningProjectDimension>().eq("planning_project_id", planningProjectVo.getId()));

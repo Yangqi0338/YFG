@@ -1,7 +1,7 @@
 package com.base.sbc.client.amc.service;
 
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,18 +16,27 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisAmcUtils;
 import com.base.sbc.config.redis.RedisUtils;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import javax.annotation.Resource;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 
 @Component
 public class DataPermissionsService {
@@ -96,7 +105,7 @@ public class DataPermissionsService {
         Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
-
+//(xxx and (xxx or xxx`))
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
@@ -137,122 +146,97 @@ public class DataPermissionsService {
      * @see DataPermissionsBusinessTypeEnum
      */
     public <T> Map getDataPermissionsForQw(String companyCode, String uerId, String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
-        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":";
-        //删除amc的数据权限状态
-        Map<String,String> redisType=new HashMap<>();
-        if(redisAmcUtils.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
-            String businessTypeAllByUerId= (String) redisAmcUtils.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
-            if(businessTypeAllByUerId.indexOf(uerId) !=-1){
-                redisType.put("0",uerId);
-                if(!businessTypeAllByUerId.equals(uerId)){
-                    String[] autoUserIds=businessTypeAllByUerId.split(uerId);
-                    businessTypeAllByUerId=autoUserIds[0].endsWith(",")?(autoUserIds[0].substring(0,autoUserIds[0].length()-2)):autoUserIds[0].startsWith(",")?(autoUserIds[0].substring(1)):autoUserIds[0];
-                    if(autoUserIds.length>1){
-                        businessTypeAllByUerId+=(StringUtils.isNotBlank(businessTypeAllByUerId)?",":"")+(autoUserIds[1].endsWith(",")?(autoUserIds[1].substring(0,autoUserIds[1].length()-2)):autoUserIds[1].startsWith(",")?(autoUserIds[1].substring(1)):autoUserIds[1]);
-                    }
-                }else {
-                    businessTypeAllByUerId="";
-                }
-                if(StringUtils.isNotBlank(businessTypeAllByUerId)){
-                    redisAmcUtils.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
-                }
-            }
-            if(StringUtils.isBlank(businessTypeAllByUerId)){
-                redisAmcUtils.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
-            }
-        }
-        if(redisAmcUtils.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
-            redisType.put("1","");
-            redisAmcUtils.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
-        }
-        if (redisType.containsKey("0")){
-            redisUtils.removePatternAndIndexOf(dataPermissionsKey, redisType.get("0"));
-        }
-        dataPermissionsKey = dataPermissionsKey + businessType + ":";
-        if (redisType.containsKey("1")){
-            redisUtils.removePattern(dataPermissionsKey);
-        }
-        dataPermissionsKey += uerId + ":";
         Map<String, Object> ret = new HashMap<>();
-        ret.put("authorityState", Boolean.TRUE);
-        ret.put("authorityField","");
-        ret.put("dataPermissionsKey",dataPermissionsKey);
-        List<DataPermissionVO> dataPermissionsList;
-        if (!redisUtils.hasKey(dataPermissionsKey+operateType)) {
-            dataPermissionsList = this.getDataPermissions(businessType,operateType);
-            //默认开启角色的数据隔离
-            Random random=new Random();
-            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, 10*12*60*60*(random.nextInt(4)+1));//如数据的隔离不失效
-        } else {
-            dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType);
-        }
+        List<DataPermissionVO> dataPermissionsList = getDataPermissionKey(companyCode, uerId, businessType, operateType, ret);
         if (CollectionUtils.isEmpty(dataPermissionsList)) {
             return ret;
         }
-        AtomicReference<Integer> authorityState= new AtomicReference<>(0);
-        AtomicBoolean isField= new AtomicBoolean(true);
-        dataPermissionsList.forEach(e->{
-            if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(e.getRange()) && authorityState.get()!=2) {
-                authorityState.set(1);
-            }
-            if (DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(e.getRange()) && DataPermissionsSelectTypeEnum.AND.getK().equals(e.getSelectType())) {
-                authorityState.set(2);
-            }
-            if(CollectionUtils.isNotEmpty(e.getFieldDataPermissions())){
-                isField.set(true);
-            }
-        });
-        if (authorityState.get()!=1) {
+        List<String> rangeList = dataPermissionsList.stream().map(DataPermissionVO::getRange).distinct().collect(Collectors.toList());
+        //如果有一个用户组有全部可见 权限，则全部可见
+        if(rangeList.contains(DataPermissionsRangeEnum.ALL.getK())){
+            ret.put("authorityState",Boolean.TRUE);
+            return ret;
+        }
+        //如果都是全部不可见,则直接返回false
+        if (rangeList.size()==1 && rangeList.get(0).equals(DataPermissionsRangeEnum.ALL_INOPERABLE.getK())) {
             ret.put("authorityState",Boolean.FALSE);
             return ret;
         }
-        if(tablePre == null || !isField.get()){
-            return ret;
+        if(tablePre == null){
+            tablePre = "";
         }
         List<String> authorityField=new ArrayList<>();
+        //用户存在多个用户组，用户组之间用or
+        boolean userGroupSize = dataPermissionsList.stream().filter(o-> CollUtil.isNotEmpty(o.getFieldDataPermissions())).count() != 1;
         for (DataPermissionVO dataPermissions : dataPermissionsList) {
-            if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
-                List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
-                if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
-                    List<String> fieldArr = new ArrayList<>();
-                    boolean isFieldFlag = false;
-                    final String[] sqlType = {!authorityField.isEmpty() ? DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( " : " ( "};
-                    fieldArr.add(sqlType[0]);
-                    for (FieldDataPermissionVO fieldDataPermissionVO : fieldDataPermissions) {
-                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
-                            fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType[0])) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
-                            sqlType[0] = "fromtype2339";
+            if (DataPermissionsRangeEnum.ALL.getK().equals(dataPermissions.getRange())) {
+                //如果该用户有一个角色是全部 权限时
+                authorityField.clear();
+                break;
+            }
+            List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
+            if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
+                //判断配置是否分组
+                Map<Integer, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->Integer.parseInt(StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():"0")));
+                boolean permissionGroup = permissionMap.size() != 1;
+
+                List<String> fieldArr = new ArrayList<>();
+                //判断是否第一次  如果是第一次 添加()  ，否者添加  or() ，如果只有一个用户组  不添加括号
+                if(userGroupSize){
+                    String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
+                    fieldArr.add(sqlType);
+                }
+                List<Integer> permissionMapKeys = new ArrayList<>(permissionMap.keySet());
+                permissionMapKeys.sort(Integer::compare);
+                boolean first = true;
+                boolean isFieldFlag = false;
+                for (Integer entry : permissionMapKeys) {
+                    List<FieldDataPermissionVO> value = permissionMap.get(entry);
+                    value.sort(Comparator.comparingInt(s-> StrUtil.isNotEmpty(s.getSortIdx()) ? Integer.parseInt(s.getSortIdx()) : 0));
+                    //如果配置只有一组，不添加括号
+                    if(permissionGroup){
+                        if(first){
+                            fieldArr.add(" ( ");
+                        }else{
+                            String groupSelectType = value.get(0).getGroupSelectType();
+                            if ("and".equals(groupSelectType)) {
+                                fieldArr.add(" and ( ");
+                            }else{
+                                fieldArr.add(" or ( ");
+                            }
                         }
+                    }
+                    first = false;
+                    boolean sqlType = false;
+                    for (FieldDataPermissionVO fieldDataPermissionVO : value) {
                         if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
                             String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
                             if (isAssignFields && StringUtils.isBlank(fieldName)) {
-                                fieldArr.remove(fieldArr.size() - 1);
-                                sqlType[0] = fieldArr.get(fieldArr.size() - 1);
                                 continue;
                             }
+                            if(sqlType){
+                                fieldArr.add(DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and ");
+                            }
+                            sqlType = true;
                             isFieldFlag = true;
-                            fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
+                            if(StrUtil.isBlank(fieldName)){
+                                fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() :  tablePre + fieldDataPermissionVO.getFieldName();
+                            }
                             if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
                                 //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
                                 //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
                                 fieldName = tablePre + "create_id";
                                 String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
-                                fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                    fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                } else {
+                                    fieldArr.add(fieldName + " not in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                }
                             }else {
-                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
                                     fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
                                 } else {
-                                    if (fieldDataPermissionVO.getFieldValues().size() > 1) {
-                                        fieldArr.add(fieldName + " in (");
-                                        final String[] fieldValues = {""};
-                                        fieldDataPermissionVO.getFieldValues().forEach(e -> {
-                                            fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
-                                        });
-                                        fieldArr.add(fieldValues[0] + "') ");
-                                    }
-                                    if (fieldDataPermissionVO.getFieldValues().size() == 1) {
-                                        fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
-                                    }
+                                    fieldArr.add(fieldName + " not in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
                                 }
                             }
                         }
@@ -260,15 +244,25 @@ public class DataPermissionsService {
                             fieldArr.add(fieldDataPermissionVO.getSqlField());
                         }
                     }
-                    ;
-                    if (isFieldFlag) {
-                        fieldArr.add(" ) ");
-                        authorityField.addAll(fieldArr);
+                    if(sqlType){
+                        if(permissionGroup){
+                            fieldArr.add(" ) ");
+                        }
+                    }else{
+                        first = true;
+                        if(CollUtil.isNotEmpty(fieldArr)){
+                            fieldArr.remove(fieldArr.size()-1);
+                        }
                     }
+                }
+                if(userGroupSize){
+                    fieldArr.add(" ) ");
+                }
+                if(isFieldFlag){
+                    authorityField.addAll(fieldArr);
                 }
             }
         }
-        ;
 
         if(CollectionUtils.isNotEmpty(authorityField)) {
             String authorityFieldStr = "(" + StringUtils.join(authorityField, " ") + ")";
@@ -279,55 +273,15 @@ public class DataPermissionsService {
 
     public List<DataPermissionVO> getDataPermissionKey(String companyCode, String uerId, String businessType, String operateType, Map<String, Object> ret) {
         String dataPermissionsKey = "USERISOLATION:" + companyCode + ":";
-        //删除amc的数据权限状态
-        Map<String,String> redisType=new HashMap<>();
-        if(redisAmcUtils.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
-            String businessTypeAllByUerId= (String) redisAmcUtils.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
-            if(businessTypeAllByUerId.contains(uerId)){
-                redisType.put("0", uerId);
-                if(!businessTypeAllByUerId.equals(uerId)){
-                    String[] autoUserIds=businessTypeAllByUerId.split(uerId);
-                    businessTypeAllByUerId=autoUserIds[0].endsWith(",")?(autoUserIds[0].substring(0,autoUserIds[0].length()-2)):autoUserIds[0].startsWith(",")?(autoUserIds[0].substring(1)):autoUserIds[0];
-                    if(autoUserIds.length>1){
-                        businessTypeAllByUerId+=(StringUtils.isNotBlank(businessTypeAllByUerId)?",":"")+(autoUserIds[1].endsWith(",")?(autoUserIds[1].substring(0,autoUserIds[1].length()-2)):autoUserIds[1].startsWith(",")?(autoUserIds[1].substring(1)):autoUserIds[1]);
-                    }
-                }else {
-                    businessTypeAllByUerId="";
-                }
-                if(StringUtils.isNotBlank(businessTypeAllByUerId)){
-                    redisAmcUtils.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
-                }
-            }
-            if(StringUtils.isBlank(businessTypeAllByUerId)){
-                redisAmcUtils.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
-            }
-        }
-        if(redisAmcUtils.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
-            redisType.put("1","");
-            redisAmcUtils.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
-        }
-        if (redisType.containsKey("0")){
-            redisUtils.removePatternAndIndexOf(dataPermissionsKey, redisType.get("0"));
-        }
         dataPermissionsKey = dataPermissionsKey + businessType + ":";
-        if (redisType.containsKey("1")){
-            redisUtils.removePattern(dataPermissionsKey);
-        }
         dataPermissionsKey += uerId + ":";
         ret.put("authorityState", Boolean.TRUE);
         ret.put("authorityField","");
         ret.put("dataPermissionsKey",dataPermissionsKey);
-        List<DataPermissionVO> dataPermissionsList;
-        if (!redisUtils.hasKey(dataPermissionsKey+operateType)) {
-            dataPermissionsList = this.getDataPermissions(businessType,operateType);
-            //默认开启角色的数据隔离
-            Random random=new Random();
-            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, 10*12*60*60*(random.nextInt(4)+1));//如数据的隔离不失效
-        } else {
-            dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType);
-        }
-        return dataPermissionsList;
+        return this.getDataPermissions(businessType,operateType);
     }
+
+
     private String searchField(String[] arr,String val){
         for (String s:arr) {
             if(!s.contains(":") && (s.endsWith("."+val) || s.equals(val))) {
@@ -338,6 +292,9 @@ public class DataPermissionsService {
                 if(ss[1].equals(val)){
                     return ss[0];
                 }
+            }
+            if(val.endsWith("."+s)){
+                return s;
             }
         }
         return null;

@@ -38,7 +38,7 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
  */
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("moreLanguage")
+@ConfigurationProperties("more-language")
 public class MoreLanguageProperties {
 
     public static String internalLanguageCode = "ZH";
@@ -70,6 +70,7 @@ public class MoreLanguageProperties {
     public static String noDecorateCategory1stCode = "A05";
 
     public static Integer excelDataRowNum = 2;
+    public static Boolean chineseComparison = false;
 
     public static String notCheckStandardColumnCode = "DP14,XM02,XM03,XM04,XM05,XM08,XM09,XM10,XM11";
     public static Map<String,String> msgEnumMap = CollUtil.list(false,MoreLanguageMsgEnum.values())
@@ -198,6 +199,10 @@ public class MoreLanguageProperties {
 
     public void setExcelTranslateContentField(String excelTranslateContentField) {
         MoreLanguageProperties.excelTranslateContentField = excelTranslateContentField;
+    }
+
+    public void setChineseComparison(Boolean chineseComparison) {
+        MoreLanguageProperties.chineseComparison = chineseComparison;
     }
 
     public void setExcelTitle(String excelTitle) {

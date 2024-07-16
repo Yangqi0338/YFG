@@ -78,6 +78,12 @@ public class Gen {
 				String entityName = javaPath + "entity" + File.separatorChar + javaClassName + ".java";
 				System.out.println("输出文件："+map.get("title")+"的实体类");
 				UtilFreemarker.generateFile(entityName, "ftl/entity.ftl", map);
+				String entityNameDto = javaPath + "dto" + File.separatorChar + javaClassName + "QueryDto.java";
+				System.out.println("输出文件："+map.get("title")+"的实体类dto");
+				UtilFreemarker.generateFile(entityNameDto, "ftl/dto.ftl", map);
+				String entityNameVo = javaPath + "vo" + File.separatorChar + javaClassName + "Vo.java";
+				System.out.println("输出文件："+map.get("title")+"的实体类Vo");
+				UtilFreemarker.generateFile(entityNameVo, "ftl/vo.ftl", map);
 			}
 			//不存在  或者  包含3
 			if(StringUtils.isBlank(table.getGenType())|| table.getGenType().contains(Tables.GENDAO)) {

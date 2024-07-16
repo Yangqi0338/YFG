@@ -5,11 +5,12 @@ import com.base.sbc.client.amc.entity.Team;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
+import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
 import com.base.sbc.open.entity.SmpUser;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -246,5 +247,27 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/open/user/getUserCodeNotNullUserList")
     String getUserCodeNotNullUserList();
+
+    /**
+     * 获取用户所在部门关系
+     */
+    @GetMapping("/amc/api/token/virtualDeptRelationships/getByUserId")
+    ApiResult getDeptRelationByUserId(@RequestParam("userId") String userId,@RequestParam("type") String type);
+
+    /**
+     * 获取用户所在部门
+     */
+    @GetMapping("/amc/api/token/virtualDept/getVirtualDeptByUserId")
+    ApiResult<List<VirtualDept>> getVirtualDeptByUserId(@RequestParam("userId") String userId);
+
+    /**
+     * 获取读数据权限
+     *
+     * @param businessType
+     * @return
+     */
+    @GetMapping("/amc/api/token/dataPermissions/getByUserDataPermissionsAll")
+    ApiResult<Map<String,String>> getByUserDataPermissionsAll(@RequestParam("businessType") String businessType,@RequestParam("type") String type
+            ,@RequestParam("userId") String userId,@RequestParam("fieldName") String fieldName);
 
 }
