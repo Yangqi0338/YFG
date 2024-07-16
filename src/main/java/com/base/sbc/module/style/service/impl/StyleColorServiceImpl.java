@@ -3980,8 +3980,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     }
                 }
             }
-            if(fieldValFlag){
-                goodsIds.add(styleColor.getId());
+            if (fieldValFlag) {
+                if (fieldValList.isEmpty()) {
+                    if (!"1".equals(styleColor.getScmSendFlag())) {
+                        goodsIds.add(styleColor.getId());
+                        sbMsg.append("没有修改,但是上次下发失败,执行下发操作;");
+                    } else {
+                        sbMsg.append("没有修改");
+                    }
+                } else {
+                    goodsIds.add(styleColor.getId());
+                }
                 updateFieldValList.addAll(fieldValList);
                 operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
                 operaLogEntity.setType("修改");
@@ -3989,16 +3998,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 operaLogEntity.setName("款式打标-批量导入修改");
                 operaLogEntity.setDocumentName(styleNo);
                 updateLogs.add(operaLogEntity);
-            }else if(fieldValList.isEmpty()){
-                if(!"1".equals(styleColor.getScmSendFlag())){
-                    goodsIds.add(styleColor.getId());
-                    sbMsg.append("没有修改,但是上次下发失败,执行下发操作;");
-                }else{
-                    sbMsg.append("没有修改");
-                }
             }
             LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
-            returnMap.put("错误信息",sbMsg);
+            returnMap.put("错误信息", sbMsg);
             returnMap.putAll(map);
             returnList.add(returnMap);
         }
