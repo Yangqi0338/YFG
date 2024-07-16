@@ -38,15 +38,12 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         UserCompany userCompany = userInfo();
-        this.strictInsertFill(metaObject, "createDate", Date.class, new Date());
-        this.strictInsertFill(metaObject, "createName", String.class, userCompany.getAliasUserName());
-        this.strictInsertFill(metaObject, "createId", String.class, userCompany.getUserId());
-        this.strictInsertFill(metaObject, "updateDate", Date.class, new Date());
-        this.strictInsertFill(metaObject, "updateName", String.class, userCompany.getAliasUserName());
-        this.strictInsertFill(metaObject, "updateId", String.class, userCompany.getUserId());
-        this.strictInsertFill(metaObject, "companyCode", String.class, userCompany.getCompanyCode());
-        this.strictInsertFill(metaObject, "delFlag", String.class, "0");
-        decorateExtendFill(metaObject);
+        this.setFieldValByName("createDate", new Date(), metaObject);
+        this.setFieldValByName("createName", userCompany.getAliasUserName(), metaObject);
+        this.setFieldValByName("createId", userCompany.getUserId(), metaObject);
+        this.setFieldValByName("companyCode", userCompany.getCompanyCode(), metaObject);
+        this.setFieldValByName("delFlag", "0", metaObject);
+        updateFill(metaObject);
     }
 
     private void decorateExtendFill(MetaObject metaObject) {
@@ -111,14 +108,11 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-            UserCompany userCompany = userInfo();
-            this.setFieldValByName("updateDate", new Date(),metaObject);
-            this.setFieldValByName("updateName",  userCompany.getAliasUserName(),metaObject);
-            this.setFieldValByName("updateId", userCompany.getUserId(),metaObject);
+        UserCompany userCompany = userInfo();
+        this.setFieldValByName("updateDate", new Date(), metaObject);
+        this.setFieldValByName("updateName", userCompany.getAliasUserName(), metaObject);
+        this.setFieldValByName("updateId", userCompany.getUserId(), metaObject);
         decorateExtendFill(metaObject);
-//        this.strictUpdateFill(metaObject, "updateDate", Date.class,new Date());
-//        this.strictUpdateFill(metaObject, "updateName", String.class, userCompany.getAliasUserName());
-//        this.strictUpdateFill(metaObject, "updateId", String.class, userCompany.getUserId());
     }
 
     private UserCompany userInfo() {
