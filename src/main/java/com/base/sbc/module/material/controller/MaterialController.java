@@ -174,6 +174,9 @@ public class MaterialController extends BaseController {
                     String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
                     materialSaveDto.setMaterialCode(materialCode);
                 }
+                materialSaveDto.setIssuerId(userUtils.getUserCompany().getUserId());
+                materialSaveDto.setIssuerName(userUtils.getUserCompany().getAliasUserName());
+                materialSaveDto.setIssuerUsername(userUtils.getUserCompany().getUsername());
             }else {
                 // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
                 MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
@@ -489,6 +492,9 @@ public class MaterialController extends BaseController {
 
         //提交发布
         if ("2".equals(type)){
+            String issuerId = userUtils.getUserCompany().getUserId();
+            String issuerName = userUtils.getUserCompany().getAliasUserName();
+            String username = userUtils.getUserCompany().getUsername();
             //工号
             materials.forEach(item ->{
                 item.setStatus("2");
@@ -500,6 +506,9 @@ public class MaterialController extends BaseController {
                 }
                 //图片路径更新
                 item.setPicUrl(picPathUpdate(item.getPicUrl()));
+                item.setIssuerId(issuerId);
+                item.setIssuerName(issuerName);
+                item.setIssuerUsername(username);
             });
 
         }

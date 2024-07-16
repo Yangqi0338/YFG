@@ -126,4 +126,10 @@ public class MaterialQueryDto extends Page {
     private BaseQueryWrapper ew;
 
     private String searchName;
+
+    @ApiModelProperty(value = "发布人Id")
+    private String issuerId;
+
+    @ApiModelProperty(value = "发布人名称")
+    private String issuerName;
 }

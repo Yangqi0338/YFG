@@ -202,4 +202,13 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "描述")
     private String descInfo;
 
+    @ApiModelProperty(value = "发布人Id")
+    private String issuerId;
+
+    @ApiModelProperty(value = "发布人名称")
+    private String issuerName;
+
+    @ApiModelProperty(value = "发布人工号")
+    private String issuerUsername;
+
 }

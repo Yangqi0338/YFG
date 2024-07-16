@@ -98,6 +98,18 @@
             and tm.material_name like concat('%',#{content},'%')
         </if>
 
+        <if test="issuerId != null and issuerId != ''">
+            and tm.issuer_id = #{issuerId}
+        </if>
+
+        <if test="issuerName != null and issuerName != ''">
+            and tm.issuer_name like concat('%',#{issuerName},'%')
+        </if>
+
+        <if test="issuerUsername != null and issuerUsername != ''">
+            and tm.issuer_username like concat('%',#{issuerUsername},'%')
+        </if>
+
         <if test="brandList != null and brandList.size > 0">
             and brand in
             <foreach collection="brandList" open="(" separator="," item="brand" close=")">
