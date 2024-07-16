@@ -96,8 +96,14 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "来源人")
     private String sourcePerson;
 
+    @ApiModelProperty(value = "来源人名称")
+    private String sourcePersonName;
+
     @ApiModelProperty(value = "来源部门")
     private String sourceDepartment;
+
+    @ApiModelProperty(value = "来源部门名称")
+    private String sourceDepartmentName;
 
     @ApiModelProperty(value = "来源方式")
     private String sourceWay;
