@@ -283,12 +283,14 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             map.put("pricingTemplateId", pricingTemplate.getId());
             map.put("pricingTemplateName", pricingTemplate.getTemplateName());
             map.put("costPrice", 0);
-
+            packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
+            packPricing.setForeignId(foreignId);
             packPricing.setCalcItemVal(JSON.toJSONString(map));
             packPricing.setPricingTemplateId(pricingTemplate.getId());
+        }else {
+            throw new OtherException("品牌："+style.getBrandName()+"下无"+style.getDevtTypeName()+"生产类型模板");
         }
-        packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
-        packPricing.setForeignId(foreignId);
+
         baseMapper.insert(packPricing);
         return packPricing;
     }
@@ -387,7 +389,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         for (String s : otherStatistics.keySet()) {
             otherCosts = otherCosts.add(otherStatistics.get(s));
         }
-        temp.put("其他费",otherCosts);
+//        temp.put("其他费",otherCosts);
 
         Map<String, BigDecimal> result = new HashMap<>(16);
         for (Map.Entry<String, BigDecimal> a : temp.entrySet()) {
