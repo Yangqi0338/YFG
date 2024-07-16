@@ -19,6 +19,7 @@ import com.base.sbc.module.tasklist.dto.QueryPageTaskListDTO;
 import com.base.sbc.module.tasklist.dto.QueryPageTaskListDetailDTO;
 import com.base.sbc.module.tasklist.entity.TaskList;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
+import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
 import com.base.sbc.module.tasklist.enums.TaskListTaskTypeEnum;
 import com.base.sbc.module.tasklist.mapper.TaskListDetailMapper;
 import com.base.sbc.module.tasklist.service.TaskListDetailService;
@@ -75,7 +76,7 @@ public class TaskListDetailServiceImpl extends BaseServiceImpl<TaskListDetailMap
             List<ExportStyleMarkingIssuedExcelVO> exportStyleMarkingIssuedExcelList = new ArrayList<>(taskListDetailList.size());
             for (TaskListDetailVO taskListDetail : taskListDetailList) {
                 ExportStyleMarkingIssuedExcelVO exportStyleMarkingIssuedExcel = BeanUtil.copyProperties(taskListDetail, ExportStyleMarkingIssuedExcelVO.class);
-                exportStyleMarkingIssuedExcel.setSyncResult(TaskListTaskTypeEnum.getValueByCode(taskListDetail.getSyncResult()));
+                exportStyleMarkingIssuedExcel.setSyncResult(TaskListDetailSyncResultEnum.getValueByCode(taskListDetail.getSyncResult()));
                 exportStyleMarkingIssuedExcelList.add(exportStyleMarkingIssuedExcel);
             }
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

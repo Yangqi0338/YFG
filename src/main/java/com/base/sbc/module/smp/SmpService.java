@@ -368,6 +368,13 @@ public class SmpService {
                     taskListDetailList.add(taskListDetail);
                     continue;
                 }else{
+                    if (ObjectUtil.isNotEmpty(taskListDetailMap)) {
+                        // 如果此 map 不为空，说明是在任务列表详情中点击重新推送，那么不需要新生成任务，直接将结果回写到之前的数据中即可
+                        TaskListDetail oldTaskListDetail = oldTaskListDetailMap.get(styleColor.getId());
+                        taskListDetail.setErrorInfo(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
+                        taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
+                        taskListDetailService.updateById(oldTaskListDetail);
+                    }
                     throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
                 }
             }
@@ -687,7 +694,14 @@ public class SmpService {
                     taskListDetailList.add(taskListDetail);
                     continue;
                 }else{
-                    throw new OtherException("尺码不能为空");
+                    if (ObjectUtil.isNotEmpty(taskListDetailMap)) {
+                        // 如果此 map 不为空，说明是在任务列表详情中点击重新推送，那么不需要新生成任务，直接将结果回写到之前的数据中即可
+                        TaskListDetail oldTaskListDetail = oldTaskListDetailMap.get(styleColor.getId());
+                        oldTaskListDetail.setErrorInfo(styleColor.getStyleNo()+"尺码不能为空");
+                        oldTaskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
+                        taskListDetailService.updateById(oldTaskListDetail);
+                    }
+                    throw new OtherException(styleColor.getStyleNo()+"尺码不能为空");
                 }
             }
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
