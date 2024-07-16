@@ -87,6 +87,8 @@ public interface ReplayConvert {
     @Mappings({
             @Mapping(target = "patternLibraryId", source = "id"),
             @Mapping(target = "id", ignore = true),
+            @Mapping(target = "patternLibraryItemPattern", ignore = true),
+            @Mapping(target = "patternLibraryItemLength", ignore = true),
     })
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void copy(@MappingTarget ReplayRatingPatternDTO target, PatternLibrary patternLibrary);
