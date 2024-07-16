@@ -43,7 +43,7 @@
             <include refid="queryStyleListField"/>
         </if>
         from t_style_color tsc
-        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = ${ qo.type.code }
+        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = #{ qo.type.code }
         left join t_style ts on ts.id = tsc.style_id
         where tsc.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
@@ -90,7 +90,7 @@
             <include refid="queryPatternListField"/>
         </if>
         from t_style_color tsc
-        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = ${ qo.type.code }
+        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = #{ qo.type.code }
         left join t_style ts on ts.id = tsc.style_id
         left join t_pattern_library tpl on tpl.style_id = ts.id AND tpl.del_flag = '0'
 
@@ -148,13 +148,13 @@
         from t_pack_bom tpb
         LEFT JOIN t_pack_info tpi ON tpb.foreign_id = tpi.id and tpi.del_flag = '0' and tpi.style_color_id is not null
         LEFT JOIN t_style ts ON tpi.foreign_id = ts.id AND ts.del_flag = '0'
-        LEFT JOIN t_replay_rating trr ON trr.foreign_id = tpb.material_id AND trr.type = ${ qo.type.code } AND trr.del_flag = '0'
+        LEFT JOIN t_replay_rating trr ON trr.foreign_id = tpb.material_id AND trr.type = #{ qo.type.code } AND trr.del_flag = '0'
         where
-        tpb.material_code != ${qo.noMaterialCode}
+        tpb.material_code != #{qo.noMaterialCode}
         and tpb.pack_type = 'packBigGoods'
         and tpb.del_flag = '0'
         AND tpb.status = '1'
-        AND tpb.category1_code = ${qo.category1Code}
+        AND tpb.category1_code = #{qo.category1Code}
         <if test="qo.needSpecialTotalSum == true">
             and tpi.id is not null
         </if>
@@ -180,7 +180,7 @@
         </if>
         <if test="ew.hasAlias('trr')">
             and EXISTS(
-                select 1 from t_replay_rating trr where trr.foreign_id = tsc.id and trr.type = ${ qo.type.code } and trr.del_flag = '0'
+                select 1 from t_replay_rating trr where trr.foreign_id = tsc.id and trr.type = #{ qo.type.code } and trr.del_flag = '0'
                 and ${ ew.getSqlByAlias('trr')}
             )
         </if>
@@ -201,7 +201,7 @@
                 , group_concat(tsc.style_no) AS bulkStyleNo
             </if>
         from t_style_color tsc
-        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = ${ qo.type.code }
+        left join t_replay_rating trr on trr.foreign_id = tsc.id and trr.type = #{ qo.type.code }
         left join t_style ts on ts.id = tsc.style_id
         left join t_pattern_library tpl on tpl.style_id = ts.id AND tpl.del_flag = '0'
         LEFT JOIN ( SELECT count(0) AS count, ts1.registering_id FROM t_style ts1 WHERE ts1.del_flag = '0' GROUP BY ts1.registering_id ) ts1 ON ts1.registering_id = tpl.id
@@ -217,7 +217,7 @@
                 LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.style_id = ts2.id AND tsc.del_flag = '0'
                 WHERE tobd.del_flag = '0'
                 AND tobd.order_book_id = tob.id
-                AND tobd.order_status = ${ qo.orderBookStatus.code }
+                AND tobd.order_status = #{ qo.orderBookStatus.code }
             )
             GROUP BY ts2.registering_id
         ) ts2 ON ts2.registering_id = tpl.id
@@ -243,11 +243,11 @@
         <if test="qo.needSpecialTotalSum == true">
             LEFT JOIN t_pack_info tpi ON tpb.foreign_id = tpi.id and tpi.del_flag = '0' and tpi.style_color_id is not null
         </if>
-        where tpb.material_code != ${qo.noMaterialCode}
+        where tpb.material_code != #{qo.noMaterialCode}
         and tpb.pack_type = 'packBigGoods'
         and tpb.del_flag = '0'
         AND tpb.status = '1'
-        AND tpb.category1_code = ${qo.category1Code}
+        AND tpb.category1_code = #{qo.category1Code}
         <if test="ew.hasAlias('tpi')">
             <if test="qo.needSpecialTotalSum == true">
                 and ${ ew.getSqlByAlias('tpi')}
@@ -270,7 +270,7 @@
         </if>
         <if test="ew.hasAlias('trr')">
             and EXISTS(
-            select 1 from t_replay_rating trr where trr.foreign_id = tpb.material_id AND trr.type = ${ qo.type.code } AND trr.del_flag = '0'
+            select 1 from t_replay_rating trr where trr.foreign_id = tpb.material_id AND trr.type = #{ qo.type.code } AND trr.del_flag = '0'
             and ${ ew.getSqlByAlias('trr')}
             )
         </if>
