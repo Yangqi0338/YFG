@@ -275,6 +275,7 @@ public class SmpService {
 
         operaLogEntity.setType("导入-下发");
         operaLogEntity.setDocumentId("导入下发结果");
+        operaLogEntity.setDocumentCode(numberByKeyDay);
         operaLogEntity.setName("款式打标-批量导入修改");
         operaLogEntity.setDocumentName("导入结果");
         operaLogEntity.setContent(sbMsg1.toString());

@@ -4540,8 +4540,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 operaLogEntity.setName("款式打标-批量导入修改");
                 operaLogEntity.setDocumentName(styleNo);
                 updateLogs.add(operaLogEntity);
-            }
-            if(fieldValList.isEmpty()){
+            }else if(fieldValList.isEmpty()){
                 if(!"1".equals(styleColor.getScmSendFlag())){
                     goodsIds.add(styleColor.getId());
                     sbMsg.append("没有修改,但是上次下发失败,执行下发操作;");
@@ -4564,11 +4563,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             fieldValService.saveBatch(updateFieldValList);
         }
 
-        //保存修改记录
-        operaLogService.saveBatch(updateLogs);
-
         //生成流水号
         String numberByKeyDay = codeGen.getNumberByKeyDay("DB", 4);
+
+        //保存修改记录
+        updateLogs.forEach(o->o.setDocumentCode(numberByKeyDay));
+        operaLogService.saveBatch(updateLogs);
 
         if(CollUtil.isNotEmpty(goodsIds)){
             //推送下游系统
