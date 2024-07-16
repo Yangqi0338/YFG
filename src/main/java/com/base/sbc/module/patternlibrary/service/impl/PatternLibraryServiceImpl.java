@@ -1004,29 +1004,36 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
-            // 过滤报次款大货
-            patternLibrary.setPlaceOrderStyleNoList(styleColorList.stream()
-                    .map(StyleColor::getStyleNo)
-                    .filter(ObjectUtil::isNotEmpty)
-                    .filter(item -> !StrUtil.endWithAny(item, "-9", "-10", "-11", "-12", "-ZC"))
-                    .collect(Collectors.toList()));
-            
-
+            // 热销大货款
             patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
-            // 初始化大货的图片 ID-URL 集合
-            List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
-            for (StyleColor styleColor : styleColorList) {
-                // 当作临时变量存储一下图片来源 ID
-                styleColor.setStyleNo(styleColor.getStyleColorPic());
+
+            // 过滤报次款
+            styleColorList = styleColorList.stream()
+                    .filter(item -> !StrUtil.endWithAny(item.getStyleNo(), "-9", "-10", "-11", "-12", "-ZC"))
+                    .collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(styleColorList)) {
+                // 大货款号
+                patternLibrary.setPlaceOrderStyleNoList(styleColorList.stream()
+                        .map(StyleColor::getStyleNo)
+                        .filter(ObjectUtil::isNotEmpty)
+                        .collect(Collectors.toList()));
+
+
+                // 初始化大货的图片 ID-URL 集合
+                List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
+                for (StyleColor styleColor : styleColorList) {
+                    // 当作临时变量存储一下图片来源 ID
+                    styleColor.setStyleNo(styleColor.getStyleColorPic());
+                }
+                stylePicUtils.setStylePic(styleColorList, "styleColorPic");
+                for (StyleColor styleColor : styleColorList) {
+                    HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put("picId", styleColor.getStyleNo());
+                    hashMap.put("url", styleColor.getStyleColorPic());
+                    picFileIdList.add(hashMap);
+                }
+                patternLibrary.setPicIdList(picFileIdList);
             }
-            stylePicUtils.setStylePic(styleColorList, "styleColorPic");
-            for (StyleColor styleColor : styleColorList) {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("picId", styleColor.getStyleNo());
-                hashMap.put("url", styleColor.getStyleColorPic());
-                picFileIdList.add(hashMap);
-            }
-            patternLibrary.setPicIdList(picFileIdList);
         } else {
             // 如果没有大货信息 那就直接取款式的图片
             patternLibrary.setStylePicId(style.getStylePic());
