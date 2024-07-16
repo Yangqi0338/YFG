@@ -16,13 +16,11 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
-import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -105,25 +103,19 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     @Override
     public ApiResult getContractPrice(QueryContractPriceDTO dto) {
         JSONObject paramJson = new JSONObject();
-        paramJson.put("styleNo", Arrays.asList(dto.getStyleNo()));
+        paramJson.put("data", Arrays.asList(dto.getStyleNo()));
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/getUnitPrice", paramJson.toJSONString(),
                 Pair.of("moduleName","scm"),
                 Pair.of("functionName","获取成衣合同价")
         );
-        return ApiResult.error(JSON.toJSONString(httpResp), 500);
-        /*if (!httpResp.isSuccess()) {
+        if (!httpResp.isSuccess()) {
             throw new OtherException(httpResp.getMessage());
         }
-        // TODO 保存日志
+        // 保存日志
         if (dto.getWriteLog()) {
             saveOperaLog(genOperaLogEntity(dto, "同步成衣合同价"));
         }
-        // 无数据
-        if (null == httpResp.getData()) {
-            return ApiResult.success("查询成功");
-        } else {
-            return ApiResult.success("查询成功", httpResp.getData());
-        }*/
+        return ApiResult.success("查询成功", httpResp.getData());
     }
 
     @Override
