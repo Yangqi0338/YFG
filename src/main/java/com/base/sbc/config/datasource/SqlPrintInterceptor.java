@@ -1,6 +1,5 @@
 package com.base.sbc.config.datasource;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -9,13 +8,9 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SqlProperties;
-import com.base.sbc.config.redis.RedisKeyBuilder;
-import com.base.sbc.config.redis.RedisKeyConstant;
-import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.httplog.entity.HttpLog;
-import com.base.sbc.module.pushrecords.entity.PushRecords;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,7 +20,11 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.ParameterMode;
-import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Plugin;
+import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.DefaultReflectorFactory;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
@@ -41,7 +40,13 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,9 +97,7 @@ public class SqlPrintInterceptor implements Interceptor {
                 getAuthoritySql( boundSql, statementId, mappedStatement, sql,sqlCommandType);
             }
         }catch (Exception e){
-            List<Object> jobThreadIdList = RedisStaticFunUtils.lGet(RedisKeyConstant.JOB_THREAD_ID.build());
-            String id = Thread.currentThread().getId() + "";
-            if (CollUtil.isEmpty(jobThreadIdList) || jobThreadIdList.stream().noneMatch(it-> it.toString().equals(id))){
+            if (!Thread.currentThread().getName().startsWith("pdmTaskScheduler")) {
                 logger.error("无法数据隔离");
             }
         }
