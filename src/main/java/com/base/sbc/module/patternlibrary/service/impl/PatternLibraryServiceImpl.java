@@ -20,8 +20,6 @@ import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
@@ -36,7 +34,6 @@ import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
@@ -1034,12 +1031,12 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 }
                 patternLibrary.setPicIdList(picFileIdList);
             }
-        } else {
-            // 如果没有大货信息 那就直接取款式的图片
-            patternLibrary.setStylePicId(style.getStylePic());
-            stylePicUtils.setStylePic(Collections.singletonList(style), "stylePic");
-            patternLibrary.setStylePicUrl(style.getStylePic());
         }
+        // 如果没有大货信息 那就直接取款式的图片 -> 可以和大货同时出现
+        patternLibrary.setStylePicId(style.getStylePic());
+        stylePicUtils.setStylePic(Collections.singletonList(style), "stylePic");
+        patternLibrary.setStylePicUrl(style.getStylePic());
+
         return patternLibrary;
     }
 
