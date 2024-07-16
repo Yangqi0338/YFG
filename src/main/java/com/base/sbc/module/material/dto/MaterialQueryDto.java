@@ -132,4 +132,7 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "发布人名称")
     private String issuerName;
+
+    @ApiModelProperty(value = "发布人工号")
+    private String issuerUsername;
 }
