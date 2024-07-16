@@ -327,6 +327,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
                     if (sqlSegment.contains("1=0")) {
                         joiner.add(SqlKeyword.AND.name() + " " + "1=0");
+                        map.put("COMMON", new StringJoiner("").add("1=0"));
                         continue;
                     }
 

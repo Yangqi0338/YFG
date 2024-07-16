@@ -27,6 +27,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.JacksonExtendHandler;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -34,6 +35,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -655,12 +657,23 @@ public class ExcelUtils {
         //这里就是要转成JSONObject类型，不要保留原对象类型
         JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
 
+        ObjectMapper objectMapper = JacksonExtendHandler.getObjectMapper();
+        JSONArray jacksonArray;
+        try {
+            jacksonArray = JSONArray.parseArray(objectMapper.writeValueAsString(list));
+        } catch (Exception ignored) {
+            jacksonArray = new JSONArray();
+        }
         for (int i = 0; i < jsonArray.size(); i++) {
             //其他一些补充的数据
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             Object o = jsonObject.get("replenish");
             if (o != null){
                 jsonObject.putAll((JSONObject) o);
+            }
+            JSONObject jacksonObject = jacksonArray.getJSONObject(i);
+            if (jacksonObject != null) {
+                jacksonObject.forEach(jsonObject::putIfAbsent);
             }
         }
         //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
@@ -744,7 +757,11 @@ public class ExcelUtils {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
                         String imgColumn = entry.getKey();
-                        jsonObject.put(imgColumn + "1", jsonObject.getString(imgColumn));
+                        String key = imgColumn + "1";
+                        jsonObject.put(key, jsonObject.getString(imgColumn));
+                        excelParams.stream().filter(it -> key.equals(it.getKey())).findFirst().ifPresent(excelExportEntity -> {
+                            excelExportEntity.setExportImageType(1);
+                        });
                     }
                 }
             } catch (Exception e) {

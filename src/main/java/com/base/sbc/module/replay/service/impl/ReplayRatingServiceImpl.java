@@ -1288,7 +1288,6 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         /* 查询吊牌数据 */
         qo.setFindTotalFlag(YesOrNoEnum.NO);
         qo.notRequiredDownloadImage();
-        qo.reset2QueryList();
         List<? extends ReplayRatingVO> list = queryPageInfo(qo).getList();
         ExcelUtils.exportExcelByTableCode(list, qo.getType().getText(), qo);
     }
