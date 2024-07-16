@@ -163,6 +163,7 @@
         t_pattern_making p
         left join t_style s on (p.style_id = s.id)
         left join t_basicsdatum_supplier tbs on (p.supplier_id = tbs.supplier_code and tbs.del_flag = '0')
+        LEFT JOIN t_node_status tns ON tns.data_id = p.id AND tns.del_flag = '0' AND tns.node = '样衣任务' and tns.`status` = '样衣完成'
         where  p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
         and s.del_flag &lt;&gt; '1'
