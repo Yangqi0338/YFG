@@ -3519,7 +3519,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //产地
             String producer = mangoHangTagExeclDto.getProducer();
             //水洗唛编码
-            String washingCode = mangoHangTagExeclDto.getWashingCode();
+            //String washingCode = mangoHangTagExeclDto.getWashingCode();
 
             //Mango吊牌导入时大类为配饰的不用校验 洗标和安全技术类别
 
@@ -3541,18 +3541,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (StrUtil.isEmpty(executeStandard)) {
                 errorInfo+="第" + (i + 1) + "行" + "执行标准不能为空！\n";
             }
-            if (StrUtil.isEmpty(saftyType)) {
+           /* if (StrUtil.isEmpty(saftyType)) {
                 errorInfo+="第" + (i + 1) + "行" + "安全技术类别不能为空！\n";
-            }
+            }*/
             if (StrUtil.isEmpty(ingredient)) {
                 errorInfo+="第" + (i + 1) + "行" + "材料成分不能为空！\n";
             }
             if (StrUtil.isEmpty(producer)) {
                 errorInfo+="第" + (i + 1) + "行" + "原产地不能为空！\n";
             }
-            if (StrUtil.isEmpty(washingCode)) {
+            /*if (StrUtil.isEmpty(washingCode)) {
                 errorInfo+="第" + (i + 1) + "行" + "洗标编码不能为空！\n";
-            }
+            }*/
         }
 
         if (StrUtil.isNotEmpty(errorInfo)) {
@@ -3569,7 +3569,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         //安全技术类别
         List<BasicBaseDict> saftyTypeList = ccmFeignService.getAllDictInfoToList("C8_SaftyType");
         //水洗唛
-        List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
+        //List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
         //创建吊牌信息数据
         List<HangTag> updateHangTagList = new ArrayList<>();
 
@@ -3579,7 +3579,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq("tsca.del_flag","0");
         List<StyleColorAgentVo> agentList = baseMapper.agentList(queryWrapper);
         if (CollUtil.isNotEmpty(agentList)) {
-            styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getStyleNo, m -> m, (k1, k2) -> k1));
+            styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getOutsideBarcode, m -> m, (k1, k2) -> k1));
         }
 
 
@@ -3616,7 +3616,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】找不到对应的合作方条码信息！\n";
             }
 
-            //region 质量等级验证
+            //region 品名
             List<BasicBaseDict> productNameIsExistList = getBasicBaseDicts(productList, productName);
 
             if (CollUtil.isNotEmpty(productNameIsExistList)) {
@@ -3649,21 +3649,23 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //endregion
 
             //region 洗标编码是否存在验证
-            List<BasicsdatumWashIcon> washIconsisExistList = basicsdatumWashIconList.stream().filter(o -> o.getCode().equals(washingCode)).collect(Collectors.toList());
 
-            if (CollUtil.isNotEmpty(washIconsisExistList)) {
-                updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
-                updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
-            } else {
-                //errorInfo += "第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
-            }
+
+//            List<BasicsdatumWashIcon> washIconsisExistList = basicsdatumWashIconList.stream().filter(o -> o.getCode().equals(washingCode)).collect(Collectors.toList());
+//
+//            if (CollUtil.isNotEmpty(washIconsisExistList)) {
+//                updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
+//                updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
+//            } else {
+//                //errorInfo += "第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
+//            }
             //endregion
             StyleColorAgentVo styleColorAgentVo = styleHangTagMap.get(outsizeBarcode);
 
             if (styleColorAgentVo == null) {
                 errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】找不到对应的款式SKU信息！\n";
             } else {
-                String prodCategory1stName = styleColorAgentVo.getProdCategory1stName();
+                 String prodCategory1stName = styleColorAgentVo.getProdCategory1stName();
                 if (!"配饰".equals(prodCategory1stName)) {
                     if (StrUtil.isNotEmpty(saftyType)) {
                         //region 安全技术类别验证
@@ -3677,9 +3679,31 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         }
                         //endregion
                     } else {
-                        errorInfo += "第" + (i + 1) + "行" + "安全技术类别不能为空！\n";
+                        errorInfo += "第" + (i + 1) + "行" + "非配饰，安全技术类别不能为空！\n";
                     }
+
+                    if (StrUtil.isEmpty(washingCode)) {
+                        errorInfo+="第" + (i + 1) + "行" + "非配饰，洗标编码不能为空！\n";
+                    }else{
+                        updateHangTag.setWashingCode(washingCode);
+                    }
+                }else{
+                    if (StrUtil.isNotEmpty(saftyType)) {
+                        //region 安全技术类别验证
+                        List<BasicBaseDict> saftyTypeIsExistList = getBasicBaseDicts(saftyTypeList, saftyType);
+
+                        if (CollUtil.isNotEmpty(saftyTypeIsExistList)) {
+                            updateHangTag.setSaftyTitleCode(saftyTypeIsExistList.get(0).getValue());
+                            updateHangTag.setSaftyType(saftyTypeIsExistList.get(0).getName());
+                        } else {
+                            errorInfo += "第" + (i + 1) + "行,【" + saftyType + "】找不到对应的安全技术类别！\n";
+                        }
+                        //endregion
+                    }
+                    updateHangTag.setWashingCode(washingCode);
                 }
+
+
 
                 //如果是已下发不允许导入吊牌信息，必须先解锁再导入
                 String enableStatus = styleColorAgentVo.getSendStatus();
