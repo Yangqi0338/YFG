@@ -117,7 +117,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             saveOperaLog(genOperaLogEntity(dto, "同步成衣合同价"));
         }
         // 无值
-        if (httpResp.getData().equals("[]")) {
+        if (StrUtil.isBlank(httpResp.getData()) || StrUtil.equals(httpResp.getData(), "[]")) {
             List<Map<String, String>> respData = new ArrayList<>();
             Map<String, String> unitPrice = new HashMap<>();
             unitPrice.put("unitPrice", null);
