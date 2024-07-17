@@ -186,6 +186,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String materialName;
 
     /**
+     * 保存时的图片 ID（用作选择图片的时候保留选择的那个图片 id，因为选择的图片要重新上传可能导致回显的时候找不到上次选择的图片）
+     */
+    @ApiModelProperty("保存时的图片 ID")
+    private String oldPicId;
+
+    /**
      * 图片 ID
      */
     @ApiModelProperty("图片 ID")
