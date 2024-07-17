@@ -1,12 +1,9 @@
 package com.base.sbc.config.async;
 
-import com.base.sbc.config.redis.RedisKeyConstant;
-import com.base.sbc.config.redis.RedisStaticFunUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.IntervalTask;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @EnableScheduling
@@ -15,17 +12,10 @@ public class SchedulingConfig implements SchedulingConfigurer {
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        String redisKey = RedisKeyConstant.JOB_THREAD_ID.build();
-        RedisStaticFunUtils.del(redisKey);
         //设置taskScheduler
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(5);
-        taskScheduler.setThreadNamePrefix("taskScheduler");
-        taskScheduler.setThreadFactory((runnable)-> {
-            Thread thread = taskScheduler.newThread(runnable);
-            RedisStaticFunUtils.lSet(redisKey, thread.getId());
-            return thread;
-        });
+        taskScheduler.setThreadNamePrefix("pdmTaskScheduler");
         taskScheduler.initialize();
         taskRegistrar.setTaskScheduler(taskScheduler);
 
