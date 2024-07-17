@@ -1186,9 +1186,9 @@ public class SmpService {
         }
         int i = 0;
         for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
-            if ("1".equals(patternMaking.getHistoricalData())){
+           /* if ("1".equals(patternMaking.getHistoricalData())){
                 return 0;
-            }
+            }*/
 
             Style style = styleService.getById(patternMaking.getStyleId());
             SmpSampleDto smpSampleDto = style.toSmpSampleDto();
@@ -1401,9 +1401,9 @@ public class SmpService {
         int i = 0;
         IdGen idGen = new IdGen();
         for (PreProductionSampleTask preProductionSampleTask : preProductionSampleTaskService.listByIds(Arrays.asList(ids))) {
-            if ("1".equals(preProductionSampleTask.getHistoricalData())) {
+           /* if ("1".equals(preProductionSampleTask.getHistoricalData())) {
                 return 0;
-            }
+            }*/
 
             Style style = styleService.getById(preProductionSampleTask.getStyleId());
             SmpSampleDto smpSampleDto = new SmpSampleDto();
