@@ -212,6 +212,11 @@ public class StylePricingController extends BaseController {
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
             }
+
+            if ("1".equals(dto.getProductHangtagConfirm()) && (null == stylePricing.getControlPlanCost() || 0 == stylePricing.getControlPlanCost().compareTo(BigDecimal.ZERO))) {
+                throw new OtherException("请联系计控维护计控实际成本");
+
+            }
             if (!StringUtils.isEmpty(dto.getWagesConfirm())){
                 if (!isCmt || dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
                     throw new OtherException("工时部已确认");
@@ -221,6 +226,7 @@ public class StylePricingController extends BaseController {
                 operaLogEntity.setDocumentName("工时部已确认");
             }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
+
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
                     throw new OtherException("计控已确认");
                 }
