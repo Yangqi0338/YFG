@@ -4041,7 +4041,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "markingOrderUpload", numberByKeyDay);
 
-        //总计导入 成功 失败多少 修改多少   都说回忆总被润色的美好，可好像总在剖析中不断否定自己，这段关系中，总在找借口回避问题，
+        //总计导入 成功 失败多少 修改多少
         return ApiResult.success("总计导入" + readAll.size() +"条,成功"+goodsIds.size()+"条,失败"+(readAll.size() - goodsIds.size())+"条,修改"+updateSize+"条",attachmentVo);
     }
 
