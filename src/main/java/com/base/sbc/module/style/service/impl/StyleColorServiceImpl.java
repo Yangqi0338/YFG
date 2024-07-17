@@ -3623,7 +3623,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 updateHangTag.setProductCode(productNameIsExistList.get(0).getValue());
                 updateHangTag.setProductName(productNameIsExistList.get(0).getName());
             } else {
-                errorInfo+="第" + (i + 1) + "行,【" + qualityGrade + "】找不到对应的品名！\n";
+                errorInfo+="第" + (i + 1) + "行,【" + productName + "】找不到对应的品名！\n";
             }
             //endregion
             //region 质量等级验证
