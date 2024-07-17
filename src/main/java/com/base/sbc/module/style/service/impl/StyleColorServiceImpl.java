@@ -3707,9 +3707,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 //如果是已下发不允许导入吊牌信息，必须先解锁再导入
                 String enableStatus = styleColorAgentVo.getSendStatus();
-                if ("1".equals(enableStatus)) {
-                    errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】请先解锁，然后再导入吊牌信息！\n";
-                }
+//                if ("1".equals(enableStatus)) {
+//                    errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】请先解锁，然后再导入吊牌信息！\n";
+//                }
             }
 
 
