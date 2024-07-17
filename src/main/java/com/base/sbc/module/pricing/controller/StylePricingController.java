@@ -115,7 +115,9 @@ public class StylePricingController extends BaseController {
     @DuplicationCheck(type = 1,time = 200,message = "正在导出中，请稍后...")
     public void exportStylePricingList(Principal user, StylePricingSearchDTO stylePricingSearchDTO, HttpServletResponse response) throws IOException {
         stylePricingSearchDTO.setDeriveFlag(BaseGlobal.YES);
-        PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingList(user, stylePricingSearchDTO);
+        stylePricingSearchDTO.setPageNum(1);
+        stylePricingSearchDTO.setPageSize(1000000);
+        PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingByLine(stylePricingSearchDTO);
         //导出
         ExcelUtils.executorExportExcel(stylePricingList.getList(), StylePricingVO.class,"款式定价.xlsx",stylePricingSearchDTO.getImgFlag(),2000,response,"styleColorPic");
     }

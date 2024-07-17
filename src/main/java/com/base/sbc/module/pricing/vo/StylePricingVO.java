@@ -112,7 +112,7 @@ public class StylePricingVO {
      * BOM阶段 1:研发阶段 2:大货阶段
      */
     @ApiModelProperty(value = "BOM阶段")
-    @Excel(name = "BOM阶段", replace = {"研发阶段_0", "大货阶段_1"},orderNum = "7")
+    @Excel(name = "BOM阶段", replace = {"研发阶段_0", "大货阶段_1","研发阶段_null","研发阶段_"},orderNum = "7")
     private String bomStage;
     /**
      * 供应商名称
