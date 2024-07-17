@@ -50,6 +50,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -114,6 +115,15 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         // 保存日志
         if (dto.getWriteLog()) {
             saveOperaLog(genOperaLogEntity(dto, "同步成衣合同价"));
+        }
+        // 无值
+        if (httpResp.getData().equals("[]")) {
+            List<Map<String, String>> respData = new ArrayList<>();
+            Map<String, String> unitPrice = new HashMap<>();
+            unitPrice.put("unitPrice", null);
+            unitPrice.put("styleNo", dto.getStyleNo());
+            respData.add(unitPrice);
+            return ApiResult.success("查询成功", respData);
         }
         return ApiResult.success("查询成功", httpResp.getData());
     }
