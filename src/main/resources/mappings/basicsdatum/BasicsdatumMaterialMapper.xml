@@ -315,6 +315,33 @@
 		${ew.customSqlSegment}
 	</select>
 
+<!--	<select id="getMaterialSkuList_COUNT" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">-->
+<!--		SELECT-->
+<!--		count(*)-->
+<!--		FROM-->
+<!--		t_basicsdatum_material tbm-->
+<!--		<where>-->
+<!--			<if test="ew.hasAlias('tbmc')">-->
+<!--				and EXISTS(select id from t_basicsdatum_material_color tbmc where-->
+<!--				tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'-->
+<!--				and ${ ew.getSqlByAlias('tbmc')})-->
+<!--			</if>-->
+<!--			<if test="ew.hasAlias('tbmp')">-->
+<!--				and EXISTS(select id from t_basicsdatum_material_price tbmp where-->
+<!--				tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'-->
+<!--				and ${ ew.getSqlByAlias('tbmp')})-->
+<!--			</if>-->
+<!--			<if test="ew.hasAlias('temcic')">-->
+<!--				and EXISTS(select id from t_escm_material_component_inspect_company temcic where-->
+<!--				temcic.materials_no = tbm.material_code AND temcic.del_flag='0'-->
+<!--				and ${ ew.getSqlByAlias('temcic')})-->
+<!--			</if>-->
+<!--			<if test="ew.hasAlias('tbm')">-->
+<!--				and ${ ew.getSqlByAlias('tbm')}-->
+<!--			</if>-->
+<!--		</where>-->
+<!--	</select>-->
+
 	<select id="getBasicsdatumMaterialAndStyleList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo">
 		select
 			<if test="ew.sqlSelect != null and ew.sqlSelect != ''">

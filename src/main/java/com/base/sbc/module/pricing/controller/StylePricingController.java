@@ -6,19 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingService;
@@ -32,8 +29,7 @@ import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -41,10 +37,12 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -52,6 +50,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 类描述：款式定价 Controller类
@@ -93,6 +99,12 @@ public class StylePricingController extends BaseController {
     @PostMapping("/getStylePricingList")
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, @Valid @RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
         return stylePricingService.getStylePricingList(user,stylePricingSearchDTO);
+    }
+
+    @ApiOperation(value = "获取款式定价列表")
+    @GetMapping("/getStylePricingByLine")
+    public PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO stylePricingSearchDTO) {
+        return stylePricingService.getStylePricingByLine(stylePricingSearchDTO);
     }
 
     /**
@@ -170,6 +182,9 @@ public class StylePricingController extends BaseController {
                 stylePricing.setPlanningRate(new BigDecimal(4));
                 stylePricingService.save(stylePricing);
                 s=stylePricing.getId();
+                //修改记录
+                OperaLogEntity operaLogEntity = getOperaLogEntity(stylePricing,"新增");
+                stylePricingService.saveOrUpdateOperaLog(new StylePricing(), stylePricing, operaLogEntity);
             }
             list.add(s);
         }
@@ -183,6 +198,8 @@ public class StylePricingController extends BaseController {
                     .findFirst().orElseThrow(() -> new OtherException("不存在资料包"));
             String devtType = styleService.findByIds2OneField(packInfo.getForeignId(), Style::getDevtType);
             boolean isCmt = ProductionType.CMT.getCode().equals(devtType);
+            StylePricing byId = stylePricingService.getById(stylePricing.getId());
+            OperaLogEntity operaLogEntity = getOperaLogEntity(byId,"修改");
             if ("1".equals(dto.getWagesConfirm()) &&"1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
                 throw new OtherException("存在已经提交审核");
             }
@@ -195,19 +212,27 @@ public class StylePricingController extends BaseController {
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
             }
+
+            if ("1".equals(dto.getProductHangtagConfirm()) && (null == stylePricing.getControlPlanCost() || 0 == stylePricing.getControlPlanCost().compareTo(BigDecimal.ZERO))) {
+                throw new OtherException("请联系计控维护计控实际成本");
+
+            }
             if (!StringUtils.isEmpty(dto.getWagesConfirm())){
                 if (!isCmt || dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
                     throw new OtherException("工时部已确认");
                 }
                 stylePricing.setWagesConfirm(dto.getWagesConfirm());
                 stylePricing.setWagesConfirmTime(new Date());
+                operaLogEntity.setDocumentName("工时部已确认");
             }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
+
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
                     throw new OtherException("计控已确认");
                 }
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
+                operaLogEntity.setDocumentName("计控确认");
             }
             if (!StringUtils.isEmpty(dto.getProductHangtagConfirm())){
                 if (dto.getProductHangtagConfirm().equals(stylePricing.getProductHangtagConfirm())){
@@ -215,6 +240,7 @@ public class StylePricingController extends BaseController {
                 }
                 stylePricing.setProductHangtagConfirm(dto.getProductHangtagConfirm());
                 stylePricing.setProductHangtagConfirmTime(new Date());
+                operaLogEntity.setDocumentName("商品吊牌确认");
             }
             if (!StringUtils.isEmpty(dto.getControlHangtagConfirm())){
                 if (dto.getControlHangtagConfirm().equals(stylePricing.getControlHangtagConfirm())){
@@ -222,11 +248,13 @@ public class StylePricingController extends BaseController {
                 }
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
                 stylePricing.setControlHangtagConfirmTime(new Date());
+                operaLogEntity.setDocumentName("计控吊牌确认");
             }
 //            计控确认时设置计控成本价等于总成本
-            if (StrUtil.equals(stylePricing.getControlConfirm(),BaseGlobal.YES)){
+            if (StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
                 stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
             }
+            stylePricingService.saveOrUpdateOperaLog(byId, stylePricing, operaLogEntity);
         }
         /*迁移数据不能操作*/
 //        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
@@ -249,12 +277,12 @@ public class StylePricingController extends BaseController {
 
         //是否计控吊牌确认
         if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
-            type = HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM;
+            type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
         }
 
         //是否商品吊牌确认
-        if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
-            type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
+        if(StrUtil.equals(dto.getProductHangtagConfirm() ,BaseGlobal.YES)){
+            type = HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM;
         }
 
         //是否工时部工价确认
@@ -279,6 +307,17 @@ public class StylePricingController extends BaseController {
     public ApiResult unAuditStatus( @RequestBody List<String> ids) {
         stylePricingService.unAuditStatus(ids);
         return updateSuccess("反审核成功");
+    }
+
+    private OperaLogEntity getOperaLogEntity(StylePricing byId, String type) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName("款式定价");
+        operaLogEntity.setDocumentId(byId.getId());
+        operaLogEntity.setDocumentCode(byId.getId());
+        operaLogEntity.setDocumentName("");
+        operaLogEntity.setParentId(byId.getId());
+        operaLogEntity.setType(type);
+        return operaLogEntity;
     }
 
 

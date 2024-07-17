@@ -83,9 +83,9 @@ public class StylePricingVO {
     @Excel(name = "款式",orderNum = "3")
     private String style;
 
-    public String getStyle() {
+/*    public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
-    }
+    }*/
 
     @ApiModelProperty(value = "款式名称")
 //    @Excel(name = "款式名称")
@@ -302,5 +302,9 @@ public class StylePricingVO {
 
     private String calcItemVal;
 
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }
 

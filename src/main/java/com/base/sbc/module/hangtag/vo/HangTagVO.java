@@ -13,6 +13,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -374,6 +375,18 @@ public class HangTagVO extends HangTag {
     private String brand;
 
     private YesOrNoEnum ingredientDefaultWrap;
+
+    /**
+     * 成分集合
+     */
+    @ApiModelProperty(value = "成分集合")
+    private List<HangTagIngredient> hangTagIngredients;
+
+    /**
+     * 查询类型
+     */
+    @ApiModelProperty(value = "查询类型")
+    private String selectType;
 
     public String getStylePic() {
         if (StrUtil.isNotBlank(styleColorPic)) {

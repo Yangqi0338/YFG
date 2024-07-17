@@ -11,7 +11,6 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -145,6 +144,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：样衣-款式配色 service类
@@ -282,12 +283,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*分页*/
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
-        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
-        if(MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("styleNo") && "styleNo".equals(queryDto.getFieldQueryMap().get("styleNo"))){
+        if((MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("styleNo") && ("styleNo".equals(queryDto.getFieldQueryMap().get("styleNo")) || "styleNo".equals(queryDto.getColumnHeard())))
+         || (MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("designNo") && ("designNo".equals(queryDto.getFieldQueryMap().get("designNo")) || "designNo".equals(queryDto.getColumnHeard())))
+        ){
             queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
             queryWrapper.orderByDesc("ts.season");
             queryWrapper.orderByDesc("ts.brand");
         }
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
 
         //添加数据权限，根据前端传值
         //打版进度	patternMakingSteps
@@ -1946,11 +1949,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public void updateTagPrice(String id, BigDecimal tagPrice) {
         if(StringUtils.isNotBlank(id)){
-            StyleColor styleColor = new StyleColor();
-            styleColor.setId(id);
-            styleColor.setTagPrice(tagPrice);
-            styleColor.updateInit();
-            super.updateById(styleColor);
+//            StyleColor styleColor = new StyleColor();
+//            styleColor.setId(id);
+//            styleColor.setTagPrice(tagPrice);
+//            styleColor.updateInit();
+//            super.updateById(styleColor);
+            UpdateWrapper<StyleColor> qw = new UpdateWrapper<>();
+            qw.lambda().eq(StyleColor::getId,id);
+            qw.lambda().set(StyleColor::getTagPrice,tagPrice);
+            qw.lambda().set(StyleColor::getUpdateId,companyUserInfo.get().getUserId());
+            qw.lambda().set(StyleColor::getUpdateName,companyUserInfo.get().getAliasUserName());
+            qw.lambda().set(StyleColor::getUpdateDate,new Date());
+            update(qw);
+
             /*重新下发配色*/
             dataUpdateScmService.updateStyleColorSendById(id);
         }
@@ -2407,6 +2418,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PageInfo<StyleColorVo> pageInfo = getSampleStyleColorList(user, dto);
         List<StyleColorVo> styleColorVoList = pageInfo.getList();
 
+        if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 2000) {
+            throw new OtherException("导出最多只能导出2000条");
+        }
+        if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+            /*导出图片*/
+            stylePicUtils.setStylePic(styleColorVoList, "stylePic", 30);
+        }
+
         //根据查询出维度系数数据
         LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
         if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
@@ -2421,6 +2440,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
         Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
 
+        List<Map<String,Object>> dataList = new ArrayList<>();
+        for (StyleColorVo styleColorVo : styleColorVoList) {
+            Map<String, Object> dataMap = JSONObject.parseObject(JSONObject.toJSONString(styleColorVo), Map.class);
+
+            List<FieldVal> fieldValList1 = new ArrayList<>();
+            if (StringUtils.isNotBlank(dto.getMarkingOrderFlag())) {
+                if (fieldValMap.containsKey(styleColorVo.getId())) {
+                    fieldValList1 = fieldValMap.get(styleColorVo.getId());
+                }
+            } else {
+                if (fieldValMap.containsKey(styleColorVo.getStyleId())) {
+                    fieldValList1 = fieldValMap.get(styleColorVo.getStyleId());
+                }
+            }
+
+            for (FieldVal fieldVal : fieldValList1) {
+                String fieldName = fieldVal.getFieldName();
+                String val = StrUtil.isNotBlank(fieldVal.getValName()) ? fieldVal.getValName() : fieldVal.getVal();
+                dataMap.put(fieldName,val);
+            }
+
+            dataList.add(dataMap);
+        }
+
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
@@ -2428,43 +2471,28 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 .build();
 
         try {
-            List<Map<String,Object>> dataList = new ArrayList<>();
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
-                if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
-                    throw new OtherException("带图片导出最多只能导出1500条");
+                CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
+                for (Map<String, Object> styleColorVo : dataList) {
+                    executor.submit(() -> {
+                        try {
+                            if(styleColorVo.get("stylePic") != null){
+                                final String stylePic = styleColorVo.get("stylePic").toString();
+                                styleColorVo.put("stylePic1",HttpUtil.downloadBytes(stylePic));
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
                 }
-                stylePicUtils.setStylePic(styleColorVoList, "stylePic",30);
+                countDownLatch.await();
             }
-            CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
-            for (StyleColorVo styleColorVo : styleColorVoList) {
-                executor.submit(() -> {
-                    Map<String,Object> dataMap = JSONObject.parseObject(JSONObject.toJSONString(styleColorVo), Map.class);
-                    try {
-                        if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                            final String stylePic = styleColorVo.getStylePic();
-                            dataMap.put("stylePic1",HttpUtil.downloadBytes(stylePic));
-                        }
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                    } finally {
-                        //每次减一
-                        countDownLatch.countDown();
-                        log.info(String.valueOf(countDownLatch.getCount()));
-                    }
 
-                    if(fieldValMap.containsKey(styleColorVo.getStyleId())){
-                        List<FieldVal> fieldValList1 = fieldValMap.get(styleColorVo.getStyleId());
-                        for (FieldVal fieldVal : fieldValList1) {
-                            String fieldName = fieldVal.getFieldName();
-                            String val = StrUtil.isNotBlank(fieldVal.getValName()) ? fieldVal.getValName() : fieldVal.getVal();
-                            dataMap.put(fieldName,val);
-                        }
-                    }
-                    dataList.add(dataMap);
-                });
-            }
-            countDownLatch.await();
             String type = "款式打标设计阶段";
             if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
                 type = "款式打标下单阶段";
@@ -3636,7 +3664,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
                 updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
             }else{
-                errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
+                // 暂时去掉水洗唛校验问题20240715
+                //errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
             }
             //endregion
 
@@ -4350,7 +4379,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //查询已经保存的维度数据集合，方便后续修改使用
         List<FieldVal> list = fieldValService.list(ids, FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-        Map<String, Map<String,FieldVal>> styleColorFieldMap = list.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,Collectors.toMap(FieldVal::getFieldId, o->o)));
+        Map<String, Map<String,FieldVal>> styleColorFieldMap = list.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,Collectors.toMap(FieldVal::getFieldId, o->o,(v1,v2)->v1)));
 
         List<FieldVal> updateFieldValList = new ArrayList<>();
 
@@ -4382,7 +4411,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段,如需要,请联系管理员维护;");
                 continue;
             }
-            Map<String, PlanningDimensionalityVo> collect = dimensionalities.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getDimensionalityName, o -> o,(v1,v2)->v1));
+            Map<String, PlanningDimensionalityVo> collect = dimensionalities.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getFieldExplain, o -> o,(v1,v2)->v1));
 
             //获取该款已经保存的下单阶段动态字段
             Map<String,FieldVal> fieldValMap = styleColorFieldMap.getOrDefault(styleColor.getId(),new HashMap<>());
@@ -4464,7 +4493,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             }
                         }
                         Map<String,String> updateLogMap = new HashMap<>();
-                        updateLogMap.put("name",planningDimensionality.getDimensionalityName());
+                        updateLogMap.put("name",planningDimensionality.getFieldExplain());
                         updateLogMap.put("newStr",StrUtil.isEmpty(valName)?value:valName);
                         if(fieldValMap.containsKey(planningDimensionality.getFieldId())){
                             FieldVal fieldVal = fieldValMap.get(planningDimensionality.getFieldId());
@@ -4483,7 +4512,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             fieldVal.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
                             fieldVal.setFieldId(planningDimensionality.getFieldId());
                             fieldVal.setFieldName(planningDimensionality.getFieldName());
-                            fieldVal.setFieldExplain(planningDimensionality.getDimensionalityName());
+                            fieldVal.setFieldExplain(planningDimensionality.getFieldExplain());
                             fieldVal.setVal(value);
                             fieldVal.setValName(valName);
                             fieldVal.insertInit();

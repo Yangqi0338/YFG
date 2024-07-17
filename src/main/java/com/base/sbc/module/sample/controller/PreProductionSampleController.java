@@ -150,7 +150,7 @@ public class PreProductionSampleController extends BaseController{
         PreProductionSampleTask newTask = preProductionSampleTaskService.getById(dto.getId());
         preProductionSampleTaskService.saveOperaLog("设置样衣条码", "产前样看板", null,newTask.getCode(),newTask,old);
         //下发产前样
-       smpService.antenatalSample( new String[]{dto.getId()});
+        smpService.antenatalSample( new String[]{dto.getId()});
         return  updateSuccess("绑定成功");
 
     }

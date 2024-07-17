@@ -28,7 +28,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -64,6 +64,12 @@ public class HangTagController extends BaseController {
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
     private final StyleColorService styleColorService;
+
+    @ApiOperation(value = "分页查询")
+    @GetMapping("/queryPageInfo")
+    public PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagSearchDTO) {
+        return hangTagService.queryPageInfoByLine(hangTagSearchDTO, super.getUserCompany());
+    }
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")

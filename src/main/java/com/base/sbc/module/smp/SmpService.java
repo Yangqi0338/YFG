@@ -94,6 +94,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -1185,9 +1186,9 @@ public class SmpService {
         }
         int i = 0;
         for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
-            if ("1".equals(patternMaking.getHistoricalData())){
+           /* if ("1".equals(patternMaking.getHistoricalData())){
                 return 0;
-            }
+            }*/
 
             Style style = styleService.getById(patternMaking.getStyleId());
             SmpSampleDto smpSampleDto = style.toSmpSampleDto();
@@ -1400,9 +1401,9 @@ public class SmpService {
         int i = 0;
         IdGen idGen = new IdGen();
         for (PreProductionSampleTask preProductionSampleTask : preProductionSampleTaskService.listByIds(Arrays.asList(ids))) {
-            if ("1".equals(preProductionSampleTask.getHistoricalData())) {
+           /* if ("1".equals(preProductionSampleTask.getHistoricalData())) {
                 return 0;
-            }
+            }*/
 
             Style style = styleService.getById(preProductionSampleTask.getStyleId());
             SmpSampleDto smpSampleDto = new SmpSampleDto();
@@ -1638,6 +1639,7 @@ public class SmpService {
      * @param confirmStatus 确认状态
      * @return
      */
+    @Async
     public void tagConfirmDates(List<String> ids, HangTagDeliverySCMStatusEnum type, Integer confirmStatus) {
         List<TagConfirmDateDto> list = new ArrayList<>();
 
