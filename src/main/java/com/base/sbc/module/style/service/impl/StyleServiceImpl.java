@@ -390,15 +390,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
-        //下发款式配色数据
-        deliveryStyleColor(style, isPushScm);
-
-        return style;
-    }
-
-
-    //@Async
-    public void deliveryStyleColor(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
@@ -440,7 +431,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //                throw new OtherException("同步SCM失败："+e.getMessage());
 //            }
         }
+
+        return style;
     }
+
 
     /**
      * 保存款式设计详情颜色
