@@ -193,6 +193,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Autowired
     private CodeGen codeGen;
+
+    @Lazy
     @Autowired
     private UploadFileService uploadFileService;
 
@@ -1829,10 +1831,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         List<String> materialCodes = new ArrayList<>();
         //遍历导入数据
         for (Map<String, Object> map : readAll) {
-            if (map.containsKey("材料号")) {
-                materialCodes.add(map.get("材料号").toString());
+            if (map.containsKey("物料编码")) {
+                materialCodes.add(map.get("物料编码").toString());
             }else{
-                throw new OtherException("材料号不能为空");
+                throw new OtherException("物料编码不能为空");
             }
         }
         //根据 物料号 查询所有数据
@@ -1906,11 +1908,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         for (Map<String, Object> map : readAll) {
             StringBuffer sbMsg = new StringBuffer();
-            String materialCode = map.get("材料号").toString();
+            String materialCode = map.get("物料编码").toString();
             if(!materialMap.containsKey(materialCode)){
                 //没有找到该物料
                 LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
-                returnMap.put("错误信息","材料号不存在;");
+                returnMap.put("错误信息","物料编码不存在;");
                 returnMap.putAll(map);
                 returnList.add(returnMap);
                 continue;
@@ -1959,23 +1961,25 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             //遍历导入的值
             List<FieldVal> fieldValList = new ArrayList<>();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if(!"材料号".equals(entry.getKey()) && entry.getValue() != null && StrUtil.isNotEmpty(String.valueOf(entry.getValue()))) {
+                if(!"物料编码".equals(entry.getKey())) {
                     if (collect1.containsKey(entry.getKey())) {
                         String value = String.valueOf(entry.getValue());
                         String valName = "";
                         //校验是否字典项
                         PlanningDimensionalityVo planningDimensionality = collect1.get(entry.getKey());
 
-                        //判断动态字段类型，目前只有字典类型，暂不做结构字典
-                        if("1".equals(planningDimensionality.getIsOption())){
-                            Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
-                            if(orDefault.containsKey(value)){
-                                valName = value;
-                                value = orDefault.get(value);
-                            }else{
-                                //字典项不存在
-                                sbMsg.append(entry.getKey()).append("中不存在字典值:").append(value).append(";");
-                                continue;
+                        if(entry.getValue() != null && StrUtil.isNotEmpty(String.valueOf(entry.getValue()))){
+                            //判断动态字段类型，目前只有字典类型，暂不做结构字典
+                            if("1".equals(planningDimensionality.getIsOption())){
+                                Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
+                                if(orDefault.containsKey(value)){
+                                    valName = value;
+                                    value = orDefault.get(value);
+                                }else{
+                                    //字典项不存在
+                                    sbMsg.append(entry.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    continue;
+                                }
                             }
                         }
 
@@ -2064,7 +2068,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
                 operaLogEntity.setType("修改");
                 operaLogEntity.setDocumentId(id);
-                operaLogEntity.setName("款式打标-批量导入修改");
+                operaLogEntity.setName("物料库-批量导入修改");
                 operaLogEntity.setDocumentName(materialCode);
                 updateLogs.add(operaLogEntity);
             }
