@@ -3561,11 +3561,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //获取对应的枚举信息
         //品名
-        List<BasicBaseDict> productList = ccmFeignService.getDictInfoToList("ProductName");
+        List<BasicBaseDict> productList = ccmFeignService.getAllDictInfoToList("ProductName");
         //质量等级
-        List<BasicBaseDict> qualityClassList = ccmFeignService.getDictInfoToList("C8_QualityClass");
+        List<BasicBaseDict> qualityClassList = ccmFeignService.getAllDictInfoToList("C8_QualityClass");
         //执行标准
-        List<BasicBaseDict> standardList = ccmFeignService.getDictInfoToList("C8_OPStandard");
+        List<BasicBaseDict> standardList = ccmFeignService.getAllDictInfoToList("C8_OPStandard");
         //安全技术类别
         List<BasicBaseDict> saftyTypeList = ccmFeignService.getAllDictInfoToList("C8_SaftyType");
         //水洗唛
