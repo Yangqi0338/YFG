@@ -4540,9 +4540,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (fieldValList.isEmpty()) {
                     if (!"1".equals(styleColor.getScmSendFlag())) {
                         goodsIds.add(styleColor.getId());
-                        goodsMsgMap.put("styleNo","没有修改,但是上次下发失败,执行下发操作");
+                        goodsMsgMap.put(styleNo,"没有修改,但是上次下发失败,执行下发操作");
                     } else {
-                        goodsMsgMap.put("styleNo","没有修改");
+                        goodsMsgMap.put(styleNo,"没有修改");
                     }
                 } else {
                     updateSize++;

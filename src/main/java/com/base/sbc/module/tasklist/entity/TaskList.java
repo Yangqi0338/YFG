@@ -48,14 +48,14 @@ public class TaskList extends BaseDataEntity<String> {
      @ApiModelProperty(value = "任务状态（1-待办 2-已办）")
      private Integer taskStatus;
     /**
-     * 任务名称（「任务类型：单据编号」）
+     * 任务名称（「任务类型：任务编号」）
      */
-    @ApiModelProperty(value = "任务名称（任务类型：单据编号）")
+    @ApiModelProperty(value = "任务名称（任务类型：任务编号）")
     private String taskName;
     /**
      * 任务内容（「单据编号：同步结果」同步结果举例：总共下发xx条，成功xx条，失败xx条）
      */
-    @ApiModelProperty(value = "任务内容（「单据编号：同步结果」同步结果举例：总共下发xx条，成功xx条，失败xx条）")
+    @ApiModelProperty(value = "任务内容（「任务编号：同步结果」同步结果举例：总共下发xx条，成功xx条，失败xx条）")
     private String taskContent;
     /**
      * 发起人 ID
