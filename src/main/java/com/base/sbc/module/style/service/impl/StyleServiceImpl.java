@@ -397,7 +397,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     }
 
 
-    @Async
+    //@Async
     public void deliveryStyleColor(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
