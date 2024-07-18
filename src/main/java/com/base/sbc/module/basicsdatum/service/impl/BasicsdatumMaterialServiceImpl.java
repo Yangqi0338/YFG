@@ -1901,6 +1901,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         List<OperaLogEntity> updateLogs = new ArrayList<>();
         List<LinkedHashMap<String,Object>> returnList = new ArrayList<>();
         List<String> materialIds = new ArrayList<>();
+        int successSize = 0;
         int updateSize = 0;
 
         for (Map<String, Object> map : readAll) {
@@ -1909,7 +1910,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             if(!materialMap.containsKey(materialCode)){
                 //没有找到该物料
                 LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
-                returnMap.put("错误信息","大货款号不存在;");
+                returnMap.put("错误信息","材料号不存在;");
                 returnMap.putAll(map);
                 returnList.add(returnMap);
                 continue;
@@ -1983,9 +1984,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                         } else if("新小类".equals(planningDimensionality.getFieldExplain())){
                             newCategory3 = value;
                         } else if("结构中类".equals(planningDimensionality.getFieldExplain())){
-                            newCategory3 = value;
+                            structureCategory2 = value;
                         } else if("结构小类".equals(planningDimensionality.getFieldExplain())){
-                            newCategory3 = value;
+                            structureCategory3 = value;
                         } else if("面料价值".equals(planningDimensionality.getFieldExplain())){
                             fabricValue = value;
                         }
@@ -2052,9 +2053,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                         sbMsg.append("供应商报价大于50,面料价值只能是高;");
                     }
                 }
-                if(StrUtil.isEmpty(sbMsg) && !fieldValList.isEmpty()){
-                    materialIds.add(id);
-                    updateSize++;
+                if(StrUtil.isEmpty(sbMsg)){
+                    successSize++;
+                    if(!fieldValList.isEmpty()){
+                        materialIds.add(id);
+                        updateSize++;
+                    }
                 }
                 updateFieldValList.addAll(fieldValList);
                 operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
@@ -2105,7 +2109,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "materialUpload", numberByKeyDay);
 
         //总计导入 成功 失败多少 修改多少
-        return ApiResult.success("总计导入" + readAll.size() +"条,成功"+materialIds.size()+"条,失败"+(readAll.size() - materialIds.size())+"条,修改"+updateSize+"条",attachmentVo);
+        return ApiResult.success("总计导入" + readAll.size() +"条,成功"+successSize+"条,失败"+(readAll.size() - successSize)+"条,修改"+updateSize+"条",attachmentVo);
     }
 
 }
