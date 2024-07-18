@@ -69,7 +69,7 @@ public class TaskListDetailServiceImpl extends BaseServiceImpl<TaskListDetailMap
                 StrUtil.isNotBlank(queryPageTaskListDetail.getErrorInfo()),
                 TaskListDetail::getErrorInfo,
                 queryPageTaskListDetail.getErrorInfo());
-        taskListDetailLambdaQueryWrapper.orderByDesc(TaskListDetail::getCreateDate);
+        taskListDetailLambdaQueryWrapper.orderByDesc(TaskListDetail::getId);
         List<TaskListDetail> taskListDetailList = list(taskListDetailLambdaQueryWrapper);
         PageInfo<TaskListDetail> taskListDetailPageInfo = new PageInfo<>(taskListDetailList);
         return CopyUtil.copy(taskListDetailPageInfo, TaskListDetailVO.class);

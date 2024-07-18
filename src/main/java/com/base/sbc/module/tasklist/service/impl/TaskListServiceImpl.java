@@ -133,7 +133,7 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
         taskListLambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskStatus()), TaskList::getTaskStatus, queryPageTaskList.getTaskStatus());
         taskListLambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskType()), TaskList::getTaskType, queryPageTaskList.getTaskType());
         taskListLambdaQueryWrapper.like(ObjectUtil.isNotEmpty(queryPageTaskList.getTaskContent()), TaskList::getTaskContent, queryPageTaskList.getTaskContent());
-        taskListLambdaQueryWrapper.orderByDesc(TaskList::getCreateDate);
+        taskListLambdaQueryWrapper.orderByDesc(TaskList::getId);
         if (ObjectUtil.isNotEmpty(queryPageTaskList.getReceiveDate())) {
             taskListLambdaQueryWrapper.ge(TaskList::getReceiveDate, queryPageTaskList.getReceiveDate().get(0));
         }
