@@ -183,6 +183,9 @@
             </if>
         from t_style_color tsc
         where tsc.del_flag = '0'
+        and tsc.is_defective = '0'
+        and tsc.scm_send_flag = '1'
+        and tsc.status = '0'
         <if test="ew.hasAlias('ts')">
             and EXISTS(
                 select 1 from t_style ts where ts.id = tsc.style_id and ts.del_flag = '0'
@@ -233,6 +236,9 @@
             GROUP BY ts2.registering_id
         ) ts2 ON ts2.registering_id = tpl.id
         where tsc.del_flag = '0'
+        and tsc.is_defective = '0'
+        and tsc.scm_send_flag = '1'
+        and tsc.status = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -259,6 +265,11 @@
         and tpb.del_flag = '0'
         AND tpb.status = '1'
         AND tpb.category1_code = #{qo.category1Code}
+        and EXISTS(select 1 from t_style_color tsc where tsc.id = tpi.style_color_id and tsc.del_flag = '0'
+            and tsc.is_defective = '0'
+            and tsc.scm_send_flag = '1'
+            and tsc.status = '0'
+        )
         <if test="ew.hasAlias('tpi')">
             <if test="qo.needSpecialTotalSum == true">
                 and ${ ew.getSqlByAlias('tpi')}
