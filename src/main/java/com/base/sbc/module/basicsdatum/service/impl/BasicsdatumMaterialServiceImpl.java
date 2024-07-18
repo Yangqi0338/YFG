@@ -2102,7 +2102,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         String fileName = String.valueOf(System.currentTimeMillis());
         MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
-        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.materialUpload, numberByKeyDay);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "materialUpload", numberByKeyDay);
 
         //总计导入 成功 失败多少 修改多少
         return ApiResult.success("总计导入" + readAll.size() +"条,成功"+materialIds.size()+"条,失败"+(readAll.size() - materialIds.size())+"条,修改"+updateSize+"条",attachmentVo);
