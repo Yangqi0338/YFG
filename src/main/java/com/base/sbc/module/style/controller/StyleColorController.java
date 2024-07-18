@@ -434,7 +434,7 @@ public class StyleColorController {
     @PostMapping("/importMarkingOrder")
     public ApiResult importMarkingOrder(@RequestParam("file") MultipartFile file) throws Exception {
         ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
-        List<Map<String,Object>> readAll = reader.readAll();
+        List<Map<String, Object>> readAll = reader.readAll();
 
         return styleColorService.importMarkingOrder(readAll);
     }

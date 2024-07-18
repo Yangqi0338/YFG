@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.base.sbc.config.utils.DateUtils.FORMAT_NO_DATE;
 
@@ -122,5 +123,21 @@ public class CodeGen {
 	public String getIncrCode(String prefix, String businessFlag, String companyCode) {
 		long incr = redisUtils.incr(businessFlag + ":" + prefix + companyCode, 1);
 		return prefix + String.format("%04d", incr);
+	}
+
+	/**
+	 * 根据当前年月日+key，获取流水号，digit位数，不足自动补零
+	 * @param key
+	 * @param digit
+	 * @return
+	 */
+	public String getNumberByKeyDay(String key,int digit){
+		String now = DateUtils.getDate(FORMAT_NO_DATE);
+
+		long incr = redisUtils.incr(key+now, 1, 24, TimeUnit.HOURS);
+
+		String format = String.format("%0" + digit + "d", incr);
+
+		return key+now+format;
 	}
 }

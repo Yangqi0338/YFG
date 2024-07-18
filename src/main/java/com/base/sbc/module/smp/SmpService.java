@@ -64,6 +64,7 @@ import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
@@ -89,6 +90,8 @@ import com.base.sbc.module.style.service.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -121,6 +124,7 @@ import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HAN
 @Configuration
 public class SmpService {
 
+    private static final Logger log = LoggerFactory.getLogger(SmpService.class);
     private final DataSourceTransactionManager dataSourceTransactionManager;
 
     private final TransactionDefinition transactionDefinition;
@@ -217,12 +221,51 @@ public class SmpService {
     @Autowired
     private FieldBusinessSystemService fieldBusinessSystemService;
 
+    @Resource
+    public OperaLogService operaLogService;
+
     public Integer goods(String[] ids) {
         return goods(ids,null,null);
     }
 
     public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
         return goods(ids,targetBusinessSystem,yshBusinessSystem,null,null);
+    }
+
+    /**
+     * 异步下发货品数据
+     *
+     * @param ids                  大货款号ids
+     * @param targetBusinessSystem 目标系统多个逗号拼接
+     * @param yshBusinessSystem    ysh系统时对应的业务系统多个逗号拼接
+     * @param numberByKeyDay       异步流水号
+     * @param goodsMsgMap          导入报错信息
+     */
+    @Async
+    public void goodsAsync(String[] ids, String targetBusinessSystem, String yshBusinessSystem, String numberByKeyDay, Map<String, String> goodsMsgMap) {
+        List<String> msg = new ArrayList<>();
+        StringBuffer sbMsg1 = new StringBuffer();
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        try{
+            int i =goods(ids,targetBusinessSystem,yshBusinessSystem,1,msg);
+            if (ids.length == i) {
+                sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条");
+            } else {
+                sbMsg1.append("下发：").append(ids.length).append("条,成功：").append(i).append("条,失败：").append(ids.length - i).append("条;失败原因如下:").append(String.join(";", msg));
+            }
+        }catch (Exception e){
+            log.error("款式打标下发失败,请手工重推",e);
+            sbMsg1.append("下发失败,请手工重推");
+        }
+
+
+        operaLogEntity.setType("导入-下发");
+        operaLogEntity.setDocumentId("导入下发结果");
+        operaLogEntity.setDocumentCode(numberByKeyDay);
+        operaLogEntity.setName("款式打标-批量导入修改");
+        operaLogEntity.setDocumentName("导入结果");
+        operaLogEntity.setContent(sbMsg1.toString());
+        operaLogService.save(operaLogEntity);
     }
 
     /**
