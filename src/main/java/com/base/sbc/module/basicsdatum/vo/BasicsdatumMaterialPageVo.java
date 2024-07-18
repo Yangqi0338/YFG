@@ -388,6 +388,16 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 
 	private String widthName;
 
+	private String newCategory2;
+
+	private String newCategory3;
+
+	private String structureCategory2;
+
+	private String structureCategory3;
+
+	private String fabricValue;
+
 	/**
 	 * 列头筛选数量
 	 */

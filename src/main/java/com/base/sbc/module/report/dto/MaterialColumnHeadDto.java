@@ -1,7 +1,6 @@
 package com.base.sbc.module.report.dto;
 
 import com.base.sbc.config.dto.QueryFieldDto;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
@@ -336,5 +335,7 @@ public class MaterialColumnHeadDto extends QueryFieldDto {
      * 物料编码多个查询
      */
     private String materialCodesHead;
+
+    private String detail;
 
 }
