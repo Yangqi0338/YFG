@@ -28,7 +28,6 @@ import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingWarnType;
 import com.base.sbc.config.enums.business.smp.SaleFacResultType;
-import com.base.sbc.config.enums.business.smp.SluggishSaleLevelEnum;
 import com.base.sbc.config.enums.business.smp.SluggishSaleWeekendsType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -701,7 +700,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 weekendsTypeList.stream().collect(Collectors.toMap(Function.identity(), (weekends) ->
                         salesList.stream().filter(it -> it.getYear().equals(year) && it.getWeekends() == weekends).findFirst()
                 )).forEach((weekends, yearSales) -> {
-                    levelDTO.getWeekendDataMap().put(weekends, yearSales.map(it -> SluggishSaleLevelEnum.startByCode(it.getLevel())).orElse(null));
+                    levelDTO.getWeekendDataMap().put(weekends, yearSales.map(GoodsSluggishSales::getLevel).orElse(null));
                     avgDTO.getWeekendDataMap().put(weekends, yearSales.map(GoodsSluggishSales::getAvg).orElse(BigDecimal.ZERO));
                 });
                 list.add(levelDTO);
