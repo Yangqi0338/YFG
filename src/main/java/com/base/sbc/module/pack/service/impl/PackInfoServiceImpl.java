@@ -1344,6 +1344,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
+    public String getByIdBrandName(String id) {
+        PackInfo byId = getById(id);
+        if (null == byId){
+            return null;
+        }
+        Style style = styleService.getById(byId.getForeignId());
+        return Objects.isNull(style) ? null : style.getBrandName();
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);

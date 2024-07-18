@@ -1094,7 +1094,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         QueryWrapper<BasicsdatumMaterial> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("material_code", materialCode);
         List<BasicsdatumMaterial> list = list(queryWrapper);
-        if (CollUtil.isNotEmpty(list)){
+        if (CollUtil.isEmpty(list)){
             return null;
         }
         return list.get(0);
