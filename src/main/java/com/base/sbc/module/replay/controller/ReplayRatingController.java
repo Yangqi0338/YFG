@@ -75,9 +75,9 @@ public class ReplayRatingController extends BaseController {
     }
 
     @ApiOperation(value = "面料复盘明细")
-    @GetMapping("/fabric/{id}")
-    public ApiResult<ReplayRatingFabricDTO> getFabricById(@PathVariable("id") @NotBlank(message = "id不能为空") String id) {
-        return selectSuccess(replayRatingService.getFabricById(id));
+    @GetMapping("/fabric/{styleColorId}")
+    public ApiResult<ReplayRatingFabricDTO> getFabricById(@PathVariable("styleColorId") @NotBlank(message = "id不能为空") String styleColorId) {
+        return selectSuccess(replayRatingService.getFabricById(styleColorId));
     }
 
     @ApiOperation(value = "保存")

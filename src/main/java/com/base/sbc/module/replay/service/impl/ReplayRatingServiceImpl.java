@@ -1176,16 +1176,18 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             libraryDTO.setProdCategory2ndName(style.getProdCategory2ndName());
             libraryDTO.setProdCategory3rd(style.getProdCategory3rd());
             libraryDTO.setProdCategory3rdName(style.getProdCategory3rdName());
-            libraryDTO.setSilhouetteCode(style.getSilhouette());
-            libraryDTO.setSilhouetteName(style.getSilhouetteName());
             libraryDTO.setTemplateCode(transferDTO.getTemplateCode());
             libraryDTO.setTemplateName(transferDTO.getTemplateName());
             libraryDTO.setPicId(style.getStylePic());
+            libraryDTO.setOldPicId(style.getStylePic());
             libraryDTO.setPicUrl(style.getStylePic());
             libraryDTO.setPicSource(2);
             libraryDTO.setStatus(2);
             libraryDTO.setEnableFlag(YesOrNoEnum.YES.getValue());
-            libraryDTO.setPatternLibraryBrandList(Collections.singletonList(new PatternLibraryBrand()));
+            PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
+            patternLibraryBrand.setBrand(style.getBrand());
+            patternLibraryBrand.setBrandName(style.getBrandName());
+            libraryDTO.setPatternLibraryBrandList(Collections.singletonList(patternLibraryBrand));
 
             // 获取面料详情
             StyleBomSearchDto styleBomSearchDto = new StyleBomSearchDto();
@@ -1228,6 +1230,10 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     patternLibraryItem.setType(2);
                     patternLibraryItemList.add(patternLibraryItem);
                 }
+                if (fieldVal.getFieldExplain().equals(FieldValProperties.silhouette)) {
+                    libraryDTO.setSilhouetteCode(fieldVal.getVal());
+                    libraryDTO.setSilhouetteName(fieldVal.getValName());
+                }
             });
 
             // 获取模板部件
@@ -1262,7 +1268,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             return libraryDTO.getId();
         } else {
             // 设置热销大货款
-            patternLibrary.setStyleNos(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(patternLibrary.getStyleNos()).append(bulkStyleNo).toString());
+            patternLibrary.setPlaceOrderStyleNos(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(patternLibrary.getPlaceOrderStyleNos()).append(bulkStyleNo).toString());
             // 设置父编码
             if (transferDTO.getTransferParentFlag() == YesOrNoEnum.YES) {
                 patternLibrary.setParentId(style.getRegisteringId());
