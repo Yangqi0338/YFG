@@ -14,6 +14,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
@@ -117,15 +118,16 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             saveOperaLog(genOperaLogEntity(dto, "同步成衣合同价"));
         }
         // 无值
+        List<Map<String, Object>> respData = new ArrayList<>();
         if (StrUtil.isBlank(httpResp.getData()) || StrUtil.equals(httpResp.getData(), "[]")) {
-            List<Map<String, String>> respData = new ArrayList<>();
-            Map<String, String> unitPrice = new HashMap<>();
-            unitPrice.put("unitPrice", null);
+            Map<String, Object> unitPrice = new HashMap<>();
             unitPrice.put("styleNo", dto.getStyleNo());
+            unitPrice.put("unitPrice", null);
             respData.add(unitPrice);
             return ApiResult.success("查询成功", respData);
         }
-        return ApiResult.success("查询成功", httpResp.getData());
+        respData = (List<Map<String, Object>>) JSONArray.parse(httpResp.getData());
+        return ApiResult.success("查询成功", respData);
     }
 
     @Override
