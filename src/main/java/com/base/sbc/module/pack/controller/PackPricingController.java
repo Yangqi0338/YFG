@@ -13,6 +13,7 @@ import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +55,12 @@ public class PackPricingController {
 
     @Autowired
     private PackPricingCraftCostsService packPricingCraftCostsService;
+
+    @ApiOperation(value = "获取合同价")
+    @PostMapping("/getContractPrice")
+    public ApiResult getContractPrice(@RequestBody QueryContractPriceDTO contractPriceDTO) {
+        return packPricingService.getContractPrice(contractPriceDTO);
+    }
 
     @ApiOperation(value = "获取明细")
     @GetMapping()
