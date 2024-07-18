@@ -226,7 +226,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
                         break;
                     case "markingOrderUpload":
-                        objectName = "errorMsg/markingOrder/" + code + "." + extName;
+                        objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
                         break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
