@@ -372,10 +372,12 @@ public class SmpService {
                 if (type != null && type == 1) {
                     // 不抛出异常  保存到msg中
                     msg.add(message);
+                    taskListDetail.setErrorInfo(message);
                     if (ObjectUtil.isNotEmpty(goodsMsgMap)) {
-                        taskListDetail.setErrorInfo(goodsMsgMap.get(styleColor.getStyleNo()) + "\r\n" + message);
-                    } else {
-                        taskListDetail.setErrorInfo(message);
+                        String goodsMsg = goodsMsgMap.get(styleColor.getStyleNo());
+                        if (StrUtil.isNotBlank(goodsMsg)) {
+                            taskListDetail.setErrorInfo(goodsMsg + "\r\n" + message);
+                        }
                     }
                     taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
                     taskListDetailList.add(taskListDetail);
@@ -703,10 +705,12 @@ public class SmpService {
                 if (type != null && type == 1) {
                     // 不抛出异常  保存到msg中
                     msg.add(message);
+                    taskListDetail.setErrorInfo(message);
                     if (ObjectUtil.isNotEmpty(goodsMsgMap)) {
-                        taskListDetail.setErrorInfo(goodsMsgMap.get(styleColor.getStyleNo()) + "\r\n" + message);
-                    } else {
-                        taskListDetail.setErrorInfo(message);
+                        String goodsMsg = goodsMsgMap.get(styleColor.getStyleNo());
+                        if (StrUtil.isNotBlank(goodsMsg)) {
+                            taskListDetail.setErrorInfo(goodsMsg + "\r\n" + message);
+                        }
                     }
                     taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
                     taskListDetailList.add(taskListDetail);
@@ -802,10 +806,12 @@ public class SmpService {
                     taskListDetailService.updateById(taskListDetail);
                 } else {
                     // 自动下发
+                    taskListDetail.setErrorInfo("无");
                     if (ObjectUtil.isNotEmpty(goodsMsgMap)) {
-                        taskListDetail.setErrorInfo(goodsMsgMap.get(styleColor.getStyleNo()));
-                    } else {
-                        taskListDetail.setErrorInfo("无");
+                        String goodsMsg = goodsMsgMap.get(styleColor.getStyleNo());
+                        if (StrUtil.isNotBlank(goodsMsg)) {
+                            taskListDetail.setErrorInfo(goodsMsg);
+                        }
                     }
                     taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.SUCCESS.getCode());
                     taskListDetailList.add(taskListDetail);
@@ -821,10 +827,12 @@ public class SmpService {
                     taskListDetailService.updateById(taskListDetail);
                 } else {
                     // 自动下发
+                    taskListDetail.setErrorInfo("款式打标下发失败，失败原因：" + httpResp.getMessage());
                     if (ObjectUtil.isNotEmpty(goodsMsgMap)) {
-                        taskListDetail.setErrorInfo(goodsMsgMap.get(styleColor.getStyleNo()) + "\r\n" + "款式打标下发失败，失败原因：" + httpResp.getMessage());
-                    } else {
-                        taskListDetail.setErrorInfo("款式打标下发失败，失败原因：" + httpResp.getMessage());
+                        String goodsMsg = goodsMsgMap.get(styleColor.getStyleNo());
+                        if (StrUtil.isNotBlank(goodsMsg)) {
+                            taskListDetail.setErrorInfo(goodsMsg + "\r\n" + "款式打标下发失败，失败原因：" + httpResp.getMessage());
+                        }
                     }
                     taskListDetail.setSyncResult(TaskListDetailSyncResultEnum.FAILED.getCode());
                     taskListDetailList.add(taskListDetail);
@@ -847,14 +855,12 @@ public class SmpService {
             taskList.setReceiveUserName(userUtils.getAliasUserName() + "/陈太超/任佳威");
             taskList.setReceiveDate(new Date());
             if (ObjectUtil.isNotEmpty(goodsMsgMap)) {
-                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
-                        numberByKeyDay, goodsMsgMap.keySet().size(), goodsMsgMap.keySet().size() - (ids.length - i), ids.length - i);
-                taskList.setTaskContent(taskContent);
+                Set<String> goodsMsgSet = goodsMsgMap.keySet();
                 // 将一部分不需要下发的数据 存在任务列表详情中 状态时成功
                 List<String> styleNoList = styleColors.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
                 List<StyleColor> styleColorList = styleColorService.list(
                         new LambdaQueryWrapper<StyleColor>()
-                                .in(StyleColor::getStyleNo, goodsMsgMap.keySet())
+                                .in(StyleColor::getStyleNo, goodsMsgSet)
                 );
                 for (StyleColor styleColor : styleColorList) {
                     if (!styleNoList.contains(styleColor.getStyleNo())) {
@@ -867,6 +873,9 @@ public class SmpService {
                     }
                 }
                 taskList.setTaskListDetailList(taskListDetailList);
+                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
+                        numberByKeyDay, taskListDetailList.size(), taskListDetailList.size() - (ids.length - i), ids.length - i);
+                taskList.setTaskContent(taskContent);
             } else {
                 String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
                         numberByKeyDay, ids.length, i, ids.length - i);

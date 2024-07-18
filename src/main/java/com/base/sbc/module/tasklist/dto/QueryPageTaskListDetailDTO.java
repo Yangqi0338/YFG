@@ -41,4 +41,20 @@ public class QueryPageTaskListDetailDTO extends Page {
      */
     @ApiModelProperty(value = "任务列表主表 ID（t_task_list）")
     private String taskListId;
+
+    /**
+     * 错误信息（用来记录这个数据为什么下发失败）
+     */
+    @ApiModelProperty(value = "错误信息（用来记录这个数据为什么下发失败）")
+    private String errorInfo;
+    /**
+     * 同步结果（1-成功 2-失败）
+     */
+    @ApiModelProperty(value = "同步结果（1-成功 2-失败）")
+    private Integer syncResult;
+    /**
+     * 大货款号
+     */
+    @ApiModelProperty(value = "大货款号")
+    private String styleNo;
 }

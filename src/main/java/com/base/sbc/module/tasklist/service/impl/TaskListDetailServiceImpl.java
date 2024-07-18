@@ -8,6 +8,7 @@ package com.base.sbc.module.tasklist.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
@@ -56,6 +57,18 @@ public class TaskListDetailServiceImpl extends BaseServiceImpl<TaskListDetailMap
         }
         LambdaQueryWrapper<TaskListDetail> taskListDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
         taskListDetailLambdaQueryWrapper.eq(TaskListDetail::getTaskListId, queryPageTaskListDetail.getTaskListId());
+        taskListDetailLambdaQueryWrapper.like(
+                StrUtil.isNotBlank(queryPageTaskListDetail.getStyleNo()),
+                TaskListDetail::getStyleNo,
+                queryPageTaskListDetail.getStyleNo());
+        taskListDetailLambdaQueryWrapper.eq(
+                ObjectUtil.isNotEmpty(queryPageTaskListDetail.getSyncResult()),
+                TaskListDetail::getSyncResult,
+                queryPageTaskListDetail.getSyncResult());
+        taskListDetailLambdaQueryWrapper.like(
+                StrUtil.isNotBlank(queryPageTaskListDetail.getErrorInfo()),
+                TaskListDetail::getErrorInfo,
+                queryPageTaskListDetail.getErrorInfo());
         taskListDetailLambdaQueryWrapper.orderByDesc(TaskListDetail::getCreateDate);
         List<TaskListDetail> taskListDetailList = list(taskListDetailLambdaQueryWrapper);
         PageInfo<TaskListDetail> taskListDetailPageInfo = new PageInfo<>(taskListDetailList);
