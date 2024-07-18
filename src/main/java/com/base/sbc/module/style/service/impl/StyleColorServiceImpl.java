@@ -3835,6 +3835,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         int updateSize = 0;
 
+        Map<String,String> goodsMsgMap = new HashMap<>();
+
         for (Map<String, Object> map : readAll) {
             StringBuffer sbMsg = new StringBuffer();
             String styleNo = map.get("大货款号").toString();
@@ -3847,6 +3849,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 returnList.add(returnMap);
                 continue;
             }
+
+            goodsMsgMap.put("styleNo","");
             OperaLogEntity operaLogEntity = new OperaLogEntity();
             List<Map<String,String>> updateLogMaps = new ArrayList<>();
 
@@ -3986,9 +3990,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (fieldValList.isEmpty()) {
                     if (!"1".equals(styleColor.getScmSendFlag())) {
                         goodsIds.add(styleColor.getId());
-                        sbMsg.append("没有修改,但是上次下发失败,执行下发操作;");
+                        goodsMsgMap.put("styleNo","没有修改,但是上次下发失败,执行下发操作");
                     } else {
-                        sbMsg.append("没有修改");
+                        goodsMsgMap.put("styleNo","没有修改");
                     }
                 } else {
                     updateSize++;
@@ -4026,7 +4030,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if(CollUtil.isNotEmpty(goodsIds)){
             //推送下游系统
-            smpService.goodsAsync(goodsIds.toArray(new String[0]),"BCS",null,numberByKeyDay);
+            smpService.goodsAsync(goodsIds.toArray(new String[0]),"BCS",null,numberByKeyDay,goodsMsgMap);
         }
 
         //写一个excel
