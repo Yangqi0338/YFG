@@ -267,4 +267,11 @@ public class PatternLibraryController {
         PatternLibraryTemplate patternLibraryTemplate = patternLibraryService.queryPatternTypeByStyleId(styleId);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryTemplate);
     }
+
+    @ApiOperation(value = "款式设计获取版型库动态字段（长度、围度、廓形、涉及部件）")
+    @GetMapping("/queryPatternLibrarySomeInfo")
+    public ApiResult<PatternLibrary> queryPatternLibrarySomeInfo(String patternLibraryId) {
+        PatternLibrary patternLibrary = patternLibraryService.queryPatternLibrarySomeInfo(patternLibraryId);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibrary);
+    }
 }

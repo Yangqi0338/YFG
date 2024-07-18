@@ -1271,6 +1271,35 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         return new PatternLibraryTemplate();
     }
 
+    @Override
+    public PatternLibrary queryPatternLibrarySomeInfo(String patternLibraryId) {
+        if (ObjectUtil.isEmpty(patternLibraryId)) {
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
+        }
+        // 初始化返回数据
+        // 根据版型库主表 ID 查询版型库主表信息
+        PatternLibrary patternLibrary = getOne(
+                new LambdaQueryWrapper<PatternLibrary>()
+                        .eq(PatternLibrary::getId, patternLibraryId)
+                        .select(PatternLibrary::getId,
+                                PatternLibrary::getProdCategory1st,
+                                PatternLibrary::getSilhouetteName,
+                                PatternLibrary::getSilhouetteCode)
+        );
+        if (ObjectUtil.isEmpty(patternLibrary)) {
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
+        }
+
+        // 查询版型库子表信息
+        List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
+                new LambdaQueryWrapper<PatternLibraryItem>()
+                        .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryId)
+                        .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+        );
+        patternLibrary.setPatternLibraryItemList(patternLibraryItemList);
+        return patternLibrary;
+    }
+
     public void removeEverGreenTreeNode(String patternLibraryId) {
         PatternLibrary patternLibrary = getById(patternLibraryId);
         String currParentIds = patternLibrary.getParentIds();
