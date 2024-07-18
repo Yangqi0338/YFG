@@ -843,7 +843,8 @@ public class SmpService {
             //下发并记录推送日志
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","物料主数据下发")
+                    Pair.of("functionName","物料主数据下发"),
+                    Pair.of("code",basicsdatumMaterial.getMaterialCode())
             );
 
             //修改状态为已下发
@@ -1061,7 +1062,8 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","bom下发")
+                    Pair.of("functionName","bom下发"),
+                    Pair.of("code",smpBomDto.getBulkNumber()+"-"+smpBomDto.getMaterialCode())
             );
 
             if (httpResp.isSuccess()) {
@@ -1130,7 +1132,10 @@ public class SmpService {
                 String jsonString = JsonStringUtils.toJSONString(smpColorDto);
                 HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", jsonString,
                         Pair.of("moduleName","smp"),
-                        Pair.of("functionName","颜色主数据下发")
+                        Pair.of("functionName","颜色主数据下发"),
+                        Pair.of("code",smpColorDto.getColorCode()),
+                        Pair.of("name",smpColorDto.getColorName())
+
                 );
 
                 if (httpResp.isSuccess()) {
@@ -1164,7 +1169,8 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpProcessSheetDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","工艺单下发")
+                    Pair.of("functionName","工艺单下发"),
+                    Pair.of("code",smpProcessSheetDto.getBulkNumber())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1272,8 +1278,9 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
             HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString,
                     Pair.of("moduleName","oa"),
-                    Pair.of("functionName","样衣下发")
-            );
+                    Pair.of("functionName","样衣下发"),
+                    Pair.of("code",patternMaking.getSampleBarCode())
+                    );
 
             if (httpResp.isSuccess()) {
                 i++;
@@ -1321,7 +1328,8 @@ public class SmpService {
         String jsonString = JsonStringUtils.toJSONString(param);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", jsonString,
                 Pair.of("moduleName","scm"),
-                Pair.of("functionName","修改尺码的时候验证")
+                Pair.of("functionName","修改尺码的时候验证"),
+                Pair.of("code",param.getStyleNo())
         );
         return httpResp.isSuccess();
     }
@@ -1333,7 +1341,8 @@ public class SmpService {
         String jsonString = JsonStringUtils.toJSONString(param);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", jsonString,
                 Pair.of("moduleName","scm"),
-                Pair.of("functionName","修改商品颜色的时候验证")
+                Pair.of("functionName","修改商品颜色的时候验证"),
+                Pair.of("code",param.getStyleNo()+"-"+param.getCode())
         );
         return httpResp.isSuccess();
     }
@@ -1369,7 +1378,9 @@ public class SmpService {
         String jsonString = JsonStringUtils.toJSONString(checkMaterial);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", jsonString,
                 Pair.of("moduleName","scm"),
-                Pair.of("functionName","停用物料尺码和颜色的时候验证")
+                Pair.of("functionName","停用物料尺码和颜色的时候验证"),
+                Pair.of("code",checkMaterial.getMaterialCode()+"-"+checkMaterial.getCode())
+
         );
         if (!httpResp.isSuccess()) {
             throw new OtherException(httpResp.getMessage());
@@ -1386,7 +1397,8 @@ public class SmpService {
         String jsonString = JsonStringUtils.toJSONString(updatePriceDto);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", jsonString,
                 Pair.of("moduleName","smp"),
-                Pair.of("functionName","修改吊牌价的时候验证")
+                Pair.of("functionName","修改吊牌价的时候验证"),
+                Pair.of("code",updatePriceDto.getBulkStyleNo())
         );
         return httpResp.isSuccess();
     }
@@ -1533,7 +1545,8 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
             HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask",jsonString,
                     Pair.of("moduleName","oa"),
-                    Pair.of("functionName","样衣下发")
+                    Pair.of("functionName","样衣下发"),
+                    Pair.of("code",preProductionSampleTask.getSampleBarCode())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1558,7 +1571,8 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition",jsonString,
                     Pair.of("moduleName","scm"),
-                    Pair.of("functionName","下发吊牌成分")
+                    Pair.of("functionName","下发吊牌成分"),
+                    Pair.of("code",hangTag.getBulkStyleNo())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1623,7 +1637,8 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString,
                     Pair.of("moduleName","scm"),
-                    Pair.of("functionName","下发尺寸和外辅工艺明细数据")
+                    Pair.of("functionName","下发尺寸和外辅工艺明细数据"),
+                    Pair.of("code",bomSizeAndProcessDto.getStyleNo())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1783,7 +1798,8 @@ public class SmpService {
         String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
         restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
                 Pair.of("moduleName","scm"),
-                Pair.of("functionName","下发吊牌和款式定价确认信息")
+                Pair.of("functionName","下发吊牌和款式定价确认信息"),
+                Pair.of("code",tagConfirmDateDto.getStyleNo())
         );
     }
 
@@ -1979,7 +1995,8 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","商品主数据下发-MANGO")
+                    Pair.of("functionName","商品主数据下发-MANGO"),
+                    Pair.of("code",smpGoodsDto.getBulkNumber())
             );
             if (httpResp.isSuccess()) {
                 i++;
