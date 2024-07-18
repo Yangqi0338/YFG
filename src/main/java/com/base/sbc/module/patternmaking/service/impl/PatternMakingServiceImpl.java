@@ -71,6 +71,7 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
+import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.service.ScoreConfigService;
 import com.base.sbc.module.patternmaking.vo.*;
@@ -157,6 +158,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
 
     private final ReentrantLock lock = new ReentrantLock();
+    @Autowired
+    private BasicsdatumSupplierService basicsdatumSupplierService;
+    @Autowired
+    private PatternMakingBarCodeService patternMakingBarCodeService;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId, String patternMakingDevtType) {
@@ -331,15 +336,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<PatternMakingVo> getSampleDressBydesignNo(String styleId, String patternMakingDevtType) {
         BaseQueryWrapper<PatternMaking> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("style_id",styleId);
-        queryWrapper.isNotNullStr("sample_bar_code");
+        queryWrapper.eq("tpm.style_id",styleId);
+
         if(StrUtil.isNotEmpty(patternMakingDevtType)){
             //如果是FOB类型查询，需要判断 有审样通过的数据
-            queryWrapper.exists("select 1 from t_pattern_making_bar_code tpmbc where tpmbc.head_id = t_pattern_making.id and tpmbc.status = '1'");
+            queryWrapper.eq("tpmbc.status","1");
+        }else{
+            queryWrapper.isNotNullStr("tpm.sample_bar_code");
         }
-        List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
-        List<PatternMakingVo> list = CopyUtil.copy(makingList,PatternMakingVo.class);
-        return list;
+        List<PatternMakingVo> makingList = baseMapper.listVo(queryWrapper);
+        return makingList;
     }
 
     @Override

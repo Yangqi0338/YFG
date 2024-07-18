@@ -116,6 +116,8 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
      * @return
      */
     PatternMakingScoreVo sampleBoardScore(@Param(Constants.WRAPPER)BaseQueryWrapper<SampleBoardVo> qw);
+
+    List<PatternMakingVo> listVo(@Param(Constants.WRAPPER) QueryWrapper qw);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 

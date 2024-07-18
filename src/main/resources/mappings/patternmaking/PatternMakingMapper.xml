@@ -1081,5 +1081,16 @@
 
     </select>
 
+    <select id="listVo" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingVo">
+        select ifnull(tpmbc.bar_code,tpm.sample_bar_code) as sampleBarCode,tpm.*
+        from t_pattern_making tpm
+                 left join t_pattern_making_bar_code tpmbc on (tpm.id = tpmbc.head_id and tpmbc.del_flag = '0')
+        where
+            tpm.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
 </mapper>
 
