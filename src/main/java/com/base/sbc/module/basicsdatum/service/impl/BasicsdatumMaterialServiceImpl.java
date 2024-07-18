@@ -194,7 +194,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Autowired
     private CodeGen codeGen;
 
-    @Lazy
     @Autowired
     private UploadFileService uploadFileService;
 
