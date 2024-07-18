@@ -100,7 +100,7 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
         String receiveUserId = taskList.getReceiveUserId();
         if (ObjectUtil.isNotEmpty(receiveUserId)) {
             for (String string : receiveUserId.split("/")) {
-                messageUtils.sendCommonMessage(string, message, "/columnDefine/toDoTasks", userUtils.getUser(string));
+                messageUtils.sendCommonMessage(string, message, "/taskList/toDoTasks", userUtils.getUser(string));
             }
         }
         return Boolean.TRUE;
