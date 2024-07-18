@@ -53,6 +53,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -118,8 +119,10 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 
     @Autowired
     private StyleMapper styleMapper;
+    @Lazy
     @Autowired
     private StyleService styleService;
+    @Lazy
     @Autowired
     private StylePicService stylePicService;
     @Autowired
