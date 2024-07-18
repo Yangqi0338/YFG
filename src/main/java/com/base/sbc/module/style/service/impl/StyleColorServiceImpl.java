@@ -4384,6 +4384,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         List<String> goodsIds = new ArrayList<>();
 
+        int updateSize = 0;
+
+        Map<String,String> goodsMsgMap = new HashMap<>();
+
         for (Map<String, Object> map : readAll) {
             StringBuffer sbMsg = new StringBuffer();
             String styleNo = map.get("大货款号").toString();
@@ -4396,6 +4400,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 returnList.add(returnMap);
                 continue;
             }
+
+            goodsMsgMap.put("styleNo","");
             OperaLogEntity operaLogEntity = new OperaLogEntity();
             List<Map<String,String>> updateLogMaps = new ArrayList<>();
 
@@ -4531,8 +4537,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     }
                 }
             }
-            if(fieldValFlag){
-                goodsIds.add(styleColor.getId());
+            if (fieldValFlag) {
+                if (fieldValList.isEmpty()) {
+                    if (!"1".equals(styleColor.getScmSendFlag())) {
+                        goodsIds.add(styleColor.getId());
+                        goodsMsgMap.put("styleNo","没有修改,但是上次下发失败,执行下发操作");
+                    } else {
+                        goodsMsgMap.put("styleNo","没有修改");
+                    }
+                } else {
+                    updateSize++;
+                    goodsIds.add(styleColor.getId());
+                }
                 updateFieldValList.addAll(fieldValList);
                 operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
                 operaLogEntity.setType("修改");
@@ -4540,16 +4556,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 operaLogEntity.setName("款式打标-批量导入修改");
                 operaLogEntity.setDocumentName(styleNo);
                 updateLogs.add(operaLogEntity);
-            }else if(fieldValList.isEmpty()){
-                if(!"1".equals(styleColor.getScmSendFlag())){
-                    goodsIds.add(styleColor.getId());
-                    sbMsg.append("没有修改,但是上次下发失败,执行下发操作;");
-                }else{
-                    sbMsg.append("没有修改");
-                }
             }
             LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
-            returnMap.put("错误信息",sbMsg);
+            returnMap.put("错误信息", sbMsg);
             returnMap.putAll(map);
             returnList.add(returnMap);
         }
@@ -4572,7 +4581,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if(CollUtil.isNotEmpty(goodsIds)){
             //推送下游系统
-            smpService.goodsAsync(goodsIds.toArray(new String[0]),"BCS",null,numberByKeyDay);
+            smpService.goodsAsync(goodsIds.toArray(new String[0]),"BCS",null,numberByKeyDay,goodsMsgMap);
         }
 
         //写一个excel
@@ -4587,7 +4596,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "markingOrderUpload", numberByKeyDay);
 
-        return ApiResult.success("导入成功",attachmentVo);
+        //总计导入 成功 失败多少 修改多少
+        return ApiResult.success("总计导入" + readAll.size() +"条,成功"+goodsIds.size()+"条,失败"+(readAll.size() - goodsIds.size())+"条,修改"+updateSize+"条",attachmentVo);
     }
 
 
