@@ -632,7 +632,7 @@ public class ExcelUtils {
 
         //这里就是要转成JSONObject类型，不要保留原对象类型
         JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
-
+        list.clear();
         for (int i = 0; i < jsonArray.size(); i++) {
             //其他一些补充的数据
             JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -662,15 +662,15 @@ public class ExcelUtils {
             ExecutorService executor = ExecutorBuilder.create()
                     .setCorePoolSize(8)
                     .setMaxPoolSize(10)
-                    .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                    .setWorkQueue(new LinkedBlockingQueue<>(jsonArray.size()))
                     .build();
             Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
             try {
                 /*导出图片*/
-                if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
+                if (CollUtil.isNotEmpty(jsonArray) && jsonArray.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                CountDownLatch countDownLatch = new CountDownLatch(jsonArray.size());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     executor.submit(() -> {
