@@ -399,6 +399,17 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	private String fabricValue;
 
 	/**
+	 * 质量等级
+	 */
+	@ApiModelProperty(value = "质量等级")
+	private String qualityLevel;
+	/**
+	 * 质量等级
+	 */
+	@ApiModelProperty(value = "质量等级名称")
+	private String qualityLevelName;
+
+	/**
 	 * 列头筛选数量
 	 */
 	private Integer groupCount;
