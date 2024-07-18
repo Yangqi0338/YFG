@@ -3850,7 +3850,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 continue;
             }
 
-            goodsMsgMap.put("styleNo","");
             OperaLogEntity operaLogEntity = new OperaLogEntity();
             List<Map<String,String>> updateLogMaps = new ArrayList<>();
 
