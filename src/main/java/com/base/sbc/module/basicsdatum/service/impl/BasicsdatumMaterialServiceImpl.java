@@ -82,12 +82,15 @@ import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -172,6 +175,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Autowired
     private PlanningDimensionalityMapper planningDimensionalityMapper;
+
+
+    @Autowired
+    ThreadPoolTaskExecutor taskExportExecutor;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -640,41 +647,47 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public void exportBasicsdatumNewMaterial(HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException {
-//        dto.setPageNum(0);
-//        dto.setPageSize(0);
-//        List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
+        taskExportExecutor.submit(() ->{
+            dto.setPageNum(0);
+            dto.setPageSize(0);
+            List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
 //        List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
 //        ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
-//        ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
+            try {
+                ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        int pageNum = 0;
-        int pageSize = 10000;
-        ExcelTableCodeVO excelTableCodeVO = ExcelUtils.exportExcelByTableCodeVo(dto);
-        IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(new ExportParams("物料档案", "物料档案", ExcelType.HSSF), excelTableCodeVO.getExcelParams());
-        Workbook workbook = null;
-        for (int i = 0; i < 5; i++) {
-            dto.setPageNum(pageNum);
-            List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
-            if (CollUtil.isEmpty(list)){
-                if (null == workbook){
-                    return;
-                }
-                ExcelUtils.downLoadExcel("物料档案", response, workbook);
-                return;
-            }
-            int size = list.size();
-            JSONArray jsonArray = ExcelUtils.exportExcelByTableCodeList(list, excelTableCodeVO, dto);
-            workbookIWriter.write(jsonArray);
-            workbook = workbookIWriter.get();
-            workbookIWriter.close();
-            jsonArray.clear();
-            list.clear();
-            if (size < pageSize){
-                ExcelUtils.downLoadExcel("物料档案", response, workbook);
-                return;
-            }
-            pageNum++;
-        }
+//        int pageNum = 0;
+//        int pageSize = 10000;
+//        ExcelTableCodeVO excelTableCodeVO = ExcelUtils.exportExcelByTableCodeVo(dto);
+//        IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(new ExportParams("物料档案", "物料档案", ExcelType.HSSF), excelTableCodeVO.getExcelParams());
+//        Workbook workbook = null;
+//        for (int i = 0; i < 5; i++) {
+//            dto.setPageNum(pageNum);
+//            List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
+//            if (CollUtil.isEmpty(list)){
+//                if (null == workbook){
+//                    return;
+//                }
+//                ExcelUtils.downLoadExcel("物料档案", response, workbook);
+//                return;
+//            }
+//            int size = list.size();
+//            JSONArray jsonArray = ExcelUtils.exportExcelByTableCodeList(list, excelTableCodeVO, dto);
+//            workbookIWriter.write(jsonArray);
+//            workbook = workbookIWriter.get();
+//            workbookIWriter.close();
+//            jsonArray.clear();
+//            list.clear();
+//            if (size < pageSize){
+//                ExcelUtils.downLoadExcel("物料档案", response, workbook);
+//                return;
+//            }
+//            pageNum++;
+//        }
 
     }
 
