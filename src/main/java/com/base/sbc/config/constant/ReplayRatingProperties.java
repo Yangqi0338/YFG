@@ -25,6 +25,7 @@ public class ReplayRatingProperties {
     public static final String PREFIX = "replay";
 
     public static String category1Code = "C4241";
+    public static String noDevClass = "99";
     public static String yearCodeSuffix = ".0";
     public static String yearNameSuffix = "年";
     public static Integer monthRange = 1;
@@ -39,6 +40,10 @@ public class ReplayRatingProperties {
 
     public void setCategory1Code(String category1Code) {
         ReplayRatingProperties.category1Code = category1Code;
+    }
+
+    public void setNoDevClass(String noDevClass) {
+        ReplayRatingProperties.noDevClass = noDevClass;
     }
 
     public void setYearCodeSuffix(String yearCodeSuffix) {

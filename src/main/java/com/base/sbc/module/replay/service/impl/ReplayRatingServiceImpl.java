@@ -253,6 +253,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         qw.notEmptyEq("ts.prod_category3rd", dto.getProdCategory3rd());
 //        qw.notEmptyEq("tsc.plan_season_id", dto.getSaleLevel());
         qw.notEmptyEq("ts.design_no", dto.getDesignNo());
+        qw.ne("ts.dev_class", dto.getNoDevClass());
         qw.notEmptyEq("tsc.style_no", dto.getBulkStyleNo());
         qw.notEmptyEq("trr.rating_flag", dto.getRatingFlag());
         qw.notEmptyEq("ts.registering_id", dto.getRegisteringId());
@@ -734,11 +735,13 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 sizeMap.forEach((sizeName, value) -> {
                     int stockQty = stockSizeList.stream().filter(it -> it.getSizeName().equals(sizeName)).mapToInt(StockSize::getQty).sum();
                     BigDecimal num = new BigDecimal(value.toString());
-                    ProductionSaleDTO productionSaleDTO = list.stream().filter(it -> it.getSizeName().equals(sizeName)).findFirst().orElseGet(() -> {
-                        ProductionSaleDTO saleDTO = new ProductionSaleDTO();
-                        list.add(saleDTO);
-                        return saleDTO;
-                    });
+                    ProductionSaleDTO productionSaleDTO = list.stream()
+                            .filter(it -> it.getBulkStyleNo().equals(saleFac.getBulkStyleNo()) && it.getSizeName().equals(sizeName))
+                            .findFirst().orElseGet(() -> {
+                                ProductionSaleDTO saleDTO = new ProductionSaleDTO();
+                                list.add(saleDTO);
+                                return saleDTO;
+                            });
                     productionSaleDTO.setBulkStyleNo(saleFac.getBulkStyleNo());
                     productionSaleDTO.setSizeName(sizeName);
                     // 投产

@@ -114,6 +114,10 @@ public class ReplayRatingQO extends QueryFieldDto {
     @ApiModelProperty(value = "字段说明")
     private String fieldExplain;
 
+    /** 非开发分类 */
+    @ApiModelProperty(value = "非开发分类")
+    private String noDevClass = ReplayRatingProperties.noDevClass;
+
     /** 物料分类 */
     @ApiModelProperty(value = "物料分类")
     private String category1Code = ReplayRatingProperties.category1Code;
@@ -122,7 +126,7 @@ public class ReplayRatingQO extends QueryFieldDto {
     @ApiModelProperty(value = "非物料编码")
     private String noMaterialCode = ReplayRatingProperties.noMaterialCode;
 
-    /** 非物料编码 */
+    /** 订货本下单状态 */
     @ApiModelProperty(value = "订货本下单状态")
     private OrderBookDetailOrderStatusEnum orderBookStatus = ReplayRatingProperties.orderBookStatus;
 
