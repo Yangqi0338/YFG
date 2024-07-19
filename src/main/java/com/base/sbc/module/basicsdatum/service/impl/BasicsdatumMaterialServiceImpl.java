@@ -668,6 +668,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             workbook = workbookIWriter.get();
             workbookIWriter.close();
             jsonArray.clear();
+            list.clear();
             if (size < pageSize){
                 ExcelUtils.downLoadExcel("物料档案", response, workbook);
                 return;

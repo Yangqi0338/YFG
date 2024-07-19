@@ -632,8 +632,8 @@ public class ExcelUtils {
         }
 
         //这里就是要转成JSONObject类型，不要保留原对象类型
-        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
-        list.clear();
+//        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
+        JSONArray jsonArray = new JSONArray(list);
         for (int i = 0; i < jsonArray.size(); i++) {
             //其他一些补充的数据
             JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -797,7 +797,6 @@ public class ExcelUtils {
         //这里就是要转成JSONObject类型，不要保留原对象类型
 //        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
         JSONArray jsonArray = new JSONArray(list);
-        list.clear();
         for (int i = 0; i < jsonArray.size(); i++) {
             //其他一些补充的数据
             JSONObject jsonObject = jsonArray.getJSONObject(i);
