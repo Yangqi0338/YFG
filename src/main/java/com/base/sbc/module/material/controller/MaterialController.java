@@ -430,6 +430,17 @@ public class MaterialController extends BaseController {
         return ApiResult.success("更新成功",materialSpaceInfoVo);
     }
 
+    @ApiOperation(value = "条件查询列表前几条的数据", notes = "条件查询列表前几条的数据")
+    @GetMapping("/listImg")
+    public ApiResult  listImg(MaterialQueryDto materialQueryDto) {
+        if (materialQueryDto == null) {
+            throw new OtherException("参数不能为空");
+        }
+        Map<String,List<String>> map = materialService.listImg(materialQueryDto);
+        return selectSuccess(map);
+    }
+
+
 
     private void checkMaterial(List<Material> list, String type) {
         if ("1".equals(type)){

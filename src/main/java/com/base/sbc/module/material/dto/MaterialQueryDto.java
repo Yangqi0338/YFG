@@ -4,6 +4,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.Page;
 
 import java.util.List;
+import java.util.Map;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -135,4 +136,7 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "发布人工号")
     private String issuerUsername;
+
+    private Map<String,String> basicStructureMap;
+
 }

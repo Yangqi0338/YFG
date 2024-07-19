@@ -11,6 +11,7 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：素材库 service类
@@ -68,4 +69,6 @@ public interface MaterialService extends BaseService<Material> {
     List<String> listImgQuery(MaterialQueryDto materialQueryDto);
 
     void delMaterialPersonSpace(List<String> userIds);
+
+    Map<String, List<String>> listImg(MaterialQueryDto materialQueryDto);
 }
