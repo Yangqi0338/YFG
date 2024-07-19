@@ -1625,6 +1625,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.eq("p.pattern_making_devt_type", dto.getDevtType());
             list = getBaseMapper().sampleBoardListFOB(qw);
         }else {
+            qw.isNullStr("p.pattern_making_devt_type");
             list = getBaseMapper().sampleBoardList(qw);
         }
 

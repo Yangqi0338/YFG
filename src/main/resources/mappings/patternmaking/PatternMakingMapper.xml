@@ -229,7 +229,8 @@
             tbs.supplier as supplierName,
             p.pattern_making_devt_type,
             s.style_origin_name,
-            tpmbc.bar_code as sampleBarCode
+            tpmbc.bar_code as sampleBarCode,
+            tpmbc.pit_site
         </if>
         FROM
         t_pattern_making p
