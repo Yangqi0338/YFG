@@ -321,7 +321,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         sdQw.andLike(pageDto.getSearch(), "ts.design_no", "tsc.style_no", "ts.style_name");
         sdQw.notEmptyEq("ts.devt_type", pageDto.getDevtType());
         sdQw.groupBy("ts.id");
-        sdQw.orderByDesc("ts.create_date");
+        sdQw.orderByDesc("ts.id");
 
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packDesign.getK(), "ts.");
