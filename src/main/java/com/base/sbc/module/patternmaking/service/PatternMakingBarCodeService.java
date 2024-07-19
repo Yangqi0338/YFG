@@ -42,4 +42,6 @@ public interface PatternMakingBarCodeService extends BaseService<PatternMakingBa
     void status(PatternMakingBarCode patternMakingBarCode);
 
     List<PatternMakingBarCode> listbyHeadId(List<String> ids);
+
+    PageInfo<PatternMakingBarCodeVo> pageAudit(PatternMakingBarCodeQueryDto dto);
 }

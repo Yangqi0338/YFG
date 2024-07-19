@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.vo;
 
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -65,6 +66,28 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     private Date processDepartmentDate;
     //供应商
     private String supplierName;
+
+    /** 图片 */
+    @ApiModelProperty(value = "图片"  )
+    private String originalImg;
+    /** 意见图片0 */
+    @ApiModelProperty(value = "意见图片0"  )
+    private String originalSuggestionImg;
+    /** 意见视频 */
+    @ApiModelProperty(value = "意见视频"  )
+    private String originalSuggestionVideo;
+    /** 意见图片1 */
+    @ApiModelProperty(value = "意见图片1"  )
+    private String originalSuggestionImg1;
+    /** 意见图片2 */
+    @ApiModelProperty(value = "意见图片2"  )
+    private String originalSuggestionImg2;
+    /** 意见图片3 */
+    @ApiModelProperty(value = "意见图片3"  )
+    private String originalSuggestionImg3;
+    /** 意见图片4 */
+    @ApiModelProperty(value = "意见图片4"  )
+    private String originalSuggestionImg4;
 
     public String getSeason() {
         return yearName + "-" + seasonName + "-" + brandName;

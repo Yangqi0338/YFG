@@ -27,6 +27,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -177,6 +178,37 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.in("head_id", ids);
         List<PatternMakingBarCode> list = list(qw);
         return list;
+    }
+
+    @Override
+    public PageInfo<PatternMakingBarCodeVo> pageAudit(PatternMakingBarCodeQueryDto dto) {
+        Page<Object> objects = PageHelper.startPage(dto);
+        BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
+        qw.eq("ts.design_no",dto.getDesignNo());
+        qw.notEmptyEq("tpm.pattern_no",dto.getPatternNo());
+        qw.notEmptyEq("tpmbc.bar_code",dto.getBarCode());
+        qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
+        qw.notEmptyEq("tpmbc.status", dto.getStatus());
+        qw.notEmptyIn("tpmbc.status", Arrays.asList("1","2"));
+
+        qw.orderByDesc("tpmbc.create_date");
+
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,dto);
+
+        List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
+        list.forEach(o->{
+            o.setOriginalImg(o.getImg());
+            o.setOriginalSuggestionVideo(o.getSuggestionVideo());
+            o.setOriginalSuggestionImg(o.getSuggestionImg());
+            o.setOriginalSuggestionImg1(o.getSuggestionImg1());
+            o.setOriginalSuggestionImg2(o.getSuggestionImg2());
+            o.setOriginalSuggestionImg3(o.getSuggestionImg3());
+            o.setOriginalSuggestionImg4(o.getSuggestionImg4());
+        });
+        minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
+        stylePicUtils.setStylePic(list, "stylePic");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        return new PageInfo<>(list);
     }
 
 

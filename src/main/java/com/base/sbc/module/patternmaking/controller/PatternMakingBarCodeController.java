@@ -89,4 +89,10 @@ public class PatternMakingBarCodeController {
         return ApiResult.success("保存成功");
     }
 
+    @ApiOperation(value = "分页查询审样结果")
+    @GetMapping("/pageAudit")
+    public ApiResult<PageInfo<PatternMakingBarCodeVo>> pageAudit(PatternMakingBarCodeQueryDto dto) {
+        return ApiResult.success("查询成功", patternMakingBarCodeService.pageAudit(dto));
+    }
+
 }

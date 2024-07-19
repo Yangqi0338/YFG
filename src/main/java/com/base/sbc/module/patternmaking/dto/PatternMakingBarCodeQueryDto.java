@@ -25,6 +25,7 @@ public class PatternMakingBarCodeQueryDto extends QueryFieldDto {
 	private static final long serialVersionUID = 1L;
 
 	private String designNo;
+	private String patternNo;
 	private String sampleTypeName;
 	private String yearName;
 	private String seasonName;
