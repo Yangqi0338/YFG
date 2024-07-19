@@ -177,9 +177,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private PlanningDimensionalityMapper planningDimensionalityMapper;
 
 
-    @Autowired
-    ThreadPoolTaskExecutor taskExportExecutor;
-
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
     public List<BasicsdatumMaterialIngredient> formatIngredient(
@@ -647,18 +644,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public void exportBasicsdatumNewMaterial(HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException {
-        taskExportExecutor.submit(() ->{
-            dto.setPageNum(0);
-            dto.setPageSize(0);
-            List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
 //        List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
 //        ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
-            try {
-                ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
 
 //        int pageNum = 0;
 //        int pageSize = 10000;
