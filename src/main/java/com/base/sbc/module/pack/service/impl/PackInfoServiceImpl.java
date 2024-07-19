@@ -320,6 +320,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"tsc.style_no", StringUtils.convertList(pageDto.getStyleNo()) );
         sdQw.andLike(pageDto.getSearch(), "ts.design_no", "tsc.style_no", "ts.style_name");
         sdQw.notEmptyEq("ts.devt_type", pageDto.getDevtType());
+        sdQw.eq("ts.del_flag", "0");
         sdQw.groupBy("ts.id");
         sdQw.orderByDesc("ts.id");
 
