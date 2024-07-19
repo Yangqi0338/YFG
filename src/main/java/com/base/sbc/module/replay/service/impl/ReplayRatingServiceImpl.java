@@ -301,7 +301,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     totalStyleVO.decorateTotal(productionSaleList);
                 }
                 // 最后将汇总实体类转成map
-                if (totalStyleVO != null) totalMap.putAll(BeanUtil.beanToMap(totalStyleVO));
+                totalMap.putAll(BeanUtil.beanToMap(totalStyleVO));
                 break;
             case PATTERN:
                 // 装饰列表
@@ -325,7 +325,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     });
                 }
                 // 最后将汇总实体类转成map
-                if (totalPatternVO != null) totalMap.putAll(BeanUtil.beanToMap(totalPatternVO));
+                totalMap.putAll(BeanUtil.beanToMap(totalPatternVO));
                 break;
             case FABRIC:
                 // 若不是动态列,加入groupBy
@@ -351,7 +351,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     // TODO
                     totalFabricVO.setRemainingMaterial(new BigDecimal(Integer.MAX_VALUE));
                 }
-                if (totalFabricVO != null) totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
+                totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
                 break;
             default:
                 throw new UnsupportedOperationException("不受支持的复盘类型");
