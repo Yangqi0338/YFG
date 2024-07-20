@@ -394,7 +394,7 @@ public class SmpService {
                     throw new OtherException(message);
                 }
             }
-            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
+            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("name", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo != null) {
                 // 产前样查询 拿最早的工艺部接收正确样时间
