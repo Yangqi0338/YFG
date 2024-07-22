@@ -110,7 +110,6 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         QueryWrapper<PokaYokeConfig> qw = new QueryWrapper<>();
         qw.lambda().eq(PokaYokeConfig::getDelFlag,"0");
         qw.lambda().eq(null != dto.getType(),PokaYokeConfig::getType,dto.getType());
-        qw.lambda().like(StringUtils.isNotBlank(dto.getBrandName()),PokaYokeConfig::getBrandName,dto.getBrandName());
         qw.lambda().eq(StringUtils.isNotBlank(dto.getCategory1Code()),PokaYokeConfig::getCategory1Code,dto.getCategory1Code());
         qw.lambda().like(StringUtils.isNotBlank(dto.getCategory1Name()),PokaYokeConfig::getCategory1Name,dto.getCategory1Name());
         qw.lambda().eq(StringUtils.isNotBlank(dto.getCategory2Code()),PokaYokeConfig::getCategory2Code,dto.getCategory2Code());
@@ -119,6 +118,9 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         qw.lambda().like(StringUtils.isNotBlank(dto.getCategory3Name()),PokaYokeConfig::getCategory3Name,dto.getCategory3Name());
         qw.lambda().like(StringUtils.isNotBlank(dto.getMaterialCode()),PokaYokeConfig::getMaterialCode,dto.getMaterialCode());
         qw.lambda().eq(null != dto.getExecuteLevel(),PokaYokeConfig::getExecuteLevel,dto.getExecuteLevel());
+        if (StringUtils.isNotBlank(dto.getBrandName())){
+            qw.lambda().last("and " + lastBrand(dto.getBrandName(),"brand_name"));
+        }
         return qw;
     }
 
