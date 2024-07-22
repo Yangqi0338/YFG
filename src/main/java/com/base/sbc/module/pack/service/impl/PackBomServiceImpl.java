@@ -1666,6 +1666,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delByIds(String id) {
         /*cha*/
         /*控制是否下发外部SMP系统开关*/
