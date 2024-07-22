@@ -179,9 +179,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Autowired
     private PlanningDimensionalityMapper planningDimensionalityMapper;
 
-    @Autowired
-    private ThreadPoolTaskExecutor taskExportExecutor;
-
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
