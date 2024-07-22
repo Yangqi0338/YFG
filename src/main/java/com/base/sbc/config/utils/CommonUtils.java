@@ -453,20 +453,21 @@ public class CommonUtils {
             for (char c : sizeName.toCharArray()) {
                 if (c == 'X') {
                     base += 1;
-                }
-                if (c == 'S') {
+                } else if (c == 'S') {
                     rate = -1;
-                }
-                if (c == 'M') {
+                } else if (c == 'M') {
                     rate = 0;
-                }
-                if (c == 'L') {
+                } else if (c == 'L') {
                     rate = 1;
                 }
             }
             if (rate == null) return Integer.MIN_VALUE;
             return rate * base;
         });
+    }
+
+    public static Comparator<? super String> sizeNameSort() {
+        return sizeNameSort(Function.identity());
     }
 
     public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
