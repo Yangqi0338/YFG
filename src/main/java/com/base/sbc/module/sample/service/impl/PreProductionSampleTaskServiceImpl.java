@@ -248,6 +248,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
                 }
             }
             list = getBaseMapper().taskListFOB(qw);
+            list.forEach(o->o.setPatternMakingDevtType("FOB"));
         }
 
         if (!BaseGlobal.YES.equals(dto.getExcelFlag())) {
