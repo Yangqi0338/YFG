@@ -122,6 +122,9 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
     }
 
     private void checkSaveOrUpdate(PokaYokeConfigVo vo, boolean isUpdate) {
+        //坚持物料号
+        checkMaterialCode(vo);
+
         QueryWrapper<PokaYokeConfig> qw = new QueryWrapper<>();
         if (isUpdate){
             qw.lambda().ne(PokaYokeConfig::getId,vo.getId());
@@ -129,9 +132,25 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         qw.lambda().eq(PokaYokeConfig::getDelFlag,"0");
         qw.lambda().eq(PokaYokeConfig::getType,vo.getType());
         qw.lambda().eq(StringUtils.isNotBlank(vo.getCategory1Code()),PokaYokeConfig::getCategory1Code,vo.getCategory1Code());
-        qw.lambda().eq(StringUtils.isNotBlank(vo.getCategory2Code()),PokaYokeConfig::getCategory2Code,vo.getCategory2Code());
-        qw.lambda().eq(StringUtils.isNotBlank(vo.getCategory3Code()),PokaYokeConfig::getCategory3Code,vo.getCategory3Code());
-        qw.lambda().like(StringUtils.isNotBlank(vo.getMaterialCode()),PokaYokeConfig::getMaterialCode,vo.getMaterialCode());
+
+        if (StringUtils.isNotBlank(vo.getCategory3Code())){
+            qw.lambda().eq(PokaYokeConfig::getCategory2Code,vo.getCategory2Code());
+        }else {
+            qw.lambda().eq(PokaYokeConfig::getCategory2Code,"");
+        }
+
+        if (StringUtils.isNotBlank(vo.getCategory3Code())){
+            qw.lambda().eq(PokaYokeConfig::getCategory3Code,vo.getCategory3Code());
+        }else {
+            qw.lambda().eq(PokaYokeConfig::getCategory3Code,"");
+        }
+
+        if (StringUtils.isNotBlank(vo.getMaterialCode())){
+            qw.lambda().like(PokaYokeConfig::getMaterialCode,vo.getMaterialCode());
+        }else {
+            qw.lambda().eq(PokaYokeConfig::getMaterialCode,"");
+        }
+
         if (StringUtils.isNotBlank(vo.getBrandName())){
             qw.lambda().last("and " + lastBrand(vo.getBrandName(),"brand_name"));
         }
@@ -139,6 +158,26 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         if (CollUtil.isNotEmpty(list)){
             throw new OtherException("已存在相同配置的数据, 请检查！");
         }
+    }
+
+    private void checkMaterialCode(PokaYokeConfigVo vo) {
+        if (StringUtils.isEmpty(vo.getMaterialCode())){
+            return;
+        }
+        BasicsdatumMaterial materialByCode = basicsdatumMaterialService.getMaterialByCode(vo.getMaterialCode());
+        if (null == materialByCode){
+            throw new OtherException("物料号不存在!");
+        }
+        if (!vo.getCategory1Code().equals(materialByCode.getCategory1Code())){
+            throw new OtherException("该物料号不在此大类中!");
+        }
+        if (StringUtils.isNotBlank(vo.getCategory2Code()) && !vo.getCategory2Code().equals(materialByCode.getCategory2Code())){
+            throw new OtherException("该物料号不在此中类中!");
+        }
+        if (StringUtils.isNotBlank(vo.getCategory3Code()) && !vo.getCategory3Code().equals(materialByCode.getCategory3Code())){
+            throw new OtherException("该物料号不在此小类中!");
+        }
+
     }
 
     private String lastBrand(String data, String column){
@@ -158,7 +197,7 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
 
 
     private PokaYokeConfig queryConditionBom(PokaYokeConfigQueryDto dto) {
-        if (StringUtils.isEmpty(dto.getMaterialCode()) || StringUtils.isEmpty(dto.getForeignId())){
+            if (StringUtils.isEmpty(dto.getMaterialCode()) || StringUtils.isEmpty(dto.getForeignId())){
             return null;
         }
         //获取品牌
