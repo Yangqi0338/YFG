@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Objects;
@@ -122,7 +123,7 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
     }
 
     private void checkSaveOrUpdate(PokaYokeConfigVo vo, boolean isUpdate) {
-        //坚持物料号
+        //检查物料号
         checkMaterialCode(vo);
 
         QueryWrapper<PokaYokeConfig> qw = new QueryWrapper<>();
@@ -164,6 +165,19 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         if (StringUtils.isEmpty(vo.getMaterialCode())){
             return;
         }
+        QueryWrapper<PokaYokeConfig> qw = new QueryWrapper<>();
+        qw.lambda().like(PokaYokeConfig::getMaterialCode,vo.getMaterialCode());
+        if (StringUtils.isNotBlank(vo.getId())){
+            qw.lambda().ne(PokaYokeConfig::getId,vo.getId());
+        }
+        if (StringUtils.isNotBlank(vo.getBrandName())){
+            qw.lambda().last("and " + lastBrand(vo.getBrandName(),"brand_name"));
+        }
+        List<PokaYokeConfig> list = list(qw);
+        if (CollUtil.isNotEmpty(list)){
+            throw new OtherException("已存在该物料号的配置, 请检查！");
+        }
+
         BasicsdatumMaterial materialByCode = basicsdatumMaterialService.getMaterialByCode(vo.getMaterialCode());
         if (null == materialByCode){
             throw new OtherException("物料号不存在!");
@@ -219,26 +233,29 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         }
         QueryWrapper<PokaYokeConfig> q1 = getByBrandName(brandName);
         PokaYokeConfig controlCondition = null;
+        q1.lambda().eq(PokaYokeConfig::getMaterialCode,"");
         q1.lambda().eq(PokaYokeConfig::getCategory1Code,materialByCode.getCategory1Code());
         q1.lambda().eq(PokaYokeConfig::getCategory2Code,materialByCode.getCategory2Code());
         q1.lambda().eq(PokaYokeConfig::getCategory3Code,materialByCode.getCategory3Code());
-        controlCondition = getControlCondition(q1,true);
-        if (Objects.isNull(controlCondition)){
-            return null;
+        controlCondition = getControlCondition(q1);
+        if (!Objects.isNull(controlCondition)){
+            return controlCondition;
         }
         QueryWrapper<PokaYokeConfig> q2 = getByBrandName(brandName);
+        q2.lambda().eq(PokaYokeConfig::getMaterialCode,"");
         q2.lambda().eq(PokaYokeConfig::getCategory1Code,materialByCode.getCategory1Code());
         q2.lambda().eq(PokaYokeConfig::getCategory2Code,materialByCode.getCategory2Code());
-        q2.lambda().isNull(PokaYokeConfig::getCategory3Code);
-        controlCondition = getControlCondition(q2,false);
-        if (Objects.isNull(controlCondition)){
-            return null;
+        q2.lambda().eq(PokaYokeConfig::getCategory3Code,"");
+        controlCondition = getControlCondition(q2);
+        if (!Objects.isNull(controlCondition)){
+            return controlCondition;
         }
         QueryWrapper<PokaYokeConfig> q3 = getByBrandName(brandName);
+        q3.lambda().eq(PokaYokeConfig::getMaterialCode,"");
         q3.lambda().eq(PokaYokeConfig::getCategory1Code,materialByCode.getCategory1Code());
-        q3.lambda().isNull(PokaYokeConfig::getCategory2Code);
-        q3.lambda().isNull(PokaYokeConfig::getCategory3Code);
-        return getControlCondition(q3,false);
+        q3.lambda().eq(PokaYokeConfig::getCategory2Code,"");
+        q3.lambda().eq(PokaYokeConfig::getCategory3Code,"");
+        return getControlCondition(q3);
     }
 
     private QueryWrapper<PokaYokeConfig> getByBrandName(String brandName){
@@ -248,15 +265,12 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
     }
 
 
-    private PokaYokeConfig getControlCondition(QueryWrapper<PokaYokeConfig> qw, boolean b){
+    private PokaYokeConfig getControlCondition(QueryWrapper<PokaYokeConfig> qw){
         List<PokaYokeConfig> list = list(qw);
         if (CollUtil.isEmpty(list)){
             return null;
         }
-        if (b || 1 == list.size()){
-           return list.get(0);
-        }
-        return null;
+        return list.get(0);
     }
 
 // 自定义方法区 不替换的区域【other_start】
