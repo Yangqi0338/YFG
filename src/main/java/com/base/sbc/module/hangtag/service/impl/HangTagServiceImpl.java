@@ -1241,12 +1241,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
-
-			if (null != isCopyStatus && isCopyStatus){
-				hangTag.setStatus(hangTag.getStatus());
-			}else {
-				hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
-			}
+			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
 			save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();
