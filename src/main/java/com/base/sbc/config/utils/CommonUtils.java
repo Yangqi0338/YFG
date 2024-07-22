@@ -425,4 +425,28 @@ public class CommonUtils {
         return result == null ? handler.apply(defaultValue) : handler.apply(result);
     }
 
+    public static <T> Comparator<? super T> sizeNameSort(Function<? super T, String> func) {
+        return Comparator.comparing((it) -> {
+            String sizeName = func.apply(it);
+            int base = 1;
+            Integer rate = null;
+            for (char c : sizeName.toCharArray()) {
+                if (c == 'X') {
+                    base += 1;
+                } else if (c == 'S') {
+                    rate = -1;
+                } else if (c == 'M') {
+                    rate = 0;
+                } else if (c == 'L') {
+                    rate = 1;
+                }
+            }
+            if (rate == null) return Integer.MIN_VALUE;
+            return rate * base;
+        });
+    }
+
+    public static Comparator<? super String> sizeNameSort() {
+        return sizeNameSort(Function.identity());
+    }
 }
