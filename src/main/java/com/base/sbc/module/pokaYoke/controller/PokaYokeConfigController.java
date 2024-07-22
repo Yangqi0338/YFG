@@ -6,6 +6,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.pokaYoke.dto.PokaYokeConfigQueryDto;
+import com.base.sbc.module.pokaYoke.entity.PokaYokeConfig;
 import com.base.sbc.module.pokaYoke.service.PokaYokeConfigService;
 import com.base.sbc.module.pokaYoke.vo.PokaYokeConfigVo;
 import com.github.pagehelper.PageInfo;
@@ -75,7 +76,7 @@ public class PokaYokeConfigController extends BaseController{
     @ApiOperation(value = "查询条件")
     @GetMapping("/queryCondition")
     public ApiResult queryCondition( PokaYokeConfigQueryDto dto) {
-        String result = pokaYokeConfigService.queryCondition(dto);
+        PokaYokeConfigVo result = pokaYokeConfigService.queryCondition(dto);
         return selectSuccess(result);
     }
 

@@ -29,7 +29,7 @@ public interface PokaYokeConfigService extends BaseService<PokaYokeConfig>{
 
     Boolean del(String id);
 
-    String queryCondition(PokaYokeConfigQueryDto dto);
+    PokaYokeConfigVo queryCondition(PokaYokeConfigQueryDto dto);
 
 
 // 自定义方法区 不替换的区域【other_start】

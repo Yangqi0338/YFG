@@ -11,14 +11,11 @@ import cn.hutool.core.collection.CollUtil;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pokaYoke.enums.PokBusinessTypeEnum;
 import com.base.sbc.module.pokaYoke.mapper.PokaYokeConfigMapper;
@@ -97,9 +94,12 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
     }
 
     @Override
-    public String queryCondition(PokaYokeConfigQueryDto dto) {
+    public PokaYokeConfigVo queryCondition(PokaYokeConfigQueryDto dto) {
         if (PokBusinessTypeEnum.BOM_UNIT_USE == dto.getType()){
-            return queryConditionBom(dto);
+            PokaYokeConfig pokaYokeConfig = queryConditionBom(dto);
+            PokaYokeConfigVo pokaYokeConfigVo = new PokaYokeConfigVo();
+            BeanUtil.copyProperties(pokaYokeConfig,pokaYokeConfigVo);
+            return pokaYokeConfigVo;
         }
         return null;
     }
@@ -157,7 +157,7 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
     }
 
 
-    private String queryConditionBom(PokaYokeConfigQueryDto dto) {
+    private PokaYokeConfig queryConditionBom(PokaYokeConfigQueryDto dto) {
         if (StringUtils.isEmpty(dto.getMaterialCode()) || StringUtils.isEmpty(dto.getForeignId())){
             return null;
         }
@@ -172,28 +172,28 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
         queryWrapper.lambda().last("and "+ lastBrand(brandName,"brand_name"));
         List<PokaYokeConfig> list = list(queryWrapper);
         if (CollUtil.isNotEmpty(list)){
-            return list.get(0).getControlCondition();
+            return list.get(0);
         }
         BasicsdatumMaterial materialByCode = basicsdatumMaterialService.getMaterialByCode(dto.getMaterialCode());
         if (Objects.isNull(materialByCode)){
             return null;
         }
         QueryWrapper<PokaYokeConfig> q1 = getByBrandName(brandName);
-        String controlCondition = null;
+        PokaYokeConfig controlCondition = null;
         q1.lambda().eq(PokaYokeConfig::getCategory1Code,materialByCode.getCategory1Code());
         q1.lambda().eq(PokaYokeConfig::getCategory2Code,materialByCode.getCategory2Code());
         q1.lambda().eq(PokaYokeConfig::getCategory3Code,materialByCode.getCategory3Code());
         controlCondition = getControlCondition(q1,true);
-        if (StringUtils.isNotBlank(controlCondition)){
-            return controlCondition;
+        if (Objects.isNull(controlCondition)){
+            return null;
         }
         QueryWrapper<PokaYokeConfig> q2 = getByBrandName(brandName);
         q2.lambda().eq(PokaYokeConfig::getCategory1Code,materialByCode.getCategory1Code());
         q2.lambda().eq(PokaYokeConfig::getCategory2Code,materialByCode.getCategory2Code());
         q2.lambda().isNull(PokaYokeConfig::getCategory3Code);
         controlCondition = getControlCondition(q2,false);
-        if (StringUtils.isNotBlank(controlCondition)){
-            return controlCondition;
+        if (Objects.isNull(controlCondition)){
+            return null;
         }
         QueryWrapper<PokaYokeConfig> q3 = getByBrandName(brandName);
         q3.lambda().eq(PokaYokeConfig::getCategory1Code,materialByCode.getCategory1Code());
@@ -209,13 +209,13 @@ public class PokaYokeConfigServiceImpl extends BaseServiceImpl<PokaYokeConfigMap
     }
 
 
-    private String getControlCondition(QueryWrapper<PokaYokeConfig> qw, boolean b){
+    private PokaYokeConfig getControlCondition(QueryWrapper<PokaYokeConfig> qw, boolean b){
         List<PokaYokeConfig> list = list(qw);
         if (CollUtil.isEmpty(list)){
             return null;
         }
         if (b || 1 == list.size()){
-           return list.get(0).getControlCondition();
+           return list.get(0);
         }
         return null;
     }

@@ -5,11 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.pokaYoke.entity;
-import java.util.Date;
 
 import com.base.sbc.module.pokaYoke.enums.PokBusinessTypeEnum;
 import com.base.sbc.module.pokaYoke.enums.YokeExecuteLevelEnum;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -74,7 +72,10 @@ public class PokaYokeConfig extends BaseDataEntity<String> {
     @ApiModelProperty(value = "物料编号"  )
     private String materialCode;
     /** 控制条件 */
-    @ApiModelProperty(value = "控制条件"  )
-    private String controlCondition;
+    @ApiModelProperty(value = "控制条件1"  )
+    private String controlCondition1;
+    /** 控制条件 */
+    @ApiModelProperty(value = "控制条件2"  )
+    private String controlCondition2;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

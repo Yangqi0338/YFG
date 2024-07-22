@@ -55,6 +55,8 @@ public class PokaYokeConfigVo {
     private String materialCode;
     /** 控制条件 */
     @ApiModelProperty(value = "控制条件"  )
-    @NotEmpty(message = "控制条件不能为空")
-    private String controlCondition;
+    private String controlCondition1;
+
+    @ApiModelProperty(value = "控制条件"  )
+    private String controlCondition2;
 }
