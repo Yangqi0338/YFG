@@ -1236,8 +1236,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		QueryWrapper queryWrapper = new QueryWrapper();
 		queryWrapper.eq("bulk_style_no", styleNo);
 		HangTag hangTag = baseMapper.selectOne(queryWrapper);
-		String oldId = hangTag.getId();
+
 		if (!ObjectUtils.isEmpty(hangTag)) {
+			String oldId = hangTag.getId();
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
