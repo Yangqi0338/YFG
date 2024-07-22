@@ -92,4 +92,9 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     public String getSeason() {
         return yearName + "-" + seasonName + "-" + brandName;
     }
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }
