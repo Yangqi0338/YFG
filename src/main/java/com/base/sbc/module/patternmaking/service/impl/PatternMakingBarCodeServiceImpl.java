@@ -113,9 +113,23 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
 
     @Override
     public Boolean removeByBarCode(String barCode) {
-        LambdaQueryWrapper<PatternMakingBarCode> qw = new LambdaQueryWrapper<>();
-        qw.eq(PatternMakingBarCode::getBarCode, barCode);
-        remove(qw);
+        BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
+        qw.eq("tpmbc.bar_code", barCode);
+        List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            List<String> collect = list.stream().map(PatternMakingBarCode::getHeadId).distinct().collect(Collectors.toList());
+            LambdaQueryWrapper<NodeStatus> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(NodeStatus::getDataId, collect);
+            queryWrapper.eq(NodeStatus::getNode, "FOB");
+            queryWrapper.eq(NodeStatus::getStatus, "绑样");
+            nodeStatusServiceImpl.remove(queryWrapper);
+        }
+
+        LambdaQueryWrapper<PatternMakingBarCode> qw1 = new LambdaQueryWrapper<>();
+        qw1.eq(PatternMakingBarCode::getBarCode, barCode);
+        remove(qw1);
+
+
         return null;
     }
 
