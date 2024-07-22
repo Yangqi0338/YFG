@@ -550,7 +550,27 @@ public class ExcelUtils {
     }
 
     public static void exportExcelByTableCode(List<?> list, String name, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
-        exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+//        exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+        if (list.size() < 10000){
+            exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+            return;
+        }
+
+        ExcelTableCodeVO excelTableCodeVO = ExcelUtils.exportExcelByTableCodeVo(queryFieldDto);
+        IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(new ExportParams(name, name, ExcelType.HSSF), excelTableCodeVO.getExcelParams());
+        try {
+            Workbook workbook = null;
+            List<? extends List<?>> partition = Lists.partition(list, 10000);
+            for (List<?> item : partition) {
+                JSONArray jsonArray = ExcelUtils.exportExcelByTableCodeList(item, excelTableCodeVO, queryFieldDto);
+                workbookIWriter.write(jsonArray);
+            }
+            workbook = workbookIWriter.get();
+            ExcelUtils.downLoadExcel(name, response, workbook);
+        }finally {
+            workbookIWriter.close();
+        }
+
     }
 
     public static void exportExcelByTableCode(List<?> list, String fileName, ExportParams exportParams, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {

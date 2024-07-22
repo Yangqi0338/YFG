@@ -651,75 +651,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public void exportBasicsdatumNewMaterial( String token,HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException {
-//        dto.setPageNum(0);
-//        dto.setPageSize(0);
-//        List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
 //        List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
 //        ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
-//        ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
-
-        ExcelTableCodeVO excelTableCodeVO = ExcelUtils.exportExcelByTableCodeVo(dto);
-        IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(new ExportParams("物料档案", "物料档案", ExcelType.HSSF), excelTableCodeVO.getExcelParams());
-        Workbook workbook = null;
-
-        try {
-            for (int i = 0; i < 5; i++){
-                int pageNum = i;
-                CompletableFuture<JSONArray> cf = CompletableFuture.supplyAsync(() -> {
-                    TokenHolder.set(token);
-                    MaterialColumnHeadDto materialColumnHeadDto = new MaterialColumnHeadDto();
-                    BeanUtil.copyProperties(dto,materialColumnHeadDto);
-                    materialColumnHeadDto.setPageNum(pageNum);
-                    materialColumnHeadDto.setPageSize(10000);
-                    List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(materialColumnHeadDto).getList();
-                    TokenHolder.remove();
-                    if (CollUtil.isEmpty(list)){
-                        return null;
-                    }
-                    return ExcelUtils.exportExcelByTableCodeList(list, excelTableCodeVO, dto);}, taskExportExecutor);
-                    JSONArray jsonArray = cf.get();
-                    workbookIWriter.write(jsonArray);
-                    workbook = workbookIWriter.get();
-                    workbookIWriter.close();
-                    jsonArray.clear();
-                    TokenHolder.remove();
-            }
-            ExcelUtils.downLoadExcel("物料档案", response, workbook);
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            TokenHolder.remove();
-        }
-
-//        ExcelUtils.downLoadExcel("物料档案", response, workbook);
-//        int pageNum = 0;
-//        int pageSize = 10000;
-//        ExcelTableCodeVO excelTableCodeVO = ExcelUtils.exportExcelByTableCodeVo(dto);
-//        IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(new ExportParams("物料档案", "物料档案", ExcelType.HSSF), excelTableCodeVO.getExcelParams());
-//        Workbook workbook = null;
-//        for (int i = 0; i < 5; i++) {
-//            dto.setPageNum(pageNum);
-//            List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
-//            if (CollUtil.isEmpty(list)){
-//                if (null == workbook){
-//                    return;
-//                }
-//                ExcelUtils.downLoadExcel("物料档案", response, workbook);
-//                return;
-//            }
-//            int size = list.size();
-//            JSONArray jsonArray = ExcelUtils.exportExcelByTableCodeList(list, excelTableCodeVO, dto);
-//            workbookIWriter.write(jsonArray);
-//            workbook = workbookIWriter.get();
-//            workbookIWriter.close();
-//            jsonArray.clear();
-//            list.clear();
-//            if (size < pageSize){
-//                ExcelUtils.downLoadExcel("物料档案", response, workbook);
-//                return;
-//            }
-//            pageNum++;
-//        }
+        ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
 
     }
 
