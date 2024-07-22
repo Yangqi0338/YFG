@@ -7,6 +7,7 @@ import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -20,6 +21,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -99,6 +101,7 @@ import com.base.sbc.module.tasklist.service.TaskListService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +113,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -241,6 +245,84 @@ public class SmpService {
 
     @Resource
     public OperaLogService operaLogService;
+
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void setBulkyCargoMaterialPurchasePrice(List<String> packBomIdList) {
+        if (ObjectUtil.isEmpty(packBomIdList)) {
+            throw new OtherException("请选择物料数据后在尝试拉取最新的物料采购单价！");
+        }
+        // 根据资料包 ID 查询大货 BOM 数据
+        List<PackBom> packBomList = packBomService.listByIds(packBomIdList);
+        if (ObjectUtil.isEmpty(packBomList)) {
+            throw new OtherException("物料清单数据不存在，请添加后重试！");
+        }
+        PackInfo packInfo = packInfoService.getById(packBomList.get(0).getForeignId());
+        if (ObjectUtil.isEmpty(packInfo)) {
+            throw new OtherException("资料包数据不存在，请刷新后重试！");
+        }
+        Style style = styleService.getById(packInfo.getStyleId());
+        if (ObjectUtil.isEmpty(style)) {
+            throw new OtherException("款式数据不存在，请刷新后重试！");
+        }
+        // 初始化查询数据
+        List<MaterialPurchaseMaterialsInfo> materialPurchaseMaterialsInfoList = new ArrayList<>(packBomList.size());
+        for (PackBom packBom : packBomList) {
+            MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packBom, style);
+            materialPurchaseMaterialsInfoList.add(materialPurchaseMaterialsInfo);
+        }
+
+        Map<String, Object> paramMap = new HashMap<>(1);
+        paramMap.put("data", materialPurchaseMaterialsInfoList);
+        String jsonStr = JSONUtil.toJsonStr(paramMap);
+        HttpResp httpResp = restTemplateService.spmPost(
+                SCM_URL.replace("/information/pdm", "") + "/bill/materialPurchaseBill/getInfoByCondtion",
+                jsonStr,
+                Pair.of("moduleName", "scm"),
+                Pair.of("functionName", "获取物料采购单价")
+        );
+
+        if (httpResp.isSuccess()) {
+            List<MaterialPurchaseMaterialsInfo> list = JSONUtil.toList(httpResp.getData(), MaterialPurchaseMaterialsInfo.class);
+            if (ObjectUtil.isNotEmpty(list)) {
+                Map<String, String> map = list.stream().collect(Collectors.toMap(
+                        item ->
+                                item.getMaterialsNo()
+                                        + item.getSpecificationsNo()
+                                        + item.getMaterialsColorCode()
+                                        + item.getMaterialsName(), MaterialPurchaseMaterialsInfo::getPriceUnit));
+                for (PackBom packBom : packBomList) {
+                    String purchasePrice = map.get(packBom.getMaterialCode() + packBom.getTranslateCode() + packBom.getColorCode() + packBom.getMaterialName());
+                    packBom.setPurchasePrice(new BigDecimal(purchasePrice));
+                }
+                if (!packBomService.updateBatchById(packBomList)) {
+                    String errorMessage = StrUtil.format("设置料清单采购单价失败", packInfo.getStyleNo());
+                    log.error(errorMessage);
+                    throw new OtherException(errorMessage);
+                }
+            } else {
+                String errorMessage = StrUtil.format("未获取到料清单采购单价", packInfo.getStyleNo());
+                log.error(errorMessage);
+                throw new OtherException(errorMessage);
+            }
+        } else {
+            String errorMessage = StrUtil.format("获取料清单采购单价失败，失败原因：{}", packInfo.getStyleNo(), httpResp.getMessage());
+            log.error(errorMessage);
+            throw new OtherException(errorMessage);
+        }
+    }
+
+    @NotNull
+    private static MaterialPurchaseMaterialsInfo getMaterialPurchaseMaterialsInfo(PackBom packBom, Style style) {
+        MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = new MaterialPurchaseMaterialsInfo();
+        materialPurchaseMaterialsInfo.setBrandCode(style.getBrand());
+        materialPurchaseMaterialsInfo.setMaterialsNo(packBom.getMaterialCode());
+        materialPurchaseMaterialsInfo.setSpecificationsNo(packBom.getTranslateCode());
+        materialPurchaseMaterialsInfo.setMaterialsColorCode(packBom.getColorCode());
+        materialPurchaseMaterialsInfo.setMaterialsName(packBom.getMaterialName());
+        return materialPurchaseMaterialsInfo;
+    }
+
 
     public Integer goods(String[] ids) {
         return goods(ids, null, null, null);

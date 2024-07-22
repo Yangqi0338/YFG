@@ -127,6 +127,13 @@ public class StylePricingController extends BaseController {
         return selectSuccess(stylePricingService.getByPackId(packId, super.getUserCompany()));
     }
 
+    @ApiOperation(value = "从 SCM 系统获取物料采购单价数据赋值到当前大货的物料清单上")
+    @PostMapping("/setBulkyCargoMaterialPurchasePrice")
+    public ApiResult<String> setBulkyCargoMaterialPurchasePrice(@RequestBody List<String> packBomIdList) {
+        smpService.setBulkyCargoMaterialPurchasePrice(packBomIdList);
+        return ApiResult.success();
+    }
+
     @ApiOperation(value = "保存")
     @PostMapping("/insertOrUpdate")
     @DuplicationCheck
@@ -157,6 +164,9 @@ public class StylePricingController extends BaseController {
             dto.setIds("packInfo:" + dto.getId());
         }
         dto.setControlConfirm(BaseGlobal.YES);
+
+        // 判断物料采购单价是否都是大于 0，只要一个不是，那么抛出异常
+
         return updateStatus(dto);
     }
 

@@ -301,6 +301,11 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "购买币种名称")
     private String purchaseCurrencyName;
     /**
+     * 采购单价
+     */
+    @ApiModelProperty(value = "采购单价")
+    private BigDecimal purchasePrice;
+    /**
      * 单价
      */
     @ApiModelProperty(value = "单价")
