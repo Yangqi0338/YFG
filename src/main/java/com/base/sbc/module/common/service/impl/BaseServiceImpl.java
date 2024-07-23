@@ -586,16 +586,9 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      */
     @Override
     public void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                    JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-                    operaLogEntity.setJsonContent(jsonArray.toJSONString());
-                    operaLogService.save(operaLogEntity);
-                }
-            });
-        }
+        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogService.save(operaLogEntity);
     }
 
     /**
