@@ -40,6 +40,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -1568,6 +1569,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
+        if (Constants.ONE_STR.equals(sampleStyleColor.getIsDefective()) && !styleNo.equals(updateStyleNoBandDto.getStyleNo())){
+            throw new OtherException("报此款的大货款号不允许修改！");
+        }
         String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "检查大货款号,仅允许字母数字",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
         Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
@@ -1817,7 +1821,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         baseMapper.insert(copyStyleColor);
 
         /*吊牌复制*/
-        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo());
+        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo(),true);
         /*新建一个资料包*/
         PackInfo copyPackInfo = new PackInfo();
         BeanUtils.copyProperties(packInfo, copyPackInfo, "id");
@@ -1866,6 +1870,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         stylePricing.setControlPlanCost(styleColorVo.getControlPlanCost());
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
+        stylePricing.setPlanningRate(styleColorVo.getPlanningRate());
         stylePricingMapper.insert(stylePricing);
 
 

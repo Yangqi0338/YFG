@@ -1425,11 +1425,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 * @return
 	 */
 	@Override
-	public Boolean copyPack(String styleNo, String newStyleNo) {
+	public Boolean copyPack(String styleNo, String newStyleNo, Boolean isCopyStatus) {
 		QueryWrapper queryWrapper = new QueryWrapper();
 		queryWrapper.eq("bulk_style_no", styleNo);
 		HangTag hangTag = baseMapper.selectOne(queryWrapper);
+
 		if (!ObjectUtils.isEmpty(hangTag)) {
+			String oldId = hangTag.getId();
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
@@ -1437,7 +1439,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();
-			queryWrapper.eq("hang_tag_id", hangTag.getId());
+			queryWrapper.eq("hang_tag_id", oldId);
 			List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(queryWrapper);
 			/* 复制成分 */
 			hangTagIngredientList.forEach(i -> {
