@@ -43,7 +43,7 @@
         </if>
         FROM t_pattern_making_bar_code tpmbc
                  LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
-                 LEFT JOIN t_basicsdatum_supplier tbs on (tpm.supplier_id = tbs.id and tbs.del_flag = '0')
+                 LEFT JOIN t_basicsdatum_supplier tbs on (tpm.supplier_id = tbs.supplier_code and tbs.del_flag = '0')
                  LEFT JOIN t_pre_production_sample_task_fob fob on tpmbc.head_id = fob.id and fob.del_flag = '0'
                  LEFT JOIN t_style_color tsc on fob.style_id = tsc.id and tsc.del_flag = '0'
                  LEFT JOIN t_style ts on (tpm.style_id = ts.id or tsc.style_id = ts.id) and ts.del_flag = '0'
