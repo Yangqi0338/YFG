@@ -66,6 +66,7 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     private Date processDepartmentDate;
     //供应商
     private String supplierName;
+    private String supplierId;
 
     /** 图片 */
     @ApiModelProperty(value = "图片"  )

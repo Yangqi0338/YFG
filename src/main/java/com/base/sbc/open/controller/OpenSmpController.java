@@ -34,6 +34,8 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
+import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
@@ -125,6 +127,7 @@ public class OpenSmpController extends BaseController {
     private final PatternMakingService patternMakingService;
     private final PatternMakingMapper patternMakingMapper;
     private final UploadFileService uploadFileService;
+    private final NodeStatusService nodeStatusService;
 
 
     /**
@@ -512,16 +515,28 @@ public class OpenSmpController extends BaseController {
             List<String> dbIds = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).collect(Collectors.toList());
 
             List<PatternMakingBarCode> saveBarCodeList = new ArrayList<>();
+            List<NodeStatus> nodeList = new ArrayList<>();
             for (PreProductionSampleTaskFob preProductionSampleTaskFob : saveList) {
                 if(!dbIds.contains(preProductionSampleTaskFob.getId())){
                     PatternMakingBarCode barCode = new PatternMakingBarCode();
                     barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
                     barCode.setStatus("10");
                     barCode.setHeadId(preProductionSampleTaskFob.getId());
+                    //添加新的绑样时间
+                    NodeStatus nodeStatus = new NodeStatus();
+                    nodeStatus.setDataId(barCode.getHeadId());
+                    nodeStatus.setNode("FOB");
+                    nodeStatus.setStatus("绑样");
+                    nodeStatus.setStartDate(preProductionSampleTaskFob.getDesignDetailTime());
+                    nodeStatus.setEndDate(preProductionSampleTaskFob.getDesignDetailTime());
                     saveBarCodeList.add(barCode);
+                    nodeList.add(nodeStatus);
                 }
             }
-            patternMakingBarCodeService.saveBatch(saveBarCodeList);
+            if(CollUtil.isNotEmpty(saveBarCodeList)){
+                patternMakingBarCodeService.saveBatch(saveBarCodeList);
+                nodeStatusService.saveBatch(nodeList);
+            }
         }
 
         return ApiResult.success("保存成功;"+msg);

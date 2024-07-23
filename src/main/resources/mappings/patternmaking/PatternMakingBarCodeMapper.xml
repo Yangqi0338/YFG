@@ -38,7 +38,8 @@
             tpm.pattern_designer_id,
             tpm.pattern_designer_name,
             tpm.pattern_technician_id,
-            tpm.pattern_technician_name
+            tpm.pattern_technician_name,
+            tpm.supplier_id
         </if>
         FROM t_pattern_making_bar_code tpmbc
                  LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
