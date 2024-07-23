@@ -61,6 +61,13 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
      * @return
      */
     boolean createCostDetail(String dict,String foreignId,String packType);
+
+    /**
+     * 生成外辅工艺PDF
+     *
+     * @return
+     */
+    void generateWfgyPdf(OtherCostsPageDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 

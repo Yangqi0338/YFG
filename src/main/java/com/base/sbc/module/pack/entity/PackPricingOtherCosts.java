@@ -49,7 +49,7 @@ public class PackPricingOtherCosts extends BaseDataEntity<String> {
     /**
      * 类型:包装费/检测费/外协加工费/毛纱加工费/车缝加工费
      */
-    @ApiModelProperty(value = "类型:包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
+    @ApiModelProperty(value = "类型:包装费/检测费/外协加工费/毛纱加工费/车缝加工费/外辅工艺")
     private String costsItem;
     /**
      * 费用类型id
@@ -59,7 +59,7 @@ public class PackPricingOtherCosts extends BaseDataEntity<String> {
     /**
      * 费用类型
      */
-    @ApiModelProperty(value = "费用类型")
+    @ApiModelProperty(value = "费用类型/角色")
     private String costsType;
     /**
      * 名称
@@ -102,6 +102,18 @@ public class PackPricingOtherCosts extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "颜色名称")
     private String colorName;
+
+    /**
+     * 外辅工厂
+     */
+    @ApiModelProperty(value = "外辅工厂")
+    private String factoryName;
+
+    /**
+     * 单价
+     */
+    @ApiModelProperty(value = "单价")
+    private String unit;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

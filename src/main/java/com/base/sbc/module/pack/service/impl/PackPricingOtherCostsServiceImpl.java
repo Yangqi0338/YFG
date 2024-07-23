@@ -175,6 +175,13 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         return true;
     }
 
+    @Override
+    public void generateWfgyPdf(OtherCostsPageDto dto) {
+        dto.setCostsItem("外辅工艺");
+        dto.reset2QueryList();
+        List<PackPricingOtherCostsVo> list = pageInfo(dto).getList();
+
+    }
 
 
     @Override

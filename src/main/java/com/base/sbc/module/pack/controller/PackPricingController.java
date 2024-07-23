@@ -10,9 +10,24 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
-import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.service.*;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.dto.FormulaDto;
+import com.base.sbc.module.pack.dto.OtherCostsPageDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackPricingCraftCostsDto;
+import com.base.sbc.module.pack.dto.PackPricingDto;
+import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
+import com.base.sbc.module.pack.dto.PackPricingProcessCostsDto;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
+import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
+import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
+import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -21,7 +36,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -110,6 +130,12 @@ public class PackPricingController {
     @DeleteMapping("/otherCosts")
     public boolean delOtherCosts(@Valid IdsDto idsDto) {
         return packPricingOtherCostsService.delByIds(idsDto.getId());
+    }
+
+    @ApiOperation(value = "导出外辅工艺PDF")
+    @GetMapping("/exportWfgyPdf")
+    public void exportExcel(OtherCostsPageDto dto) throws Exception {
+        packPricingOtherCostsService.generateWfgyPdf(dto);
     }
 
     @ApiOperation(value = "加工费用-分页查询")
