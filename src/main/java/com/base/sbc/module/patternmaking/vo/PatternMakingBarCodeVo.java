@@ -92,6 +92,26 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     public String getSeason() {
         return yearName + "-" + seasonName + "-" + brandName;
     }
+    /**
+     * 打样设计师id
+     */
+    @ApiModelProperty(value = "打样设计师id")
+    private String patternDesignerId;
+    /**
+     * 打样设计师
+     */
+    @ApiModelProperty(value = "打样设计师")
+    private String patternDesignerName;
+    /**
+     * 打样工艺员id
+     */
+    @ApiModelProperty(value = "打样工艺员id")
+    private String patternTechnicianId;
+    /**
+     * 打样工艺员
+     */
+    @ApiModelProperty(value = "打样工艺员")
+    private String patternTechnicianName;
 
     /**
      * 列头筛选数量
