@@ -206,7 +206,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
         qw.notEmptyIn("tpmbc.status", Arrays.asList("1","2"));
-        qw.notEmptyEq("tpm.supplier_id", dto.getSupplierId());
+        qw.notEmptyLike("tbs.supplier", dto.getSupplierId());
 
         qw.orderByDesc("tpmbc.create_date");
 
