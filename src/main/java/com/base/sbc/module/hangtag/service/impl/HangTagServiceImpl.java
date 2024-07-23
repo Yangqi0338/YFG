@@ -6,14 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
-import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
-import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
-
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -126,10 +128,8 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-
-
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,38 +141,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.text.StrJoiner;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
-import lombok.RequiredArgsConstructor;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -181,19 +158,6 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：吊牌表 service类
@@ -453,7 +417,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		qw.notEmptyIn("ht.product_code", hangTagDTO.getProductCode());
 		qw.notEmptyEq("ht.status", hangTagDTO.getStatus());
 		qw.notEmptyIn("tssc.band_code", hangTagDTO.getBandName());
-		qw.likeList("tssc.style_no", hangTagDTO.getBulkStyleNo());
 		if (YesOrNoEnum.YES.getValueStr().equals(hangTagDTO.getLikeQueryFlag())) {
 			qw.notEmptyLike("tssc.style_no", hangTagDTO.getStyleNo());
 		} else {
@@ -991,20 +954,73 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
 						if (HangTagStatusEnum.TECH_CHECK == updateStatus) {
-							if (!(StrUtil.isNotBlank(e.getProductName()) &&
-									StrUtil.isNotBlank(e.getQualityGrade()) &&
-									StrUtil.isNotBlank(e.getSaftyTitle()) &&
-									StrUtil.isNotBlank(e.getPackagingForm()) &&
-									StrUtil.isNotBlank(e.getPackagingBagStandard()) &&
-									StrUtil.isNotBlank(e.getIngredient()) &&
-									StrUtil.isNotBlank(e.getFabricDetails()) &&
-									StrUtil.isNotBlank(e.getWashingMaterialRemarks()) &&
-									StrUtil.isNotBlank(e.getWashingMaterialRemarksName()) &&
-									StrUtil.isNotBlank(e.getWashingCode()) &&
-									StrUtil.isNotBlank(e.getWashingLabelName()) &&
-									StrUtil.isNotBlank(e.getWarmTips()))) {
+							// downContent：充绒量                     (devClassName != '次品')
+							// executeStandardCode：执行标准           ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// saftyTypeCode：安全类别                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// productCode：品名                       任何情况都校验
+							// qualityGradeCode：质量等级              ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// saftyTitleCode：安全标题                ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// specialSpec：特殊规格                   (prodCategory1stName == '配饰' && produceTypeName=='CMT' && devClassName != '次品')
+							// fabricDetails：面料详情                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && produceTypeName == 'CMT' && devClassName != '次品')
+							// ingredient：成分                        ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// packagingFormCode：包装形式             ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// packagingBagStandardCode：包装袋标准     ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// washingLabel：洗标                      ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// warmTips：温馨提示                       ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')							boolean flag = true;
+							if (StrUtil.isBlank(e.getId())) throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+
+							// 查询大类信息
+							String bulkStyleNo = e.getBulkStyleNo();
+							StyleColor styleColor = styleColorService.getOne(
+									new LambdaQueryWrapper<StyleColor>()
+											.eq(StyleColor::getStyleNo, bulkStyleNo)
+							);
+							Style style = styleService.getById(styleColor.getStyleId());
+							// 获取大类名称
+							String prodCategory1stName = style.getProdCategory1stName();
+							// 获取开发分类
+							String devClassName = style.getDevClassName();
+							// 获取是否开启配饰校验
+							boolean value1 = ccmFeignService.getSwitchByCode("dppsjyzd");
+							boolean value2 = ccmFeignService.getSwitchByCode("TAG_BY_STYLE_DIMENSION_SWITCH");
+							// 获取生产类型
+							String devtTypeName = styleColor.getDevtTypeName();
+
+							if (StrUtil.isBlank(e.getProductCode())) {
 								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 							}
+
+							if (!devClassName.equals("次品")) {
+								if (e.getProductCode().contains("羽绒") && StrUtil.isBlank(e.getDownContent())) {
+									throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+								}
+								if (!Objects.equals(prodCategory1stName, "配饰") || !value1) {
+									if (
+											StrUtil.isBlank(e.getExecuteStandardCode())
+													|| StrUtil.isBlank(e.getSaftyTypeCode())
+													|| StrUtil.isBlank(e.getQualityGradeCode())
+													|| StrUtil.isBlank(e.getSaftyTitleCode())
+													|| StrUtil.isBlank(e.getIngredient())
+													|| StrUtil.isBlank(e.getPackagingFormCode())
+													|| StrUtil.isBlank(e.getPackagingBagStandardCode())
+													|| StrUtil.isBlank(e.getWashingLabel())
+													|| StrUtil.isBlank(e.getWarmTips())
+									) {
+										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+									}
+									if (Objects.equals(devtTypeName, "CMT")) {
+										if (StrUtil.isBlank(e.getFabricDetails())) {
+											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+										}
+									}
+								}
+								if (Objects.equals(prodCategory1stName, "配饰") && Objects.equals(devtTypeName, "CMT")) {
+									if (StrUtil.isBlank(e.getSpecialSpec())) {
+										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+									}
+								}
+							}
+
 						} else {
 							throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
 						}
@@ -1409,11 +1425,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 * @return
 	 */
 	@Override
-	public Boolean copyPack(String styleNo, String newStyleNo) {
+	public Boolean copyPack(String styleNo, String newStyleNo, Boolean isCopyStatus) {
 		QueryWrapper queryWrapper = new QueryWrapper();
 		queryWrapper.eq("bulk_style_no", styleNo);
 		HangTag hangTag = baseMapper.selectOne(queryWrapper);
+
 		if (!ObjectUtils.isEmpty(hangTag)) {
+			String oldId = hangTag.getId();
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
@@ -1421,7 +1439,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();
-			queryWrapper.eq("hang_tag_id", hangTag.getId());
+			queryWrapper.eq("hang_tag_id", oldId);
 			List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(queryWrapper);
 			/* 复制成分 */
 			hangTagIngredientList.forEach(i -> {

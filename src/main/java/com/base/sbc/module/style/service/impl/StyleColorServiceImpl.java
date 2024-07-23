@@ -18,6 +18,8 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -38,6 +40,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -121,6 +124,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,6 +136,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -267,6 +273,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private PackPricingProcessCostsService packPricingProcessCostsService;
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
+    @Autowired
+    private CodeGen codeGen;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -1452,7 +1460,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
             }
         }
-        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem(),queryStyleColorDto.getYshBusinessSystem());
+        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem(),queryStyleColorDto.getYshBusinessSystem(), queryStyleColorDto.getTaskListDetailMap());
         if (stringList.size() == i) {
             return ApiResult.success("下发：" + stringList.size() + "条，成功：" + i + "条");
         } else {
@@ -1561,6 +1569,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
+        if (Constants.ONE_STR.equals(sampleStyleColor.getIsDefective()) && !styleNo.equals(updateStyleNoBandDto.getStyleNo())){
+            throw new OtherException("报此款的大货款号不允许修改！");
+        }
         String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "检查大货款号,仅允许字母数字",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
         Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
@@ -1810,7 +1821,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         baseMapper.insert(copyStyleColor);
 
         /*吊牌复制*/
-        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo());
+        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo(),true);
         /*新建一个资料包*/
         PackInfo copyPackInfo = new PackInfo();
         BeanUtils.copyProperties(packInfo, copyPackInfo, "id");
@@ -1859,6 +1870,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         stylePricing.setControlPlanCost(styleColorVo.getControlPlanCost());
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
+        stylePricing.setPlanningRate(styleColorVo.getPlanningRate());
         stylePricingMapper.insert(stylePricing);
 
 
@@ -3500,8 +3512,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         String errorInfo = "";
         for (int i = 0; i < list.size(); i++) {
             MangoHangTagExeclDto mangoHangTagExeclDto = list.get(i);
-            //大货款号
-            String styleNo = mangoHangTagExeclDto.getStyleNo();
+            //合作方条码
+            String outsideBarcode = mangoHangTagExeclDto.getOutsideBarcode();
             //品名翻译
             String productNameTranslate = mangoHangTagExeclDto.getProductNameTranslate();
             //质量等级
@@ -3519,10 +3531,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //产地
             String producer = mangoHangTagExeclDto.getProducer();
             //水洗唛编码
-            String washingCode = mangoHangTagExeclDto.getWashingCode();
+            //String washingCode = mangoHangTagExeclDto.getWashingCode();
 
-            if (StrUtil.isEmpty(styleNo)) {
-                errorInfo+="第" + (i + 1) + "行" + "大货款号不能为空！\n";
+            //Mango吊牌导入时大类为配饰的不用校验 洗标和安全技术类别
+
+            if (StrUtil.isEmpty(outsideBarcode)) {
+                errorInfo += "第" + (i + 1) + "行" + "合作方条码不能为空！\n";
             }
             if (StrUtil.isEmpty(qualityGrade)) {
                 errorInfo+="第" + (i + 1) + "行" + "质量等级不能为空！\n";
@@ -3539,18 +3553,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (StrUtil.isEmpty(executeStandard)) {
                 errorInfo+="第" + (i + 1) + "行" + "执行标准不能为空！\n";
             }
-            if (StrUtil.isEmpty(saftyType)) {
+           /* if (StrUtil.isEmpty(saftyType)) {
                 errorInfo+="第" + (i + 1) + "行" + "安全技术类别不能为空！\n";
-            }
+            }*/
             if (StrUtil.isEmpty(ingredient)) {
                 errorInfo+="第" + (i + 1) + "行" + "材料成分不能为空！\n";
             }
             if (StrUtil.isEmpty(producer)) {
                 errorInfo+="第" + (i + 1) + "行" + "原产地不能为空！\n";
             }
-            if (StrUtil.isEmpty(washingCode)) {
+            /*if (StrUtil.isEmpty(washingCode)) {
                 errorInfo+="第" + (i + 1) + "行" + "洗标编码不能为空！\n";
-            }
+            }*/
         }
 
         if (StrUtil.isNotEmpty(errorInfo)) {
@@ -3559,15 +3573,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //获取对应的枚举信息
         //品名
-        List<BasicBaseDict> productList = ccmFeignService.getDictInfoToList("ProductName");
+        List<BasicBaseDict> productList = ccmFeignService.getAllDictInfoToList("ProductName");
         //质量等级
-        List<BasicBaseDict> qualityClassList = ccmFeignService.getDictInfoToList("C8_QualityClass");
+        List<BasicBaseDict> qualityClassList = ccmFeignService.getAllDictInfoToList("C8_QualityClass");
         //执行标准
-        List<BasicBaseDict> standardList = ccmFeignService.getDictInfoToList("C8_OPStandard");
+        List<BasicBaseDict> standardList = ccmFeignService.getAllDictInfoToList("C8_OPStandard");
         //安全技术类别
         List<BasicBaseDict> saftyTypeList = ccmFeignService.getAllDictInfoToList("C8_SaftyType");
         //水洗唛
-        List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
+        //List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
         //创建吊牌信息数据
         List<HangTag> updateHangTagList = new ArrayList<>();
 
@@ -3577,7 +3591,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq("tsca.del_flag","0");
         List<StyleColorAgentVo> agentList = baseMapper.agentList(queryWrapper);
         if (CollUtil.isNotEmpty(agentList)) {
-            styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getStyleNo, m -> m, (k1, k2) -> k1));
+            styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getOutsideBarcode, m -> m, (k1, k2) -> k1));
         }
 
 
@@ -3590,8 +3604,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             MangoHangTagExeclDto mangoHangTagExeclDto = list.get(i);
             //品名
             String productName = mangoHangTagExeclDto.getProductName();
-            //大货款号
-            String styleNo = mangoHangTagExeclDto.getStyleNo();
+            //大货款号  20240717 大货款号改为合作方条码
+            String outsizeBarcode = mangoHangTagExeclDto.getOutsideBarcode();
             //质量等级
             String qualityGrade = mangoHangTagExeclDto.getQualityGrade();
             //执行标准
@@ -3610,18 +3624,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String colorCodeTranslate = mangoHangTagExeclDto.getColorCodeTranslate();
 
             //得到MANGO品牌大货款信息，并判断是否导入的大货款是否存在数据库
-            if (!styleHangTagMap.containsKey(styleNo)) {
-                errorInfo+="第" + (i + 1) + "行,【" + styleNo + "】找不到对应的大货款信息！\n";
+            if (!styleHangTagMap.containsKey(outsizeBarcode)) {
+                errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】找不到对应的合作方条码信息！\n";
             }
 
-            //region 质量等级验证
+            //region 品名
             List<BasicBaseDict> productNameIsExistList = getBasicBaseDicts(productList, productName);
 
             if (CollUtil.isNotEmpty(productNameIsExistList)) {
                 updateHangTag.setProductCode(productNameIsExistList.get(0).getValue());
                 updateHangTag.setProductName(productNameIsExistList.get(0).getName());
             } else {
-                errorInfo+="第" + (i + 1) + "行,【" + qualityGrade + "】找不到对应的品名！\n";
+                errorInfo+="第" + (i + 1) + "行,【" + productName + "】找不到对应的品名！\n";
             }
             //endregion
             //region 质量等级验证
@@ -3646,39 +3660,69 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             //endregion
 
-            //region 安全技术类别验证
-            List<BasicBaseDict> saftyTypeIsExistList = getBasicBaseDicts(saftyTypeList, saftyType);
-
-            if (CollUtil.isNotEmpty(saftyTypeIsExistList)) {
-                updateHangTag.setSaftyTitleCode(saftyTypeIsExistList.get(0).getValue());
-                updateHangTag.setSaftyType(saftyTypeIsExistList.get(0).getName());
-            } else {
-                errorInfo+="第" + (i + 1) + "行,【" + saftyType + "】找不到对应的安全技术类别！\n";
-            }
-            //endregion
-
             //region 洗标编码是否存在验证
-            List<BasicsdatumWashIcon> washIconsisExistList = basicsdatumWashIconList.stream().filter(o -> o.getCode().equals(washingCode)).collect(Collectors.toList());
 
-            if (CollUtil.isNotEmpty(washIconsisExistList)) {
-                updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
-                updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
-            }else{
-                errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
-            }
+
+//            List<BasicsdatumWashIcon> washIconsisExistList = basicsdatumWashIconList.stream().filter(o -> o.getCode().equals(washingCode)).collect(Collectors.toList());
+//
+//            if (CollUtil.isNotEmpty(washIconsisExistList)) {
+//                updateHangTag.setWashingCode(washIconsisExistList.get(0).getCode());
+//                updateHangTag.setWashingLabel(washIconsisExistList.get(0).getUrl());
+//            } else {
+//                //errorInfo += "第" + (i + 1) + "行,【" + washingCode + "】找不到对应的洗标信息！\n";
+//            }
             //endregion
+            StyleColorAgentVo styleColorAgentVo = styleHangTagMap.get(outsizeBarcode);
 
-            StyleColorAgentVo styleColorAgentVo = styleHangTagMap.get(styleNo);
             if (styleColorAgentVo == null) {
-                errorInfo+="第" + (i + 1) + "行,【" + washingCode + "】找不到对应的吊牌信息！\n";
-            }else{
+                errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】找不到对应的款式SKU信息！\n";
+            } else {
+                 String prodCategory1stName = styleColorAgentVo.getProdCategory1stName();
+                if (!"配饰".equals(prodCategory1stName)) {
+                    if (StrUtil.isNotEmpty(saftyType)) {
+                        //region 安全技术类别验证
+                        List<BasicBaseDict> saftyTypeIsExistList = getBasicBaseDicts(saftyTypeList, saftyType);
+
+                        if (CollUtil.isNotEmpty(saftyTypeIsExistList)) {
+                            updateHangTag.setSaftyTitleCode(saftyTypeIsExistList.get(0).getValue());
+                            updateHangTag.setSaftyType(saftyTypeIsExistList.get(0).getName());
+                        } else {
+                            errorInfo += "第" + (i + 1) + "行,【" + saftyType + "】找不到对应的安全技术类别！\n";
+                        }
+                        //endregion
+                    } else {
+                        errorInfo += "第" + (i + 1) + "行" + "非配饰，安全技术类别不能为空！\n";
+                    }
+
+                    if (StrUtil.isEmpty(washingCode)) {
+                        errorInfo+="第" + (i + 1) + "行" + "非配饰，洗标编码不能为空！\n";
+                    }else{
+                        updateHangTag.setWashingCode(washingCode);
+                    }
+                }else{
+                    if (StrUtil.isNotEmpty(saftyType)) {
+                        //region 安全技术类别验证
+                        List<BasicBaseDict> saftyTypeIsExistList = getBasicBaseDicts(saftyTypeList, saftyType);
+
+                        if (CollUtil.isNotEmpty(saftyTypeIsExistList)) {
+                            updateHangTag.setSaftyTitleCode(saftyTypeIsExistList.get(0).getValue());
+                            updateHangTag.setSaftyType(saftyTypeIsExistList.get(0).getName());
+                        } else {
+                            errorInfo += "第" + (i + 1) + "行,【" + saftyType + "】找不到对应的安全技术类别！\n";
+                        }
+                        //endregion
+                    }
+                    updateHangTag.setWashingCode(washingCode);
+                }
+
+
+
                 //如果是已下发不允许导入吊牌信息，必须先解锁再导入
                 String enableStatus = styleColorAgentVo.getSendStatus();
-                if ("1".equals(enableStatus)) {
-                    errorInfo+="第" + (i + 1) + "行,【" + styleNo + "】请先解锁，然后再导入吊牌信息！\n";
-                }
+//                if ("1".equals(enableStatus)) {
+//                    errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】请先解锁，然后再导入吊牌信息！\n";
+//                }
             }
-
 
 
             updateHangTag.setId(styleColorAgentVo.getHangTagId());
@@ -4278,19 +4322,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Override
     @Transactional
-    public ApiResult importMarkingOrder(List<Map<String, Object>> readAll) {
-        if(readAll.size() > 120){
-            throw new OtherException("导入数据不能超过120条");
-        }
+    public ApiResult importMarkingOrder(List<Map<String, Object>> readAll) throws IOException {
+        /*if(readAll.size() > 40){
+            throw new OtherException("导入数据不能超过40条");
+        }*/
         //大货款号清单
         List<String> styleNos = new ArrayList<>();
-        //大货款号对应的动态字段，用于后续检查字段是否符合 大货款号对应的企划需求管理
-        Map<String, Map<String, Object>> styleColorFields = new HashMap<>();
         //遍历导入数据
         for (Map<String, Object> map : readAll) {
             if (map.containsKey("大货款号")) {
                 styleNos.add(map.get("大货款号").toString());
-                styleColorFields.put(map.get("大货款号").toString(), map);
             }else{
                 throw new OtherException("大货款号不能为空");
             }
@@ -4382,20 +4423,32 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         List<FieldVal> updateFieldValList = new ArrayList<>();
 
-        StringBuffer sbMsg = new StringBuffer();
-
         List<OperaLogEntity> updateLogs = new ArrayList<>();
 
-        int successCount = 0;
-        for (Map.Entry<String, Map<String, Object>> entry : styleColorFields.entrySet()) {
-            OperaLogEntity operaLogEntity = new OperaLogEntity();
-            List<Map<String,String>> updateLogMaps = new ArrayList<>();
-            String styleNo = entry.getKey();
+        List<LinkedHashMap<String,Object>> returnList = new ArrayList<>();
+
+        List<String> goodsIds = new ArrayList<>();
+
+        int updateSize = 0;
+
+        Map<String,String> goodsMsgMap = new HashMap<>();
+
+        for (Map<String, Object> map : readAll) {
+            StringBuffer sbMsg = new StringBuffer();
+            String styleNo = map.get("大货款号").toString();
+
             if(!styleColorMap.containsKey(styleNo)){
                 //该款不存在
-                sbMsg.append("大货款号：").append(styleNo).append(",不存在;");
+                LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
+                returnMap.put("错误信息","大货款号不存在;");
+                returnMap.putAll(map);
+                returnList.add(returnMap);
                 continue;
             }
+
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            List<Map<String,String>> updateLogMaps = new ArrayList<>();
+
             StyleColorVo styleColor = styleColorMap.get(styleNo);
 
             String key = styleColor.getPlanningSeasonId() + "_" + styleColor.getChannel() + "_" + styleColor.getProdCategory1st() + "_" + styleColor.getProdCategory();
@@ -4407,7 +4460,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 dimensionalities = dimensionalityMap1.get(key);
             }else{
                 //该款没有获取到动态字段
-                sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段,如需要,请联系管理员维护;");
+                LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
+                returnMap.put("错误信息","没有查询到动态字段,如需要,请联系管理员维护;");
+                returnMap.putAll(map);
+                returnList.add(returnMap);
                 continue;
             }
             Map<String, PlanningDimensionalityVo> collect = dimensionalities.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getFieldExplain, o -> o,(v1,v2)->v1));
@@ -4417,13 +4473,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             boolean fieldValFlag = true;
             List<FieldVal> fieldValList = new ArrayList<>();
-            for (Map.Entry<String, Object> entry1 : entry.getValue().entrySet()) {
-                if(!"大货款号".equals(entry1.getKey()) && entry1.getValue() != null && StrUtil.isNotEmpty(String.valueOf(entry1.getValue()))){
-                    if(collect.containsKey(entry1.getKey())){
-                        String value = String.valueOf(entry1.getValue());
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if(!"大货款号".equals(entry.getKey()) && entry.getValue() != null && StrUtil.isNotEmpty(String.valueOf(entry.getValue()))){
+                    if(collect.containsKey(entry.getKey())){
+                        String value = String.valueOf(entry.getValue());
                         String valName = "";
                         //校验是否字典项
-                        PlanningDimensionalityVo planningDimensionality = collect.get(entry1.getKey());
+                        PlanningDimensionalityVo planningDimensionality = collect.get(entry.getKey());
                         if("1".equals(planningDimensionality.getIsOption())){
                             //判断使用的是字典项
                             //判断是否多选
@@ -4436,7 +4492,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                         vals.add(orDefault.get(s));
                                     }else{
                                         //字典项不存在
-                                        sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
+                                        sbMsg.append(entry.getKey()).append("中不存在字典值:").append(s).append(";");
                                         fieldValFlag = false;
                                     }
                                 }
@@ -4452,7 +4508,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                     value = orDefault.get(value);
                                 }else{
                                     //字典项不存在
-                                    sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    sbMsg.append(entry.getKey()).append("中不存在字典值:").append(value).append(";");
                                     fieldValFlag = false;
                                     continue;
                                 }
@@ -4469,7 +4525,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                         vals.add(structureTrees.get(s));
                                     }else{
                                         //字典项不存在
-                                        sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(s).append(";");
+                                        sbMsg.append(entry.getKey()).append("中不存在字典值:").append(s).append(";");
                                         fieldValFlag = false;
                                     }
                                 }
@@ -4485,7 +4541,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                     value = structureTrees.get(value);
                                 }else{
                                     //结构字典项不存在
-                                    sbMsg.append("大货款号：").append(styleNo).append(",").append(entry1.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    sbMsg.append(entry.getKey()).append("中不存在字典值:").append(value).append(";");
                                     fieldValFlag = false;
                                     continue;
                                 }
@@ -4520,12 +4576,23 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         updateLogMaps.add(updateLogMap);
                     }else{
                         //该款没有这个动态字段
-                        sbMsg.append("大货款号：").append(styleNo).append(",没有查询到动态字段").append(entry1.getKey()).append(",如需要,请联系管理员维护;");
+                        sbMsg.append("没有查询到动态字段").append(entry.getKey()).append(";");
                         fieldValFlag = false;
                     }
                 }
             }
-            if(fieldValFlag){
+            if (fieldValFlag) {
+                if (fieldValList.isEmpty()) {
+                    if (!"1".equals(styleColor.getScmSendFlag())) {
+                        goodsIds.add(styleColor.getId());
+                        goodsMsgMap.put(styleNo,"没有修改,但是上次下发失败,执行下发操作");
+                    } else {
+                        goodsMsgMap.put(styleNo,"没有修改");
+                    }
+                } else {
+                    updateSize++;
+                    goodsIds.add(styleColor.getId());
+                }
                 updateFieldValList.addAll(fieldValList);
                 operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
                 operaLogEntity.setType("修改");
@@ -4533,8 +4600,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 operaLogEntity.setName("款式打标-批量导入修改");
                 operaLogEntity.setDocumentName(styleNo);
                 updateLogs.add(operaLogEntity);
-                successCount++;
             }
+            LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
+            returnMap.put("错误信息", sbMsg);
+            returnMap.putAll(map);
+            returnList.add(returnMap);
         }
         if(CollUtil.isNotEmpty(updateFieldValList)){
             List<String> collect = updateFieldValList.stream().map(BaseEntity::getId).filter(StrUtil::isNotEmpty).collect(Collectors.toList());
@@ -4546,45 +4616,32 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             fieldValService.saveBatch(updateFieldValList);
         }
 
-        StringBuffer sbMsg1 = new StringBuffer();
-
-        if(sbMsg.length() > 0){
-            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条,失败原因如下;").append(sbMsg);
-        }else{
-            sbMsg1.append("导入：").append(readAll.size()).append("条,成功：").append(successCount).append("条;");
-        }
-
-        String[] idsUpdate = updateFieldValList.stream().map(FieldVal::getForeignId).distinct().toArray(String[]::new);
-
-        if(idsUpdate.length > 0){
-            //推送下游系统
-            try{
-                List<String> msg = new ArrayList<>();
-                int i = smpService.goods(idsUpdate,"BCS",null,1,msg);
-                if (idsUpdate.length == i) {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条");
-                } else {
-                    sbMsg1.append("下发：").append(idsUpdate.length).append("条,成功：").append(i).append("条,失败：").append(idsUpdate.length - i).append("条;失败原因如下:").append(String.join(";", msg));
-                }
-            }catch (Exception e){
-                log.error("批量修改下单阶段字段,下发下游系统失败",e);
-                sbMsg1.append("下发下游系统失败:").append(e.getMessage());
-            }
-        }
-
+        //生成流水号
+        String numberByKeyDay = codeGen.getNumberByKeyDay("DB", 4);
 
         //保存修改记录
-        OperaLogEntity operaLogEntity = new OperaLogEntity();
-        operaLogEntity.setType("导入");
-        operaLogEntity.setDocumentId("导入结果");
-        operaLogEntity.setName("款式打标-批量导入修改");
-        operaLogEntity.setDocumentName("导入结果");
-        operaLogEntity.setContent(sbMsg1.toString());
-        updateLogs.add(operaLogEntity);
+        updateLogs.forEach(o->o.setDocumentCode(numberByKeyDay));
         operaLogService.saveBatch(updateLogs);
 
+        if(CollUtil.isNotEmpty(goodsIds)){
+            //推送下游系统
+            smpService.goodsAsync(goodsIds.toArray(new String[0]),"BCS",null,numberByKeyDay,goodsMsgMap);
+        }
 
-        return ApiResult.success(sbMsg1.toString());
+        //写一个excel
+        ExcelWriter writer = ExcelUtil.getWriter();
+        writer.write(returnList,true);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        writer.flush(baos);
+        writer.close();
+        ByteArrayInputStream inputStream  = new ByteArrayInputStream(baos.toByteArray());
+
+        String fileName = String.valueOf(System.currentTimeMillis());
+        MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "markingOrderUpload", numberByKeyDay);
+
+        //总计导入 成功 失败多少 修改多少
+        return ApiResult.success("总计导入" + readAll.size() +"条,成功"+goodsIds.size()+"条,失败"+(readAll.size() - goodsIds.size())+"条,修改"+updateSize+"条",attachmentVo);
     }
 
 
