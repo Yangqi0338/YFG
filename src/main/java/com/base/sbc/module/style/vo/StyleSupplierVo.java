@@ -2,6 +2,7 @@ package com.base.sbc.module.style.vo;
 
 
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
@@ -20,6 +21,9 @@ import java.util.Map;
 @Data
 @ApiModel("款式设计明细返回分享供应商实体 SampleVo ")
 public class StyleSupplierVo extends StyleVo {
+
+    //打版信息
+    private PatternMaking patternMaking;
 
     //动态字段集合
     private Map<String, List<FieldManagementVo>> filedMap;

@@ -546,6 +546,7 @@ public class OpenSmpController extends BaseController {
         dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         Map<String, List<FieldManagementVo>> filedMap = styleService.queryCoefficientByStyle(dto);
 
+        styleVo.setPatternMaking(patternMaking);
         styleVo.setFiledMap(filedMap);
 
         return ApiResult.success("查询成功", styleVo);
