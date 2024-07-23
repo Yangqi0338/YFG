@@ -2856,7 +2856,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public ApiResult<String> copyUrl(String id, Integer hours) {
         String code = IdGen.getId().toString();
-        redisUtils.set(code,id,hours*60*60);
+        redisUtils.set("FOB_SUPPLIER_URL:"+code,id,hours*60*60);
         return ApiResult.success("复制成功",code);
     }
 

@@ -13,6 +13,7 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
@@ -27,6 +28,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientServ
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -39,8 +41,10 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
+import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
@@ -119,6 +123,8 @@ public class OpenSmpController extends BaseController {
     private final StyleService styleService;
     private final RedisUtils redisUtils;
     private final PatternMakingService patternMakingService;
+    private final PatternMakingMapper patternMakingMapper;
+    private final UploadFileService uploadFileService;
 
 
     /**
@@ -529,15 +535,21 @@ public class OpenSmpController extends BaseController {
     @GetMapping("/getStyleByCode")
     public ApiResult<StyleSupplierVo> getStyleByCode(String code){
         //校验是否失效
-        if (!redisUtils.hasKey(code)) {
+        String key = "FOB_SUPPLIER_URL:" + code;
+        if (!redisUtils.hasKey(key)) {
             //链接已失效
             throw new OtherException("链接已失效，请重新获取链接");
         }
         //打版id
-        String id = redisUtils.get(code).toString();
-        PatternMaking patternMaking = patternMakingService.getById(id);
+        String id = redisUtils.get(key).toString();
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.eq("m.id", id);
+        qw.eq("m.del_flag", BaseGlobal.NO);
+        List<PatternMakingListVo> patternMakingListVos = patternMakingMapper.findBySampleDesignId(qw);
+        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl", "sampleVideoUrl");
+        PatternMakingListVo patternMakingListVo = patternMakingListVos.get(0);
         //设计款id
-        String styleId = patternMaking.getStyleId();
+        String styleId = patternMakingListVo.getStyleId();
         StyleSupplierVo styleVo = (StyleSupplierVo) styleService.getDetail(styleId, null);
 
         //设计款动态字段
@@ -546,7 +558,7 @@ public class OpenSmpController extends BaseController {
         dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         Map<String, List<FieldManagementVo>> filedMap = styleService.queryCoefficientByStyle(dto);
 
-        styleVo.setPatternMaking(patternMaking);
+        styleVo.setPatternMaking(patternMakingListVo);
         styleVo.setFiledMap(filedMap);
 
         return ApiResult.success("查询成功", styleVo);
