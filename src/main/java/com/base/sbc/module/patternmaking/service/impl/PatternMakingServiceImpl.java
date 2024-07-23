@@ -36,6 +36,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
@@ -2850,6 +2851,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         suspendDateMap.put(currentFlag, suspendDate);
         suspendDateRecordVo.setSuspendDateMap(suspendDateMap);
         uw.set("suspend_date_record", JSON.toJSONString(suspendDateRecordVo));
+    }
+
+    @Override
+    public ApiResult<String> copyUrl(String id, Integer hours) {
+        String code = IdGen.getId().toString();
+        redisUtils.set(code,id,hours*60*60);
+        return ApiResult.success("复制成功",code);
     }
 
     // 自定义方法区 不替换的区域【other_end】

@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.common.service.BaseService;
@@ -423,6 +424,11 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     Boolean updateReferSample(PatternMakingReferSampleDto dto);
+
+
+    boolean cancelConfirm(PatternMakingDto dto);
+
+    ApiResult<String> copyUrl(String id, Integer hours);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

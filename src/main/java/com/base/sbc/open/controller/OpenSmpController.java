@@ -18,6 +18,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -26,6 +27,8 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientServ
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
@@ -34,8 +37,11 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
@@ -44,6 +50,8 @@ import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleSupplierVo;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.dto.DesignStyleOverdueReasonDto;
 import com.base.sbc.open.dto.MtBpReqDto;
@@ -108,6 +116,9 @@ public class OpenSmpController extends BaseController {
     private final MoreLanguageService moreLanguageService;
     private final PreProductionSampleTaskFobService preProductionSampleTaskFobService;
     private final PatternMakingBarCodeService patternMakingBarCodeService;
+    private final StyleService styleService;
+    private final RedisUtils redisUtils;
+    private final PatternMakingService patternMakingService;
 
 
     /**
@@ -508,6 +519,36 @@ public class OpenSmpController extends BaseController {
         }
 
         return ApiResult.success("保存成功;"+msg);
+    }
+
+    /**
+     * 供应商获取款式信息
+     * @param code 用于校验时效
+     * @return
+     */
+    @GetMapping("/getStyleByCode")
+    public ApiResult<StyleSupplierVo> getStyleByCode(String code){
+        //校验是否失效
+        if (!redisUtils.hasKey(code)) {
+            //链接已失效
+            throw new OtherException("链接已失效，请重新获取链接");
+        }
+        //打版id
+        String id = redisUtils.get(code).toString();
+        PatternMaking patternMaking = patternMakingService.getById(id);
+        //设计款id
+        String styleId = patternMaking.getStyleId();
+        StyleSupplierVo styleVo = (StyleSupplierVo) styleService.getDetail(styleId, null);
+
+        //设计款动态字段
+        DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+        dto.setForeignId(id);
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        Map<String, List<FieldManagementVo>> filedMap = styleService.queryCoefficientByStyle(dto);
+
+        styleVo.setFiledMap(filedMap);
+
+        return ApiResult.success("查询成功", styleVo);
     }
 
 }
