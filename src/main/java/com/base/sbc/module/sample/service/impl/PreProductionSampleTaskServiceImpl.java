@@ -248,7 +248,10 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
                 }
             }
             list = getBaseMapper().taskListFOB(qw);
-            list.forEach(o->o.setPatternMakingDevtType("FOB"));
+            list.forEach(o->{
+                o.setPatternMakingDevtType("FOB");
+                o.setSampleBarCodeQrCode(o.getSampleBarCode());
+            });
         }
 
         if (!BaseGlobal.YES.equals(dto.getExcelFlag())) {
