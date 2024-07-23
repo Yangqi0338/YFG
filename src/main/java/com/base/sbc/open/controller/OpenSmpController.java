@@ -550,7 +550,7 @@ public class OpenSmpController extends BaseController {
         PatternMakingListVo patternMakingListVo = patternMakingListVos.get(0);
         //设计款id
         String styleId = patternMakingListVo.getStyleId();
-        StyleSupplierVo styleVo = (StyleSupplierVo) styleService.getDetail(styleId, null);
+        StyleSupplierVo styleVo = BeanUtil.copyProperties(styleService.getDetail(styleId, null), StyleSupplierVo.class);
 
         //设计款动态字段
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();

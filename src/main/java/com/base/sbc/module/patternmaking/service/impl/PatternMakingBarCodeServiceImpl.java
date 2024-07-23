@@ -149,6 +149,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
             queryWrapper1.eq(PatternMakingBarCode::getHeadId, patternMakingBarCode.getHeadId());
             queryWrapper1.eq(PatternMakingBarCode::getPitSite, patternMakingBarCode.getPitSite());
             remove(queryWrapper1);
+
+            patternMakingBarCode.setId(null);
         }
 
         saveOrUpdate(patternMakingBarCode);
