@@ -434,6 +434,8 @@ public class PatternMaking extends BaseDataEntity<String> {
     private String supplierId;
     @ApiModelProperty(value = "patternMaking生产类型")
     private String patternMakingDevtType;
+    @ApiModelProperty(value = "importOldId是否引用旧数据")
+    private String importOldId;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

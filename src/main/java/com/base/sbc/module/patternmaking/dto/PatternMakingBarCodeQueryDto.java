@@ -32,5 +32,6 @@ public class PatternMakingBarCodeQueryDto extends QueryFieldDto {
 	private String brandName;
 	private String barCode;
 	private List<String> statusList;
+	private String supplierId;
 
 }
