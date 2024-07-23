@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -384,5 +385,29 @@ public class BasicsdatumMaterialSaveDto {
 
 	@ApiModelProperty(value = "物料库动态字段")
 	List<FieldVal> fieldValList;
+
+	/**
+	 * 面料测试结果
+	 */
+	@ApiModelProperty(value = "面料测试结果")
+	private YesOrNoEnum fabricTestFlag;
+
+	/**
+	 * 面料附件id
+	 */
+	@ApiModelProperty(value = "面料附件id")
+	private String fabricTestFileId;
+
+	/**
+	 * 面料附件地址
+	 */
+	@ApiModelProperty(value = "面料附件地址")
+	private String fabricTestFileUrl;
+
+	/**
+	 * 面料测试说明
+	 */
+	@ApiModelProperty(value = "面料测试说明")
+	private String fabricTestContent;
 
 }

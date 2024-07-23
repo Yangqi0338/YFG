@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpColor;
@@ -209,4 +210,22 @@ public class  SmpMaterialDto extends SmpBaseDto {
 
     @ApiModelProperty(value = "物料库动态字段")
     List<FieldManagementVo> dynamicFieldList;
+
+    /**
+     * 面料测试结果
+     */
+    @ApiModelProperty(value = "面料测试结果")
+    private YesOrNoEnum fabricTestFlag;
+
+    /**
+     * 面料附件地址
+     */
+    @ApiModelProperty(value = "面料附件地址")
+    private String fabricTestFileUrl;
+
+    /**
+     * 面料测试说明
+     */
+    @ApiModelProperty(value = "面料测试说明")
+    private String fabricTestContent;
 }

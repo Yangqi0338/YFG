@@ -1,7 +1,5 @@
 package com.base.sbc.module.common.convert;
 
-import org.mapstruct.Mapper;
-
 /**
  * {@code 描述：通用MapStruct计算转化}
  * @author KC
@@ -16,5 +14,6 @@ public interface ConvertContext {
     MoreLanguageConvert MORE_LANGUAGE_CV = MoreLanguageConvert.INSTANCE;
     OpenConvert OPEN_CV = OpenConvert.INSTANCE;
     OrderBookConvert ORDER_BOOK_CV = OrderBookConvert.INSTANCE;
+    PackConvert PACK_CV = PackConvert.INSTANCE;
 
 }
