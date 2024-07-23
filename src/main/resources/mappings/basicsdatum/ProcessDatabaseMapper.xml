@@ -1,26 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.basicsdatum.mapper.ProcessDatabaseMapper">
-    <select id="getAllPatternPartsCode" resultType="java.lang.String">
-        select DISTINCT code from t_basicsdatum_process_database
-        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            ${ ew.customSqlSegment}
-        </if>
-
-    </select>
-
-    <select id="selectProcessDatabase" resultType="com.base.sbc.module.basicsdatum.vo.ProcessDatabaseSelectVO">
-        SELECT
-            id,
-            CODE,
-            process_name as name
-        FROM
-        t_basicsdatum_process_database
-        WHERE
-            type = #{type}
-          <if test="categoryName != null and categoryName != ''">
-              and category_name like CONCAT('%', #{categoryName},'%')
-          </if>
-          AND company_code = #{companyCode}
-    </select>
 </mapper>

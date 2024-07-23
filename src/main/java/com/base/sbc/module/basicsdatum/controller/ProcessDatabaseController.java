@@ -1,26 +1,36 @@
 package com.base.sbc.module.basicsdatum.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
+import com.base.sbc.module.basicsdatum.vo.ProcessDatabaseSelectVO;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -50,7 +60,7 @@ public class ProcessDatabaseController extends BaseController {
 
     @ApiOperation(value = "/导出")
     @GetMapping("/deriveExcel")
-    public void deriveExcel(HttpServletResponse response,String type) throws Exception {
+    public void deriveExcel(HttpServletResponse response, ProcessDatabaseType type) throws Exception {
         processDatabaseService.deriveExcel(response ,type);
     }
 
@@ -117,28 +127,36 @@ public class ProcessDatabaseController extends BaseController {
     @ApiOperation(value = "获取所有模板部件")
     @GetMapping("/getAllPatternPartsCode")
     public List<String> getAllPatternPartsCode() {
-        return processDatabaseService.getAllPatternPartsCode();
+        ProcessDatabasePageDto pageDto = new ProcessDatabasePageDto();
+        pageDto.setType(ProcessDatabaseType.mbbj);
+        return processDatabaseService.list(pageDto).stream().map(ProcessDatabase::getCode).distinct().collect(Collectors.toList());
     }
 
     @ApiOperation(value = "获取所有模板部件")
     @GetMapping("/getAll")
-    public List<ProcessDatabase> getAll(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        return processDatabaseService.getAll();
+    public List<ProcessDatabase> getAll() {
+        ProcessDatabasePageDto pageDto = new ProcessDatabasePageDto();
+        pageDto.setType(ProcessDatabaseType.mbbj);
+        return processDatabaseService.list(pageDto);
     }
 
     @ApiOperation(value = "通过类型查询")
     @GetMapping("/selectProcessDatabase")
-    public ApiResult selectProcessDatabase(@Valid @NotBlank(message = "类型不可为空") String type, String categoryName) {
-        return selectSuccess(processDatabaseService.selectProcessDatabase(type, categoryName, super.getUserCompany()));
+    public ApiResult<List<ProcessDatabaseSelectVO>> selectProcessDatabase(@Valid @NotNull(message = "类型不可为空") ProcessDatabaseType type, String categoryName) {
+        ProcessDatabasePageDto pageDto = new ProcessDatabasePageDto();
+        pageDto.setType(type);
+        pageDto.setCategoryName(categoryName);
+        return selectSuccess(BeanUtil.copyToList(processDatabaseService.list(pageDto), ProcessDatabaseSelectVO.class));
     }
 
     @ApiOperation(value = "获取部件查询数据")
     @GetMapping("/getQueryList")
-    public List<ProcessDatabase> getQueryList(@Valid @NotBlank(message = "类型不可为空") String type,
-                                              @Valid @NotBlank(message = "去重字段不能为空") String field,
-                                              @Valid @NotBlank(message = "品牌字段不能为空") String brandId,
-                                              @Valid @NotBlank(message = "品类字段不能为空") String   categoryId
+    public List<ProcessDatabase> getQueryList(@Valid
+                                              @NotNull(message = "类型不可为空") ProcessDatabaseType type,
+                                              @NotBlank(message = "去重字段不能为空") String field
     ) {
-        return processDatabaseService.getQueryList(type, field, brandId,categoryId, super.getUserCompany());
+        ProcessDatabasePageDto pageDto = new ProcessDatabasePageDto();
+        pageDto.setType(type);
+        return processDatabaseService.getQueryList(pageDto, field);
     }
 }
