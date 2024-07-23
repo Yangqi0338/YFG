@@ -6,6 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
+import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.druid.support.console.OptionParseException;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -16,7 +19,9 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -84,7 +89,11 @@ public class StylePricingController extends BaseController {
     private BaseController baseController;
 
     @Autowired
+    @Lazy
     private PackInfoService packInfoService;
+    @Autowired
+    @Lazy
+    private PackBomService packBomService;
 
     @Autowired
     @Lazy
@@ -131,7 +140,7 @@ public class StylePricingController extends BaseController {
     @PostMapping("/setBulkyCargoMaterialPurchasePrice")
     public ApiResult<String> setBulkyCargoMaterialPurchasePrice(@RequestBody List<String> packBomIdList) {
         smpService.setBulkyCargoMaterialPurchasePrice(packBomIdList);
-        return ApiResult.success();
+        return ApiResult.success("获取成功！");
     }
 
     @ApiOperation(value = "保存")
@@ -164,8 +173,6 @@ public class StylePricingController extends BaseController {
             dto.setIds("packInfo:" + dto.getId());
         }
         dto.setControlConfirm(BaseGlobal.YES);
-
-        // 判断物料采购单价是否都是大于 0，只要一个不是，那么抛出异常
 
         return updateStatus(dto);
     }
@@ -240,6 +247,19 @@ public class StylePricingController extends BaseController {
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
                     throw new OtherException("计控已确认");
                 }
+
+                // 计控确认时 判断物料采购单价是否都是大于 0，只要一个不是，那么抛出异常
+                List<PackBom> packBomList = packBomService.list(
+                        new LambdaQueryWrapper<PackBom>()
+                                .eq(PackBom::getForeignId, stylePricing.getPackId())
+                );
+                if (ObjectUtil.isNotEmpty(packBomList)) {
+                    boolean anyMatch = packBomList.stream().anyMatch(item -> ObjectUtil.isEmpty(item.getPurchasePrice()));
+                    if (anyMatch) {
+                        throw new OtherException("物料采购单价必须全部大于 0");
+                    }
+                }
+
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
                 operaLogEntity.setDocumentName("计控确认");

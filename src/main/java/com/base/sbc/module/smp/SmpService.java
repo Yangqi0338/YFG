@@ -117,6 +117,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -257,17 +258,43 @@ public class SmpService {
         if (ObjectUtil.isEmpty(packBomList)) {
             throw new OtherException("物料清单数据不存在，请添加后重试！");
         }
-        PackInfo packInfo = packInfoService.getById(packBomList.get(0).getForeignId());
+
+        // 过滤空数据 物料编号/物料规格编号/物料颜色编码/物料名称
+        List<PackBom> notEmptyPackBomList = packBomList.stream().filter(
+                item ->
+                        StrUtil.isNotBlank(item.getMaterialCode())
+                                && StrUtil.isNotBlank(item.getTranslateCode())
+                                && StrUtil.isNotBlank(item.getColorCode())
+                                && StrUtil.isNotBlank(item.getMaterialName())
+
+        ).collect(Collectors.toList());
+        if (ObjectUtil.isEmpty(notEmptyPackBomList)) {
+            throw new OtherException("未获取到料清单采购单价！");
+        }
+        // 根据相同数据分组 物料编号/物料规格编号/物料颜色编码/物料名称 防止后面使用 map 分组出现重复的 key
+        Map<String, List<PackBom>> packBomMap = notEmptyPackBomList.stream().collect(Collectors.groupingBy(item ->
+                item.getMaterialCode() + "&"
+                        + item.getTranslateCode() + "&"
+                        + item.getColorCode() + "&"
+                        + item.getMaterialName()));
+
+        // 任意取一条 获取资料包的数据
+        PackInfo packInfo = packInfoService.getById(notEmptyPackBomList.get(0).getForeignId());
         if (ObjectUtil.isEmpty(packInfo)) {
             throw new OtherException("资料包数据不存在，请刷新后重试！");
         }
         Style style = styleService.getById(packInfo.getStyleId());
         if (ObjectUtil.isEmpty(style)) {
-            throw new OtherException("款式数据不存在，请刷新后重试！");
+            throw new OtherException("当前资料包所关联款式不存在！");
         }
+
+
+
         // 初始化查询数据
         List<MaterialPurchaseMaterialsInfo> materialPurchaseMaterialsInfoList = new ArrayList<>(packBomList.size());
-        for (PackBom packBom : packBomList) {
+        for (Map.Entry<String, List<PackBom>> stringListEntry : packBomMap.entrySet()) {
+            // 相同分组的 取一条即可
+            PackBom packBom = stringListEntry.getValue().get(0);
             MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packBom, style);
             materialPurchaseMaterialsInfoList.add(materialPurchaseMaterialsInfo);
         }
@@ -287,26 +314,32 @@ public class SmpService {
             if (ObjectUtil.isNotEmpty(list)) {
                 Map<String, String> map = list.stream().collect(Collectors.toMap(
                         item ->
-                                item.getMaterialsNo()
-                                        + item.getSpecificationsNo()
-                                        + item.getMaterialsColorCode()
+                                item.getMaterialsNo() + "&"
+                                        + item.getSpecificationsNo() + "&"
+                                        + item.getMaterialsColorCode() + "&"
                                         + item.getMaterialsName(), MaterialPurchaseMaterialsInfo::getPriceUnit));
                 for (PackBom packBom : packBomList) {
-                    String purchasePrice = map.get(packBom.getMaterialCode() + packBom.getTranslateCode() + packBom.getColorCode() + packBom.getMaterialName());
-                    packBom.setPurchasePrice(new BigDecimal(purchasePrice));
+                    String purchasePrice = map.get(
+                            packBom.getMaterialCode() + "&"
+                                    + packBom.getTranslateCode() + "&"
+                                    + packBom.getColorCode() + "&"
+                                    + packBom.getMaterialName());
+                    if (StrUtil.isNotBlank(purchasePrice)) {
+                        packBom.setPurchasePrice(new BigDecimal(purchasePrice).setScale(2, RoundingMode.HALF_UP));
+                    }
                 }
                 if (!packBomService.updateBatchById(packBomList)) {
-                    String errorMessage = StrUtil.format("设置料清单采购单价失败", packInfo.getStyleNo());
+                    String errorMessage = StrUtil.format("设置料清单采购单价失败！");
                     log.error(errorMessage);
                     throw new OtherException(errorMessage);
                 }
             } else {
-                String errorMessage = StrUtil.format("未获取到料清单采购单价", packInfo.getStyleNo());
+                String errorMessage = StrUtil.format("未获取到料清单采购单价！");
                 log.error(errorMessage);
                 throw new OtherException(errorMessage);
             }
         } else {
-            String errorMessage = StrUtil.format("获取料清单采购单价失败，失败原因：{}", packInfo.getStyleNo(), httpResp.getMessage());
+            String errorMessage = StrUtil.format("获取料清单采购单价失败！失败原因：{}", httpResp.getMessage());
             log.error(errorMessage);
             throw new OtherException(errorMessage);
         }
