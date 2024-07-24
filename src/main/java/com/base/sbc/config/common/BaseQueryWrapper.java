@@ -294,7 +294,10 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     // 支持OR TODO
 //                    if (iSqlSegment == SqlKeyword.OR)
                 }
-                existsSql = (SqlKeyword.EXISTS == iSqlSegment || SqlKeyword.NOT_EXISTS == iSqlSegment) ? iSqlSegment : null;
+                if (SqlKeyword.EXISTS == iSqlSegment || SqlKeyword.NOT_EXISTS == iSqlSegment) {
+                    existsSql = iSqlSegment;
+                    continue;
+                }
                 // 找 ColumnSegment, 直到下一个为止
                 if (!nonFinish && !lastElement && normal.get(i + 1) instanceof SqlKeyword && !linkKeyword.contains(iSqlSegment)) {
                     String[] split = sqlSegment.split("[^a-zA-Z0-9._]");
