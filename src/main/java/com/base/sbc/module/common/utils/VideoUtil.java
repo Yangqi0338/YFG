@@ -1,6 +1,11 @@
 package com.base.sbc.module.common.utils;
 
+import com.alibaba.fastjson2.util.UUIDUtils;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +20,9 @@ import ws.schild.jave.info.VideoInfo;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.util.UUID;
+
+import javax.print.attribute.standard.NumberUp;
 
 /**
  * @author Eifini
@@ -22,11 +30,16 @@ import java.math.BigDecimal;
 @Slf4j
 public class VideoUtil {
     public static void main(String[] args) {
-        System.out.println(Runtime.getRuntime().availableProcessors());
-        File file = new File("C:\\Users\\29117\\Desktop\\视频\\31.5.mp4");
-        int i = readVideoTime(file);
-        File tag = compressionVideo(file, "1080测试.mp4");
-        System.err.println();
+//        System.out.println(Runtime.getRuntime().availableProcessors());
+//        File file = new File("C:\\Users\\29117\\Desktop\\视频\\31.5.mp4");
+//        int i = readVideoTime(file);
+//        File tag = compressionVideo(file, "1080测试.mp4");
+//        System.err.println();
+
+        String str = "http://test-mall.eifini.com:9000/pdm/sampleOther/ED/2099/699W1013FY/1721722069508.jpeg";
+        int index = str.lastIndexOf('/');
+        System.out.println(index);
+
     }
 
     public static File compressionVideo(File source,String picName) {
@@ -111,7 +124,8 @@ public class VideoUtil {
 //                attr.setPreset(PresetUtil.VERYFAST);
 //                attr.setCrf(27);
 //                // 设置线程数
-                attr.setEncodingThreads(Runtime.getRuntime().availableProcessors()/2);
+//                attr.setEncodingThreads(Runtime.getRuntime().availableProcessors()/2);
+                attr.setEncodingThreads(2);
                 Encoder encoder = new Encoder();
                 encoder.encode(new MultimediaObject(source), target, attr);
                 log.info("压缩总耗时：" + (System.currentTimeMillis() - time)/1000);
@@ -242,6 +256,28 @@ public class VideoUtil {
         }
         System.out.println(length);//{"20","00:20"}
         return String.valueOf(ls);
+    }
+
+    /**
+     * 根据url获取file
+     * @param url
+     * @return
+     * @throws Exception
+     */
+    public static File toUrlFile(String url,String sourceUrl) throws Exception {
+        String path = url.substring(sourceUrl.lastIndexOf('/') + 1);
+        try {
+            long result = HttpUtil.downloadFile(url + "&opacity=0", path);
+            if (result == 0){
+                throw new OtherException("文件下载 失败");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("toUrlFile error ={}",e.getMessage());
+            throw new OtherException("文件下载 失败");
+        }
+
+        return FileUtil.file(path);
     }
 
 
