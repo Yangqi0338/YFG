@@ -26,6 +26,7 @@
         where a.file_id = f.id
         and a.foreign_id = #{foreignId}
         and a.del_flag = '0'
+        and f.del_flag = '0'
         <if test="type!=null and type!=''">
             and a.type = #{type}
         </if>
