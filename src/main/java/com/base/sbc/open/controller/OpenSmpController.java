@@ -569,7 +569,7 @@ public class OpenSmpController extends BaseController {
 
         //设计款动态字段
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
-        dto.setForeignId(id);
+        dto.setForeignId(styleId);
         dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         Map<String, List<FieldManagementVo>> filedMap = styleService.queryCoefficientByStyle(dto);
 
