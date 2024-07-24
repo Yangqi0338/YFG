@@ -713,5 +713,11 @@
         </if>
     </select>
 
+    <select id="getByIdSort" resultType="java.lang.Integer">
+        select sort
+        from t_pack_bom
+        where id = #{id}
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
