@@ -265,9 +265,9 @@ public class VideoUtil {
      * @throws Exception
      */
     public static File toUrlFile(String url,String sourceUrl) throws Exception {
-        String path = url.substring(sourceUrl.lastIndexOf('/') + 1);
+        String path = sourceUrl.substring(sourceUrl.lastIndexOf('/') + 1);
         try {
-            long result = HttpUtil.downloadFile(url + "&opacity=0", path);
+            long result = HttpUtil.downloadFile(url , path);
             if (result == 0){
                 throw new OtherException("文件下载 失败");
             }

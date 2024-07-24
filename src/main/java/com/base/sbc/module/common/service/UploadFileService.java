@@ -146,6 +146,8 @@ public interface UploadFileService extends BaseService<UploadFile> {
 
     void setObjectUrlToObject(Object o, String... property);
 
+    void asyncCompress(String fileId, String contentType, String type, String code);
+
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

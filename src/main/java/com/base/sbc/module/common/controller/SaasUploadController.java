@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -137,7 +138,7 @@ public class SaasUploadController extends BaseController {
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file, type, code);
         //异步压缩视频
         if ("1".equals(isCompact) && contentType.endsWith("mp4")){
-            taskUploadExecutor.submit(() ->asyncCompress(attachmentVo.getFileId(),contentType,type,code));
+            taskUploadExecutor.submit(() ->uploadFileService.asyncCompress(attachmentVo.getFileId(),contentType,type,code));
         }
         return attachmentVo;
     }
@@ -189,54 +190,53 @@ public class SaasUploadController extends BaseController {
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
-    public void asyncCompress(String fileId, String contentType, String type, String code) {
-        UploadFile uploadFile = uploadFileService.getById(fileId);
-        if (Objects.isNull(uploadFile)){
-            return;
-        }
-        String url = uploadFile.getUrl();
-        String objectUrl = minioUtils.getObjectUrl(url);
-        File targetFile = null;
-        File newFile = null;
-        try {
-            targetFile = VideoUtil.toUrlFile(objectUrl + "&opacity=0",url);
-            newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
-            MultipartFile multipartFile = VideoUtil.toMultipartFile(newFile, contentType);
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(multipartFile, type, code);
-            String newUrl = CommonUtils.removeQuery(attachmentVo.getUrl());
-            UpdateWrapper<UploadFile> uw = new UpdateWrapper<>();
-            uw.lambda().eq(UploadFile::getId,fileId);
-            uw.lambda().set(UploadFile::getUrl,newUrl);
-            boolean update = uploadFileService.update(uw);
-            if (update){
-                this.delUrl(url);
-            }
-            uploadFileService.removeById(attachmentVo.getFileId());
-        }catch (Exception e){
-            logger.error("asyncCompress error={}, fileId={} type={}, code={}",e.getMessage(),fileId, type,code);
-            e.printStackTrace();
-            throw new OtherException("压缩转换失败");
-        }finally {
-            if (targetFile !=null){
-                targetFile.delete();
-            }
-            if (newFile !=null){
-                newFile.delete();
-            }
-        }
-
-    }
-    public void delUrl(String url) {
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                    minioUtils.delFile(url);
-                }
-            });
-        }
-    }
+//    public void asyncCompress(String fileId, String contentType, String type, String code) {
+//        UploadFile uploadFile = uploadFileService.getById(fileId);
+//        if (Objects.isNull(uploadFile)){
+//            return;
+//        }
+//        String url = uploadFile.getUrl();
+//        String objectUrl = minioUtils.getObjectUrl(url);
+//        File targetFile = null;
+//        File newFile = null;
+//        try {
+//            targetFile = VideoUtil.toUrlFile(objectUrl + "&opacity=0",url);
+//            newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
+//            MultipartFile multipartFile = VideoUtil.toMultipartFile(newFile, contentType);
+//            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(multipartFile, type, code);
+//            String newUrl = CommonUtils.removeQuery(attachmentVo.getUrl());
+//            UpdateWrapper<UploadFile> uw = new UpdateWrapper<>();
+//            uw.lambda().eq(UploadFile::getId,fileId);
+//            uw.lambda().set(UploadFile::getUrl,newUrl);
+//            boolean update = uploadFileService.update(uw);
+//            if (update){
+//                this.delUrl(url);
+//            }
+//            uploadFileService.removeById(attachmentVo.getFileId());
+//        }catch (Exception e){
+//            logger.error("asyncCompress error={}, fileId={} type={}, code={}",e.getMessage(),fileId, type,code);
+//            e.printStackTrace();
+//            throw new OtherException("压缩转换失败");
+//        }finally {
+//            if (targetFile !=null){
+//                targetFile.delete();
+//            }
+//            if (newFile !=null){
+//                newFile.delete();
+//            }
+//        }
+//
+//    }
+//    public void delUrl(String url) {
+//        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+//            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+//                @Override
+//                public void afterCommit() {
+//                    minioUtils.delFile(url);
+//                }
+//            });
+//        }
+//    }
 
 
 }

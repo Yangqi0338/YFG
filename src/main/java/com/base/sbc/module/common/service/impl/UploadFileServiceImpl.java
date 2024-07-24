@@ -37,6 +37,7 @@ import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.utils.VideoUtil;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
@@ -58,6 +59,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,7 +75,9 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
@@ -697,6 +702,57 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             }
             String url = this.getUrlById(String.valueOf(val));
             BeanUtil.setProperty(o, s, minioUtils.getObjectUrl(url));
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void asyncCompress(String fileId, String contentType, String type, String code) {
+        UploadFile uploadFile = getById(fileId);
+        if (Objects.isNull(uploadFile)){
+            return;
+        }
+        String url = uploadFile.getUrl();
+        String objectUrl = minioUtils.getObjectUrl(url);
+        File targetFile = null;
+        File newFile = null;
+        try {
+            targetFile = VideoUtil.toUrlFile(objectUrl ,url);
+            newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
+            MultipartFile multipartFile = VideoUtil.toMultipartFile(newFile, contentType);
+            AttachmentVo attachmentVo = uploadToMinio(multipartFile, type, code);
+            String newUrl = CommonUtils.removeQuery(attachmentVo.getUrl());
+            UpdateWrapper<UploadFile> uw = new UpdateWrapper<>();
+            uw.lambda().eq(UploadFile::getId,fileId);
+            uw.lambda().set(UploadFile::getUrl,newUrl);
+            boolean update = update(uw);
+            if (update){
+                this.delUrl(url);
+            }
+            removeById(attachmentVo.getFileId());
+        }catch (Exception e){
+            log.error("asyncCompress error={}, fileId={} type={}, code={}",e.getMessage(),fileId, type,code);
+            e.printStackTrace();
+            throw new OtherException("压缩转换失败");
+        }finally {
+            if (targetFile !=null){
+                targetFile.delete();
+            }
+            if (newFile !=null){
+                newFile.delete();
+            }
+        }
+
+    }
+
+    public void delUrl(String url) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    minioUtils.delFile(url);
+                }
+            });
         }
     }
 
