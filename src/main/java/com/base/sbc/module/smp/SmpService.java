@@ -610,7 +610,7 @@ public class SmpService {
             smpGoodsDto.setStyleCode(style.getDesignNo());
 
             // 工艺说明
-            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", packInfo.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
 
