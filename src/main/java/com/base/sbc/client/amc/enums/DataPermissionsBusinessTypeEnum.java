@@ -22,6 +22,7 @@ public enum DataPermissionsBusinessTypeEnum {
     style_info("style_info", "设计档案"),
     StyleBoard("StyleBoard", "款式看板"),
     technologyCenter("technologyCenter", "技术中心看板"),
+    componentLibrary("componentLibrary", "部件库"),
     FabricInformation("FabricInformation", "调样管理"),
     //款式分析
     styleMarking("styleMarking","款式打标"),

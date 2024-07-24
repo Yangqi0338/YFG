@@ -91,8 +91,8 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "新增或者修改工艺资料库")
     @PostMapping("/save")
-    public Boolean save(@RequestBody AddRevampProcessDatabaseDto addRevampProcessDatabaseDto){
-        return   processDatabaseService.save(addRevampProcessDatabaseDto);
+    public Boolean save(@Valid @RequestBody AddRevampProcessDatabaseDto addRevampProcessDatabaseDto) {
+        return processDatabaseService.save(addRevampProcessDatabaseDto);
     }
 
 

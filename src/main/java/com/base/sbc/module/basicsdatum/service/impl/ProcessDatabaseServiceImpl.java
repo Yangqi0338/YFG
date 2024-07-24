@@ -11,6 +11,8 @@ import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -40,6 +42,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -72,6 +75,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
     private final MinioUtils minioUtils;
 
     private final CcmFeignService ccmFeignService;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     /**
      * @param file 文件
@@ -283,7 +289,6 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
     @Transactional(rollbackFor = {Exception.class})
     public Boolean save(AddRevampProcessDatabaseDto addRevampProcessDatabaseDto) {
         /*新增查询编码是否重复*/
-        // 自动填充部门 TODO
         if (StringUtils.isBlank(addRevampProcessDatabaseDto.getId())) {
             LambdaQueryWrapper<ProcessDatabase> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(ProcessDatabase::getCode, addRevampProcessDatabaseDto.getCode());
@@ -339,14 +344,12 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.between("create_date", pageDto.getCreateDate());
         queryWrapper.orderByDesc(Opt.ofBlankAble(pageDto.getOrderBy()).orElse("create_date"));
 
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.componentLibrary.getK());
         return queryWrapper;
     }
 
     /**
      * 获取到部件中部件类别可查询的数据
-     *
-     * @param type
-     * @param companyCode
      * @return
      */
     @Override
