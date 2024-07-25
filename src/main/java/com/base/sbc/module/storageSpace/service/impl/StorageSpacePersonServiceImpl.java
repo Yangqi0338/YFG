@@ -134,7 +134,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
         if ( StringUtils.isEmpty(spacePerson.getOwnerSpace())){
             throw new OtherException("个人可用空间已被清理，请重新分配空间");
         }
-        double ownSpacer = StringUtils.isEmpty(spacePerson.getOwnerSpace()) ? 0 : Double.parseDouble(spacePerson.getOwnerSpace());
+        double ownSpacer = StringUtils.isEmpty(spacePerson.getOwnerSpace()) ? 0.0 : Double.parseDouble(spacePerson.getOwnerSpace());
         if (needSpacer > ownSpacer * 1073741824){
             throw new OtherException("个人可用空间不足，请扩容个人空间");
         }
@@ -148,7 +148,7 @@ public class StorageSpacePersonServiceImpl extends BaseServiceImpl<StorageSpaceP
             throw new OtherException("存储空间不存在");
         }
         StorageSpacePerson byUserId = getByUserId(storageSpace.getId(),userId);
-        return Objects.isNull(byUserId) ? 0L : Opt.ofBlankAble(byUserId.getOwnerSpace()).map(Double::parseDouble).orElse(0.0);
+        return Objects.isNull(byUserId) ? 0.0 : Opt.ofBlankAble(byUserId.getOwnerSpace()).map(Double::parseDouble).orElse(0.0);
     }
 
     @Override
