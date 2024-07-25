@@ -704,6 +704,24 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         return getBaseMapper().stitcherList(qw);
     }
 
+    @Override
+    public PreProductionSampleTaskDetailVo getDetailFOB(String id) {
+
+        List<PreProductionSampleTaskVo> taskList = getBaseMapper().taskListFOB(new QueryWrapper<PreProductionSampleTask>().eq("t.id", id));
+        if (CollUtil.isEmpty(taskList)) {
+            return null;
+        }
+        PreProductionSampleTaskVo task = taskList.get(0);
+        PreProductionSampleTaskDetailVo result = new PreProductionSampleTaskDetailVo();
+        // 查询任务信息
+        PreProductionSampleTaskVo taskVo = BeanUtil.copyProperties(task, PreProductionSampleTaskVo.class);
+        // 查询款式设计信息
+        StyleVo sampleDesignVo = styleService.getDetail(task.getStyleId());
+        result.setTask(taskVo);
+        result.setStyle(sampleDesignVo);
+        return result;
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

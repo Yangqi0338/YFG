@@ -124,6 +124,12 @@ public class PreProductionSampleController extends BaseController{
         return preProductionSampleTaskService.getTaskDetailById(idDto.getId());
     }
 
+    @ApiOperation(value = "任务明细FOB", notes = "通过id查询")
+    @GetMapping("/task/getDetailFOB")
+    public PreProductionSampleTaskDetailVo getDetailFOB(@Valid IdDto idDto) {
+        return preProductionSampleTaskService.getDetailFOB(idDto.getId());
+    }
+
 
     @ApiOperation(value = "任务-分配")
     @PostMapping("/task/assignment")
