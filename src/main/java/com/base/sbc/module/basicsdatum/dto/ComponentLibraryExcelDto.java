@@ -6,7 +6,9 @@ import lombok.Data;
 @Data
 /*部件导出*/
 public class ComponentLibraryExcelDto {
-
+    /** 品牌 */
+    @Excel(name = "品牌")
+    private String brandName;
 
     /**编码*/
     @Excel(name = "编码")
