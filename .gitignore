@@ -30,5 +30,3 @@ rebel.xml
 pom-*.xml
 /hs_err_pid18076.log
 /log
-
-/lib/pagehelper-4.1.6.jar
