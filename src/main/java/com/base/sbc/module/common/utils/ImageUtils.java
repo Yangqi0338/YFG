@@ -27,10 +27,10 @@ public class ImageUtils {
      * @param file
      * @return java.io.File
      */
-    public static MultipartFile compressImage(MultipartFile file,Integer uploadImgMix) {
+    public static MultipartFile compressImage(MultipartFile file,Integer uploadImgMix,Integer uploadImgCompress) {
 
         //小于1M的文件不压缩
-        if (!checkFileSize(file.getSize(),1,"M")){
+        if (!checkFileSize(file.getSize(),uploadImgCompress,"M")){
             return file;
         }
 

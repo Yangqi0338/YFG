@@ -28,7 +28,7 @@ public interface StorageSpacePersonService extends BaseService<StorageSpacePerso
 
     void checkPersonSpacer(long needSpacer, String storageType, String userId);
 
-    Long getPersonSpace(String userId, String storageType );
+    Double getPersonSpace(String userId, String storageType );
 
     Double getAllocationSpace( String parentSpaceId);
 

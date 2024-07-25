@@ -8,9 +8,9 @@ import lombok.Data;
 @Data
 public class MaterialSpaceInfoVo {
 
-    private Long totalSpaceSize;
+    private Double totalSpaceSize;
 
-    private Long usageSpaceSize;
+    private Double usageSpaceSize;
 
     private String totalSpace;
 
@@ -24,7 +24,7 @@ public class MaterialSpaceInfoVo {
         return getFileSize(usageSpaceSize);
     }
 
-    private String getFileSize(Long fileSize) {
+    private String getFileSize(Double fileSize) {
         if (null == fileSize){
             return null;
         }

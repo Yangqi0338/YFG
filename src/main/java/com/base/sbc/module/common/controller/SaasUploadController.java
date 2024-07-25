@@ -48,17 +48,20 @@ public class SaasUploadController extends BaseController {
     @Autowired
     private CustomStylePicUpload customStylePicUpload;
 
-    //上传图片大小限制
+    //上传图片大小限制 M
     @Value("${upload.img.mix:10}")
     private Integer uploadImgMix;
 
+    //图片压缩起始值 M
+    @Value("${upload.img.compress:3}")
+    private Integer uploadImgCompress;
 
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
     public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, String type, String code, String compress) {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
         CommonUtils.isImage(file.getOriginalFilename(), true);
-        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(Constants.ONE_STR.equals(compress) ? ImageUtils.compressImage(file,uploadImgMix) : file, type, code);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(Constants.ONE_STR.equals(compress) ? ImageUtils.compressImage(file,uploadImgMix,uploadImgCompress) : file, type, code);
         return ApiResult.success(FilesUtils.SUCCESS, attachmentVo.getUrl(), BeanUtil.beanToMap(attachmentVo));
     }
 
