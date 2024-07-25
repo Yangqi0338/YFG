@@ -137,7 +137,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     public QueryWrapper<T> isNullOrNotNe(String column,String val) {
-        this.and(qw -> qw.isNull(column).and(qw2 -> qw2.ne(column, val)));
+        this.and(qw -> qw.isNull(column).or(qw2 -> qw2.ne(column, val)));
         return this;
     }
 
