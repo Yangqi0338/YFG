@@ -947,6 +947,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         vo.setAttachmentList(attachmentVoList);
         // 设置状态
         nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");
+        // 根据款查询对应套版款的版型库文件信息
+        Style styleInfo = styleService.getById(vo.getStyleId());
+        if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {
+            PatternLibrary patternLibrary = patternLibraryService.getById(styleInfo.getRegisteringId());
+            if (ObjectUtil.isNotEmpty(patternLibrary) && ObjectUtil.isNotEmpty(patternLibrary.getFileId())) {
+                AttachmentVo fileAttachmentVo = attachmentService.getAttachmentByFileId(patternLibrary.getFileId());
+                result.setPatternLibraryFileUrl(fileAttachmentVo.getUrl());
+            }
+        }
         return result;
     }
 

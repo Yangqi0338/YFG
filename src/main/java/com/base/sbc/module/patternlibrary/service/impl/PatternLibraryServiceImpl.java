@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -36,6 +37,7 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
@@ -107,6 +109,9 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
     @Autowired
     private MinioUtils minioUtils;
+
+    @Autowired
+    private OrderBookDetailService orderBookDetailService;
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
@@ -252,7 +257,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryBrandMap, patternLibraryItemMap, patternLibraryTemplateMap);
 
                 if (ObjectUtil.isNotEmpty(patternLibrary.getParentIds())) {
-                     String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
+                    String replace = patternLibrary.getParentIds().split(",")[0].replace("\"", "");
                     PatternLibrary parent = patternLibraryMap.get(replace);
                     patternLibrary.setTopParentCode(parent.getCode());
                 }
@@ -1013,27 +1018,42 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
+            // 热销大货款
             patternLibrary.setAllStyleNoList(styleColorList.stream().map(StyleColor::getStyleNo).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
-            // 初始化大货的图片 ID-URL 集合
-            List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
-            for (StyleColor styleColor : styleColorList) {
-                // 当作临时变量存储一下图片来源 ID
-                styleColor.setStyleNo(styleColor.getStyleColorPic());
+
+            // 过滤报次款
+            styleColorList = styleColorList.stream()
+                    .filter(item -> !StrUtil.endWithAny(item.getStyleNo(), "-9", "-10", "-11", "-12", "-ZC"))
+                    .collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(styleColorList)) {
+                // 大货款号
+                patternLibrary.setPlaceOrderStyleNoList(styleColorList.stream()
+                        .map(StyleColor::getStyleNo)
+                        .filter(ObjectUtil::isNotEmpty)
+                        .collect(Collectors.toList()));
+
+
+                // 初始化大货的图片 ID-URL 集合
+                List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
+                for (StyleColor styleColor : styleColorList) {
+                    // 当作临时变量存储一下图片来源 ID
+                    styleColor.setStyleNo(styleColor.getStyleColorPic());
+                }
+                stylePicUtils.setStylePic(styleColorList, "styleColorPic");
+                for (StyleColor styleColor : styleColorList) {
+                    HashMap<String, String> hashMap = new HashMap<>();
+                    hashMap.put("picId", styleColor.getStyleNo());
+                    hashMap.put("url", styleColor.getStyleColorPic());
+                    picFileIdList.add(hashMap);
+                }
+                patternLibrary.setPicIdList(picFileIdList);
             }
-            stylePicUtils.setStylePic(styleColorList, "styleColorPic");
-            for (StyleColor styleColor : styleColorList) {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("picId", styleColor.getStyleNo());
-                hashMap.put("url", styleColor.getStyleColorPic());
-                picFileIdList.add(hashMap);
-            }
-            patternLibrary.setPicIdList(picFileIdList);
-        } else {
-            // 如果没有大货信息 那就直接取款式的图片
-            patternLibrary.setStylePicId(style.getStylePic());
-            stylePicUtils.setStylePic(Collections.singletonList(style), "stylePic");
-            patternLibrary.setStylePicUrl(style.getStylePic());
         }
+        // 如果没有大货信息 那就直接取款式的图片 -> 可以和大货同时出现
+        patternLibrary.setStylePicId(style.getStylePic());
+        stylePicUtils.setStylePic(Collections.singletonList(style), "stylePic");
+        patternLibrary.setStylePicUrl(style.getStylePic());
+
         return patternLibrary;
     }
 
@@ -1113,12 +1133,10 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 patternLibrary.setUseStyleNum(style.getUseStyleNum());
                 BigDecimal useStyleNum = new BigDecimal(style.getUseStyleNum());
                 BigDecimal count = new BigDecimal(allCount);
-                BigDecimal hundred = new BigDecimal("100");
                 patternLibrary.setPatternLibraryUtilization(BigDecimalUtil.dividePercentage(useStyleNum, count, 2, RoundingMode.CEILING).toString());
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
                 patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
                 patternLibrary.setPlanningSeasonName(style.getPlanningSeasonName());
-                patternLibrary.setStyleNo(style.getStyleNo());
                 patternLibrary.setAllProdCategoryNames(
                         (ObjectUtil.isNotEmpty(prodCategory1stName) ? prodCategory1stName : "无") + "/"
                                 + (ObjectUtil.isNotEmpty(prodCategoryName) ? prodCategoryName : "无") + "/"
@@ -1286,6 +1304,35 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         return result;
     }
 
+    @Override
+    public PatternLibrary queryPatternLibrarySomeInfo(String patternLibraryId) {
+        if (ObjectUtil.isEmpty(patternLibraryId)) {
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
+        }
+        // 初始化返回数据
+        // 根据版型库主表 ID 查询版型库主表信息
+        PatternLibrary patternLibrary = getOne(
+                new LambdaQueryWrapper<PatternLibrary>()
+                        .eq(PatternLibrary::getId, patternLibraryId)
+                        .select(PatternLibrary::getId,
+                                PatternLibrary::getProdCategory1st,
+                                PatternLibrary::getSilhouetteName,
+                                PatternLibrary::getSilhouetteCode)
+        );
+        if (ObjectUtil.isEmpty(patternLibrary)) {
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
+        }
+
+        // 查询版型库子表信息
+        List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
+                new LambdaQueryWrapper<PatternLibraryItem>()
+                        .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryId)
+                        .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+        );
+        patternLibrary.setPatternLibraryItemList(patternLibraryItemList);
+        return patternLibrary;
+    }
+
     public void removeEverGreenTreeNode(String patternLibraryId) {
         PatternLibrary patternLibrary = getById(patternLibraryId);
         String currParentIds = patternLibrary.getParentIds();
@@ -1433,7 +1480,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                                           PatternLibrary patternLibrary,
                                           Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap,
                                           Map<String, List<PatternLibraryItem>> patternLibraryItemMap,
-                                          Map<String, PatternLibraryTemplate>  patternLibraryTemplateMap) {
+                                          Map<String, PatternLibraryTemplate> patternLibraryTemplateMap) {
         patternLibrary.setPatternLibraryUtilization(patternLibrary.getPatternLibraryUtilization() + "%");
         // 设置版型库模板信息
         PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateMap.get(patternLibrary.getTemplateCode());

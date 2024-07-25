@@ -127,12 +127,12 @@ public interface PatternLibraryService extends BaseService<PatternLibrary> {
     /**
      * 查询设计款号数据信息
      *
-     * @param search      查询条件
+     * @param search 查询条件
      * @return 设计款号数据信息
      */
     List<Style> listStyle(String search);
 
- /**
+    /**
      * 查询设计款号数据信息
      *
      * @param styleNoList 款号集合
@@ -200,7 +200,8 @@ public interface PatternLibraryService extends BaseService<PatternLibrary> {
      * @return 常青编号列表
      */
     PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO);
-/**
+
+    /**
      * 根据款式 ID 获取可否改版信息
      *
      * @param styleId 设计款 ID
@@ -215,4 +216,12 @@ public interface PatternLibraryService extends BaseService<PatternLibrary> {
      * @return 获取使用款记录
      */
     Map<String, Integer> patternUseCountMap(UseStyleDTO useStyleDTO);
+
+    /**
+     * 款式设计获取版型库动态字段（长度、围度、廓形、涉及部件）
+     *
+     * @param patternLibraryId 版型库 ID
+     * @return 版型库信息
+     */
+    PatternLibrary queryPatternLibrarySomeInfo(String patternLibraryId);
 }
