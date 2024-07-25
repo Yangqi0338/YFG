@@ -327,7 +327,7 @@ public class SmpService {
                         packBom.setPurchasePrice(new BigDecimal(purchasePrice).setScale(2, RoundingMode.HALF_UP));
                     }
                 }
-                return packBomList.stream().map(item -> {
+                return packBomList.stream().filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice())).map(item -> {
                     PackBom packBom = new PackBom();
                     packBom.setId(item.getId());
                     packBom.setPurchasePrice(item.getPurchasePrice());
