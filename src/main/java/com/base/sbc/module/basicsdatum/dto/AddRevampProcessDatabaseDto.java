@@ -4,7 +4,6 @@ import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 @Data
@@ -19,7 +18,6 @@ public class AddRevampProcessDatabaseDto {
     @ApiModelProperty(value = "编码")
     private String code;
     /**品牌id*/
-    @NotBlank(message = "至少选择一个品牌")
     private String brandId;
     /**品牌名称*/
     private String brandName;

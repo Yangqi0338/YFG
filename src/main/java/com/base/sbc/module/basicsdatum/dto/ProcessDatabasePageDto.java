@@ -23,6 +23,8 @@ public class ProcessDatabasePageDto extends BaseDto {
     private String createName;
     private String[] time;
     private String status;
+    @ApiModelProperty(value = "品牌编码")
+    private String brandCode;
     @ApiModelProperty(value = "部件编码")
     private String component;
 
