@@ -259,13 +259,14 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         qw.notEmptyEq("trr.rating_flag", dto.getRatingFlag());
         qw.notEmptyEq("ts.registering_id", dto.getRegisteringId());
         qw.notEmptyEq("ts.registering_no", dto.getRegisteringNo());
-        qw.notEmptyEq("ifnull(tpl.style_nos like CONCAT('%', tsc.style_no, '%'), 0)", dto.getTransferPatternFlag());
+        qw.notEmptyEq("ifnull(tpl.place_order_style_nos like CONCAT('%', tsc.style_no, '%'), 0)", dto.getTransferPatternFlag());
 
         if (dto.getType() != ReplayRatingType.STYLE) {
             qw.notEmptyEq("tpb.material_code", dto.getMaterialCode());
+        } else {
+            qw.exists(StrUtil.isNotBlank(dto.getMaterialCode()), dto.getMaterialCodeSql(), dto.getMaterialCode());
         }
         qw.exists(StrUtil.isNotBlank(dto.getSilhouetteName()), dto.getSilhouetteSql(), dto.getGroupName(), dto.getFieldExplain(), dto.getSilhouetteName());
-        qw.exists(StrUtil.isNotBlank(dto.getMaterialCode()), dto.getMaterialCodeSql(), dto.getMaterialCode());
         qw.notEmptyEq("tpb.supplier_id", dto.getSupplierId());
         qw.notEmptyEq("tpl.color", dto.getColorCode());
 //        qw.notEmptyEq("tpl.plan_season_id", dto.getMaterialOwnResearchFlag());

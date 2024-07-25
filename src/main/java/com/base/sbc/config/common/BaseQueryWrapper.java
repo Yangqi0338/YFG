@@ -247,7 +247,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     private Map<String, String> groupSqlSegment = new HashMap<>();
 
     /** 适配count */
-    public Map<String, String> getGroupSqlSegment() {
+    public Map<String, String> buildGroupSqlSegment() {
         if (MapUtil.isNotEmpty(groupSqlSegment)) {
             return groupSqlSegment;
         }
@@ -272,8 +272,15 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     continue;
                 }
                 if (existsSql != null) {
-                    joiner.add(sqlSegment);
-                    map.put("COMMON", joiner);
+                    String key = "COMMON";
+                    if (map.containsKey(key)) {
+                        joiner = map.get(key);
+                        joiner.add(SqlKeyword.AND.name());
+                    } else {
+                        joiner = new StringJoiner(StringPool.SPACE);
+                    }
+                    joiner.add(existsSql.getSqlSegment()).add(sqlSegment);
+                    map.put(key, joiner);
                     existsSql = null;
                     continue;
                 }
@@ -387,11 +394,11 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     public boolean hasAlias(String alias) {
-        return getGroupSqlSegment().containsKey(alias);
+        return buildGroupSqlSegment().containsKey(alias);
     }
 
     public String getSqlByAlias(String alias) {
-        return getGroupSqlSegment().getOrDefault(alias, "1 = 1");
+        return buildGroupSqlSegment().getOrDefault(alias, "1 = 1");
     }
 
     private Set<String> getPrefixKey(String sqlSegment) {
