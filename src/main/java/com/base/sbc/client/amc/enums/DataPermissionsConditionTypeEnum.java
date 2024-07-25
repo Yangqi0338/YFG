@@ -39,7 +39,7 @@ public enum DataPermissionsConditionTypeEnum {
         String handleSql(String k, String fieldKey, List<String> fieldValue) {
             String format = StrJoiner.of(k, "(", ")").append(fieldKey).append("%{}%").toString();
             StrJoiner joiner = StrJoiner.of(" OR ", "(", ")").setNullMode(StrJoiner.NullMode.IGNORE)
-                    .setEmptyResult(String.format(format, "()"));
+                    .setEmptyResult(StrUtil.format(format, "()"));
 
             return joiner.append(fieldValue.stream().map(it -> StrUtil.format(format, it)).collect(Collectors.toList())).toString();
         }
@@ -55,8 +55,8 @@ public enum DataPermissionsConditionTypeEnum {
         public String handleSql(String k, String fieldKey, List<String> fieldValue) {
             String format = "('{}',{})";
             StrJoiner joiner = StrJoiner.of(" OR ", "(", ")").setNullMode(StrJoiner.NullMode.IGNORE)
-                    .setEmptyResult(String.format(format, "()", fieldKey));
-            return joiner.append(fieldValue.stream().map(it -> k + String.format(format, it, fieldKey)).collect(Collectors.toList())).toString();
+                    .setEmptyResult(StrUtil.format(format, "()", fieldKey));
+            return joiner.append(fieldValue.stream().map(it -> k + StrUtil.format(format, it, fieldKey)).collect(Collectors.toList())).toString();
         }
     },
     ;
