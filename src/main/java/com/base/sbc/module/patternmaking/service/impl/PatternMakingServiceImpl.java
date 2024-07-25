@@ -82,6 +82,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1406,10 +1407,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
 
         //region 临时注释 2024-01-29
-        if(StringUtils.isNotBlank(dto.getOrderBy())){
-            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
-        }else {
-            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+        //当按照动态列增强查询时，不按照此排序逻辑
+        if(MapUtils.isNotEmpty(dto.getFieldQueryMap()) && dto.getFieldQueryMap().containsKey("designNo") && ("designNo".equals(dto.getFieldQueryMap().get("designNo")) || "designNo".equals(dto.getColumnHeard()))){
+            dto.setOrderBy("s.create_date desc");
+        } else {
+            if(StringUtils.isNotBlank(dto.getOrderBy())){
+                dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
+            }else {
+                dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+            }
         }
 
         /*if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {

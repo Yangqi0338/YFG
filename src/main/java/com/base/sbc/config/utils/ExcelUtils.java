@@ -208,7 +208,19 @@ public class ExcelUtils {
     public static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
         exportParams.setStyle(ExcelExportTitleStyle.class);
-        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
+        Workbook workbook;
+        if(list.size() < 10000){
+            workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
+        }else{
+            IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(exportParams, entityList);
+            List<? extends List<?>> partition = Lists.partition(list, 10000);
+            for (List<?> objects : partition) {
+                workbookIWriter.write(objects);
+            }
+            workbook = workbookIWriter.get();
+            workbookIWriter.close();
+        }
+
         downLoadExcel(fileName, response, workbook);
     }
 

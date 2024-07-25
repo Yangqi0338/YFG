@@ -115,6 +115,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -389,9 +390,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
-
         if(isPushScm){
-
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
             //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
@@ -405,19 +404,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             List<String> styleColorIds = scmSendStyleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(styleColorIds)) {
-                for (String styleColorId : styleColorIds) {
-                    String[] stringArray = new String[]{styleColorId};
-                    PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
-                    publicStyleColorDto.setId(style.getId());
-                    publicStyleColorDto.setSizeRange(style.getSizeRange());
-                    //检查配色数据是否投产，投产了就报错
-                    checkColorSize(publicStyleColorDto);
-                    try {
-                        smpService.goods(stringArray);
-                    } catch (Exception e) {
-                        log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
-                        throw new OtherException("同步SCM失败：" + e.getMessage());
-                    }
+                PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
+                publicStyleColorDto.setId(style.getId());
+                publicStyleColorDto.setSizeRange(style.getSizeRange());
+                //检查配色数据是否投产，投产了就报错
+                checkColorSize(publicStyleColorDto);
+                try {
+                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                } catch (Exception e) {
+                    log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
+                    throw new OtherException("同步SCM失败：" + e.getMessage());
                 }
             }
 
@@ -438,6 +434,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         return style;
     }
+
 
     /**
      * 保存款式设计详情颜色
@@ -721,7 +718,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 排序
         // 未下发 按下发时间排序
         if (StrUtil.equals(BasicNumber.ZERO.getNumber(), dto.getStatus())) {
-            dto.setOrderBy("planning_finish_date is null ,planning_finish_date asc , create_date asc ");
+            dto.setOrderBy("planning_finish_date is null ,planning_finish_date desc , create_date desc ");
         }
         // 已经开款 按审核时间(开款时间)
         else if (StrUtil.equals(BasicNumber.ONE.getNumber(), dto.getStatus())) {
@@ -729,7 +726,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         // 已下发打版  按下发打版时间
         else if (StrUtil.equals(BasicNumber.TWO.getNumber(), dto.getStatus())) {
-            dto.setOrderBy("send_pattern_making_date desc  ");
+            dto.setOrderBy("send_pattern_making_date desc ,create_date desc,id  ");
         } else {
             qw.orderByDesc("create_date");
         }

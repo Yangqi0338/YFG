@@ -6,18 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -42,10 +43,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -58,6 +56,9 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -101,16 +102,29 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：资料包 service类
@@ -123,7 +137,7 @@ import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
  */
 @Service
 public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMapper, PackInfo> implements PackInfoService {
-
+    Logger log = LoggerFactory.getLogger(getClass());
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -230,6 +244,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Lazy
     private SmpService smpService;
 
+    @Resource
+    private FieldValService fieldValService;
+
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
@@ -245,8 +262,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"tsc.style_no", StringUtils.convertList(pageDto.getStyleNo()) );
         sdQw.andLike(pageDto.getSearch(), "ts.design_no", "tsc.style_no", "ts.style_name");
         sdQw.notEmptyEq("ts.devt_type", pageDto.getDevtType());
+        sdQw.eq("ts.del_flag", "0");
         sdQw.groupBy("ts.id");
-        sdQw.orderByDesc("ts.create_date");
+        sdQw.orderByDesc("ts.id");
 
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packDesign.getK(), "ts.");
@@ -766,6 +784,31 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 BeanUtil.copyProperties(tag, vo);
             }
         }
+        // 获取versionId
+        String bomVersionId = packBomVersionService.findOneField(new LambdaQueryWrapper<PackBomVersion>()
+                        .eq(PackBomVersion::getForeignId, detail.getId())
+                        .eq(PackBomVersion::getPackType, detail.getPackType())
+                        .orderByDesc(PackBomVersion::getVersion)
+                , PackBomVersion::getId);
+        if (StrUtil.isNotBlank(bomVersionId)) {
+            // 获取物料清单id
+            List<String> materialIdList = packBomService.listOneField(new LambdaQueryWrapper<PackBom>()
+                            .eq(PackBom::getBomVersionId, bomVersionId)
+                            .eq(PackBom::getForeignId, detail.getId())
+                            .eq(PackBom::getPackType, detail.getPackType())
+                    , PackBom::getMaterialId);
+            if (CollUtil.isNotEmpty(materialIdList)) {
+                // 获取动态表值
+                String highVal = fieldValService.findOneField(new LambdaQueryWrapper<FieldVal>()
+                        .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.MATERIAL)
+                        .eq(FieldVal::getFieldName, "fabric_value")
+                        .in(FieldVal::getForeignId, materialIdList)
+                        .eq(FieldVal::getVal, "JZ001")
+                , FieldVal::getValName);
+                vo.setHighValStr(highVal);
+            }
+        }
+
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(stylePicUtils.getStyleUrl(vo.getStylePic()));
         }
@@ -823,6 +866,30 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         ByteArrayOutputStream gen = vo.gen();
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
         try {
+            // 校验重量体积是否有填写
+            String value = ccmFeignService.queryCompanySettingData("product_type_check");
+            if (StrUtil.isNotBlank(value)) {
+                PackInfo packInfo = getById(dto.getForeignId());
+                if (CollUtil.newArrayList(value.split(",")).contains(packInfo.getDevtType())) {
+                    PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+                    String weight = packTechPackaging.getWeight();
+                    String volume = packTechPackaging.getVolume();
+                    String stackedVolume = packTechPackaging.getStackedVolume();
+                    String packagingFormName = packTechPackaging.getPackagingFormName();
+                    if (ObjectUtils.isEmpty(weight) || !(new BigDecimal(weight).compareTo(BigDecimal.ZERO) > 0)) {
+                        throw new OtherException("请先填写重量！");
+                    }
+                    if (ObjectUtils.isEmpty(volume) || !(new BigDecimal(volume).compareTo(BigDecimal.ZERO) > 0)) {
+                        throw new OtherException("请先计算体积！");
+                    }
+                    if (ObjectUtil.isNotEmpty(packagingFormName) && "叠装".equals(packagingFormName)) {
+                        if (ObjectUtils.isEmpty(stackedVolume) || !(new BigDecimal(stackedVolume).compareTo(BigDecimal.ZERO) > 0)) {
+                            throw new OtherException("请先计算叠装体积！");
+                        }
+                    }
+                }
+            }
+
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName() + fileName);
             // 将文件id保存到状态表
@@ -834,10 +901,25 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     packInfoStatus.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new OtherException("生成工艺文件失败");
+            log.error("生成工艺文件失败", e);
+            throw new OtherException("生成工艺文件失败，失败原因：" + e.getMessage());
         }
 
+    }
+
+
+    @Override
+    public Pair<String, com.alibaba.fastjson2.JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto) {
+        GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
+        String devtType = vo.getDevtType();
+        Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        Map<String, Map<String, String>> proccessStyleMap = ccmFeignService.getDictInfoToMap("Process-Style");
+        boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        boolean ctBasicPage = proccessStyleMap.containsKey("Process-Style") &&proccessStyleMap.get("Process-Style").containsKey("CBasicPage") ;
+        vo.setCtBasicPage(ctBasicPage);
+        vo.setFob(fob);
+        vo.setDevtType(fob ? "FOB" : devtType);
+        return Pair.of("ftl/process.html.ftl",vo.dataModel());
     }
 
 
@@ -1385,29 +1467,56 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Override
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
-        sdQw.notEmptyEq("bom_status", pageDto.getBomStatus());
+        sdQw.notEmptyEq("ps.bom_status", pageDto.getBomStatus());
 //        sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
-        sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
-        sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
-        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
-        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
-        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
-        sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
-        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"design_no",StringUtils.convertList(pageDto.getDesignNo()));
-        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"style_no",StringUtils.convertList(pageDto.getStyleNo()));
-        sdQw.isNotNull("style_no");
-        sdQw.ne("style_no","");
-        sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        sdQw.orderByDesc("create_date");
+        sdQw.notEmptyEq("p.prod_category1st", pageDto.getProdCategory1st());
+        sdQw.notEmptyEq("p.prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("p.prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("p.prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("p.planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.andLike(pageDto.getSearch(), "p.design_no", "p.style_no", "p.style_name");
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"p.design_no",StringUtils.convertList(pageDto.getDesignNo()));
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"p.style_no",StringUtils.convertList(pageDto.getStyleNo()));
+        sdQw.isNotNull("p.style_no");
+        sdQw.ne("p.style_no","");
+        sdQw.notEmptyEq("sd.devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("p.create_date");
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK());
+        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK(),"sd.");
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos =  baseMapper.queryByListQw(sdQw);
+        if (StrUtil.equals(pageDto.getImgFlag(), BaseGlobal.YES)) {
+            if (packInfoListVos.size() > 3000) {
+                throw new OtherException("带图片最多只能导出3000条");
+            }
+            return new PageInfo(packInfoListVos);
+        }
         stylePicUtils.setStylePic(packInfoListVos, "stylePic");
         stylePicUtils.setStylePic(packInfoListVos, "styleColorPic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
+    }
+
+    /**
+     * 资料包导出
+     *
+     * @param response
+     * @param pageDto
+     * @return
+     */
+    @Override
+    public void pageByBigGoodsDerive(HttpServletResponse response, PackInfoSearchPageDto pageDto) throws IOException {
+        PageInfo<BigGoodsPackInfoListVo> pageInfo = pageByBigGoods(pageDto);
+        List<BigGoodsPackInfoListVo> list1 = pageInfo.getList();
+        /*转换类型*/
+        List<BigGoodsPackInfoExcel> list = CopyUtil.copy(list1, BigGoodsPackInfoExcel.class);
+        if (StrUtil.equals(pageDto.getImgFlag(), BaseGlobal.YES)) {
+            stylePicUtils.setStylePic(list, "stylePic", 30);
+            ExcelUtils.executorExportExcel(list,BigGoodsPackInfoExcel.class,"标准资料包",pageDto.getImgFlag(),3000,response,"stylePic");
+        } else {
+            ExcelUtils.exportExcel(list, BigGoodsPackInfoExcel.class, "标准资料包.xlsx", new ExportParams("标准资料包", "标准资料包", ExcelType.HSSF), response);
+        }
     }
 
     @Override

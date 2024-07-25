@@ -95,6 +95,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         try {
             this.preHttpLog(request,response, apiResult);
         }catch (Exception e){
+            this.preHttpLog(request,response, body);
             e.printStackTrace();
         }
 
@@ -154,7 +155,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         }catch (Exception e){
          e.printStackTrace();
         }finally {
-            httpLogService.save(httpLog);
+            httpLogService.saveOrUpdate(httpLog);
             companyUserInfo.remove();
             userPlanningSeasonId.remove();
         }

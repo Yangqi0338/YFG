@@ -18,6 +18,8 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 类描述：工作小账 实体类
  *
@@ -69,7 +71,7 @@ public class WorkLog extends BaseDataEntity<String> {
     /**
      * 工作人员
      */
-    @ApiModelProperty(value = "工作人员")
+    @ApiModelProperty(value = "工作人员-后改为样衣工")
     private String worker;
     /**
      * 工作人员Id
@@ -131,6 +133,20 @@ public class WorkLog extends BaseDataEntity<String> {
     /** 创建部门 */
     @ApiModelProperty(value = "创建部门"  )
     private String createDeptId;
+    /**
+     * 裁剪工
+     */
+    @ApiModelProperty(value = "裁剪工")
+    private String cutterName;
+    /**
+     * 裁剪工id
+     */
+    @ApiModelProperty(value = "裁剪工id")
+    private String cutterId;
+
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

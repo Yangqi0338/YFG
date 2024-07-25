@@ -505,4 +505,8 @@ public class StyleColorVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "计控实际成本")
     private BigDecimal controlPlanCost;
 
+    /** 企划倍率 */
+    @ApiModelProperty(value = "企划倍率"  )
+    private BigDecimal planningRate;
+
 }

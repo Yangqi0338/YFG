@@ -8,15 +8,20 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -26,15 +31,19 @@ import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.entity.PricingTemplateItem;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import org.apache.commons.lang3.StringUtils;
 import org.nfunk.jep.JEP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +51,8 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +73,8 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
 
 // 自定义方法区 不替换的区域【other_start】
-
+    @Autowired
+    private RestTemplateService restTemplateService;
     @Resource
     PackPricingOtherCostsService packPricingOtherCostsService;
     @Resource
@@ -86,6 +98,37 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     @Resource
     PricingTemplateItemService pricingTemplateItemService;
+
+    @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/bill/readyWearContractBill}")
+    private String SCM_URL;
+
+    @Override
+    public ApiResult getContractPrice(QueryContractPriceDTO dto) {
+        JSONObject paramJson = new JSONObject();
+        paramJson.put("data", Arrays.asList(dto.getStyleNo()));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/getUnitPrice", paramJson.toJSONString(),
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","获取成衣合同价")
+        );
+        if (!httpResp.isSuccess()) {
+            throw new OtherException(httpResp.getMessage());
+        }
+        // 保存日志
+        if (dto.getWriteLog()) {
+            saveOperaLog(genOperaLogEntity(dto, "同步成衣合同价"));
+        }
+        // 无值
+        List<Map<String, Object>> respData = new ArrayList<>();
+        if (StrUtil.isBlank(httpResp.getData()) || StrUtil.equals(httpResp.getData(), "[]")) {
+            Map<String, Object> unitPrice = new HashMap<>();
+            unitPrice.put("styleNo", dto.getStyleNo());
+            unitPrice.put("unitPrice", null);
+            respData.add(unitPrice);
+            return ApiResult.success("查询成功", respData);
+        }
+        respData = (List<Map<String, Object>>) JSONArray.parse(httpResp.getData());
+        return ApiResult.success("查询成功", respData);
+    }
 
     @Override
     public PackPricingVo getDetail(PackCommonSearchDto dto) {
@@ -156,8 +199,11 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         for(String key:otherStatistics.keySet()){
             hashMap.put(key,otherStatistics.get(key));
         }
-        BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap,decimal);
-        return  formula;
+        if(CollUtil.isNotEmpty(collect)){
+            BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap,decimal);
+            return  formula;
+        }
+        return BigDecimal.ZERO;
     }
 
     /**

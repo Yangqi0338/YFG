@@ -2,6 +2,7 @@ package com.base.sbc.client.amc.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -23,7 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -97,7 +103,7 @@ public class DataPermissionsService {
         Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
-
+//(xxx and (xxx or xxx`))
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
@@ -221,12 +227,34 @@ public class DataPermissionsService {
                                 String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
                                 if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
                                     fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                } else if (fieldDataPermissionVO.getConditionType().toUpperCase().contains(DataPermissionsConditionTypeEnum.LIKE.getK())) {
+                                    String conditionType = " " + fieldDataPermissionVO.getConditionType() + " ";
+                                    String format = "(" + fieldName + conditionType + "%{}%" + ")";
+                                    if (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()))
+                                        fieldArr.add(StrUtil.format(format, "()"));
+                                    else {
+                                        String expression = StrJoiner.of(" OR ", "(", ")").setNullMode(StrJoiner.NullMode.IGNORE)
+                                                .append(fieldDataPermissionVO.getFieldValues().stream().map(it -> StrUtil.format(format, it)).collect(Collectors.toList()))
+                                                .toString();
+                                        fieldArr.add(expression);
+                                    }
                                 } else {
                                     fieldArr.add(fieldName + " not in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
                                 }
                             }else {
                                 if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
                                     fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                                } else if (fieldDataPermissionVO.getConditionType().toUpperCase().contains(DataPermissionsConditionTypeEnum.LIKE.getK())) {
+                                    String conditionType = " " + fieldDataPermissionVO.getConditionType() + " ";
+                                    String format = "(" + fieldName + conditionType + "%{}%" + ")";
+                                    if (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()))
+                                        fieldArr.add(StrUtil.format(format, "()"));
+                                    else {
+                                        String expression = StrJoiner.of(" OR ", "(", ")").setNullMode(StrJoiner.NullMode.IGNORE)
+                                                .append(fieldDataPermissionVO.getFieldValues().stream().map(it -> StrUtil.format(format, it)).collect(Collectors.toList()))
+                                                .toString();
+                                        fieldArr.add(expression);
+                                    }
                                 } else {
                                     fieldArr.add(fieldName + " not in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
                                 }

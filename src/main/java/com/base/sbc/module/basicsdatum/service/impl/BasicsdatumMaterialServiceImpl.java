@@ -309,8 +309,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return new PageInfo<>(list);
         }
 
-        /*List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
-        list.get(0).setFieldValList(fieldManagementVos);*/
+        List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
+        list.get(0).setFieldValList(fieldManagementVos);
 
         if (isColumnHeard) {
             return new PageInfo<>(list);
@@ -400,7 +400,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
 
         //保存动态字段
-        /*fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());*/
+        fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());
 
         return getBasicsdatumMaterial(entity.getId());
     }
@@ -765,8 +765,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         minioUtils.setObjectUrlToObject(copy, "imageUrl");
 
-        /*List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
-        copy.setFieldValList(fieldManagementVos);*/
+        List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
+        copy.setFieldValList(fieldManagementVos);
         return copy;
     }
 
@@ -1100,19 +1100,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return list.get(0);
     }
 
-    @Override
-    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
-        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
-    }
-
-    @Override
-    public FabricSummary getMaterialSummaryInfo(String materialCode) {
-        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
-        baseQueryWrapper.eq("tbm.material_code",materialCode);
-        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
-        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
-    }
-
     @Transactional
     @Override
     public BasicsdatumMaterialUpdateVo updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto) {
@@ -1230,6 +1217,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return 1;
         }
         return 0;
+    }
+
+
+
+    @Override
+    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
+        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
+    }
+
+    @Override
+    public FabricSummary getMaterialSummaryInfo(String materialCode) {
+        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
+        baseQueryWrapper.eq("tbm.material_code",materialCode);
+        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
+        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
     }
 
     /**

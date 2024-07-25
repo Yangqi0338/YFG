@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.entity;
 
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -18,7 +19,6 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -78,4 +78,10 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     @TableField(exist = false)
     @ApiModelProperty(value = "接收部门"  )
     private String receiveDeptId;
+
+    public Integer getStatusIndex() {
+        return Opt.ofNullable(status).map(StyleCountryStatusEnum::ordinal).orElse(-1);
+    }
+
+    ;
 }

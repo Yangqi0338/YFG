@@ -16,6 +16,8 @@ import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.service.MaterialService;
+import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
@@ -56,6 +58,8 @@ public class TaskController {
     private final StylePicUtils stylePicUtils;
 
     private final MaterialService materialService;
+
+    private final PatternLibraryService patternLibraryService;
 
     private final MinioUtils minioUtils;
 
@@ -116,6 +120,14 @@ public class TaskController {
                         minioUtils.setObjectUrlToObject(material, "picUrl");
                         flowTaskDto.setPic(material.getPicUrl());
                         flowTaskDto.setName(StringUtils.isNotBlank(material.getMaterialName()) ? material.getMaterialName() : material.getFileInfo());
+                    }
+                }
+
+                if (StrUtil.isNotBlank(contentApproval) && procDefName.contains("版型库审批")) {
+                    PatternLibrary patternLibrary = patternLibraryService.getById(flowTaskDto.getBusinessKey());
+                    if (!Objects.isNull(patternLibrary)) {
+                        minioUtils.setObjectUrlToObject(patternLibrary, "picUrl");
+                        flowTaskDto.setPic(patternLibrary.getPicUrl());
                     }
                 }
 

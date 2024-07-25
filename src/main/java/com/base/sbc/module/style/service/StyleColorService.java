@@ -338,5 +338,5 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
     void agentUnControl(String id);
 
-    ApiResult importMarkingOrder(List<Map<String, Object>> readAll);
+    ApiResult importMarkingOrder(List<Map<String, Object>> readAll) throws IOException;
 }

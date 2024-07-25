@@ -36,14 +36,15 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     int isStyleNoExist(String styleNo);
 
     /*查询款式下的额配色*/
-    String getStyleColorNumber(@Param("styleNo") String styleNo,@Param("length1") Integer length1);
+    String getStyleColorNumber(@Param("styleNo") String styleNo, @Param("length1") Integer length1);
 
     /**
      * 查询款式配色
+     *
      * @param qw
      * @return
      */
-    List<StyleColorVo> styleColorList(@Param(Constants.WRAPPER) QueryWrapper qw );
+    List<StyleColorVo> styleColorList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     /**
      * 查询款式设计
@@ -55,10 +56,11 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     /**
      * 查询配色列表
+     *
      * @param qw
      * @return
      */
-    List<StyleColorVo>  colorList(@Param(Constants.WRAPPER) QueryWrapper qw );
+    List<StyleColorVo> colorList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     /**
      * 大货款列表
@@ -69,6 +71,7 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     /**
      * 修改所有引用的大货款号
+     *
      * @param styleNo
      * @param nweStyleNo
      * @return
@@ -94,6 +97,7 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     /**
      * 查询出配色中关联的主款或配饰
+     *
      * @param ids
      * @return
      */
@@ -105,6 +109,7 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     /**
      * 根据大货款获取设计师，版师，样衣工信息
+     *
      * @param styleNos
      * @return
      */
@@ -113,4 +118,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     List<StyleColorAgentVo> agentList(@Param(Constants.WRAPPER) BaseQueryWrapper queryWrapper);
 
 // 自定义方法区 不替换的区域【other_end】
+
+//    List<StyleColorVo> styleColorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+//    List<StyleColorVo> colorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

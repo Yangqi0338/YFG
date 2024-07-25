@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -143,6 +144,8 @@ public class MinioUtils {
             return url;
         }
         try {
+            //将空格特殊字符进行ASCll码转义
+            url = url.replace(" ", "%20");
             List<String> split = StrUtil.split(url, CharUtil.COMMA);
             return split.stream().map(url1 -> {
                 String tempUrl = URLUtil.getPath(url1).substring(1);

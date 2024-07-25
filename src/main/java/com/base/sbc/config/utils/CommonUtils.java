@@ -437,12 +437,8 @@ public class CommonUtils {
     }
 
     public static boolean judge(Collection<Integer> judgeList, int index, int defaultValue, Function<Integer, Boolean> handler) {
-        try {
-            Integer result = CollUtil.get(judgeList, index);
-            return handler.apply(result);
-        }catch (Exception ignored) {
-            return handler.apply(defaultValue);
-        }
+        Integer result = CollUtil.get(judgeList, index);
+        return result == null ? handler.apply(defaultValue) : handler.apply(result);
     }
 
     public static <T> Comparator<? super T> sizeNameSort(Function<? super T, String> func) {

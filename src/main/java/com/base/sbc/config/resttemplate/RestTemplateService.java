@@ -30,9 +30,10 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.SEND_FLAG;
 @Slf4j
 public class RestTemplateService {
 
-    private final RestTemplate restTemplate;
-    private final CcmFeignService ccmFeignService;
+    @Autowired
+    private  CcmFeignService ccmFeignService;
 
+    private final RestTemplate restTemplate;
 
     @SafeVarargs
     public final HttpResp spmPost(String url, String jsonStr, Pair<String, String>... headers) {

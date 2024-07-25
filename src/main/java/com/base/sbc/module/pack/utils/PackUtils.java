@@ -154,4 +154,8 @@ public class PackUtils {
             return packType + StrUtil.DASHED + item;
         }).collect(Collectors.toList());
     }
+
+    public static String getCodeByBomStatus(String bomStatus) {
+        return YesOrNoEnum.NO.getValueStr().equals(bomStatus) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
+    }
 }

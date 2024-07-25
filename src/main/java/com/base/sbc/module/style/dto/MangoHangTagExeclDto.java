@@ -6,6 +6,10 @@ import lombok.Data;
 
 @Data
 public class MangoHangTagExeclDto {
+    @ApiModelProperty(name = "合作方条码")
+    @Excel(name = "*合作方条码", width = 20)
+    private String outsideBarcode;
+
     @ApiModelProperty(name = "大货款号")
     @Excel(name = "*大货款号", width = 20)
     private String styleNo;

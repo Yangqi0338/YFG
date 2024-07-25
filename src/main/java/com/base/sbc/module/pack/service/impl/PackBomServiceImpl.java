@@ -1500,8 +1500,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             return result;
         }
         // 查询物料列表
-        PackBomVersion enableVersion = packBomVersionService.getEnableVersion(dto.getForeignId(), dto.getPackType());
-        dto.setBomVersionId(enableVersion.getId());
+//        PackBomVersion enableVersion = packBomVersionService.getEnableVersion(dto.getForeignId(), dto.getPackType());
+        dto.setBomVersionId(version.getId());
         PackCommonPageSearchDto packCommonPageSearchDto = BeanUtil.copyProperties(dto, PackCommonPageSearchDto.class);
         packCommonPageSearchDto.setUnusableFlag(BaseGlobal.STATUS_NORMAL);
         List<PackBomVo> packBomPage = baseMapper.getPackBomPage(packCommonPageSearchDto);
@@ -1726,6 +1726,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delByIds(String id) {
         /*cha*/
         /*控制是否下发外部SMP系统开关*/

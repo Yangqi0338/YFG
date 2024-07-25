@@ -32,6 +32,7 @@ public class Page implements Serializable {
     private String search;
     @ApiModelProperty(value = "状态", example = "")
     private String status;
+    private Integer startNum;
 
     public String getSql() {
         return null;

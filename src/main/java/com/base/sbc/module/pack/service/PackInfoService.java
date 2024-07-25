@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import cn.hutool.core.lang.Pair;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -22,6 +24,9 @@ import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -110,6 +115,14 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     PackInfoListVo getByQw(QueryWrapper queryWrapper);
 
     PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto);
+
+    /**
+     * 资料包导出
+     * @param response
+     * @param pageDto
+     * @return
+     */
+    void pageByBigGoodsDerive(HttpServletResponse response,  PackInfoSearchPageDto pageDto) throws IOException;
 
     /**
      * 获取明细
@@ -201,6 +214,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
 
     GenTechSpecPdfFile queryGenTechSpecPdfFile(GroupUser groupUser, PackCommonSearchDto dto);
+
+    Pair<String, JSONObject> genTechSpecFile2Html(GroupUser groupUser, PackCommonSearchDto dto);
 
     CopyItemsVo copyItems(GroupUser user, PackCopyDto dto);
 

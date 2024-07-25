@@ -6,10 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.fabricsummary.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryGroup;
@@ -19,10 +20,14 @@ import com.base.sbc.module.sample.dto.FabricSummaryStyleMaterialDto;
 import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
 import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.PageInfo;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+
+import cn.hutool.core.bean.BeanUtil;
 
 /**
  * 类描述：款式管理-面料汇总-组管理 service类
@@ -34,14 +39,23 @@ import java.util.List;
  */
 @Service
 public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummaryGroupMapper, FabricSummaryGroup> implements FabricSummaryGroupService {
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
+
+    public static void main(String[] args) {
+        IdGen idGen = new IdGen();
+        System.out.println(idGen.nextIdStr());
+    }
+
     @Override
     public PageInfo<FabricSummaryGroupVo> getGroupList(FabricSummaryStyleMaterialDto dto) {
-        QueryWrapper<FabricSummaryGroup> qw = new QueryWrapper<>();
-        qw.lambda().eq(FabricSummaryGroup::getDelFlag,"0");
-        qw.lambda().orderByDesc(FabricSummaryGroup::getCreateDate);
+        BaseQueryWrapper<FabricSummaryGroup> qw = new BaseQueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabricSummaryList.getK(), "tps.", new String[]{"brand"}, true);
+        qw.eq("tfsg.del_flag","0");
         if (StringUtils.isEmpty(dto.getMaterialCode()) && StringUtils.isEmpty(dto.getStyleNo()) && StringUtils.isEmpty(dto.getDesignNo())){
             if (StringUtils.isNotBlank(dto.getPlanningSeasonId())){
-                qw.lambda().eq(FabricSummaryGroup::getPlanningSeasonId,dto.getPlanningSeasonId());
+                qw.eq("tfsg.planning_season_id",dto.getPlanningSeasonId());
             }
         }else {
             BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
@@ -56,9 +70,9 @@ public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummary
                 BeanUtil.copyProperties(dto,pageInfo);
                 return pageInfo;
             }
-            qw.lambda().in(!CollectionUtils.isEmpty(idList),FabricSummaryGroup::getId,idList);
+            qw.in(!CollectionUtils.isEmpty(idList),"tfsg.id",idList);
         }
-        List<FabricSummaryGroup> list = list(qw);
+        List<FabricSummaryGroup> list = baseMapper.getFabricSummaryGroupList(qw);
         PageInfo<FabricSummaryGroupVo> pageInfo = new PageInfo<>();
         List<FabricSummaryGroupVo> fabricSummaryGroupVos = BeanUtil.copyToList(list, FabricSummaryGroupVo.class);
         pageInfo.setList(fabricSummaryGroupVos);
@@ -82,5 +96,5 @@ public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummary
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
+
 }

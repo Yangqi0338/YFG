@@ -5,6 +5,8 @@ public enum DataPermissionsConditionTypeEnum {
     EQ("=", "等于"),
     NOT_IN("not in", "不包含"),
     NE("!=", "不等于"),
+    LIKE("like", "模糊"),
+    NOT_LIKE("not like", "模糊不含"),
     ;
     private final String K;
     private final String V;
