@@ -882,6 +882,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 qw.isNullStr("tpmbc.bar_code");
             }else if (dto.getStatus().equals("已收样")){
                 qw.isNotNullStr("tpmbc.bar_code");
+            }else if (dto.getStatus().equals("已审样")){
+                qw.isNotNullStr("tpmbc.bar_code");
+                qw.notEmptyIn("tpmbc.status", Arrays.asList("1","2"));
             }
             list = getBaseMapper().patternMakingTaskFOBList(qw);
         } else {
