@@ -36,6 +36,7 @@ public enum UploadFileType {
     ingredientsAtactiform(""),
     replayRating("ReplayRating", "复盘评分", Arrays.asList("BMP", "JPG", "JPEG", "PNG", "TIFF", "PCX", "RAW", "MP4", "MKV", "AVI", "RMVB")),
     replayRatingFile("ReplayRatingFile", "复盘评分附件", Arrays.asList("DOCX", "DOC", "PDF", "PPT", "PPTX", "XLS", "XLSX", "RTF")),
+    markingOrderUpload("markingOrderUpload"),
 
     ;
     /** 编码 */
