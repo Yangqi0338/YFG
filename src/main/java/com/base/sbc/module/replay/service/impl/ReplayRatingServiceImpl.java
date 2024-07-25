@@ -23,6 +23,7 @@ import com.base.sbc.config.constant.FieldValProperties;
 import com.base.sbc.config.constant.ReplayRatingProperties;
 import com.base.sbc.config.enums.UnitConverterEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingLevelType;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
@@ -1233,9 +1234,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             if (StrUtil.isNotBlank(style.getPatternParts())) {
                 ProcessDatabasePageDto processDatabasePageDto = new ProcessDatabasePageDto();
                 processDatabasePageDto.setStatus("0");
-                processDatabasePageDto.setType("7");
+                processDatabasePageDto.setType(ProcessDatabaseType.mbbj);
                 processDatabasePageDto.setCategoryId(style.getProdCategory());
-                processDatabasePageDto.setBrandCode(style.getBrand());
                 processDatabasePageDto.setProcessNameList(style.getPatternParts());
                 processDatabasePageDto.reset2QueryList();
                 List<ProcessDatabase> databaseList = processDatabaseService.listPage(processDatabasePageDto).getList();
