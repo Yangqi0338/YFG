@@ -135,7 +135,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.Executor;
@@ -324,7 +323,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY)
                 .eq(FieldVal::getFieldName, "MaterialQuality")
         );
-        Map<String, String> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
+        Map<String, YesOrNoEnum> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
                 .in(PackBom::getBomVersionId, orderBookDetailVos.stream().map(OrderBookDetailVo::getBomVersionId).filter(Objects::nonNull).collect(Collectors.toList()))
                 .eq(PackBom::getMainFlag, YesOrNoEnum.YES)
                 .orderByAsc(PackBom::getBomVersionId).orderByDesc(PackBom::getId),
@@ -364,7 +363,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //                                .orderByDesc(PackBom::getId)
 //                        );
 //                        for (PackBom packBom : packBomList) {
-                            orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(),""));
+                orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(), YesOrNoEnum.NO).getValueStr());
 //                        }
 //                    }
 //                }
