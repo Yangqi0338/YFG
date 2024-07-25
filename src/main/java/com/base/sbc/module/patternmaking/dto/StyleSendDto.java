@@ -21,5 +21,7 @@ public class StyleSendDto {
     @NotBlank(message = "打版id不能为空")
     private String id;
 
+    private String supplierName;
+
 
 }

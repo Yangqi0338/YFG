@@ -187,6 +187,12 @@ public class PatternMakingController {
         return patternMakingService.sampleDesignSend(dto);
     }
 
+    @ApiOperation(value = "FOB款式设计下发", notes = "FOB打版指令从款式设计下发到技术中心看板")
+    @PostMapping("/sampleDesignSendFOB")
+    public boolean sampleDesignSendFOB(@Valid @RequestBody StyleSendDto dto) {
+        return patternMakingService.sampleDesignSendFOB(dto);
+    }
+
     @ApiOperation(value = "版房主管下发", notes = "打版指令从技术中心看板下发到打版任务")
     @PostMapping("/prmSend")
     public Integer prmSend(@Valid @RequestBody List<SetPatternDesignDto> dtos) {

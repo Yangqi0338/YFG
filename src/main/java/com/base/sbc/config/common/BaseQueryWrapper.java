@@ -14,18 +14,12 @@ import com.baomidou.mybatisplus.core.enums.SqlKeyword;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.google.common.collect.Sets;
+import com.base.sbc.config.exception.OtherException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -139,6 +133,11 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
     public QueryWrapper<T> isNotNullStr(String column) {
         this.and(qw -> qw.isNotNull(column).and(qw2 -> qw2.ne(column, "")));
+        return this;
+    }
+
+    public QueryWrapper<T> isNullOrNotNe(String column,String val) {
+        this.and(qw -> qw.isNull(column).and(qw2 -> qw2.ne(column, val)));
         return this;
     }
 

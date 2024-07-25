@@ -430,6 +430,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     ApiResult<String> copyUrl(String id, Integer hours);
 
+    boolean sampleDesignSendFOB(StyleSendDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

@@ -650,6 +650,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
             page = PageHelper.startPage(dto);
         }
+        //不查询出FOB数据
+        qw.isNullOrNotNe("p.pattern_making_devt_type","FOB");
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         // 设置图片
         stylePicUtils.setStylePic(list, "stylePic");
@@ -886,6 +888,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
             qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
             qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+            //不查询出FOB数据
+            qw.isNullOrNotNe("p.pattern_making_devt_type","FOB");
             list = getBaseMapper().patternMakingTaskList(qw);
         }
 
@@ -1626,7 +1630,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.eq("p.pattern_making_devt_type", dto.getDevtType());
             list = getBaseMapper().sampleBoardListFOB(qw);
         }else {
-            qw.isNullStr("p.pattern_making_devt_type");
+            qw.isNullOrNotNe("p.pattern_making_devt_type","FOB");
             list = getBaseMapper().sampleBoardList(qw);
         }
 
@@ -2858,6 +2862,83 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String code = IdGen.getId().toString();
         redisUtils.set("FOB_SUPPLIER_URL:"+code,id,hours*60*60);
         return ApiResult.success("复制成功",code);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public boolean sampleDesignSendFOB(StyleSendDto dto) {
+        if(StrUtil.isEmpty(dto.getSupplierName())){
+            throw new OtherException("供应商不能为空");
+        }
+        EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
+        EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("node", enumNodeStatus2.getNode());
+        uw.set("status", enumNodeStatus2.getStatus());
+        uw.set("design_send_date", nodeStatus.getStartDate());
+        uw.set("design_send_status", BaseGlobal.YES);
+        uw.eq("id", dto.getId());
+        setUpdateInfo(uw);
+        PatternMaking patternMaking = getById(dto.getId());
+        // 根据款查询对应套版款的可否改版信息并设置
+        Style styleInfo = styleService.getById(patternMaking.getStyleId());
+        if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {
+            PatternLibrary patternLibrary = patternLibraryService.getById(styleInfo.getRegisteringId());
+            if (ObjectUtil.isNotEmpty(patternLibrary) && ObjectUtil.isNotEmpty(patternLibrary.getTemplateCode())) {
+                PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
+                        new LambdaQueryWrapper<PatternLibraryTemplate>()
+                                .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
+                );
+                if (ObjectUtil.isNotEmpty(patternLibraryTemplate)) {
+                    uw.set("pattern_type", patternLibraryTemplate.getPatternType());
+                }
+            }
+        }
+        uw.lambda().set(PatternMaking::getSampleFinishNum, patternMaking.getRequirementNum())
+                .set(PatternMaking::getCutterFinishNum, patternMaking.getRequirementNum());
+        update(uw);
+
+        // 自动下发打板
+        EnumNodeStatus enumNodeStatus3 = EnumNodeStatus.TECHNICAL_ROOM_SEND;
+        EnumNodeStatus enumNodeStatus4 = EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE;
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus3.getNode(), enumNodeStatus3.getStatus(), BaseGlobal.NO, BaseGlobal.YES);
+        NodeStatus nodeStatus2 = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus4.getNode(), enumNodeStatus4.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
+        UpdateWrapper<PatternMaking> uw1 = new UpdateWrapper<>();
+        uw1.set("node", enumNodeStatus4.getNode());
+        uw1.set("status", enumNodeStatus4.getStatus());
+        uw1.set("prm_send_date", nodeStatus2.getStartDate());
+        uw1.set("prm_send_status", BaseGlobal.YES);
+        uw1.set("pattern_status", BasicNumber.ZERO.getNumber());
+        uw1.set(StrUtil.isNotBlank(patternMaking.getSupplierId()), "pattern_design_id", patternMaking.getSupplierId());
+        uw1.set(StrUtil.isNotBlank(dto.getSupplierName()), "pattern_design_name", dto.getSupplierName());
+        uw1.eq("id", dto.getId());
+        // 修改单据
+        update(uw1);
+
+        // 将款式设计状态改为已下发
+        UpdateWrapper<Style> sdUw = new UpdateWrapper<>();
+        sdUw.eq("id", patternMaking.getStyleId());
+        sdUw.set("status", BasicNumber.TWO.getNumber());
+        sdUw.set("send_pattern_making_date", new Date());
+        styleService.update(sdUw);
+
+        /*发送消息*/
+        //FOB发往虚拟版房，不需要发送消息
+        //messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
+
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setDocumentId(operaLogEntity.getId());
+        operaLogEntity.setType("下发打板");
+        operaLogEntity.setDocumentName(patternMaking.getPatternNo());
+        operaLogEntity.setDocumentCode(patternMaking.getCode());
+        operaLogEntity.setName("打板指令");
+        operaLogEntity.setParentId(patternMaking.getStyleId());
+        this.saveLog(operaLogEntity);
+        // 修改单据
+        return true;
     }
 
     // 自定义方法区 不替换的区域【other_end】
