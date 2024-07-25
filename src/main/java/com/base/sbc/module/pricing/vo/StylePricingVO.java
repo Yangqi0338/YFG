@@ -31,7 +31,7 @@ public class StylePricingVO {
      * 计控确认成本时间
      */
     @ApiModelProperty(value = "计控确认成本时间")
-//    @Excel(name = "计控确认成本时间", format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date controlConfirmTime;
     /**
      * 工时部确认工价时间

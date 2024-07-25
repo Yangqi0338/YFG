@@ -1943,41 +1943,25 @@ public class SmpService {
                     // 计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
-                    if (confirmStatus.equals(1)) {
-                        tagConfirmDateDto.setPlanCostConfirmDate(date);
-                    } else {
-                        tagConfirmDateDto.setPlanCostConfirmDate(null);
-                    }
+                    tagConfirmDateDto.setPlanCostConfirmDate(date);
                     list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM == type) {
                     // 商品吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setProductTagPriceConfirm(confirmStatus);
-                    if (confirmStatus.equals(1)) {
-                        tagConfirmDateDto.setProductTagPriceConfirmDate(date);
-                    } else {
-                        tagConfirmDateDto.setProductTagPriceConfirmDate(null);
-                    }
+                    tagConfirmDateDto.setProductTagPriceConfirmDate(date);
                     list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM == type) {
                     // 计控吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
-                    if (confirmStatus.equals(1)) {
-                        tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
-                    } else {
-                        tagConfirmDateDto.setPlanTagPriceConfirmDate(null);
-                    }
+                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
                     list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.WORKING_HOUR_CONFIRM == type) {
                     // 工时部工价确认时间
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setWorkingHourConfirm(confirmStatus);
-                    if (confirmStatus.equals(1)) {
-                        tagConfirmDateDto.setWorkingHourConfirmDate(date);
-                    } else {
-                        tagConfirmDateDto.setWorkingHourConfirmDate(null);
-                    }
+                    tagConfirmDateDto.setWorkingHourConfirmDate(date);
                     list.add(tagConfirmDateDto);
                 }
             }
