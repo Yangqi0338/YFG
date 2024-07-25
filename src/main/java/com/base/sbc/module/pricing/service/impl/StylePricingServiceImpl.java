@@ -264,12 +264,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("sd.") ) {
             columnMap.put("sd", "design_no");
         }
-        if (StringUtils.isNotBlank(dto.getPlanningSeasonId())){
-            qw.eq("sd.planning_season_id",dto.getPlanningSeasonId());
-            if (Objects.isNull(columnMap.get("sd"))){
-                columnMap.put("sd", "planning_season_id");
-            }
-        }
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
