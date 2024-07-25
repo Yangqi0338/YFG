@@ -1953,7 +1953,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		int warnSize = warnMsgList.size();
 		String warnMsg = StrUtil.join("\n", warnMsgList);
 		// 全错
-		int successSize = rightHangTags.size() - warnSize;
+		int successSize = ids.size() - warnSize;
 		if (successSize == 0) return ApiResult.error("全部失败\n" + warnMsg, 500);
 		else if (warnSize == 0) return ApiResult.success("更新成功");
 			// 部分错

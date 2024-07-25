@@ -15,6 +15,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.fabric.dto.UpdateDTO;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
@@ -40,13 +41,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -169,8 +168,8 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "提交审核")
     @PostMapping("/oneUpdateStatus")
-    public ApiResult oneUpdateStatus(@Valid @RequestParam("ids") @NotEmpty(message = "吊牌id不可为空") List<String> ids) {
-        return hangTagService.oneUpdateStatus(ids);
+    public ApiResult oneUpdateStatus(@Valid @RequestBody UpdateDTO updateDTO) {
+        return hangTagService.oneUpdateStatus(updateDTO.getIds());
     }
 
 
