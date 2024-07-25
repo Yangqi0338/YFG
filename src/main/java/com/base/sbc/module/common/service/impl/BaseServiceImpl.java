@@ -41,7 +41,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Resource;
@@ -758,11 +757,6 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Override
     public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
         return listOneField(new LambdaQueryWrapper<T>().in(T::getId, ids), function);
-    }
-
-    @Override
-    public <K, V> Map<K, V> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, K> keyFunc, SFunction<T, V> valueFunc) {
-        return this.list(wrapper.select(keyFunc, valueFunc)).stream().filter(Objects::nonNull).collect(CommonUtils.toMap(keyFunc, valueFunc));
     }
 
     @Override

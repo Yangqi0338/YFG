@@ -188,8 +188,6 @@ public interface BaseService<T> extends IService<T>, BaseEnhanceService<T> {
     <R> Map<String,R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
     <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);
 
-    <K, V> Map<K, V> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, K> keyFunc, SFunction<T, V> valueFunc);
-
     <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> function);
 
     /**
