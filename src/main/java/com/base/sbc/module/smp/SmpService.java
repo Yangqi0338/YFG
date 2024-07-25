@@ -247,9 +247,8 @@ public class SmpService {
     @Resource
     public OperaLogService operaLogService;
 
-    @Transactional(rollbackFor = Exception.class)
     @DuplicationCheck
-    public void setBulkyCargoMaterialPurchasePrice(List<String> packBomIdList) {
+    public List<PackBom> getMaterialPurchasePrice(List<String> packBomIdList) {
         if (ObjectUtil.isEmpty(packBomIdList)) {
             throw new OtherException("请选择物料数据后在尝试拉取最新的物料采购单价！");
         }
@@ -328,11 +327,12 @@ public class SmpService {
                         packBom.setPurchasePrice(new BigDecimal(purchasePrice).setScale(2, RoundingMode.HALF_UP));
                     }
                 }
-                if (!packBomService.updateBatchById(packBomList)) {
-                    String errorMessage = StrUtil.format("设置料清单采购单价失败！");
-                    log.error(errorMessage);
-                    throw new OtherException(errorMessage);
-                }
+                return packBomList.stream().map(item -> {
+                    PackBom packBom = new PackBom();
+                    packBom.setId(item.getId());
+                    packBom.setPurchasePrice(item.getPurchasePrice());
+                    return packBom;
+                }).collect(Collectors.toList());
             } else {
                 String errorMessage = StrUtil.format("未获取到料清单采购单价！");
                 log.error(errorMessage);
