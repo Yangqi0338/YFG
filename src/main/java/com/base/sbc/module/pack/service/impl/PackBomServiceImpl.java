@@ -1232,19 +1232,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             if (!CommonUtils.isInitId(packBom.getId())) {
-                if (YesOrNoEnum.YES == packBom.getCopy()) {
-                    String sourceId = packBom.getId();
-                    String id = null;
-                    if (NumberUtil.isLong(sourceId)) {
-                        id = (NumberUtil.parseLong(sourceId) + 1) + "";
-                    }
-                    packBom.setId(id);
-                }else {
-                    pageBomIds.add(packBom.getId());
-                }
+                pageBomIds.add(packBom.getId());
             } else {
                 packBom.setCode(null);
-                packBom.setSort(Math.toIntExact(versionBomCount++));
+                if (StringUtils.isNotBlank(packBom.getCopyId())){
+                    packBom.setSort(getBaseMapper().getByIdSort(packBom.getCopyId()));
+                }else {
+                    packBom.setSort(Math.toIntExact(versionBomCount++));
+                }
             }
             packBom.calculateCost();
         }

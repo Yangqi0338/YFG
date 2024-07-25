@@ -1831,6 +1831,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyPackInfo.setName(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
         copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+        copyPackInfo.insertInit();
         packInfoService.save(copyPackInfo);
 
         /*复制资料包里面的数据*/
@@ -1864,10 +1865,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*复制出款式定价确定数据*/
         StylePricing stylePricing = new StylePricing();
         stylePricing.setControlConfirm(styleColorVo.getControlConfirm());
+        stylePricing.setControlConfirmTime(styleColorVo.getControlConfirmTime());
         stylePricing.setProductHangtagConfirm(styleColorVo.getProductHangtagConfirm());
+        stylePricing.setProductHangtagConfirmTime(styleColorVo.getProductHangtagConfirmTime());
         stylePricing.setControlHangtagConfirm(styleColorVo.getControlHangtagConfirm());
+        stylePricing.setControlHangtagConfirmTime(styleColorVo.getControlHangtagConfirmTime());
         stylePricing.setWagesConfirm(styleColorVo.getWagesConfirm());
+        stylePricing.setWagesConfirmTime(styleColorVo.getWagesConfirmTime());
         stylePricing.setControlPlanCost(styleColorVo.getControlPlanCost());
+        stylePricing.setControlConfirmTime(styleColorVo.getControlConfirmTime());
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
         stylePricing.setPlanningRate(styleColorVo.getPlanningRate());

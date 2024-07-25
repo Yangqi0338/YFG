@@ -1436,7 +1436,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
 			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
-			save(hangTag);
+			boolean save = save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();
 			queryWrapper.eq("hang_tag_id", oldId);
@@ -1448,6 +1448,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			});
 			hangTagIngredientService.saveBatch(hangTagIngredientList);
 			hangTagLogService.save(new HangTagLog("报错款复制",hangTag.getId()));
+			logger.info("copyPack HangTag is not null oldId={}, newId={},save={}",oldId,hangTag.getId(),save);
+		}else {
+			logger.info("copyPack HangTag is null styleNo={},newStyleNo={},isCopyStatus={}",styleNo, newStyleNo, isCopyStatus);
 		}
 		return true;
 	}

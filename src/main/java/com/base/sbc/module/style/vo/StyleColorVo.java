@@ -379,13 +379,25 @@ public class StyleColorVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "计控吊牌确定"  )
     private String productHangtagConfirm;
 
+    @ApiModelProperty(value = "是否商品吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date productHangtagConfirmTime;
+
     /** 计控成本确认 */
     @ApiModelProperty(value = "计控成本确认"  )
     private String controlConfirm;
 
+    @ApiModelProperty(value = "计控确认成本时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date controlConfirmTime;
+
     /** 品控吊牌价确定 */
     @ApiModelProperty(value = "品控吊牌价确定"  )
     private String controlHangtagConfirm;
+
+    @ApiModelProperty(value = "是否计控吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date controlHangtagConfirmTime;
 
     /** 跟款设计师 */
     @ApiModelProperty(value = "跟款设计师"  )
@@ -501,6 +513,10 @@ public class StyleColorVo extends EditPermissionReturnVo {
 
     @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
     private String wagesConfirm;
+
+    @ApiModelProperty(value = "工时部确认工价时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date wagesConfirmTime;
 
     @ApiModelProperty(value = "计控实际成本")
     private BigDecimal controlPlanCost;
