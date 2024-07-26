@@ -56,6 +56,8 @@ public class ReplayRatingYearProductionSaleDTO extends ReplayRatingProductionSal
             children.calculate();
             this.setProduction(children.getProduction().add(this.getProduction()));
             this.setSale(children.getSale().add(this.getSale()));
+            if (this.getProductionUnit() == null) this.setProductionUnit(children.getProductionUnit());
+            if (this.getSaleUnit() == null) this.setSaleUnit(children.getSaleUnit());
         });
     }
 
