@@ -105,4 +105,7 @@ public class PatternMakingTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "供应商id")
     private String supplierId;
+
+    @ApiModelProperty(value = "fobFlag查询fob标识")
+    private String fobFlag;
 }

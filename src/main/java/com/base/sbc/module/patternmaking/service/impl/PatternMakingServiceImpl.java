@@ -891,8 +891,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
             qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "s.devt_type", dto.getDevtType());
             qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
-            //不查询出FOB数据
-            qw.isNullOrNotNe("p.pattern_making_devt_type","FOB");
+            //不查询出FOB数据,  不是手机端时（手机端进度预览，需要查询到所有数据）
+            if (!StrUtil.equals(dto.getFobFlag(), BasicNumber.ONE.getNumber())) {
+                qw.isNullOrNotNe("p.pattern_making_devt_type","FOB");
+            }
             list = getBaseMapper().patternMakingTaskList(qw);
         }
 
