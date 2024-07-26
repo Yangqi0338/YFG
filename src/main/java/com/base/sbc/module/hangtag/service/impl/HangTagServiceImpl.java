@@ -1922,14 +1922,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public ApiResult oneUpdateStatus(List<String> ids) {
+		if (CollUtil.isNotEmpty(ids)) return ApiResult.success("更新成功");
 		List<String> warnMsgList = new ArrayList<>();
+		ids.forEach(id -> {
+			if (StrUtil.isBlank(id)) warnMsgList.add("存在未填写数据，请先填写");
+		});
 		// 先根据id获取所有大货款
 		List<HangTag> hangTags = this.listByIds(ids);
 
 		// 获取报次款后缀 存在不属于的直接报错
 		List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList("C8_CPNum");
-		boolean isAllCp = hangTags.stream().anyMatch(hangTag -> dictList.stream().noneMatch(it -> hangTag.getBulkStyleNo().endsWith(it.getValue())));
-		if (!isAllCp) throw new OtherException("!只允许一键审核报次款!");
+		boolean hasNormalHangTag = hangTags.stream().anyMatch(hangTag -> dictList.stream().noneMatch(it -> hangTag.getBulkStyleNo().endsWith(it.getValue())));
+		if (hasNormalHangTag) throw new OtherException("!只允许一键审核报次款!");
 
 		// 只选状态小于待翻译确认的
 		List<HangTag> rightHangTags = hangTags.stream().filter(it -> it.getStatus().lessThan(TRANSLATE_CHECK)).collect(Collectors.toList());
@@ -1938,6 +1942,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.forEach((status, sameStatusList) -> {
 					HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
 					statusDTO.setStatus(status.lessThan(TECH_CHECK) ? TECH_CHECK : status.nextLevel());
+					statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
 					try {
 						this.updateStatus(statusDTO, false, sameStatusList);
 					} catch (Exception e) {
