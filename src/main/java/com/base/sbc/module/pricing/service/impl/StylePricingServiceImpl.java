@@ -467,8 +467,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 stylePricingVO.setPackagingFee(jsonObject.getBigDecimal("包装费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("包装费"));
                 stylePricingVO.setTestingFee(jsonObject.getBigDecimal("检测费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("检测费"));
                 stylePricingVO.setTotalCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
-                BigDecimal taxRate = BigDecimal.ONE;
-                if ("CMT".equals(stylePricingVO.getProductionType())) {
+           /*      BigDecimal taxRate = BigDecimal.ONE;
+               if ("CMT".equals(stylePricingVO.getProductionType())) {
                     if (jsonObject != null) {
                         taxRate = jsonObject.getBigDecimal("税率");
 
@@ -476,7 +476,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     if (stylePricingVO.getTotalCost() != null && taxRate != null) {
                         stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate).setScale(3, RoundingMode.HALF_UP));
                     }
-                }
+                }*/
                 stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
                 // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
                 //*优先展示手数的数据*//*
