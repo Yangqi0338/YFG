@@ -128,7 +128,6 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +143,20 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -807,27 +819,35 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			Opt.ofNullable(
 					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
 			).ifPresent(packInfo-> {
-				LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
-						.eq(PackTechPackaging::getForeignId, packInfo.getId())
-						.set(PackTechPackaging::getPackagingForm, packagingFormCode)
-						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
-						.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
-						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
+				// 改成调用已有接口 以适应有资料包但是没有对应的工艺说明数据
+				PackTechPackaging packTechPackaging = new PackTechPackaging();
+				packTechPackaging.setForeignId(packInfo.getId());
+				// 只修改大货款
+				packTechPackaging.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+				packTechPackaging.setPackagingForm(packagingFormCode);
+				packTechPackaging.setPackagingFormName(hangTagDTO.getPackagingForm());
+				packTechPackaging.setPackagingBagStandard(packagingBagStandardCode);
+				packTechPackaging.setPackagingBagStandardName(hangTagDTO.getPackagingBagStandard());
 				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
 						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
 						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-					boolean heightNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeHeight());
-					boolean widthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeWidth());
-					boolean lengthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeLength());
-					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
-							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
-							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
-							.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
-							.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
-							.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
-					;
+					BigDecimal volumeHeight = packingDictionary.getVolumeHeight();
+					if (BigDecimalUtil.biggerThenZero(volumeHeight)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedHeight(volumeHeight);
+						else packTechPackaging.setVolumeHeight(volumeHeight);
+					}
+					BigDecimal volumeWidth = packingDictionary.getVolumeWidth();
+					if (BigDecimalUtil.biggerThenZero(volumeWidth)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedWidth(volumeWidth);
+						else packTechPackaging.setVolumeWidth(volumeWidth);
+					}
+					BigDecimal volumeLength = packingDictionary.getVolumeLength();
+					if (BigDecimalUtil.biggerThenZero(volumeLength)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedLength(volumeLength);
+						else packTechPackaging.setVolumeLength(volumeLength);
+					}
 				});
-				packTechPackagingService.update(qw);
+				packTechPackagingService.savePackaging(packTechPackaging);
 			});
 		}
 
