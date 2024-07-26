@@ -60,8 +60,10 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnDefineService;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
@@ -102,6 +104,7 @@ import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -270,6 +273,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private String packingDefaultType;
     @Autowired
     private CcmFeignService ccmFeignService;
+	@Autowired
+	private AttachmentService attachmentService;
 
 	@Override
 	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
@@ -1408,6 +1413,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 				// 款式尺码明细
 				tagPrinting.setSize(size);
+
+				if (packInfo != null) {
+					PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+					if (packInfoStatus != null && StrUtil.isNotBlank(packInfoStatus.getTechSpecFileId())) {
+						AttachmentVo attachmentVo = attachmentService.getAttachmentById(packInfoStatus.getTechSpecFileId());
+						if (attachmentVo != null) {
+							tagPrinting.setTechSpecFileUrl(attachmentVo.getUrl());
+						}
+					}
+				}
 
 				tagPrintings.add(tagPrinting);
 			}
