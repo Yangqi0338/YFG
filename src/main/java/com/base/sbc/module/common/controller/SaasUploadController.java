@@ -133,6 +133,7 @@ public class SaasUploadController extends BaseController {
         if (file == null || file.getSize() == 0) {
             throw new OtherException("上传文件为空");
         }
+        logger.info("开始上传视频-----------！");
         checkUploadVideoSize(file);
         String contentType = file.getContentType();
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file, type, code);
