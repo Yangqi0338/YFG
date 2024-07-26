@@ -17,4 +17,9 @@ public interface MaterialCollectService extends IService<MaterialCollect> {
      */
     List<Map<String,Integer>> numList(@Param("materialIds")List<String> materialIds);
 
+    Boolean checkFolderRelation(List<String> ids);
+
+    void mergeFolderReplace(String id, List<String> byMergeFolderIds);
+
+    Long getCollectFileCount(String userId, List<String> byAllFileIds);
 }

@@ -1,4 +1,5 @@
 package com.base.sbc.module.material.service;
+
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
@@ -10,6 +11,7 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：素材库 service类
@@ -49,7 +51,7 @@ public interface MaterialService extends BaseService<Material> {
      */
     List<AssociationMaterialVo> getAssociationMaterial(List<String> ids);
 
-    List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds);
+    List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds,String folderId, String personQuery);
 
     /**
      * 检查是否有关联的数据，true：有关联
@@ -60,5 +62,13 @@ public interface MaterialService extends BaseService<Material> {
 
     long getFileCount(String userId,List<String> folderIds);
 
-    String getFileSize(String userId,List<String> byAllFileIds);
+    Long getFileSize(String userId,List<String> byAllFileIds);
+
+    void mergeFolderReplace(String id, List<String> byMergeFolderIds);
+
+    List<String> listImgQuery(MaterialQueryDto materialQueryDto);
+
+    void delMaterialPersonSpace(List<String> userIds);
+
+    Map<String, List<String>> listImg(MaterialQueryDto materialQueryDto);
 }

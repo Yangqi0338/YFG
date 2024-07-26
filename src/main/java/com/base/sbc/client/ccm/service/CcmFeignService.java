@@ -10,13 +10,17 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.*;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -452,4 +456,40 @@ public class CcmFeignService {
         }
         return list;
     }
+
+
+    /**
+     * 获取素材库结构管理id集合
+     * @param structureName
+     * @param treeName
+     * @return
+     */
+    public List<String> getMaterialBasicStructureIds(String structureName,  String treeName){
+        ApiResult apiResult = ccmService.queryTree(structureName, treeName, "0");
+        if (null == apiResult.getData()){
+            return null;
+        }
+        List<BasicStructureTreeVo> basicStructureTreeVoList =  JSONObject.parseArray(JSON.toJSONString(apiResult.getData()),BasicStructureTreeVo.class);
+        if (CollUtil.isEmpty(basicStructureTreeVoList)){
+            return null;
+        }
+        List<String> ids = Lists.newArrayList();
+        basicStructureTreeVoList.forEach(item -> getTreeIds(item,ids));
+        return ids;
+    }
+
+
+    private void getTreeIds(BasicStructureTreeVo basicStructureTreeVo ,List<String> ids){
+        if (Objects.isNull(basicStructureTreeVo)){
+            return ;
+        }
+        ids.add(basicStructureTreeVo.getId());
+        if (CollUtil.isEmpty(basicStructureTreeVo.getChildren())){
+            return;
+        }
+        for (BasicStructureTreeVo child : basicStructureTreeVo.getChildren()) {
+            getTreeIds(child,ids);
+        }
+    }
+
 }

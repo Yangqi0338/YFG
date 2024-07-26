@@ -37,4 +37,10 @@ public interface Constants {
     String SQL_RIGHT_FILL = "1=1";
     String SQL_ERROR_FILL = "1<>1";
     String TIME_FORMAT = "yyyy/MM/dd hh:mm:ss";
+
+    // 创建时间正序
+    String CREATE_DATE_ASC = "CREATE_DATE_ASC";
+
+    // 创建时间倒叙
+    String CREATE_DATE_DESC = "CREATE_DATE_DESC";
 }

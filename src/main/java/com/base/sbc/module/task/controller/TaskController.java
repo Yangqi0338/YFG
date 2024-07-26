@@ -202,7 +202,14 @@ public class TaskController {
                     }
 
                 }
-
+                if (StrUtil.isNotBlank(contentApproval) &&  procDefName.contains("素材审批")){
+                    Material material = materialService.getById(flowTaskDto.getBusinessKey());
+                    if (!Objects.isNull(material)){
+                        minioUtils.setObjectUrlToObject(material, "picUrl");
+                        flowTaskDto.setPic(material.getPicUrl());
+                        flowTaskDto.setName(StringUtils.isNotBlank(material.getMaterialName()) ? material.getMaterialName() : material.getFileInfo());
+                    }
+                }
 
                 // List<String> ids = data.stream().map(FlowTaskDto::getPic).filter(res -> !StringUtils.isEmpty(res) ).collect(Collectors.toList());
                 // if (!ids.isEmpty()){

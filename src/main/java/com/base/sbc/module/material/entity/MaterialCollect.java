@@ -2,6 +2,8 @@ package com.base.sbc.module.material.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
@@ -18,5 +20,8 @@ public class MaterialCollect extends BaseDataEntity<String> {
     private String userId;
     /** 素材id */
     private String materialId;
+
+    @ApiModelProperty(value = "所属的文件夹id")
+    private String folderId;
 }
 
