@@ -961,19 +961,19 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         Map<String, BigDecimal> bulkUseMap = packBomList.stream().collect(CommonUtils.groupingSingleBy(PackBom::getForeignId,
                 (list) -> CommonUtils.sumBigDecimal(list, PackBom::getBulkUnitUse)));
 
-        // key: styleColorId value: packInfoId
+        // key: bulkStyleNo value: packInfoId
         Map<String, String> packInfoStyleColorMap = MapUtil.reverse(packInfoService.mapOneField(new LambdaQueryWrapper<PackInfo>()
-                .in(PackInfo::getId, bulkUseMap.keySet()), PackInfo::getId, PackInfo::getStyleColorId));
+                .in(PackInfo::getId, bulkUseMap.keySet()), PackInfo::getId, PackInfo::getStyleNo));
 
-        // key: styleColorId value: bulkUnitUse
-        Map<String, BigDecimal> bulkUnitUseMap = MapUtil.map(packInfoStyleColorMap, (styleColorId, packInfoId) -> bulkUseMap.getOrDefault(packInfoId, BigDecimal.ZERO));
+        // key: bulkStyleNo value: bulkUnitUse
+        Map<String, BigDecimal> bulkUnitUseMap = MapUtil.map(packInfoStyleColorMap, (bulkStyleNo, packInfoId) -> bulkUseMap.getOrDefault(packInfoId, BigDecimal.ZERO));
 
-        // key: cmt/fob value: styleColorIdList
-        Map<ProductionType, List<String>> devtTypeStyleColorIdMap = CommonUtils.inverse(styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
-                .in(StyleColor::getId, packInfoStyleColorMap.keySet()), StyleColor::getId, StyleColor::getDevtType));
+        // key: cmt/fob value: bulkStyleNoList
+        Map<ProductionType, List<String>> devtTypeBulkStyleNoMap = CommonUtils.inverse(styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
+                .in(StyleColor::getStyleNo, packInfoStyleColorMap.keySet()), StyleColor::getStyleNo, StyleColor::getDevtType));
 
-        return MapUtil.map(devtTypeStyleColorIdMap, (productionType, styleColorIdList) ->
-                MapUtil.filter(bulkUnitUseMap, styleColorIdList.toArray(new String[]{}))
+        return MapUtil.map(devtTypeBulkStyleNoMap, (productionType, bulkStyleNoList) ->
+                MapUtil.filter(bulkUnitUseMap, bulkStyleNoList.toArray(new String[]{}))
         );
     }
 
@@ -992,7 +992,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         List<ReplayRatingYearVO> yearVOList = new ArrayList<>();
 
         List<ReplayConfig> configList = new ArrayList<>();
-        // key: styleColorId value:packBomList
+        // key: bulkStyleNo value:packBomList
         Map<String, List<PackBom>> stylePackBomListMap = new HashMap<>(list.size());
         List<SaleFac> saleFacList = new ArrayList<>();
         // 构建支持数据
@@ -1019,6 +1019,13 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             yearProductionSaleDTO.setKey(ReplayRatingProperties.totalPrefix);
             replayRatingYearVO.setReplayRatingYearProductionSaleDTO(yearProductionSaleDTO);
             List<ReplayRatingYearProductionSaleDTO> childrenList = yearProductionSaleDTO.getChildrenList();
+
+            // 如果是面料查询, 还得获取单件用量
+            String bulkStyleNo = replayRatingYearVO.getBulkStyleNo();
+            BigDecimal productUnit = BigDecimal.ONE;
+            BigDecimal saleUnit = stylePackBomListMap.containsKey(bulkStyleNo)
+                    ? CommonUtils.sumBigDecimal(stylePackBomListMap.getOrDefault(bulkStyleNo, new ArrayList<>()), PackBom::getBulkUnitUse)
+                    : BigDecimal.ONE;
 
             // 解构复盘管理
             Map<String, Object> saleSeasonMap = BeanUtil.beanToMap(saleSeason);
@@ -1047,6 +1054,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     int index = season.ordinal();
                     String code = season.name().toLowerCase();
                     subChildren.setKey(code);
+
+                    subChildren.setProductionUnit(productUnit);
+                    subChildren.setSaleUnit(saleUnit);
 
                     // 计算月份范围
                     YearMonth startMonth = Opt.ofNullable(timeDTO.getStartMonth()).orElse(date.plusMonths(index * 3L));
@@ -1098,7 +1108,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             yearProductionSaleDTO.calculate();
 
             // 获取物料清单 设置搭配
-            List<PackBom> stylePackBomList = stylePackBomListMap.getOrDefault(replayRatingYearVO.getStyleColorId(), new ArrayList<>());
+            List<PackBom> stylePackBomList = stylePackBomListMap.getOrDefault(replayRatingYearVO.getBulkStyleNo(), new ArrayList<>());
             replayRatingYearVO.setCollocationCode(stylePackBomList.stream().map(PackBom::getCollocationCode).distinct().collect(Collectors.joining(COMMA)));
             replayRatingYearVO.setCollocationName(stylePackBomList.stream().map(PackBom::getCollocationName).distinct().collect(Collectors.joining("\n")));
         });
@@ -1120,7 +1130,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 List<String> styleColorIdList = list.stream().map(ReplayRatingVO::getStyleColorId).distinct().collect(Collectors.toList());
                 Map<String, String> styleColorIdMap = packInfoService.mapOneField(
                         new LambdaQueryWrapper<PackInfo>().in(PackInfo::getStyleColorId, styleColorIdList)
-                        , PackInfo::getStyleColorId, PackInfo::getId
+                        , PackInfo::getStyleNo, PackInfo::getId
                 );
                 // 存在大货款
                 if (MapUtil.isNotEmpty(styleColorIdMap)) {
@@ -1131,9 +1141,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                             .in(PackBom::getForeignId, styleColorIdMap.values())
                             .eq(PackBom::getStatus, YesOrNoEnum.YES)
                     );
-                    // key:styleColorId, value:PackBomList
+                    // key:bulkStyleNo, value:PackBomList
                     stylePackBomListMap.putAll(
-                            MapUtil.map(styleColorIdMap, (styleColorId, packInfoId) ->
+                            MapUtil.map(styleColorIdMap, (bulkStyleNo, packInfoId) ->
                                     packBomList.stream().filter(it -> it.getForeignId().equals(packInfoId)).collect(Collectors.toList())
                             )
                     );
