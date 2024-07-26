@@ -19,11 +19,13 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -249,14 +251,21 @@ public class StylePricingController extends BaseController {
                 }
 
                 // 计控确认时 判断物料采购单价是否都是大于 0，只要一个不是，那么抛出异常
-                List<PackBom> packBomList = packBomService.list(
-                        new LambdaQueryWrapper<PackBom>()
-                                .eq(PackBom::getForeignId, stylePricing.getPackId())
-                );
-                if (ObjectUtil.isNotEmpty(packBomList)) {
-                    boolean anyMatch = packBomList.stream().anyMatch(item -> ObjectUtil.isEmpty(item.getPurchasePrice()));
-                    if (anyMatch) {
-                        throw new OtherException("物料采购单价必须全部大于 0");
+                PackCommonPageSearchDto packCommonPageSearchDto = new PackCommonPageSearchDto();
+                packCommonPageSearchDto.setForeignId(stylePricing.getPackId());
+                packCommonPageSearchDto.setPackType("packBigGoods");
+                PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(packCommonPageSearchDto);
+                if (ObjectUtil.isNotEmpty(packBomVoPageInfo)) {
+                    List<PackBomVo> pageInfoList = packBomVoPageInfo.getList();
+                    if (ObjectUtil.isNotEmpty(pageInfoList)) {
+                        // 过滤出采购单价为空 或者 不大于 0 的数据
+                        List<String> emptyData = pageInfoList.stream()
+                                .filter(item -> ObjectUtil.isEmpty(item.getPurchasePrice()) || !(item.getPurchasePrice().compareTo(BigDecimal.ZERO) > 0))
+                                .map(PackBomVo::getMaterialCode).collect(Collectors.toList());
+                        if (ObjectUtil.isNotEmpty(emptyData)) {
+                            String errorMsg = StrUtil.format("大货款号【{}】下的物料编码为【{}】的数据采购单价必须大于 0 才能进行计控确认！", packInfo.getStyleNo(), CollUtil.join(emptyData, ","));
+                            throw new OtherException(errorMsg);
+                        }
                     }
                 }
 
