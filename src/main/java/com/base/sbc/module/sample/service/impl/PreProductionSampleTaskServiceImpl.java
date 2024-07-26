@@ -716,7 +716,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 查询任务信息
         PreProductionSampleTaskVo taskVo = BeanUtil.copyProperties(task, PreProductionSampleTaskVo.class);
         // 查询款式设计信息
-        StyleVo sampleDesignVo = styleService.getDetail(task.getStyleId());
+        StyleVo sampleDesignVo = styleService.getDetail(task.getSampleStyleId());
         result.setTask(taskVo);
         result.setStyle(sampleDesignVo);
         return result;

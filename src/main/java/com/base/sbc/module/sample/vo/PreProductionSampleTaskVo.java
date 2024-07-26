@@ -137,5 +137,6 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private Date confrimDate;
     private String patternMakingDevtType;
     private String sampleBarCodeQrCode;
+    private String sampleStyleId;
 
 }
