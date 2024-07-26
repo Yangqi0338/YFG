@@ -1022,8 +1022,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
             // 如果是面料查询, 还得获取单件用量
             String bulkStyleNo = replayRatingYearVO.getBulkStyleNo();
-            BigDecimal productUnit = BigDecimal.ONE;
-            BigDecimal saleUnit = stylePackBomListMap.containsKey(bulkStyleNo)
+            BigDecimal saleUnit = BigDecimal.ONE;
+            BigDecimal productUnit = stylePackBomListMap.containsKey(bulkStyleNo)
                     ? CommonUtils.sumBigDecimal(stylePackBomListMap.getOrDefault(bulkStyleNo, new ArrayList<>()), PackBom::getBulkUnitUse)
                     : BigDecimal.ONE;
 
@@ -1138,6 +1138,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     List<PackBom> packBomList = packBomService.list(new LambdaQueryWrapper<PackBom>()
                             .select(PackBom::getForeignId, PackBom::getCollocationCode, PackBom::getCollocationName, PackBom::getBulkUnitUse)
                             .eq(PackBom::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
+                            .eq(PackBom::getMaterialCode, replayRatingYearQO.getMaterialCode())
                             .in(PackBom::getForeignId, styleColorIdMap.values())
                             .eq(PackBom::getStatus, YesOrNoEnum.YES)
                     );
