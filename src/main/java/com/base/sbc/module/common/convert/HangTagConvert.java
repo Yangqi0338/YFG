@@ -30,7 +30,7 @@ import java.util.List;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface HangTagConvert {
     HangTagConvert INSTANCE = Mappers.getMapper(HangTagConvert.class);
 

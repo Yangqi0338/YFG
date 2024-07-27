@@ -1,6 +1,7 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -73,7 +74,7 @@ public class ProcessDatabaseExcelDto {
     private String status;
 
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
-    private String type;
+    private ProcessDatabaseType type;
 
 
     /** 更新者名称  */

@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
@@ -90,6 +91,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 类描述：上传文件 service类
@@ -149,7 +151,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     }
 
     @Override
-    public AttachmentVo uploadToMinio(MultipartFile file, String type, String code) {
+    public AttachmentVo uploadToMinio(MultipartFile file, UploadFileType type, String code) {
         try {
             String md5Hex = DigestUtils.md5DigestAsHex(file.getInputStream());
             String objectName = "";
@@ -157,10 +159,17 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             if (StrUtil.isBlank(extName)) {
                 throw new OtherException("文件无后缀名");
             }
-            if (StringUtils.isNotBlank(type)) {
+            if (type != null) {
+                List<String> accessSuffix = type.getAccessSuffix();
+                String suffix = FileUtil.extName(file.getOriginalFilename()).toLowerCase();
+                if (CollUtil.isNotEmpty(accessSuffix)) {
+                    if (accessSuffix.stream().noneMatch(it -> it.toLowerCase().equals(suffix))) {
+                        throw new OtherException(" 文件格式只支持:" + String.join(COMMA, accessSuffix));
+                    }
+                }
                 switch (type) {
                     /*创意素材库图/附件 t_material.pic_url*/
-                    case "sourceMaterial":
+                    case sourceMaterial:
 //                        StringBuilder sourceMaterialPath = new StringBuilder();
 //                        sourceMaterialPath.append("DesignMaterial").append("/");
 //                        if (StringUtils.isNotEmpty(code)){
@@ -173,54 +182,48 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = getSourceMaterialFileName(code) + "." + extName;
                         break;
                     /*商品企划图 t_planning_category_item.style_pic */
-                    case "planning":
+                    case planning:
                         PlanningCategoryItem planningCategoryItem = planningCategoryItemMapper.selectById(code);
                         objectName = "Planning/" + planningCategoryItem.getBrandName() + "/" + planningCategoryItem.getYearName() + "/" + planningCategoryItem.getDesignNo() + "." + extName;
                         break;
                     /*款式设计（除设计款外其他图片及附件）*/
                     /*样衣/打版其他附件*/
-                    case "styleOther":
-                    case "sampleOther":
+                    case styleOther:
+                    case sampleOther:
                         QueryWrapper queryWrapper = new QueryWrapper();
                         queryWrapper.eq("design_no", code);
                         Style styel = styleMapper.selectOne(queryWrapper);
-                        if(StrUtil.equals(type,"styleOther")){
-                            type ="StyleOther" ;
-                        }else {
-                            type ="SampleOther" ;
-                        }
                         objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
-
                         break;
                     /*样衣图片（包含产前样） t_pattern_making.sample_pic */
-                    case "sample":
+                    case sample:
                         PatternMaking patternMaking = patternMakingMapper.selectById(code);
                         Style style = styleMapper.selectById(patternMaking.getStyleId());
                         objectName = "Sample/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
                         break;
                     /*样衣图片（包含产前样） t_pre_production_sample_task.sample_pic */
-                    case "preSample":
+                    case preSample:
                         PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskMapper.selectById(code);
                         Style style1 = styleMapper.selectById(preProductionSampleTask.getStyleId());
                         objectName = "Sample/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
                         break;
                     /*设计BOM标准资料包（除工艺单外）upload_file */
-                    case "stylePackage":
+                    case stylePackage:
                         objectName = "StylePackage/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    case "dataPackageOther":
+                    case dataPackageOther:
                         objectName =  "DataPackageOther/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*物料其他附件*/
-                    case "materialOther":
+                    case materialOther:
                         objectName =  "MaterialOther/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*系统配置附件/图*/
-                    case "config":
+                    case config:
                         objectName = "System/Config" + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*物料主图*/
-                    case "material":
+                    case material:
                         /*查询物料的数据*/
                         BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialMapper.selectById(code);
                         if (ObjectUtils.isEmpty(basicsdatumMaterial)) {
@@ -232,23 +235,31 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName =  "Material/" + basicsdatumMaterial.getYearName() + "/" + basicsdatumMaterial.getSeasonName() + "/" + basicsdatumMaterial.getMaterialCode() + "." + extName;
                         break;
                     /* 版型库文件 */
-                    case "patternLibraryFile":
+                    case patternLibraryFile:
                         objectName = "Pattern/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /* 版型库图片 */
-                    case "patternLibraryPic":
+                    case patternLibraryPic:
                         objectName = "PatternImage/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*调料管理 面料、辅料图片上传 */
-                    case "fabricAtactiform":
+                    case fabricAtactiform:
                         objectName = "Seasoning/Accessories/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    case "ingredientsAtactiform":
+                    case ingredientsAtactiform:
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
                     case "Account":
                         objectName = "Account/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    case "markingOrderUpload":
+                    case replayRating:
+                    case replayRatingFile:
+                        objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
+                                .append(type)
+                                .append(StrUtil.split(code, COMMA))
+                                .append(System.currentTimeMillis())
+                                .toString();
+                        break;
+                    case markingOrderUpload:
                         objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
                         break;
                     default:
@@ -686,6 +697,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         return multipartFile;
     }
 
+    @Override
+    public String getReviewUrlById(String id) {
+        return minioUtils.getObjectUrl(getUrlById(id));
+    }
+
     public String getTemporaryFilePath(MultipartFile multipartFile) throws IOException {
         // 创建临时文件
         File tempFile = File.createTempFile("temp", null);
@@ -708,8 +724,8 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
      * @param code
      * @return
      */
-    private String getSourceMaterialFileName(String code) {
-
+    private String getSourceMaterialFileName(UploadFileType uploadFileType) {
+        String code = uploadFileType.getCode();
         String prefix = "DesignMaterial";
         //工号
         String username = userUtils.getUserCompany().getUsername();
