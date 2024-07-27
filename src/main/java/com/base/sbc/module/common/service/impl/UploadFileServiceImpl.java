@@ -6,8 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service.impl;
 
-import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
-
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -52,7 +58,7 @@ import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -61,6 +67,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -75,23 +82,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
-import cn.hutool.http.HttpUtil;
-import lombok.extern.slf4j.Slf4j;
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
 
 /**
  * 类描述：上传文件 service类
@@ -248,7 +245,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         break;
                     case ingredientsAtactiform:
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
-                    case "Account":
+                    case account:
                         objectName = "Account/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     case replayRating:
@@ -724,8 +721,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
      * @param code
      * @return
      */
-    private String getSourceMaterialFileName(UploadFileType uploadFileType) {
-        String code = uploadFileType.getCode();
+    private String getSourceMaterialFileName(String code) {
         String prefix = "DesignMaterial";
         //工号
         String username = userUtils.getUserCompany().getUsername();
