@@ -311,20 +311,20 @@ public class SmpService {
         if (httpResp.isSuccess()) {
             List<MaterialPurchaseMaterialsInfo> list = JSONUtil.toList(httpResp.getData(), MaterialPurchaseMaterialsInfo.class);
             if (ObjectUtil.isNotEmpty(list)) {
-                Map<String, String> map = list.stream().collect(Collectors.toMap(
+                Map<String, BigDecimal> map = list.stream().collect(Collectors.toMap(
                         item ->
                                 item.getMaterialsNo() + "&"
                                         + item.getSpecificationsNo() + "&"
                                         + item.getMaterialsColorCode() + "&"
-                                        + item.getMaterialsName(), MaterialPurchaseMaterialsInfo::getPriceUnit));
+                                        + item.getMaterialsName(), MaterialPurchaseMaterialsInfo::getMaxPriceUnit));
                 for (PackBom packBom : packBomList) {
-                    String purchasePrice = map.get(
+                    BigDecimal purchasePrice = map.get(
                             packBom.getMaterialCode() + "&"
                                     + packBom.getTranslateCode() + "&"
                                     + packBom.getColorCode() + "&"
                                     + packBom.getMaterialName());
-                    if (StrUtil.isNotBlank(purchasePrice)) {
-                        packBom.setPurchasePrice(new BigDecimal(purchasePrice).setScale(2, RoundingMode.HALF_UP));
+                    if (ObjectUtil.isNotEmpty(purchasePrice)) {
+                        packBom.setPurchasePrice(purchasePrice.setScale(2, RoundingMode.HALF_UP));
                     }
                 }
                 return packBomList.stream().filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice())).map(item -> {

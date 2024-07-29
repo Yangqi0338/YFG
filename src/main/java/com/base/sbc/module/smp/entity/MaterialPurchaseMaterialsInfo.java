@@ -34,8 +34,25 @@ public class MaterialPurchaseMaterialsInfo {
      */
     private String materialsName;
     /**
-     * 采购单价
+     * 采购单价（废弃）
      */
+    @Deprecated
     private String priceUnit;
+    /**
+     * 附加费用
+     */
+    private BigDecimal otherCost;
+    /**
+     * 最早采购单价
+     */
+    private BigDecimal minPriceUnit;
+    /**
+     * 最新采购单价
+     */
+    private BigDecimal maxPriceUnit;
+    /**
+     * 款号
+     */
+    private String styleNo;
 
 }
