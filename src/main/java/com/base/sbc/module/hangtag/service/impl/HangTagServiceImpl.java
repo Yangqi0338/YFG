@@ -1937,7 +1937,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public ApiResult oneUpdateStatus(List<String> ids) {
-		if (CollUtil.isNotEmpty(ids)) return ApiResult.success("更新成功");
 		List<String> warnMsgList = new ArrayList<>();
 		ids.forEach(id -> {
 			if (StrUtil.isBlank(id)) warnMsgList.add("存在未填写数据，请先填写");
