@@ -657,6 +657,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                             ) {
                                 throw new OtherException("计控确定成本、商品吊牌、计控吊牌未取消");
                             }
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getWagesConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
                         }
                         /*取消计控确定成本*/
                         if (StrUtil.equals(stylePricingSaveDTO.getControlConfirm(), BaseGlobal.IN)) {
@@ -666,12 +670,26 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                             ) {
                                 throw new OtherException("商品吊牌和计控吊牌未取消");
                             }
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getControlConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
                         }
                         if (StrUtil.equals(stylePricingSaveDTO.getProductHangtagConfirm(), BaseGlobal.IN)) {
                             /*校验商品吊牌和计控吊牌确定*/
                             if (StrUtil.equals(stylePricing1.getControlHangtagConfirm(), BaseGlobal.YES)) {
                                 throw new OtherException("计控吊牌未取消");
                             }
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getProductHangtagConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
+                        }
+                        if (StrUtil.equals(stylePricingSaveDTO.getControlHangtagConfirm(), BaseGlobal.IN)) {
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getControlHangtagConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
                         }
                         stylePricing.updateInit();
                     }
