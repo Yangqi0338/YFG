@@ -889,6 +889,11 @@ public class SmpService {
         return i;
     }
 
+    @Async
+    public void materialsAsync(String[] ids) {
+        materials(ids);
+    }
+
     /**
      * 物料主数据下发
      */
