@@ -237,9 +237,9 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
 
         if (ObjectUtil.isNotEmpty(detailsList)) {
             // 生成品类企划明细 空数据
-            // 按照 品类-中类-波段分组 品类企划颗粒度到波段 不到款式类别
+            // 按照 品类-中类-波段分组 品类企划颗粒度到波段 不到款式类别 -> 2024/07/29 改成到款式类别
             Map<String, List<SeasonalPlanningDetails>> seasonalPlanningDetailsMap = detailsList.stream().collect(
-                    Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode() + "-" + item.getBandCode(), LinkedHashMap::new, Collectors.toList())
+                    Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode() + "-" + item.getBandCode() + "-" + item.getStyleCategory(), LinkedHashMap::new, Collectors.toList())
             );
 
             // 将季节企划详情集合数据按照品类-中类分组 用作合并相同品类-中类下的sck数据
@@ -674,18 +674,16 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         }
         categoryPlanningDetails.setBandCode(details.getBandCode());
         categoryPlanningDetails.setBandName(details.getBandName());
+        categoryPlanningDetails.setStyleCategoryCode(details.getStyleCategoryCode());
+        categoryPlanningDetails.setStyleCategory(details.getStyleCategory());
         // 计算不同款式类别相加起来的需求数
-        for (SeasonalPlanningDetails seasonalPlanningDetails : inSeasonalPlanningDetailsList) {
-            skcCount += ObjectUtil.isEmpty(seasonalPlanningDetails.getSkcCount())
-                    ? 0 : Integer.parseInt(seasonalPlanningDetails.getSkcCount());
-        }
+        // for (SeasonalPlanningDetails seasonalPlanningDetails : inSeasonalPlanningDetailsList) {
+        //     skcCount += ObjectUtil.isEmpty(seasonalPlanningDetails.getSkcCount())
+        //             ? 0 : Integer.parseInt(seasonalPlanningDetails.getSkcCount());
+        // }
+        skcCount += ObjectUtil.isEmpty(details.getSkcCount())
+                ? 0 : Integer.parseInt(details.getSkcCount());
         categoryPlanningDetails.setSkcCount(String.valueOf(skcCount));
-        categoryPlanningDetails.setStyleCategory(
-                inSeasonalPlanningDetailsList
-                        .stream()
-                        .map(SeasonalPlanningDetails::getStyleCategory)
-                        .collect(Collectors.joining(",")))
-        ;
         categoryPlanningDetails.setOrderTime(details.getOrderTime());
         categoryPlanningDetails.setLaunchTime(details.getLaunchTime());
 
