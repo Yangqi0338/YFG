@@ -1937,6 +1937,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public ApiResult oneUpdateStatus(List<String> ids) {
 		List<String> warnMsgList = new ArrayList<>();
 		ids.forEach(id -> {
@@ -1954,29 +1955,31 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		Map<HangTagStatusEnum, List<HangTag>> statusMap = hangTags.stream()
 				.sorted(Comparator.comparing(it -> (it.getStatus().ordinal())))
 				.collect(CommonUtils.groupingBy(HangTag::getStatus));
-		statusMap.forEach((status, sameStatusList) -> {
-			if (status.lessThan(TRANSLATE_CHECK)) {
-				HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
-				statusDTO.setStatus(status.lessThan(DESIGN_CHECK) ? DESIGN_CHECK : status.nextLevel());
-				statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
-				try {
-					this.updateStatus(statusDTO, false, sameStatusList);
-				} catch (Exception e) {
-					sameStatusList.forEach(hangTag -> {
-						try {
-							this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
-						} catch (Exception e1) {
-							sameStatusList.remove(hangTag);
-							warnMsgList.add(e1.getMessage());
-						}
-					});
-				}
-				List<HangTag> nextStatusList = statusMap.getOrDefault(statusDTO.getStatus(), new ArrayList<>());
-				nextStatusList.addAll(sameStatusList);
-				statusMap.put(statusDTO.getStatus(), nextStatusList);
-			}
-		});
-		int warnSize = warnMsgList.size();
+        for (Map.Entry<HangTagStatusEnum, List<HangTag>> entry : statusMap.entrySet()) {
+            HangTagStatusEnum status = entry.getKey();
+            List<HangTag> sameStatusList = entry.getValue();
+            if (status.lessThan(TRANSLATE_CHECK)) {
+                HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+                statusDTO.setStatus(status.lessThan(DESIGN_CHECK) ? DESIGN_CHECK : status.nextLevel());
+                statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
+                try {
+                    this.updateStatus(statusDTO, false, sameStatusList);
+                } catch (Exception e) {
+                    for (HangTag hangTag : sameStatusList) {
+                        try {
+                            this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
+                        } catch (Exception e1) {
+                            sameStatusList.remove(hangTag);
+                            warnMsgList.add(e1.getMessage());
+                        }
+                    }
+                }
+                List<HangTag> nextStatusList = statusMap.getOrDefault(statusDTO.getStatus(), new ArrayList<>());
+                nextStatusList.addAll(sameStatusList);
+                statusMap.put(statusDTO.getStatus(), nextStatusList);
+            }
+        }
+        int warnSize = warnMsgList.size();
 		String warnMsg = StrUtil.join("\n", warnMsgList);
 		// 全错
 		int successSize = ids.size() - warnSize;
