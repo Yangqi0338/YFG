@@ -29,6 +29,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.base.sbc.config.annotation.EditPermission;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
@@ -38,20 +39,12 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
-import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
-import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.config.enums.business.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.QueryGenerator;
-import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -1955,31 +1948,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		Map<HangTagStatusEnum, List<HangTag>> statusMap = hangTags.stream()
 				.sorted(Comparator.comparing(it -> (it.getStatus().ordinal())))
 				.collect(CommonUtils.groupingBy(HangTag::getStatus));
-        for (Map.Entry<HangTagStatusEnum, List<HangTag>> entry : statusMap.entrySet()) {
-            HangTagStatusEnum status = entry.getKey();
-            List<HangTag> sameStatusList = entry.getValue();
-            if (status.lessThan(TRANSLATE_CHECK)) {
-                HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
-                statusDTO.setStatus(status.lessThan(DESIGN_CHECK) ? DESIGN_CHECK : status.nextLevel());
-                statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
-                try {
-                    this.updateStatus(statusDTO, false, sameStatusList);
-                } catch (Exception e) {
-                    for (HangTag hangTag : sameStatusList) {
-                        try {
-                            this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
-                        } catch (Exception e1) {
-                            sameStatusList.remove(hangTag);
-                            warnMsgList.add(e1.getMessage());
-                        }
-                    }
-                }
-                List<HangTag> nextStatusList = statusMap.getOrDefault(statusDTO.getStatus(), new ArrayList<>());
-                nextStatusList.addAll(sameStatusList);
-                statusMap.put(statusDTO.getStatus(), nextStatusList);
-            }
-        }
-        int warnSize = warnMsgList.size();
+		updateStatus(statusMap, warnMsgList);
+		int warnSize = warnMsgList.size();
 		String warnMsg = StrUtil.join("\n", warnMsgList);
 		// 全错
 		int successSize = ids.size() - warnSize;
@@ -1989,6 +1959,31 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		else
 			return ApiResult.success(StrUtil.format("更新成功\n 成功{}条, 失败{}条 \n {}", successSize, warnSize, warnMsg),
 					BaseErrorEnum.PART_UPDATE_SUCCESS.getErrorCode());
+	}
+
+	private void updateStatus(Map<HangTagStatusEnum, List<HangTag>> statusMap, List<String> warnMsgList) {
+		statusMap.forEach((status, sameStatusList) -> {
+			if (status.lessThan(TRANSLATE_CHECK)) {
+				HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+				HangTagStatusEnum nextStatus = status.lessThan(TECH_CHECK) ? TECH_CHECK : status.nextLevel();
+				statusDTO.setStatus(nextStatus);
+				statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
+				try {
+					this.updateStatus(statusDTO, false, sameStatusList);
+				} catch (Exception e) {
+                    for (int i = 0; i < sameStatusList.size(); i++) {
+                        HangTag hangTag = sameStatusList.get(i);
+                        try {
+                            this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
+                        } catch (Exception e1) {
+                            sameStatusList.remove(i);
+                            warnMsgList.add(e1.getMessage());
+                        }
+                    }
+                }
+				updateStatus(MapUtil.of(nextStatus, sameStatusList), warnMsgList);
+            }
+        });
 	}
 
 	@Override
