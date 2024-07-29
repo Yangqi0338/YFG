@@ -294,7 +294,7 @@ public class SmpService {
         for (Map.Entry<String, List<PackBom>> stringListEntry : packBomMap.entrySet()) {
             // 相同分组的 取一条即可
             PackBom packBom = stringListEntry.getValue().get(0);
-            MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packBom, style);
+            MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packBom, style, packInfo.getStyleNo());
             materialPurchaseMaterialsInfoList.add(materialPurchaseMaterialsInfo);
         }
 
@@ -346,13 +346,14 @@ public class SmpService {
     }
 
     @NotNull
-    private static MaterialPurchaseMaterialsInfo getMaterialPurchaseMaterialsInfo(PackBom packBom, Style style) {
+    private static MaterialPurchaseMaterialsInfo getMaterialPurchaseMaterialsInfo(PackBom packBom, Style style, String styleNo) {
         MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = new MaterialPurchaseMaterialsInfo();
         materialPurchaseMaterialsInfo.setBrandCode(style.getBrand());
         materialPurchaseMaterialsInfo.setMaterialsNo(packBom.getMaterialCode());
         materialPurchaseMaterialsInfo.setSpecificationsNo(packBom.getTranslateCode());
         materialPurchaseMaterialsInfo.setMaterialsColorCode(packBom.getColorCode());
         materialPurchaseMaterialsInfo.setMaterialsName(packBom.getMaterialName());
+        materialPurchaseMaterialsInfo.setStyleNo(styleNo);
         return materialPurchaseMaterialsInfo;
     }
 
