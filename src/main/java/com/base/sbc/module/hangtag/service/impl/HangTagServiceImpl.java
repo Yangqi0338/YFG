@@ -53,6 +53,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnDefineService;
+import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -1411,9 +1412,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				if (packInfo != null) {
 					PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
 					if (packInfoStatus != null && StrUtil.isNotBlank(packInfoStatus.getTechSpecFileId())) {
-						AttachmentVo attachmentVo = attachmentService.getAttachmentById(packInfoStatus.getTechSpecFileId());
-						if (attachmentVo != null) {
-							tagPrinting.setTechSpecFileUrl(attachmentVo.getUrl());
+						UploadFile uploadFile = uploadFileService.getById(packInfoStatus.getTechSpecFileId());
+						if (uploadFile != null) {
+							tagPrinting.setTechSpecFileUrl(uploadFile.getUrl());
 						}
 					}
 				}
