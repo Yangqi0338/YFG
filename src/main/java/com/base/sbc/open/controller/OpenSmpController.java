@@ -254,9 +254,19 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             String say = "";
+            //1.成分备注不带括号，默认给它加英文括号；
+            //2.成分带括号时，默认改为英文括号；
+            //3.成分带英文括号，不做处理
             if(StringUtils.isNotEmpty(inspectContent.getRemark())){
+                String remark = inspectContent.getRemark();
+                if (remark.contains("（") || remark.contains("）")) {
+                    say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
+                }
+
+                if (!remark.contains("(") && !remark.contains(")")) {
+                    say = "("+inspectContent.getRemark()+")";
+                }
 //                 say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
-                say = "("+inspectContent.getRemark()+")";
                 basicsdatumMaterialIngredient.setSay(inspectContent.getRemark());
             }
             String contentProportion = inspectContent.getContentProportion().replace("%", "");

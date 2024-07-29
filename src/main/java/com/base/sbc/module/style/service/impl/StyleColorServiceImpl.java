@@ -2668,7 +2668,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             TagPrinting tagPrinting = new TagPrinting();
             tagPrinting.setStyleCode(styleColorAgentVo1.getStyleNo());
             tagPrinting.setColorCode(styleColorAgentVo1.getOutsideColorCode());
-            tagPrinting.setColorDescription(styleColorAgentVo1.getOutsideColorName());
 
             List<TagPrinting.Size> sizes = new ArrayList<>();
             for (StyleColorAgentVo styleColorAgentVo : value) {
@@ -2677,6 +2676,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
                 size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
                 size.setSIZECODE(styleColorAgentVo.getInternalSize());
+                size.setExtShape(styleColorAgentVo.getExtShape());
+                size.setExtSize(styleColorAgentVo.getExtSize());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
@@ -2702,7 +2703,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             tagPrinting.setProductNameTranslate(styleColorAgentVo1.getProductNameTranslate());
             //颜色code翻译
             tagPrinting.setColorCodeTranslate(styleColorAgentVo1.getColorCodeTranslate());
-
+            //生产日期
+            tagPrinting.setProduceDate(styleColorAgentVo1.getProduceDate());
             tagPrintings.add(tagPrinting);
         }
 
@@ -3632,6 +3634,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         //List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
         //创建吊牌信息数据
         List<HangTag> updateHangTagList = new ArrayList<>();
+        List<StyleColorAgent> updateAgentColorList = new ArrayList<>();
 
         Map<String, StyleColorAgentVo> styleHangTagMap = null;
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
@@ -3641,7 +3644,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (CollUtil.isNotEmpty(agentList)) {
             styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getOutsideBarcode, m -> m, (k1, k2) -> k1));
         }
-
 
         HangTag updateHangTag = null;
 
@@ -3670,6 +3672,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String ingredient = mangoHangTagExeclDto.getIngredient();
             //颜色代码翻译
             String colorCodeTranslate = mangoHangTagExeclDto.getColorCodeTranslate();
+            //mango国际号型
+            String extShape = mangoHangTagExeclDto.getExtShape();
+            //mango国际尺码
+            String extSize = mangoHangTagExeclDto.getExtSize();
 
             //得到MANGO品牌大货款信息，并判断是否导入的大货款是否存在数据库
             if (!styleHangTagMap.containsKey(outsizeBarcode)) {
@@ -3766,7 +3772,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
                 //如果是已下发不允许导入吊牌信息，必须先解锁再导入
-                String enableStatus = styleColorAgentVo.getSendStatus();
+//                String enableStatus = styleColorAgentVo.getSendStatus();
 //                if ("1".equals(enableStatus)) {
 //                    errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】请先解锁，然后再导入吊牌信息！\n";
 //                }
@@ -3778,8 +3784,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateHangTag.setProductNameTranslate(productNameTranslate);
             updateHangTag.setColorCodeTranslate(colorCodeTranslate);
             updateHangTag.setProducer(producer);
+
             //添加吊牌需要修改的信息
             updateHangTagList.add(updateHangTag);
+
+
+            StyleColorAgent styleColorAgent = new StyleColorAgent();
+            styleColorAgent.setId(styleColorAgentVo.getId());
+            styleColorAgent.setExtShape(extShape);
+            styleColorAgent.setExtSize(extSize);
+            updateAgentColorList.add(styleColorAgent);
+
 
         }
 
@@ -3789,6 +3804,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if (CollUtil.isNotEmpty(updateHangTagList)) {
             hangTagService.updateBatchById(updateHangTagList);
+        }
+        if (CollUtil.isNotEmpty(updateAgentColorList)) {
+            styleColorAgentService.updateBatchById(updateAgentColorList);
         }
 
         String msg = "";
