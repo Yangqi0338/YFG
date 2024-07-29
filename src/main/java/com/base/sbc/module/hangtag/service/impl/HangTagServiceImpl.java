@@ -1981,6 +1981,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                         }
                     }
                 }
+				sameStatusList.forEach(it-> it.setStatus(nextStatus));
 				updateStatus(MapUtil.of(nextStatus, sameStatusList), warnMsgList);
             }
         });
