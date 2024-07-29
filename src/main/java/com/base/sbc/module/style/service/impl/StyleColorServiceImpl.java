@@ -15,6 +15,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
@@ -22,6 +23,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
+import com.aliyun.oss.ServiceException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -365,7 +367,47 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             stylePicUtils.setStyleColorPic2(sampleStyleColorList, "styleColorPic");
         }
 
+        // 查询产品季的名称
+        if (ObjectUtil.isNotEmpty(sampleStyleColorList)) {
+            List<String> planningSeasonIdList = sampleStyleColorList
+                    .stream().map(StyleColorVo::getPlanningSeasonId).distinct().collect(Collectors.toList());
+            List<PlanningSeason> planningSeasonList = planningSeasonService.listByIds(planningSeasonIdList);
+            Map<String, String> planningSeasonNameMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(planningSeasonList)) {
+                planningSeasonNameMap = planningSeasonList
+                        .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
+            }
+            for (StyleColorVo styleColorVo : sampleStyleColorList) {
+                styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
+            }
+        }
         return new PageInfo<>(sampleStyleColorList);
+    }
+
+    @Override
+    public void updateNoMeetFlag(List<String> styleColorIdList) {
+        if (ObjectUtils.isEmpty(styleColorIdList)) {
+            throw new OtherException("请选择修改数据！");
+        }
+        LambdaUpdateWrapper<StyleColor> styleColorWrapper = new LambdaUpdateWrapper<>();
+        styleColorWrapper.in(StyleColor::getId, styleColorIdList);
+        styleColorWrapper.set(StyleColor::getMeetFlag, BaseGlobal.NO);
+        if (!update(styleColorWrapper)) {
+            throw new OtherException("修改失败，请刷新后重试！");
+        }
+    }
+
+    @Override
+    public void updateYesMeetFlag(List<String> styleColorIdList) {
+        if (ObjectUtils.isEmpty(styleColorIdList)) {
+            throw new OtherException("请选择修改数据！");
+        }
+        LambdaUpdateWrapper<StyleColor> styleColorWrapper = new LambdaUpdateWrapper<>();
+        styleColorWrapper.in(StyleColor::getId, styleColorIdList);
+        styleColorWrapper.set(StyleColor::getMeetFlag, BaseGlobal.YES);
+        if (!update(styleColorWrapper)) {
+            throw new OtherException("修改失败，请刷新后重试！");
+        }
     }
 
     @Override
