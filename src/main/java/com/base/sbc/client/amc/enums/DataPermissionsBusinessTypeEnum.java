@@ -45,6 +45,7 @@ public enum DataPermissionsBusinessTypeEnum {
     costPricing("costPricing", "成本核价"),
     material("material", "物料清单"),
     style_color_correct_info("style_color_correct_info","正确样流转"),
+    esOrderBook("esOrderBook","es订货本"),
     //打版管理
     patternMakingSteps("patternMakingSteps", "打版进度"),
     patternMakingTask("patternMakingTask","打版任务" ),
