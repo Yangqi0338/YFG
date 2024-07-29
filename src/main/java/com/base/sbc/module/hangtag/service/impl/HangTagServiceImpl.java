@@ -141,6 +141,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -821,27 +822,35 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			Opt.ofNullable(
 					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
 			).ifPresent(packInfo-> {
-				LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
-						.eq(PackTechPackaging::getForeignId, packInfo.getId())
-						.set(PackTechPackaging::getPackagingForm, packagingFormCode)
-						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
-						.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
-						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
+				// 改成调用已有接口 以适应有资料包但是没有对应的工艺说明数据
+				PackTechPackaging packTechPackaging = new PackTechPackaging();
+				packTechPackaging.setForeignId(packInfo.getId());
+				// 只修改大货款
+				packTechPackaging.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+				packTechPackaging.setPackagingForm(packagingFormCode);
+				packTechPackaging.setPackagingFormName(hangTagDTO.getPackagingForm());
+				packTechPackaging.setPackagingBagStandard(packagingBagStandardCode);
+				packTechPackaging.setPackagingBagStandardName(hangTagDTO.getPackagingBagStandard());
 				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
 						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
 						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-					boolean heightNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeHeight());
-					boolean widthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeWidth());
-					boolean lengthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeLength());
-					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
-							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
-							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
-							.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
-							.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
-							.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
-					;
+					BigDecimal volumeHeight = packingDictionary.getVolumeHeight();
+					if (BigDecimalUtil.biggerThenZero(volumeHeight)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedHeight(volumeHeight);
+						else packTechPackaging.setVolumeHeight(volumeHeight);
+					}
+					BigDecimal volumeWidth = packingDictionary.getVolumeWidth();
+					if (BigDecimalUtil.biggerThenZero(volumeWidth)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedWidth(volumeWidth);
+						else packTechPackaging.setVolumeWidth(volumeWidth);
+					}
+					BigDecimal volumeLength = packingDictionary.getVolumeLength();
+					if (BigDecimalUtil.biggerThenZero(volumeLength)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedLength(volumeLength);
+						else packTechPackaging.setVolumeLength(volumeLength);
+					}
 				});
-				packTechPackagingService.update(qw);
+				packTechPackagingService.savePackaging(packTechPackaging);
 			});
 		}
 
