@@ -1701,9 +1701,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         // 工艺说明包装方式
         packTechPackagingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         packSizeConfigService.del(sourceForeignId,sourcePackType);
-        packSizeService.del(targetForeignId, targetPackType);
-        packTechSpecService.del(targetForeignId, targetPackType);
-        packTechPackagingService.del(targetForeignId, targetPackType);
+        packSizeService.del(targetForeignId, sourcePackType);
+        packTechSpecService.del(targetForeignId, sourcePackType);
+        packTechPackagingService.del(targetForeignId, sourcePackType);
     }
 
 // 自定义方法区 不替换的区域【other_end】
