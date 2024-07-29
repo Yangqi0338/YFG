@@ -585,4 +585,8 @@ public class StyleColorAgentVo {
      */
     private String extSize;
 
+    @ApiModelProperty(value = "生产日期"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date produceDate;
+
 }

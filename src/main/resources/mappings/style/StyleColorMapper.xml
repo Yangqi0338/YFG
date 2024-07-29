@@ -601,8 +601,9 @@
                tha.product_name_translate,
                tha.color_code_translate,
                tha.id  hangTagId,
-               tha.ext_shape as extShape,
-               tha.ext_size as extSize
+               tsca.ext_shape as extShape,
+               tsca.ext_size as extSize,
+               tha.produce_date as produceDate
         FROM t_style_color_agent tsca
                  LEFT JOIN t_style_color tsc ON tsca.style_color_id = tsc.id AND tsc.del_flag = '0'
                  left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'

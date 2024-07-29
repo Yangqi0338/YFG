@@ -251,14 +251,6 @@ public class HangTag extends BaseDataEntity<String> {
      * 颜色编码翻译
      */
     private String colorCodeTranslate;
-    /**
-     * mango国际号型
-     */
-    private String extShape;
-    /**
-     * mango国际尺码
-     */
-    private String extSize;
 
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
