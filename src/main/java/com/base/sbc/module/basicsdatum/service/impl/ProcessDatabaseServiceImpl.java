@@ -6,32 +6,43 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
+import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
+import com.base.sbc.module.basicsdatum.dto.BasicsCraftExcelDto;
+import com.base.sbc.module.basicsdatum.dto.ComponentLibraryExcelDto;
+import com.base.sbc.module.basicsdatum.dto.CraftMaterialExcelDto;
+import com.base.sbc.module.basicsdatum.dto.ExternalCraftExcelDto;
+import com.base.sbc.module.basicsdatum.dto.FormworkComponentExcelDto;
+import com.base.sbc.module.basicsdatum.dto.ProcessDatabaseExcelDto;
+import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.mapper.ProcessDatabaseMapper;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
-import com.base.sbc.module.basicsdatum.vo.ProcessDatabaseSelectVO;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,7 +51,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -61,6 +76,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
     private final CcmFeignService ccmFeignService;
 
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
+
     /**
      * @param file 文件
      * @return 成功或者失败
@@ -71,31 +89,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
         String originalFilename = file.getOriginalFilename();
         String[] split = originalFilename.split("\\.");
-        String type = "";
         /*类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
-        String name = split[0];
-        String dict = "";
-        if (name.contains("部件库")) {
-            dict = "C8_SpecCategory";
-            type = "1";
-        } else if (name.contains("基础工艺")) {
-            dict = "C8_SewingType";
-            type = "2";
-        } else if (name.contains("外辅工艺")) {
-            type = "3";
-        } else if (name.contains("裁剪工艺")) {
-            type = "4";
-        } else if (name.contains("注意事项")) {
-            type = "5";
-        } else if (name.contains("整烫包装")) {
-            dict = "C8_SewingType";
-            type = "6";
-        } else if (name.contains("模板部件")) {
-            dict = "C8_SpecCategory,C8_Brand";
-            type = "7";
-        }
-
-        if (StringUtils.isBlank(type)) {
+        ProcessDatabaseType type = ProcessDatabaseType.findByText(split[0]);
+        if (type == null) {
             throw new OtherException("文件名称错误");
         }
         ImportParams params = new ImportParams();
@@ -104,6 +100,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
 
         //获取字典值
+        String dict = type.getDict();
         Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
         Map<String, String> map = new HashMap<>();
         Map<String, String> map1 = new HashMap<>();
@@ -112,7 +109,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
             map = dictInfoToMap.get(dict.split(",")[0]);
         }
         List<BasicCategoryDot> basicCategoryDotList = new ArrayList<>();
-        if ("7".equals(type)) {
+        if (type == ProcessDatabaseType.mbbj) {
             basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
             map1 = dictInfoToMap.get(dict.split(",")[1]);
         }
@@ -127,7 +124,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 }
             }
 
-            if (type.equals(BaseGlobal.OUT) || "7".equals(type)) {
+            if (type == ProcessDatabaseType.bjk || type == ProcessDatabaseType.mbbj) {
                 /*部件*/
                 if (StringUtils.isNotBlank(processDatabaseExcelDto.getComponentName())) {
                     String[] componentNames = processDatabaseExcelDto.getComponentName().replaceAll(" ", "").split(",");
@@ -142,7 +139,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                     processDatabaseExcelDto.setComponent(StringUtils.join(stringList, ","));
                     processDatabaseExcelDto.setComponentName(StringUtils.join(stringList1, ","));
                 }
-            } else if (type.equals(BaseGlobal.OUT_READY) || "6".equals(type)) {
+            } else if (type == ProcessDatabaseType.jcgy || type == ProcessDatabaseType.ztbz) {
 
                 /*工艺类型*/
                 if (StringUtils.isNotBlank(processDatabaseExcelDto.getProcessTypeName())) {
@@ -161,7 +158,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
             }
 
-            if ("7".equals(type)) {
+            if (type == ProcessDatabaseType.mbbj) {
 //                processDatabaseExcelDto.setProcessType(processDatabaseExcelDto.getComponentCategory());
                 /*品类*/
                 if (StringUtils.isNotBlank(processDatabaseExcelDto.getCategoryName())) {
@@ -194,9 +191,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         List<ProcessDatabase> processDatabaseList = BeanUtil.copyToList(list, ProcessDatabase.class);
 
         for (ProcessDatabase processDatabase : processDatabaseList) {
-            QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("code", processDatabase.getCode());
-            queryWrapper.eq("type", type);
+            LambdaQueryWrapper<ProcessDatabase> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ProcessDatabase::getCode, processDatabase.getCode());
+            queryWrapper.eq(ProcessDatabase::getType, type);
             this.saveOrUpdate(processDatabase, queryWrapper);
         }
         return true;
@@ -209,36 +206,36 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
      * @param type
      */
     @Override
-    public void deriveExcel(HttpServletResponse response, String type) throws IOException {
-        if (StringUtils.isBlank(type)) {
+    public void deriveExcel(HttpServletResponse response, ProcessDatabaseType type) throws IOException {
+        if (type == null) {
             throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
         }
-        QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("type", type);
-
+        ProcessDatabasePageDto pageDto = new ProcessDatabasePageDto();
+        pageDto.setType(type);
+        List<ProcessDatabase> dataList = list(pageDto);
         switch (type) {
-            case "1": {
+            case bjk: {
                 /*部件库*/
-                List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
+                List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(dataList, ComponentLibraryExcelDto.class);
                 ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
-            case "2":
-            case "6": {
+            case jcgy:
+            case ztbz: {
                 /*基础工艺*/
-                List<BasicsCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsCraftExcelDto.class);
+                List<BasicsCraftExcelDto> list = BeanUtil.copyToList(dataList, BasicsCraftExcelDto.class);
                 ExcelUtils.exportExcel(list, BasicsCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
-            case "3": {
+            case wfgy: {
                 /*外辅工艺*/
-                List<ExternalCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ExternalCraftExcelDto.class);
+                List<ExternalCraftExcelDto> list = BeanUtil.copyToList(dataList, ExternalCraftExcelDto.class);
                 ExcelUtils.exportExcel(list, ExternalCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
-            case "7": {
+            case mbbj: {
                 /*模板部件*/
-                List<FormworkComponentExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FormworkComponentExcelDto.class);
+                List<FormworkComponentExcelDto> list = BeanUtil.copyToList(dataList, FormworkComponentExcelDto.class);
                 minioUtils.setObjectUrlToList(list, "picture");
 
                 ExecutorService executor = ExecutorBuilder.create()
@@ -275,13 +272,11 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 break;
             }
             default: {
-                List<CraftMaterialExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), CraftMaterialExcelDto.class);
+                List<CraftMaterialExcelDto> list = BeanUtil.copyToList(dataList, CraftMaterialExcelDto.class);
                 ExcelUtils.exportExcel(list, CraftMaterialExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
         }
-
-
     }
 
     /**
@@ -293,9 +288,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
     public Boolean save(AddRevampProcessDatabaseDto addRevampProcessDatabaseDto) {
         /*新增查询编码是否重复*/
         if (StringUtils.isBlank(addRevampProcessDatabaseDto.getId())) {
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("code", addRevampProcessDatabaseDto.getCode());
-            queryWrapper.eq("type", addRevampProcessDatabaseDto.getType());
+            LambdaQueryWrapper<ProcessDatabase> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ProcessDatabase::getCode, addRevampProcessDatabaseDto.getCode());
+            queryWrapper.eq(ProcessDatabase::getType, addRevampProcessDatabaseDto.getType());
             List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(processDatabaseList)) {
                 throw new OtherException("同一个工艺类型下，不允许编码重复！");
@@ -303,35 +298,8 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         }
         ProcessDatabase processDatabase = new ProcessDatabase();
         BeanUtils.copyProperties(addRevampProcessDatabaseDto, processDatabase);
-        //类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件
-        String type="";
-        switch (addRevampProcessDatabaseDto.getType()){
-            case "1":
-                type="部件库";
-                break;
-            case "2":
-                type="基础工艺";
-                break;
-            case "3":
-                type="外辅工艺";
-                break;
-            case "4":
-                type="裁剪工艺";
-                break;
-            case "5":
-                type="注意事项";
-                break;
-            case "6":
-                type="整烫包装";
-                break;
-            case "7":
-                type="模板部件";
-                break;
-            default:
-                break;
-        }
         CommonUtils.removeQuery(processDatabase, "picture");
-        return saveOrUpdate(processDatabase,type,addRevampProcessDatabaseDto.getProcessName(),addRevampProcessDatabaseDto.getCode());
+        return saveOrUpdate(processDatabase, processDatabase.getType().getText(), addRevampProcessDatabaseDto.getProcessName(), addRevampProcessDatabaseDto.getCode());
     }
 
     /**
@@ -342,136 +310,78 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
      */
     @Override
     public PageInfo<ProcessDatabase> listPage(ProcessDatabasePageDto pageDto) {
+        Page<ProcessDatabase> page = pageDto.startPage();
+        List<ProcessDatabase> list = list(pageDto);
+        minioUtils.setObjectUrlToList(list, "picture");
+        return page.toPageInfo();
+    }
+
+    @Override
+    public List<ProcessDatabase> list(ProcessDatabasePageDto pageDto) {
+        BaseQueryWrapper<ProcessDatabase> queryWrapper = buildQueryWrapper(pageDto);
+        return this.list(queryWrapper);
+    }
+
+    private BaseQueryWrapper<ProcessDatabase> buildQueryWrapper(ProcessDatabasePageDto pageDto) {
         BaseQueryWrapper<ProcessDatabase> queryWrapper = new BaseQueryWrapper<>();
 
-        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getType()), "type", pageDto.getType());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessType()), "process_type", pageDto.getProcessType());
-        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getStatus()), "status", pageDto.getStatus());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getBrandName()), "brand_name", pageDto.getBrandName());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getDescription()), "description", pageDto.getDescription());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCreateName()), "create_name", pageDto.getCreateName());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessName()), "process_name", pageDto.getProcessName());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCode()), "code", pageDto.getCode());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getBrandCode()), "brand_id", pageDto.getBrandCode());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getComponent()), "component", pageDto.getComponent());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryCode()), "category_id", pageDto.getCategoryCode());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryId()), "category_id", pageDto.getCategoryId());
-        queryWrapper.in(StringUtils.isNotEmpty(pageDto.getComponent()), "component", StringUtils.convertList(pageDto.getComponent()));
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryName()), "category_name", pageDto.getCategoryName());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessRequire()), "process_require", pageDto.getProcessRequire());
-
-
-
+        queryWrapper.notNullEq("type", pageDto.getType());
+        queryWrapper.notEmptyLike("process_type", pageDto.getProcessType());
+        queryWrapper.notEmptyEq("status", pageDto.getStatus());
+        queryWrapper.notEmptyLike("description", pageDto.getDescription());
+        queryWrapper.notEmptyLike("create_name", pageDto.getCreateName());
+        queryWrapper.notEmptyLike("process_name", pageDto.getProcessName());
+        queryWrapper.notEmptyLike("code", pageDto.getCode());
+        queryWrapper.notEmptyLike("brand_id", pageDto.getBrandCode());
+        queryWrapper.notEmptyLike("component", pageDto.getComponent());
+        queryWrapper.notEmptyLike("category_id", pageDto.getCategoryCode());
+        queryWrapper.notEmptyLike("category_id", pageDto.getCategoryId());
+        queryWrapper.notEmptyIn("component", pageDto.getComponent());
+        queryWrapper.notEmptyLike("category_name", pageDto.getCategoryName());
+        queryWrapper.notEmptyLike("process_require", pageDto.getProcessRequire());
         queryWrapper.andLike(pageDto.getSearch(), "code", "process_name");
-        if (pageDto.getCreateDate() != null) {
+        queryWrapper.between("create_date", pageDto.getCreateDate());
+        queryWrapper.orderByDesc(Opt.ofBlankAble(pageDto.getOrderBy()).orElse("create_date"));
 
-            queryWrapper.between("create_date", pageDto.getCreateDate());
+        if (pageDto.getType() == ProcessDatabaseType.bjk) {
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.componentLibrary.getK());
         }
-
-        if (StringUtils.isNotEmpty(pageDto.getOrderBy())) {
-            queryWrapper.orderByDesc(pageDto.getOrderBy());
-        }else {
-            queryWrapper.orderByDesc("create_date");
-        }
-
-        //if (pageDto.getTime() != null && pageDto.getTime().length > 0) {
-        //    queryWrapper.ge(StringUtils.isNotEmpty(pageDto.getTime()[0]), "create_date", pageDto.getTime()[0]);
-        //    if (pageDto.getTime().length > 1) {
-        //        queryWrapper.and(i -> i.le(StringUtils.isNotEmpty(pageDto.getTime()[1]), "create_date", pageDto.getTime()[1]));
-        //    }
-        //}
-
-        PageHelper.startPage(pageDto);
-        List<ProcessDatabase> list = this.list(queryWrapper);
-        minioUtils.setObjectUrlToList(list, "picture");
-        return new PageInfo<>(list);
-    }
-
-    @Override
-    public List<String> getAllPatternPartsCode() {
-        QueryWrapper<ProcessDatabase> qw = new QueryWrapper<>();
-        qw.select(" ");
-        qw.eq(COMPANY_CODE, getCompanyCode());
-        qw.ne("del_flag", BaseGlobal.YES);
-        qw.eq("type", BasicNumber.SEVEN.getNumber());
-        return getBaseMapper().getAllPatternPartsCode(qw);
-
-    }
-
-    @Override
-    public List<ProcessDatabaseSelectVO> selectProcessDatabase(String type, String categoryName, String companyCode) {
-        return super.getBaseMapper().selectProcessDatabase(type, categoryName, companyCode);
-    }
-
-    @Override
-    public List<ProcessDatabase> getAll() {
-        QueryWrapper<ProcessDatabase> qw = new QueryWrapper<>();
-        qw.eq(COMPANY_CODE, getCompanyCode());
-        qw.ne("del_flag", BaseGlobal.YES);
-        qw.eq("type", BasicNumber.SEVEN.getNumber());
-        return list(qw);
+        return queryWrapper;
     }
 
     /**
      * 获取到部件中部件类别可查询的数据
-     *
-     * @param type
-     * @param companyCode
      * @return
      */
     @Override
-    public List<ProcessDatabase> getQueryList(String type,String field, String brandId,String categoryId,String companyCode) {
+    public List<ProcessDatabase> getQueryList(ProcessDatabasePageDto pageDto, String field) {
+        pageDto.setStatus(BaseGlobal.NO);
+        BaseQueryWrapper<ProcessDatabase> queryWrapper = buildQueryWrapper(pageDto);
 
-        QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(COMPANY_CODE, companyCode);
-        queryWrapper.eq("del_flag", BaseGlobal.NO);
-        queryWrapper.eq("type", type);
-        queryWrapper.eq("status", BaseGlobal.NO);
-        queryWrapper.like(StringUtils.isNotBlank(brandId),"brand_id", brandId);
-        queryWrapper.like(StringUtils.isNotBlank(categoryId),"category_id", categoryId);
         queryWrapper.groupBy(StringUtils.toUnderScoreCase(field));
-        List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
+        List<ProcessDatabase> processDatabaseList = this.list(queryWrapper);
         if (CollUtil.isEmpty(processDatabaseList)) {
             return processDatabaseList;
         }
 
         if (StrUtil.equals(field, "categoryId")) {
-            List<ProcessDatabase> list = new ArrayList<>();
-            String collect = processDatabaseList.stream().map(ProcessDatabase::getCategoryName).collect(Collectors.joining(","));
-
-            List<String> stringList = StringUtils.convertList(collect);
-            stringList = stringList.stream().distinct().collect(Collectors.toList());
-            for (String s : stringList) {
+            return processDatabaseList.stream().map(ProcessDatabase::getCategoryName).distinct().map(it -> {
                 ProcessDatabase p = new ProcessDatabase();
-                p.setCategoryName(s);
-                list.add(p);
-            }
-            return list;
+                p.setCategoryName(it);
+                return p;
+            }).collect(Collectors.toList());
         }
 
         /*去掉空数据*/
         return processDatabaseList.stream().filter(p -> StrUtil.isNotBlank(BeanUtil.getProperty(p, field))).collect(Collectors.toList());
-
     }
 
     @Override
     public Map<String, String> listAllDistinct(ProcessDatabasePageDto pageDto) {
-        BaseQueryWrapper<ProcessDatabase> queryWrapper = new BaseQueryWrapper<>();
-
-        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getType()), "type", pageDto.getType());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryId()), "category_id", pageDto.getCategoryId());
-        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryName()), "category_name", pageDto.getCategoryName());
-
-        if (StringUtils.isNotEmpty(pageDto.getOrderBy())) {
-            queryWrapper.orderByDesc(pageDto.getOrderBy());
-        }else {
-            queryWrapper.orderByDesc("create_date");
-        }
-
+        BaseQueryWrapper<ProcessDatabase> queryWrapper = buildQueryWrapper(pageDto);
         queryWrapper.select("component","component_name");
 
         List<ProcessDatabase> list = this.list(queryWrapper);
-
         return list.stream().collect(Collectors.toMap(ProcessDatabase::getComponent, ProcessDatabase::getComponentName, (v1, v2) -> v1));
     }
 }
