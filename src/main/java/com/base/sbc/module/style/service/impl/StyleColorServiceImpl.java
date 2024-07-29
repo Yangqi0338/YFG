@@ -2660,6 +2660,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             tagPrinting.setProductNameTranslate(styleColorAgentVo1.getProductNameTranslate());
             //颜色code翻译
             tagPrinting.setColorCodeTranslate(styleColorAgentVo1.getColorCodeTranslate());
+            //国际号型
+            tagPrinting.setExtShape(styleColorAgentVo1.getExtShape());
+            //国际尺码
+            tagPrinting.setExtSize(styleColorAgentVo1.getExtSize());
 
             tagPrintings.add(tagPrinting);
         }
@@ -3628,6 +3632,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String ingredient = mangoHangTagExeclDto.getIngredient();
             //颜色代码翻译
             String colorCodeTranslate = mangoHangTagExeclDto.getColorCodeTranslate();
+            //mango国际号型
+            String extShape = mangoHangTagExeclDto.getExtShape();
+            //mango国际尺码
+            String extSize = mangoHangTagExeclDto.getExtSize();
 
             //得到MANGO品牌大货款信息，并判断是否导入的大货款是否存在数据库
             if (!styleHangTagMap.containsKey(outsizeBarcode)) {
@@ -3724,7 +3732,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
                 //如果是已下发不允许导入吊牌信息，必须先解锁再导入
-                String enableStatus = styleColorAgentVo.getSendStatus();
+//                String enableStatus = styleColorAgentVo.getSendStatus();
 //                if ("1".equals(enableStatus)) {
 //                    errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】请先解锁，然后再导入吊牌信息！\n";
 //                }
@@ -3736,6 +3744,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateHangTag.setProductNameTranslate(productNameTranslate);
             updateHangTag.setColorCodeTranslate(colorCodeTranslate);
             updateHangTag.setProducer(producer);
+            updateHangTag.setExtShape(extShape);
+            updateHangTag.setExtSize(extSize);
             //添加吊牌需要修改的信息
             updateHangTagList.add(updateHangTag);
 

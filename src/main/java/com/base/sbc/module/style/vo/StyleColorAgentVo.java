@@ -576,5 +576,13 @@ public class StyleColorAgentVo {
      * 颜色翻译
      */
     private String colorCodeTranslate;
+    /**
+     * 国际号型
+     */
+    private String extShape;
+    /**
+     * 国际尺码
+     */
+    private String extSize;
 
 }
