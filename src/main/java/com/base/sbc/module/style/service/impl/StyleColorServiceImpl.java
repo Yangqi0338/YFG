@@ -2634,8 +2634,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
                 size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
                 size.setSIZECODE(styleColorAgentVo.getInternalSize());
-                size.setExtShape(styleColorAgentVo1.getExtShape());
-                size.setExtSize(styleColorAgentVo1.getExtSize());
+                size.setExtShape(styleColorAgentVo.getExtShape());
+                size.setExtSize(styleColorAgentVo.getExtSize());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
