@@ -171,6 +171,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIP
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.DESIGN_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.FINISH;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TECH_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
@@ -744,7 +745,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		if (hangTagDTO.getStatus() == HangTagStatusEnum.DESIGN_CHECK) {
+		if (hangTagDTO.getStatus() == DESIGN_CHECK) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 		/*检测报告*/
@@ -803,7 +804,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 
-		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.TRANSLATE_CHECK == hangTagDTO.getCheckType()) {
+		if (DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.TRANSLATE_CHECK == hangTagDTO.getCheckType()) {
 			hangTag = this.getById(hangTag.getId());
 			// 发起审批
 			flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(),
@@ -812,7 +813,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					BeanUtil.beanToMap(hangTag));
 		}
 		// 如果提交审核默认通过第一个审核
-		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
+		if (DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
 			hangTag.setStatus(TECH_CHECK);
 			this.updateById(hangTag);
 		}
@@ -1046,7 +1047,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						}
 					}
 
-					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
+					if (DESIGN_CHECK == e.getStatus()
 							&&
 							TECH_CHECK != updateStatus
 					) {
@@ -1347,7 +1348,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
-				tagPrinting.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				tagPrinting.setTechApproved(hangTag.getStatus().greatThan(DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
@@ -1950,25 +1951,31 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (hasNormalHangTag) throw new OtherException("!只允许一键审核报次款!");
 
 		// 只选状态小于待翻译确认的
-		List<HangTag> rightHangTags = hangTags.stream().filter(it -> it.getStatus().lessThan(TRANSLATE_CHECK)).collect(Collectors.toList());
-		rightHangTags.stream()
-				.collect(Collectors.groupingBy(HangTag::getStatus))
-				.forEach((status, sameStatusList) -> {
-					HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
-					statusDTO.setStatus(status.lessThan(TECH_CHECK) ? TECH_CHECK : status.nextLevel());
-					statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
-					try {
-						this.updateStatus(statusDTO, false, sameStatusList);
-					} catch (Exception e) {
-						sameStatusList.forEach(hangTag -> {
-							try {
-								this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
-							} catch (Exception e1) {
-								warnMsgList.add(e1.getMessage());
-							}
-						});
-					}
-				});
+		Map<HangTagStatusEnum, List<HangTag>> statusMap = hangTags.stream()
+				.sorted(Comparator.comparing(it -> (it.getStatus().ordinal())))
+				.collect(CommonUtils.groupingBy(HangTag::getStatus));
+		statusMap.forEach((status, sameStatusList) -> {
+			if (status.lessThan(TRANSLATE_CHECK)) {
+				HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+				statusDTO.setStatus(status.lessThan(DESIGN_CHECK) ? DESIGN_CHECK : status.nextLevel());
+				statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
+				try {
+					this.updateStatus(statusDTO, false, sameStatusList);
+				} catch (Exception e) {
+					sameStatusList.forEach(hangTag -> {
+						try {
+							this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
+						} catch (Exception e1) {
+							sameStatusList.remove(hangTag);
+							warnMsgList.add(e1.getMessage());
+						}
+					});
+				}
+				List<HangTag> nextStatusList = statusMap.getOrDefault(statusDTO.getStatus(), new ArrayList<>());
+				nextStatusList.addAll(sameStatusList);
+				statusMap.put(statusDTO.getStatus(), nextStatusList);
+			}
+		});
 		int warnSize = warnMsgList.size();
 		String warnMsg = StrUtil.join("\n", warnMsgList);
 		// 全错

@@ -12,6 +12,6 @@ import java.util.List;
 @ApiModel("更新DTO")
 public class UpdateDTO {
     @ApiModelProperty("更新id")
-    @NotEmpty(message = "更新id不可为空")
+    @NotEmpty(message = "请选择数据")
     private List<String> ids;
 }
