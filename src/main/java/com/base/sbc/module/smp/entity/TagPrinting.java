@@ -247,6 +247,11 @@ public class TagPrinting {
     private String materialCodeNames;
 
     /**
+     * 工艺说明PDF
+     */
+    private String techSpecFileUrl;
+
+    /**
      * 尺码明细类
      */
     @Data
