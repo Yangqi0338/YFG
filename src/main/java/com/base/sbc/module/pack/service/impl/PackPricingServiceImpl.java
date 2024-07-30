@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -17,19 +18,25 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
+import com.base.sbc.module.basicsdatum.dto.SupplierDetailPriceDto;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.dto.SyncPricingBomDto;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
@@ -101,6 +108,14 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/bill/readyWearContractBill}")
     private String SCM_URL;
+
+    @Resource
+    PackPricingBomService packPricingBomService;
+
+    @Resource
+    BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
+    @Resource
+    PackBomVersionService packBomVersionService;
 
     @Override
     public ApiResult getContractPrice(QueryContractPriceDTO dto) {
@@ -330,6 +345,90 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         return get(foreignId,packType);
     }
 
+    /**
+     * 从物料清单同步数据到核价
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean syncPricingBom(SyncPricingBomDto dto) {
+        //行id不为空着 同步单行数据
+        if(StrUtil.isNotBlank(dto.getPricingBomId())){
+            /*同步单个物料*/
+            PackBom one = packBomService.getById(dto.getBomId());
+
+            PackPricingBom pricingBom = packPricingBomService.getById(dto.getPricingBomId());
+            if(one != null&&pricingBom!=null){
+                /*重新获取供应商报价信息*/
+                SupplierDetailPriceDto supplierDetailPriceDto = new SupplierDetailPriceDto();
+                supplierDetailPriceDto.setWidth(one.getTranslateCode());
+                supplierDetailPriceDto.setSupplierId(one.getSupplierId());
+                supplierDetailPriceDto.setMaterialCode(one.getMaterialCode());
+                supplierDetailPriceDto.setColor(one.getColorCode());
+                BigDecimal price = basicsdatumMaterialPriceDetailService.gatSupplierPrice(supplierDetailPriceDto).getQuotationPrice();
+                //获取单件用量
+                BigDecimal unitUse=one.getUnitUse();
+                UpdateWrapper<PackPricingBom> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.lambda()
+                        .eq(PackPricingBom::getForeignId,dto.getForeignId())
+                        .eq(PackPricingBom::getPackType,dto.getPackType())
+                        .eq(PackPricingBom::getId,dto.getPricingBomId())
+                        .set(PackPricingBom::getPlanningLoossRate,one.getPlanningLoossRate())
+                        .set(PackPricingBom::getBulkPrice,one.getBulkPrice())
+                        .set(PackPricingBom::getDesignPrice,one.getDesignPrice())
+                        .set(PackPricingBom::getPrice,price)
+                        .set(PackPricingBom::getGramWeight,one.getGramWeight())
+                        .set(PackPricingBom::getPartCode,one.getPartCode())
+                        .set(PackPricingBom::getPartName,one.getPartName())
+                        .set(PackPricingBom::getLossRate,one.getLossRate())
+                        .set(PackPricingBom::getCost,one.getCost())
+                        .set(PackPricingBom::getStockUnitName,one.getStockUnitName())
+                        .set(PackPricingBom::getStockUnitCode,one.getStockUnitCode())
+                        .set(PackPricingBom::getTranslate,one.getTranslate())
+                        .set(PackPricingBom::getCollocationCode,one.getCollocationCode())
+                        .set(PackPricingBom::getCollocationName,one.getCollocationName())
+                        .set(PackPricingBom::getUnitUse,unitUse);
+                packPricingBomService.update(updateWrapper);
+            }else{
+                throw new OtherException("物料清单不存在");
+            }
+        }else{
+            //全量同步
+            //删除之前的（物理删除）
+            BaseQueryWrapper<PackPricingBom> pricingBomQw = new BaseQueryWrapper<>();
+            PackUtils.commonQw(pricingBomQw,dto);
+            pricingBomQw.isNotNull("bom_id");
+            packPricingBomService.physicalDeleteQWrap(pricingBomQw);
+
+            List<PackBomVo> enableVersionBomList = packBomVersionService.getEnableVersionBomList(dto.getForeignId(), dto.getPackType());
+            if(CollUtil.isNotEmpty(enableVersionBomList)){
+//                packBomService.querySubList(enableVersionBomList);
+                /*用与新增*/
+                List<PackPricingBom> packPricingBoms=new ArrayList<>();
+                for (PackBomVo packBomVo : enableVersionBomList) {
+                    PackPricingBom pbom=BeanUtil.copyProperties(packBomVo, PackPricingBom.class);
+                    pbom.insertInit();
+                    pbom.setBomId(packBomVo.getId());
+                    pbom.setId(null);
+                    /*重新获取报价*/
+                  /*  SupplierDetailPriceDto supplierDetailPriceDto = new SupplierDetailPriceDto();
+                    supplierDetailPriceDto.setWidth(packBomVo.getTranslateCode());
+                    supplierDetailPriceDto.setSupplierId(packBomVo.getSupplierId());
+                    supplierDetailPriceDto.setMaterialCode(packBomVo.getMaterialCode());
+                    supplierDetailPriceDto.setColor(packBomVo.getColorCode());
+                    BigDecimal price = basicsdatumMaterialPriceDetailService.gatSupplierPrice(supplierDetailPriceDto).getQuotationPrice();
+                    pbom.setPrice(price);*/
+                    packPricingBoms.add(pbom);
+                }
+                if(CollUtil.isNotEmpty(packPricingBoms)){
+                    packPricingBomService.saveBatch(packPricingBoms);
+                }
+            }
+        }
+        return true;
+    }
+
 
     @Override
     public Map<String, BigDecimal>  calculateCosts(PackCommonSearchDto dto) {
@@ -338,7 +437,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         Map<String, BigDecimal> otherStatistics = packPricingOtherCostsService.statistics(dto);
         temp.putAll(otherStatistics);
         //物料费用统计
-        temp.put("物料费", packBomService.calculateCosts(dto));
+        temp.put("物料费", packPricingBomService.calculateCosts(dto));
         //统计加工费用
         temp.put("加工费", packPricingProcessCostsService.calculateCosts(dto));
         //统计二次加工费用

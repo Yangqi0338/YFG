@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
+import com.base.sbc.module.pack.dto.SyncPricingBomDto;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
@@ -78,6 +79,14 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
 
     PackPricing getByForeignIdOne(String foreignId, String packType);
+
+
+    /**
+     * 从物料清单同步数据到核价
+     * @param dto
+     * @return
+     */
+    boolean syncPricingBom(SyncPricingBomDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 
