@@ -673,16 +673,16 @@
                 <otherwise>
                     t_style_color tssc
                     <if test="dto.getColumnMap().containsKey('tsd')">
-                        LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
+                        LEFT JOIN t_style tsd ON tssc.style_id = tsd.id AND tsd.del_flag = '0'
                     </if>
                     <if test="dto.getColumnMap().containsKey('ht')">
-                        LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
+                        LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no AND ht.del_flag = '0'
                     </if>
                     <if test="dto.getColumnMap().containsKey('tpi') and !dto.getColumnMap().containsKey('tsp')">
-                        LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
+                        LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no AND tpi.del_flag = '0'
                     </if>
                     <if test="dto.getColumnMap().containsKey('tsp')">
-                        LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
+                        LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no AND tpi.del_flag = '0'
                         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
                     </if>
                 </otherwise>
@@ -693,6 +693,7 @@
                     AND tssc.company_code = #{dto.companyCode}
                 </if>
                 <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                    tpi.del_flag = 0
                     and pack_type = 'packBigGoods'
                 </if>
                 <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
@@ -744,14 +745,14 @@
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 t_pack_info tpi
                 LEFT JOIN t_pack_info_status ps ON ( tpi.id = ps.foreign_id AND ps.del_flag = '0' )
-                LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id )
-                LEFT JOIN t_hang_tag ht ON tpi.design_no = ht.bulk_style_no
+                LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id ) AND tsd.del_flag = '0'
+                LEFT JOIN t_hang_tag ht ON tpi.design_no = ht.bulk_style_no AND ht.del_flag = '0'
             </when>
             <otherwise>
                 t_style_color tssc
-                LEFT JOIN t_style tsd ON tssc.style_id = tsd.id
-                LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
-                LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
+                LEFT JOIN t_style tsd ON tssc.style_id = tsd.id AND tsd.del_flag = '0'
+                LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no AND ht.del_flag = '0'
+                LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no AND tpi.del_flag = '0'
 
             </otherwise>
         </choose>
@@ -841,6 +842,7 @@
                     tsd.design_no like concat('%',#{designNo},'%')
                 </foreach>
             </if>
+            and tpi.del_flag = 0
             <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
                 ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
