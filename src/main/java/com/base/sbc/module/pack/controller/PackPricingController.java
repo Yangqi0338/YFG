@@ -205,7 +205,7 @@ public class PackPricingController {
 
     @PostMapping("/pricingBom/del")
     @ApiOperation(value = "删除核价物料")
-    public boolean pricingBomSave(@RequestBody IdsDto ids){
-        return packPricingBomService.removeBatchByIds(StrUtil.split(ids.getId(), CharUtil.COMMA));
+    public boolean pricingBomDel(@RequestBody IdsDto ids){
+        return packPricingBomService.pricingBomDel(ids);
     }
 }

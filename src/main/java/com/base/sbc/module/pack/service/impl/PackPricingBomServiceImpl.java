@@ -8,20 +8,26 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingBomDto;
 import com.base.sbc.module.pack.entity.PackPricingBom;
 import com.base.sbc.module.pack.mapper.PackPricingBomMapper;
 import com.base.sbc.module.pack.service.PackPricingBomService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingBomVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,7 +49,9 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
 
 
 // 自定义方法区 不替换的区域【other_start】
-
+        @Autowired
+        @Lazy
+        private PackPricingService packPricingService;
 
     /**
      * 查询核价清单
@@ -132,7 +140,23 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
      */
     @Override
     public boolean saveOrUpdate(List<PackPricingBomDto> list) {
-        return this.saveOrUpdateBatch(BeanUtil.copyToList(list, PackPricingBom.class));
+        this.saveOrUpdateBatch(BeanUtil.copyToList(list, PackPricingBom.class));
+        packPricingService.calculatePricingJson(list.get(0).getForeignId(),list.get(0).getPackType());
+        return true;
+    }
+
+    /**
+     * 删除
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public boolean pricingBomDel(IdsDto ids) {
+        List<PackPricingBom> packPricingBoms = baseMapper.selectBatchIds(StringUtils.convertList(ids.getId()));
+        removeBatchByIds(StrUtil.split(ids.getId(), CharUtil.COMMA));
+        packPricingService.calculatePricingJson(packPricingBoms.get(0).getForeignId(),packPricingBoms.get(0).getPackType());
+        return true;
     }
 
     @Override

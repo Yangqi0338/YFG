@@ -227,6 +227,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     private PackBomService packBomService;
 
     @Autowired
+    private PackPricingBomService packPricingBomService;
+
+    @Autowired
     private StyleMainAccessoriesService styleMainAccessoriesService;
 
     @Lazy
@@ -452,7 +455,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     packCommonSearchDto.setForeignId(styleVO.getPackInfoId());
                     //材料成本,如果fob,则不计算
                     if ("CMT".equals(styleVO.getDevtTypeName())) {
-                        styleVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
+                        styleVO.setMaterialCost(packPricingBomService.calculateCosts(packCommonSearchDto));
                     } else {
                         styleVO.setMaterialCost(BigDecimal.ZERO);
                     }
@@ -1450,7 +1453,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             packCommonSearchDto.setForeignId(packInfo.getId());
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
 //            核价成本
-            BigDecimal packBomCost = packBomService.calculateCosts(packCommonSearchDto);
+            BigDecimal packBomCost = packPricingBomService.calculateCosts(packCommonSearchDto);
 //            物料成本为0时查询核价信息的总成本
             if (packBomCost.compareTo(BigDecimal.ZERO) == 0) {
 //                核价信息总成本

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
@@ -15,6 +16,7 @@ import com.base.sbc.module.pack.dto.PackPricingBomQueryDto;
 import com.base.sbc.module.pack.vo.PackPricingBomVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -64,6 +66,13 @@ public interface PackPricingBomService extends BaseService<PackPricingBom>{
      * @return
      */
     boolean saveOrUpdate(List<PackPricingBomDto> list);
+
+    /**
+     * 删除
+     * @param ids
+     * @return
+     */
+    boolean pricingBomDel(IdsDto ids);
 
 // 自定义方法区 不替换的区域【other_end】
 

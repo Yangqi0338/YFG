@@ -463,6 +463,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
                         .eq(PackPricingBom::getId,dto.getPricingBomId())
                         .set(PackPricingBom::getPlanningLoossRate,one.getPlanningLoossRate())
                         .set(PackPricingBom::getBulkPrice,one.getBulkPrice())
+                        .set(PackPricingBom::getDesignUnitUse,one.getDesignUnitUse())
                         .set(PackPricingBom::getDesignPrice,one.getDesignPrice())
                         .set(PackPricingBom::getPrice,price)
                         .set(PackPricingBom::getGramWeight,one.getGramWeight())
@@ -513,6 +514,8 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
                 }
             }
         }
+        /*重新计算核价*/
+        calculatePricingJson(dto.getForeignId(),dto.getPackType());
         return true;
     }
 
