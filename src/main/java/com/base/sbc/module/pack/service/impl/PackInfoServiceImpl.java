@@ -329,6 +329,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto) {
         Style style = styleService.getById(dto.getId());
         if (style == null) {
