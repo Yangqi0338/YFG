@@ -169,20 +169,20 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(qw);
 
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
-            // 获取所有波段,当作列
+            // 获取所有波段,当作列  现在需要波段加上款式类别
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())) {
-                Integer i = map.get(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode());
+                Integer i = map.get(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory());
                 if (i == null) {
                     if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())) {
-                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode(), 1);
+                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory(), 1);
                     } else {
-                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode(), 0);
+                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory(), 0);
                     }
                 } else {
                     if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())) {
                         i++;
                     }
-                    map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode(), i);
+                    map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory(), i);
                 }
             }
             // 获取所有的第一维度
@@ -354,8 +354,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         for (Map.Entry<String, Integer> stringStringEntry : map.entrySet()) {
             TableColumnVo tableColumnVo = new TableColumnVo();
             String[] split = stringStringEntry.getKey().split(",");
-            tableColumnVo.setTitle(split[0]);
-            tableColumnVo.setColKey(split[1]);
+            tableColumnVo.setTitle(split[0] + "/" + split[2]);
+            tableColumnVo.setColKey(split[1] + "/" + split[2]);
             tableColumnVo.setNum(String.valueOf(stringStringEntry.getValue()));
             tableColumnVos.add(tableColumnVo);
         }

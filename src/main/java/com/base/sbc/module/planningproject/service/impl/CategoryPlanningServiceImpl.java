@@ -242,7 +242,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                     Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode() + "-" + item.getBandCode() + "-" + item.getStyleCategory(), LinkedHashMap::new, Collectors.toList())
             );
 
-            // 将季节企划详情集合数据按照品类-中类分组 用作合并相同品类-中类下的sck数据
+            // 将季节企划详情集合数据按照品类-中类分组 用作合并相同品类-中类下的skc数据
 
             Map<String, List<SeasonalPlanningDetails>> totalSeasonalPlanningDetailsMap = detailsList.stream().collect(
                     Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode(), LinkedHashMap::new, Collectors.toList())
