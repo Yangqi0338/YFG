@@ -85,6 +85,7 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
