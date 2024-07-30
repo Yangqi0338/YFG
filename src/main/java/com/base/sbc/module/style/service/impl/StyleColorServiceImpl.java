@@ -3634,6 +3634,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String extShape = mangoHangTagExeclDto.getExtShape();
             //mango国际尺码
             String extSize = mangoHangTagExeclDto.getExtSize();
+            //生产日期
+            Date produceDate = mangoHangTagExeclDto.getProduceDate();
 
             //得到MANGO品牌大货款信息，并判断是否导入的大货款是否存在数据库
             if (!styleHangTagMap.containsKey(outsizeBarcode)) {
@@ -3742,6 +3744,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateHangTag.setProductNameTranslate(productNameTranslate);
             updateHangTag.setColorCodeTranslate(colorCodeTranslate);
             updateHangTag.setProducer(producer);
+            updateHangTag.setProduceDate(produceDate);
 
             //添加吊牌需要修改的信息
             updateHangTagList.add(updateHangTag);
