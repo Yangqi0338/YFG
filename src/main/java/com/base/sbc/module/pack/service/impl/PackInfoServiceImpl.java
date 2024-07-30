@@ -1438,8 +1438,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 designPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
                 designPs.setPostTechConfirm(BaseGlobal.NO);
                 designPs.setDesignTechConfirmDate(null);
-
-
+                /*重新计算核价*/
+                packPricingService.calculatePricingJson(packInfo.getId(), PACK_TYPE_DESIGN);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {

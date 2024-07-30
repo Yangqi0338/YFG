@@ -115,7 +115,7 @@ public class PackPricingController {
     @ApiOperation(value = "其他费用-删除", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @DeleteMapping("/otherCosts")
     public boolean delOtherCosts(@Valid IdsDto idsDto) {
-        return packPricingOtherCostsService.delByIds(idsDto.getId());
+        return packPricingOtherCostsService.delOtherCosts(idsDto.getId());
     }
 
     @ApiOperation(value = "加工费用-分页查询")

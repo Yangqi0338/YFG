@@ -75,7 +75,7 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      * @param foreignId
      * @return
      */
-   boolean createPackPricing( String styleId,String foreignId);
+    PackPricing createPackPricing( String styleId,String foreignId);
 
 
     PackPricing getByForeignIdOne(String foreignId, String packType);
@@ -87,6 +87,24 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      * @return
      */
     boolean syncPricingBom(SyncPricingBomDto dto);
+
+    /**
+     * 重新计算核价中的JSON
+     * @param foreignId
+     * @param packType
+     * @param fields 可修改字段
+     * @return
+     */
+    boolean calculatePricingJson(String foreignId, String packType);
+
+    /**
+     * 重新计算核价中的JSON
+     * @param foreignId
+     * @param packType
+     * @param fields 可修改字段
+     * @return
+     */
+    boolean calculatePricingJson(String foreignId, String packType,Map<String,Object> map);
 
 // 自定义方法区 不替换的区域【other_end】
 

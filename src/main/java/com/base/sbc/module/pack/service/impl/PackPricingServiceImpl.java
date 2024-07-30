@@ -21,9 +21,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.annotation.DistributedLock;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.module.basicsdatum.dto.SupplierDetailPriceDto;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
@@ -37,6 +39,7 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomColorVo;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
@@ -45,10 +48,12 @@ import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.base.sbc.module.smp.dto.HttpResp;
+import com.base.sbc.module.pricing.vo.PricingTemplateVO;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import org.apache.commons.lang3.StringUtils;
 import org.nfunk.jep.JEP;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -154,6 +159,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
+    @DistributedLock(key = "'saveByDto'+#dto.foreignId")
     public PackPricingVo saveByDto(PackPricingDto dto) {
         PackPricing one = get(dto.getForeignId(), dto.getPackType());
         if (one == null) {
@@ -165,6 +171,14 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             saveOrUpdateOperaLog(dto, one, genOperaLogEntity(one, "修改"));
             BeanUtil.copyProperties(dto, one, "id");
             updateById(one);
+            Map<String,Object> map = new HashMap<>();
+            /*获取前端传入的税率计算*/
+            if (StrUtil.isNotBlank(one.getCalcItemVal())) {
+                JSONObject jsonObject = JSONObject.parseObject(one.getCalcItemVal());
+                map.put("税率",jsonObject.get("税率"));
+                map.put("pricingTemplateId",one.getPricingTemplateId());
+            }
+            calculatePricingJson(one.getForeignId(),one.getPackType(),map);
         }
         return BeanUtil.copyProperties(one, PackPricingVo.class);
     }
@@ -273,7 +287,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     /**
      * 获取核价信息中的路由信息
      *
-     * @param visitParam
+     * @param styleNo
      * @return
      */
     @Override
@@ -304,7 +318,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
      * @return
      */
     @Override
-    public boolean createPackPricing(String styleId, String foreignId) {
+    public PackPricing createPackPricing(String styleId, String foreignId) {
         /*获取到款式的生产类型再去查询核价模板新增核价信息*/
         Style style = styleService.getById(styleId);
         if (ObjectUtil.isEmpty(style)) {
@@ -313,31 +327,32 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 //        查询核价模板
         QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("devt_type", style.getDevtType());
+        queryWrapper.eq("brand", style.getBrand());
         queryWrapper.eq("default_flag", BaseGlobal.YES);
         List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
+        PackPricing packPricing = new PackPricing();
         if (!CollUtil.isEmpty(list)) {
             PricingTemplate pricingTemplate = list.get(0);
             Map<String, Object> map = new HashMap<>();
             /*获取核价的字段*/
             List<PricingTemplateItem> itemServiceByList = pricingTemplateItemService.list(new QueryWrapper<PricingTemplateItem>().eq("pricing_template_id", pricingTemplate.getId()));
-            itemServiceByList.forEach(f ->{
-                map.put(f.getName(),StrUtil.isNotBlank(f.getDefaultNum())?f.getDefaultNum():0);
-
+            itemServiceByList.forEach(f -> {
+                map.put(f.getName(), StrUtil.isNotBlank(f.getDefaultNum()) ? f.getDefaultNum() : 0);
             });
             map.put("currencyCode", "");
             map.put("pricingTemplateId", pricingTemplate.getId());
             map.put("pricingTemplateName", pricingTemplate.getTemplateName());
             map.put("costPrice", 0);
-
-            PackPricing packPricing = new PackPricing();
-            packPricing.setCalcItemVal(JSON.toJSONString(map));
-            packPricing.setForeignId(foreignId);
-            packPricing.setPricingTemplateId(pricingTemplate.getId());
             packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
-            baseMapper.insert(packPricing);
+            packPricing.setForeignId(foreignId);
+            packPricing.setCalcItemVal(JSON.toJSONString(map));
+            packPricing.setPricingTemplateId(pricingTemplate.getId());
+        }else {
+            throw new OtherException("品牌："+style.getBrandName()+"下无"+style.getDevtTypeName()+"生产类型模板");
         }
 
-        return false;
+        baseMapper.insert(packPricing);
+        return packPricing;
     }
 
     @Override
@@ -345,6 +360,78 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         return get(foreignId,packType);
     }
 
+    /**
+     * 重新计算核价中的JSON
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    @Override
+    public boolean calculatePricingJson(String foreignId, String packType) {
+        return calculatePricingJson(foreignId,packType,new HashMap<>());
+    }
+
+    /**
+     * 重新计算核价中的JSON
+     * @param foreignId
+     * @param packType
+     * * @param fields 可修改字段
+     * @return
+     */
+    @Override
+//    @Async
+    public boolean calculatePricingJson(String foreignId, String packType,Map<String,Object> fieldsMap) {
+        PackPricing packPricing = get(foreignId, packType);
+        if (StrUtil.isEmpty(packPricing.getPricingTemplateId())) {
+            throw new OtherException("请选择一个模板");
+        }
+        /*修改模板*/
+        if(fieldsMap.containsKey("pricingTemplateId")){
+            packPricing.setPricingTemplateId(fieldsMap.get("pricingTemplateId").toString());
+        }
+        PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId(),getCompanyCode());
+
+        List<PricingTemplateItemVO> pricingTemplateItems = pricingTemplateVO.getPricingTemplateItems();
+        Map<String, Object> resultMap = new HashMap<>();
+        /*拿模板中的字段数据*/
+        if (CollUtil.isNotEmpty(pricingTemplateItems)) {
+            resultMap = pricingTemplateItems.stream()
+                    .collect(Collectors.toMap(PricingTemplateItemVO::getName, PricingTemplateItemVO::getDefaultNum));
+        }
+        PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
+        packCommonSearchDto.setPackType(packType);
+        packCommonSearchDto.setForeignId(foreignId);
+        /*原有数据库的数据*/
+       if(StrUtil.isNotBlank(packPricing.getCalcItemVal())){
+           resultMap.putAll(JSONObject.parseObject(packPricing.getCalcItemVal(), Map.class));
+       }
+        /*替换json中的数据*/
+        if(CollUtil.isNotEmpty(fieldsMap)){
+            resultMap.putAll(fieldsMap);
+        }
+        /*计算各项的值*/
+        Map<String, BigDecimal> map = calculateCosts(packCommonSearchDto);
+        /*生成新的json map*/
+        resultMap.putAll(map);
+/*        PackBomPageSearchDto packBomPageSearchDto = new PackBomPageSearchDto();
+        packBomPageSearchDto.setPackType(packType);
+        packBomPageSearchDto.setForeignId(foreignId);
+        List<PackBomVo> list = packBomService.pageInfo(packBomPageSearchDto).getList();
+        if(CollUtil.isNotEmpty(list)){
+            List<BigDecimal> collect = list.stream().map(PackBomVo::getCost).collect(Collectors.toList());
+            resultMap.put("costPrice", collect.stream()
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+        }*/
+        resultMap.put("costPrice", map.get("物料费"));
+        resultMap.put("pricingTemplateId", packPricing.getPricingTemplateId());
+        resultMap.put("pricingTemplateName", pricingTemplateVO.getTemplateName());
+        resultMap.put("currencyCode", "");
+        resultMap.put("成本价", countTotalPrice(foreignId, StrUtil.equals(packType, PackUtils.PACK_TYPE_DESIGN) ? BaseGlobal.YES : "", 2));
+        packPricing.setCalcItemVal(JSONObject.toJSONString(resultMap));
+        baseMapper.updateById(packPricing);
+        return true;
+    }
     /**
      * 从物料清单同步数据到核价
      *
@@ -442,12 +529,11 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         temp.put("加工费", packPricingProcessCostsService.calculateCosts(dto));
         //统计二次加工费用
         temp.put("二次加工费", packPricingCraftCostsService.calculateCosts(dto));
-
         BigDecimal otherCosts = new BigDecimal(0);
         for (String s : otherStatistics.keySet()) {
             otherCosts = otherCosts.add(otherStatistics.get(s));
         }
-        temp.put("其他费",otherCosts);
+//        temp.put("其他费",otherCosts);
 
         Map<String, BigDecimal> result = new HashMap<>(16);
         for (Map.Entry<String, BigDecimal> a : temp.entrySet()) {
@@ -471,7 +557,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             JEP jep = new JEP();
             for (Map.Entry<String, Object> item : itemVal.entrySet()) {
                 if (NumberUtil.isNumber(String.valueOf(item.getValue()))) {
-                    jep.addVariable(item.getKey(), Double.parseDouble(item.getValue().toString()));
+                    jep.addVariable(item.getKey(), Double.parseDouble(  ObjectUtil.isEmpty(item.getValue())?"0":item.getValue().toString()));
                 }
             }
             jep.parseExpression(formula);

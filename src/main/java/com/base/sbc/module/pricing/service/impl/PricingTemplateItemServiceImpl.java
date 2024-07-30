@@ -6,12 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingTemplateItemDTO;
