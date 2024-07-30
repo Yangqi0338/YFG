@@ -157,6 +157,7 @@
         FROM
         t_pattern_making p,
         t_style s
+        LEFT JOIN t_node_status tns ON tns.data_id = p.id AND tns.del_flag = '0' AND tns.node = '样衣任务' and tns.`status` = '样衣完成'
         where p.style_id = s.id
         and p.design_send_status='1'
         and p.prm_send_status='1'
