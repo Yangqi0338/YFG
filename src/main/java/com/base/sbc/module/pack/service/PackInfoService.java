@@ -25,8 +25,8 @@ import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -260,6 +260,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     PageInfo<FabricSummaryInfoVo> selectFabricSummaryStyle(FabricSummaryV2Dto dto);
 
     String getByIdBrandName(String foreignId);
+
+    void setTechReceiveDate(String id, Date techReceiveDate);
 
 
 // 自定义方法区 不替换的区域【other_end】

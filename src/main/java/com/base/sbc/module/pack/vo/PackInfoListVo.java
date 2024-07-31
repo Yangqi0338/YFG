@@ -96,4 +96,11 @@ public class PackInfoListVo extends PackInfoStatusVo {
 
     @ApiModelProperty(value = "品牌")
     private String brand;
+
+    /**
+     * 工艺接收时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty(value = "工艺接收时间")
+    private Date techReceiveDate;
 }

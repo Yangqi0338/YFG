@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
@@ -41,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -306,6 +308,17 @@ public class PackInfoController {
 		}
 
 		return true;
+	}
+
+	/**
+	 * 设置工艺接收时间
+	 * @return
+	 */
+	@ApiOperation(value = "查询设计款号下的bom")
+	@GetMapping("/setTechReceiveDate")
+	public ApiResult setTechReceiveDate(String id, Date techReceiveDate) {
+		packInfoService.setTechReceiveDate(id,techReceiveDate);
+		return ApiResult.success("操作成功");
 	}
 
 }

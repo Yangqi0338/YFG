@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -1742,6 +1743,17 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packSizeService.del(targetForeignId, sourcePackType);
         packTechSpecService.del(targetForeignId, sourcePackType);
         packTechPackagingService.del(targetForeignId, sourcePackType);
+    }
+
+    @Override
+    public void setTechReceiveDate(String id, Date techReceiveDate) {
+        LambdaUpdateWrapper<PackInfo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PackInfo::getId, id);
+        updateWrapper.set(PackInfo::getUpdateId, getUserId());
+        updateWrapper.set(PackInfo::getUpdateName, getUserName());
+        updateWrapper.set(PackInfo::getUpdateDate, new Date());
+        updateWrapper.set(PackInfo::getTechReceiveDate, techReceiveDate);
+        update(updateWrapper);
     }
 
 // 自定义方法区 不替换的区域【other_end】

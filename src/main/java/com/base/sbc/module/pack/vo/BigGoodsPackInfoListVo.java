@@ -69,6 +69,13 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "编码")
     private String code;
 
+    /**
+     * 工艺接收时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty(value = "工艺接收时间")
+    private Date techReceiveDate;
+
     public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }

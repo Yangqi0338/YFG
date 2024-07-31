@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
+
 /**
  * 类描述：资料包 实体类
  *
@@ -166,6 +168,12 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否是迁移历史数据")
     private String historicalData;
+
+    /**
+     * 工艺接收时间
+     */
+    @ApiModelProperty(value = "工艺接收时间")
+    private Date techReceiveDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
