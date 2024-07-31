@@ -118,4 +118,6 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
      * 列头筛选数量
      */
     private Integer groupCount;
+
+    private String code;
 }

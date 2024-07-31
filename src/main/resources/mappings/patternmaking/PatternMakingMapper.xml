@@ -411,7 +411,8 @@
             tpmbc.bar_code,
             tpmbc.img,
             tpmbc.create_date as receiveSampleDate,
-            p.del_flag
+            p.del_flag,
+            p.code
         </if>
         FROM
         t_style s

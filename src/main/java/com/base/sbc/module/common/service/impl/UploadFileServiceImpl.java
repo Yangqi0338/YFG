@@ -274,10 +274,10 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = "ErrorMsg/material/" + code + "." + extName;
                         break;
                     case fob:
-                        //Sample/MSO/2123/2NGX10559800102/fob_barcode_yyyyMMddHHmmss.extName
-                        String[] split = code.split("/");
+                        //Sample/S/2025/325X2004YP/325X2004YP-001/${yyyyMMddHHmmSSsss}.jpg
                         String yyyyMMddHHmmssSSS = DateUtil.format(new Date(), "yyyyMMddHHmmssSSS");
-                        objectName = split[0] + "/" + split[1] + "/" + split[2] + "/fob_" + split[3] + "_" + yyyyMMddHHmmssSSS + "." + extName;
+                        objectName = "Sample/" + code + "/" + yyyyMMddHHmmssSSS + "." + extName;
+                        break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                 }

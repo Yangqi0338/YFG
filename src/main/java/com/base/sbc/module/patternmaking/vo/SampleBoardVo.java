@@ -360,4 +360,5 @@ public class SampleBoardVo extends Style {
     private String supplierName;
     private String img;
     private String barCode;
+    private String code;
 }
