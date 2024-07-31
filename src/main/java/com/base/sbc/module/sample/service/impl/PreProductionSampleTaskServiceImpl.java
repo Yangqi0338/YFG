@@ -144,7 +144,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     public boolean taskAssignment(PreTaskAssignmentDto dto) {
         EnumNodeStatus ens = EnumNodeStatus.GARMENT_CUTTING_WAITING_RECEIVED;
         String node = "产前样衣任务";
-        String status = "裁剪待接收";
+        String status = "任务已下发";
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         List<String> ids = StrUtil.split(dto.getId(), CharUtil.COMMA);
         uw.lambda().in(PreProductionSampleTask::getId, ids)
@@ -441,8 +441,13 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         List<VirtualDept> data = virtualDeptByUserId.getData();
         String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
         task.setCreateDeptId(ids);
+        task.setStatus("任务待下发");
 
-        return save(task, "产前样看板");
+        boolean bl = save(task, "产前样看板");
+        //保存时间节点
+        nodeStatusService.nodeStatusChange(task.getId(), "产前样衣任务", "任务待下发", BaseGlobal.YES, BaseGlobal.NO);
+
+        return bl;
     }
 
     @Override
