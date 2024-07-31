@@ -10,6 +10,16 @@ import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
 
 import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -74,14 +84,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Principal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -271,8 +274,10 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = "ErrorMsg/material/" + code + "." + extName;
                         break;
                     case fob:
-                        objectName = "fob/" + System.currentTimeMillis() + "." + extName;
-                        break;
+                        //Sample/MSO/2123/2NGX10559800102/fob_barcode_yyyyMMddHHmmss.extName
+                        String[] split = code.split("/");
+                        String yyyyMMddHHmmssSSS = DateUtil.format(new Date(), "yyyyMMddHHmmssSSS");
+                        objectName = split[0] + "/" + split[1] + "/" + split[2] + "/fob_" + split[3] + "_" + yyyyMMddHHmmssSSS + "." + extName;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                 }
