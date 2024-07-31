@@ -8,6 +8,7 @@ package com.base.sbc.module.pricing.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -20,8 +21,11 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackPricingBom;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingBomService;
 import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -92,6 +96,9 @@ public class StylePricingController extends BaseController {
     private PackPricingService packPricingService;
     @Autowired
     private StyleService styleService;
+
+    @Autowired
+    private PackPricingBomService packPricingBomService;
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
@@ -297,6 +304,21 @@ public class StylePricingController extends BaseController {
             if (collect.length > 0) {
                 smpService.goods(collect);
             }
+        }
+        /*当计控成本确定时同时标记核价的物料*/
+        if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
+//           查询所有资料包的核价物料
+            QueryWrapper<PackPricingBom> packPricingBomQueryWrapper = new QueryWrapper<>();
+            packPricingBomQueryWrapper.eq("company_code",getUserCompany());
+            packPricingBomQueryWrapper.in("foreign_id", packIdList);
+            packPricingBomQueryWrapper.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
+            packPricingBomQueryWrapper.eq("del_flag", BaseGlobal.NO);
+            List<PackPricingBom> pricingBomList = packPricingBomService.list(packPricingBomQueryWrapper);
+            if(CollUtil.isNotEmpty(pricingBomList)){
+                pricingBomList.forEach(p -> p.setControlCostFlag(BaseGlobal.YES));
+                packPricingBomService.updateBatchById(pricingBomList);
+            }
+
         }
         return updateSuccess("提交成功");
     }

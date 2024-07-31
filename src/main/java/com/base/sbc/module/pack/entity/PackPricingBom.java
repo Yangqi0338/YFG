@@ -270,5 +270,8 @@ public class PackPricingBom extends BaseDataEntity<String> {
     /** 物料清单id */
     @ApiModelProperty(value = "物料清单id"  )
     private String bomId;
+    /** 计控是否确定成本(0未确定 1已确定) */
+    @ApiModelProperty(value = "计控是否确定成本(0未确定 1已确定)"  )
+    private String controlCostFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -439,6 +439,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean syncPricingBom(SyncPricingBomDto dto) {
         //行id不为空着 同步单行数据
         if(StrUtil.isNotBlank(dto.getPricingBomId())){
@@ -447,6 +448,10 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
             PackPricingBom pricingBom = packPricingBomService.getById(dto.getPricingBomId());
             if(one != null&&pricingBom!=null){
+                /*当计控成本确定时无法同步*/
+                if(StrUtil.equals(pricingBom.getControlCostFlag(),BaseGlobal.YES)){
+                    throw new OtherException("计控成本确定无法同步");
+                }
                 /*重新获取供应商报价信息*/
                 SupplierDetailPriceDto supplierDetailPriceDto = new SupplierDetailPriceDto();
                 supplierDetailPriceDto.setWidth(one.getTranslateCode());
@@ -483,13 +488,20 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             }
         }else{
             //全量同步
-            //删除之前的（物理删除）
+            //删除之前没计控确认的（物理删除）
             BaseQueryWrapper<PackPricingBom> pricingBomQw = new BaseQueryWrapper<>();
             PackUtils.commonQw(pricingBomQw,dto);
             pricingBomQw.isNotNull("bom_id");
+            pricingBomQw.eq("control_cost_flag",BaseGlobal.NO);
             packPricingBomService.physicalDeleteQWrap(pricingBomQw);
-
+            /*过滤调已确定计控的物料*/
+            List<PackPricingBom> pricingBomList = packPricingBomService.getByList("control_cost_flag", BaseGlobal.YES);
             List<PackBomVo> enableVersionBomList = packBomVersionService.getEnableVersionBomList(dto.getForeignId(), dto.getPackType());
+            if(CollUtil.isNotEmpty(pricingBomList)){
+                List<String>  stringList =pricingBomList.stream().map(PackPricingBom::getBomId).collect(Collectors.toList());
+                /*过滤已确定核价的数据*/
+                enableVersionBomList = enableVersionBomList.stream().filter(e -> !stringList.contains(e.getId())).collect(Collectors.toList());
+            }
             if(CollUtil.isNotEmpty(enableVersionBomList)){
 //                packBomService.querySubList(enableVersionBomList);
                 /*用与新增*/
