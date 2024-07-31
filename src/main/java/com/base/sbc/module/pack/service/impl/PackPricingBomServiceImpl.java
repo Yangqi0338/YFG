@@ -85,15 +85,16 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }
-
+        /*设计还是大货*/
+        Boolean loss = "packDesign".equals(dto.getPackType());
         //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
         //大货物料费用=物料大货用量*物料大货单价*（1+额定损耗率)
         return bomList.stream().map(packBom -> {
                     /*获取损耗率*/
-                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP));
-                    BigDecimal mul = NumberUtil.mul(
-                            StrUtil.equals("packDesign",dto.getPackType()) ?packBom.getDesignUnitUse() :  packBom.getBulkUnitUse() ,
-                            packBom.getPrice(),
+            BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(!loss ? packBom.getPlanningLoossRate() : packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP));
+            BigDecimal mul = NumberUtil.mul(
+                    !loss ? packBom.getBulkUnitUse() : packBom.getDesignUnitUse(),
+                    packBom.getPrice(),
                             divide
                     );
                     return mul;

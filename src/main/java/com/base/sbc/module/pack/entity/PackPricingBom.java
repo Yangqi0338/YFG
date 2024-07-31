@@ -142,7 +142,7 @@ public class PackPricingBom extends BaseDataEntity<String> {
     private String unitCode;
     /** 计控损耗 */
     @ApiModelProperty(value = "计控损耗"  )
-    private String planningLoossRate;
+    private BigDecimal planningLoossRate;
     /** 额定单耗 */
     @ApiModelProperty(value = "额定单耗"  )
     private String ratedUnitConsumption;
