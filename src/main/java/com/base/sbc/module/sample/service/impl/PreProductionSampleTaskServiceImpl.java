@@ -243,8 +243,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             if(StrUtil.isNotBlank(dto.getStatus())){
                 if(!"2".equals(dto.getStatus())){
                     qw.eq("t.status", dto.getStatus());
+                    qw.eq("tpmbc.status", "10");
                 }else {
-                    qw.in("t.status", Arrays.asList("2","3"));
+                    qw.in("tpmbc.status", Arrays.asList("11","12"));
                 }
             }
             list = getBaseMapper().taskListFOB(qw);
