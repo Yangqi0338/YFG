@@ -57,7 +57,6 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
 
     @Override
     public PageInfo<PatternMakingBarCodeVo> findPage(PatternMakingBarCodeQueryDto dto) {
-        Page<Object> objects = PageHelper.startPage(dto);
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
         qw.andLike(dto.getDesignNo(), "ts.design_no", "tpm.pattern_no");
         qw.notEmptyEq("ts.year_name", dto.getYearName());
@@ -69,7 +68,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         qw.orderByDesc("tpmbc.create_date");
 
         QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,dto);
-
+        Page<Object> objects = PageHelper.startPage(dto);
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         stylePicUtils.setStylePic(list, "stylePic");
