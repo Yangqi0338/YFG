@@ -560,7 +560,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
             PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
             if (!Objects.isNull(packInfoStatusPre)){
+                packInfoStatusPre.setBomStatus(BasicNumber.ONE.getNumber());
+                packInfoStatusPre.setToBigGoodsDate(nowDate);
                 packInfoStatus.setTechSpecVideoFileId(packInfoStatusPre.getTechSpecVideoFileId());
+                packInfoStatusService.updateById(packInfoStatusPre);
             }
             //设置为已转大货
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
