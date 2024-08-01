@@ -12,7 +12,9 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -76,6 +78,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
 
 // 自定义方法区 不替换的区域【other_start】
 
+    @Resource
+    private PackBomVersionService packBomVersionService;
     @Resource
     private PackBomService packBomService;
     @Resource
@@ -490,6 +494,19 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             enable(newVersion);
         }
 
+        // 查询版本最后一个数据的排序值
+        PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(targetForeignId, targetPackType);
+        int targetSort = 0;
+        PackBom packBom = packBomService.getOne(new LambdaQueryWrapper<PackBom>()
+                .eq(PackBom::getForeignId, targetForeignId)
+                .eq(PackBom::getPackType, targetPackType)
+                .eq(PackBom::getBomVersionId, packBomVersion1.getId())
+                .orderByDesc(PackBom::getSort)
+                .last("limit 1")
+        );
+        if (ObjectUtil.isNotEmpty(packBom)) {
+            targetSort = packBom.getSort();
+        }
 
         //保存物料清单
         if (CollUtil.isNotEmpty(bomList)) {
@@ -506,6 +523,9 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 bom.setForeignId(targetForeignId);
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
+                if (StrUtil.equals(BasicNumber.ZERO.getNumber(), flg)) {
+                    bom.setSort(targetSort + i + 1);
+                }
                 bom.setBomVersionId(newVersion.getId());
                 bom.setHistoricalData(BaseGlobal.NO);
                 bom.insertInit();
