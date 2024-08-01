@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -549,36 +550,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         } else {
             throw new OtherException("企划看板删除失败，请刷新后重试！");
         }
-    }
-
-    /**
-     * 根据大货款号集合查询销售信息（销售量和投产量），这个是计算这个大货对应的合并款号下的所有大货的销售信息相加
-     * @param styleNoList 大货款号集合
-     * @return 销售信息（销售量和投产量）
-     */
-    public List<SalesData> querySaleDataByStyleNos(List<String> styleNoList) {
-        // 先根据大货款号集合查询出大货款号对应的合并款号
-        List<SalesData> goodsNoInfoList = smpService.queryMergeGoodsNoByGoodsNo(styleNoList);
-        if (ObjectUtil.isNotEmpty(goodsNoInfoList)) {
-            // 如果不为空那么根据合并款号的集合查询所有对应的大货款号
-            List<String> mergeGoodsNoList = goodsNoInfoList
-                    .stream().map(SalesData::getMergeGoodsNo).distinct().collect(Collectors.toList());
-            List<SalesData> mergeGoodsNoInfoList = smpService.queryGoodsNoByMergeGoodsNo(mergeGoodsNoList);
-            if (ObjectUtil.isNotEmpty(mergeGoodsNoInfoList)) {
-                // 如果查询到了大货款号集合 那么查询大货款号对应的销售信息
-                // 最终地需要查询销售信息的大货款号集合
-                List<String> finalGoodsNoList = mergeGoodsNoInfoList
-                        .stream().map(SalesData::getGoodsNo).distinct().collect(Collectors.toList());
-                List<SalesData> salesDataList = smpService.querySalesNumAndProductionNumByGoodsNos(finalGoodsNoList);
-                // 给合并款号分组 计算每个合并款号的 大货款号的销售量合计 和 投产量合计
-                Map<String, List<SalesData>> mergeGoodsNoMap = mergeGoodsNoInfoList
-                        .stream().collect(Collectors.groupingBy(SalesData::getMergeGoodsNo));
-
-                // 初始化合计统计的集合
-                List<SalesData> totalList = new ArrayList<>(mergeGoodsNoMap.size());
-            }
-        }
-        return CollUtil.newArrayList();
     }
 
 }

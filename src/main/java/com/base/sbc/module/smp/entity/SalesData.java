@@ -2,6 +2,8 @@ package com.base.sbc.module.smp.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 合并款号相关操作返回值
  *
@@ -24,11 +26,11 @@ public class SalesData {
     /**
      * 销售量
      */
-    private String salesNum;
+    private BigDecimal salesNum;
 
     /**
      * 投产量
      */
-    private String productionNum;
+    private BigDecimal productionNum;
 
 }

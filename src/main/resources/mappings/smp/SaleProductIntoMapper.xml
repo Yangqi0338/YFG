@@ -186,7 +186,7 @@
         select GOODSNO goodsNo,MERGE_GOODSNO mergeGoodsNo
         from BI_DW.ODS_GOODS_NEW
         where MERGE_GOODSNO in
-        <foreach collection="megreGoodsNoList" item="item" open="(" close=")" separator=",">
+        <foreach collection="mergeGoodsNoList" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
     </select>

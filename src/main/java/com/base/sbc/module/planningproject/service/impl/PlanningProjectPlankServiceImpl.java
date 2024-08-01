@@ -1,7 +1,9 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,6 +36,7 @@ import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
+import com.base.sbc.module.smp.entity.SalesData;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -46,6 +49,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -354,8 +359,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         for (Map.Entry<String, Integer> stringStringEntry : map.entrySet()) {
             TableColumnVo tableColumnVo = new TableColumnVo();
             String[] split = stringStringEntry.getKey().split(",");
-            tableColumnVo.setTitle(split[0] + "/" + split[2]);
-            tableColumnVo.setColKey(split[1] + "/" + split[2]);
+            // tableColumnVo.setTitle(split[0] + "/" + split[2]);
+            // tableColumnVo.setColKey(split[1] + "/" + split[2]);
+            tableColumnVo.setTitle(split[0]);
+            tableColumnVo.setColKey(split[1]);
             tableColumnVo.setNum(String.valueOf(stringStringEntry.getValue()));
             tableColumnVos.add(tableColumnVo);
         }
@@ -370,6 +377,40 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         // }
 
         stylePicUtils.setStyleColorPic2(list, "pic");
+
+        // 实时查询大货款对应的合并款下所有大货的总销量和总投产
+        if (ObjectUtil.isNotEmpty(list)) {
+            // 拿到所有的大货款号
+            List<String> styleNoList = list
+                    .stream()
+                    .map(PlanningProjectPlankVo::getHisDesignNo)
+                    .filter(ObjectUtil::isNotEmpty)
+                    .distinct()
+                    .collect(Collectors.toList());
+            // 根据大货款号查询到销量和投产数据
+            List<SalesData> salesDataList = querySaleDataByStyleNos(styleNoList);
+            if (ObjectUtil.isNotEmpty(salesDataList)) {
+                Map<String, SalesData> salesDataMap = salesDataList
+                        .stream().collect(Collectors.toMap(SalesData::getGoodsNo, item -> item));
+                for (PlanningProjectPlankVo planningProjectPlankVo : list) {
+                    if (StrUtil.isNotBlank(planningProjectPlankVo.getHisDesignNo())) {
+                        SalesData salesData = salesDataMap.get(planningProjectPlankVo.getHisDesignNo());
+                        if (ObjectUtil.isNotEmpty(salesData)) {
+                            BigDecimal salesNum = salesData.getSalesNum();
+                            BigDecimal productionNum = salesData.getProductionNum();
+                            if (salesNum.equals(BigDecimal.ZERO) || productionNum.equals(BigDecimal.ZERO)) {
+                                planningProjectPlankVo.setSale("0");
+                                planningProjectPlankVo.setSaleInto("0");
+                            } else {
+                                planningProjectPlankVo.setSale(String.valueOf(salesNum));
+                                planningProjectPlankVo.setSaleInto(salesNum.divide(productionNum, 2, RoundingMode.HALF_UP).multiply(new BigDecimal("100")) + "%");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         hashMap.put("list", list);
         hashMap.put("tableColumnVos", tableColumnVos);
         hashMap.put("map", jsonObjects);
@@ -378,6 +419,67 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         List<PlanningProjectDimension> list1 = planningProjectDimensionService.list(queryWrapper1);
         hashMap.put("map2", list1);
         return hashMap;
+    }
+
+    /**
+     * 根据大货款号集合查询销售信息（销售量和投产量），这个是计算这个大货对应的合并款号下的所有大货的销售信息相加
+     * @param styleNoList 大货款号集合
+     * @return 销售信息（销售量和投产量）
+     */
+    public List<SalesData> querySaleDataByStyleNos(List<String> styleNoList) {
+        // 先根据大货款号集合查询出大货款号对应的合并款号 大货款号-合并款号
+        List<SalesData> goodsNoInfoList = smpService.queryMergeGoodsNoByGoodsNo(styleNoList);
+        if (ObjectUtil.isNotEmpty(goodsNoInfoList)) {
+            // 如果不为空那么根据合并款号的集合查询所有对应的大货款号
+            List<String> mergeGoodsNoList = goodsNoInfoList
+                    .stream().map(SalesData::getMergeGoodsNo).distinct().collect(Collectors.toList());
+            // 大货款号-合并款号
+            List<SalesData> mergeGoodsNoInfoList = smpService.queryGoodsNoByMergeGoodsNo(mergeGoodsNoList);
+            if (ObjectUtil.isNotEmpty(mergeGoodsNoInfoList)) {
+                // 如果查询到了大货款号集合 那么查询大货款号对应的销售信息
+                // 最终地需要查询销售信息的大货款号集合
+                List<String> finalGoodsNoList = mergeGoodsNoInfoList
+                        .stream().map(SalesData::getGoodsNo).distinct().collect(Collectors.toList());
+                // 大货款号-销量（单个大货款的销量）-投产（单个大货款的投产）
+                List<SalesData> salesDataList = smpService.querySalesNumAndProductionNumByGoodsNos(finalGoodsNoList);
+                // 销售信息按照大货款号分组
+                Map<String, SalesData> salesDataMap = salesDataList
+                        .stream().collect(Collectors.toMap(SalesData::getGoodsNo, item -> item));
+
+                // 合并款号信息按照合并款号分组
+                Map<String, List<SalesData>> mergeGoodsNoMap = mergeGoodsNoInfoList
+                        .stream().collect(Collectors.groupingBy(SalesData::getMergeGoodsNo));
+
+                // 初始化合计统计的集合  大货款号-合并款号-销量（合并款号下的所有大货的销量）-投产（合并款号下的所有大货的投产）
+                List<SalesData> totalList = new ArrayList<>(mergeGoodsNoMap.size());
+                for (SalesData salesData : goodsNoInfoList) {
+                    // 获取大货款对应的合并款下面的所有大货款
+                    List<SalesData> mergeGoodsNoBelowGoodsNoList = mergeGoodsNoMap.get(salesData.getMergeGoodsNo());
+                    BigDecimal salesNum = BigDecimal.ZERO;
+                    BigDecimal productionNum = BigDecimal.ZERO;
+
+                    for (SalesData item : mergeGoodsNoBelowGoodsNoList) {
+                        // 每个大货款的销量和投产信息
+                        SalesData data = salesDataMap.get(item.getGoodsNo());
+                        // 计算每个合并款号的 大货款号的销售量合计 和 投产量合计
+                        if (ObjectUtil.isNotEmpty(data)) {
+                            salesNum = salesNum.add(data.getSalesNum());
+                            productionNum = productionNum.add(data.getProductionNum());
+                        }
+                    }
+
+                    SalesData totalSalesData = new SalesData();
+                    totalSalesData.setGoodsNo(salesData.getGoodsNo());
+                    totalSalesData.setSalesNum(salesNum);
+                    totalSalesData.setProductionNum(productionNum);
+                    totalList.add(totalSalesData);
+                }
+
+                // 得到最终的 大货款号-销量（合并款号下的所有大货的销量）-投产（合并款号下的所有大货的投产）
+                return totalList;
+            }
+        }
+        return CollUtil.newArrayList();
     }
 
     /**
