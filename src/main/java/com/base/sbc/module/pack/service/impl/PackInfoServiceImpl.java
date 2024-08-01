@@ -552,20 +552,24 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
             Date nowDate = new Date();
             copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
-            copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
             //设置为已转大货
             packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packDesignStatus.setToBigGoodsDate(nowDate);
             packInfoStatusService.updateById(packDesignStatus);
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
-            PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
-            if (!Objects.isNull(packInfoStatusPre)){
-                packInfoStatusPre.setBomStatus(BasicNumber.ONE.getNumber());
-                packInfoStatusPre.setToBigGoodsDate(nowDate);
-                packInfoStatus.setTechSpecVideoFileId(packInfoStatusPre.getTechSpecVideoFileId());
-                packInfoStatusService.updateById(packInfoStatusPre);
+            //只有反审才触发
+            if (null == packDesignStatus.getToDesignDate()){
+                copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
+                PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
+                if (!Objects.isNull(packInfoStatusPre)){
+                    packInfoStatusPre.setBomStatus(BasicNumber.ONE.getNumber());
+                    packInfoStatusPre.setToBigGoodsDate(nowDate);
+                    packInfoStatusPre.setDelFlag("1");
+                    packInfoStatus.setTechSpecVideoFileId(packInfoStatusPre.getTechSpecVideoFileId());
+                    packInfoStatusService.updateById(packInfoStatusPre);
+                }
             }
-            //设置为已转大货
+  //设置为已转大货
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
             packInfoStatus.setToBigGoodsDate(nowDate);
