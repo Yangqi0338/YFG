@@ -546,6 +546,11 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
                 throw new OtherException("已转大货，不可重复转入");
             }
+            /*转大货时先同步物料重新计算核价再转大货*/
+            SyncPricingBomDto syncPricingBomDto = new SyncPricingBomDto();
+            syncPricingBomDto.setPackType(PACK_TYPE_DESIGN);
+            syncPricingBomDto.setForeignId(packInfo.getId());
+            packPricingService.syncPricingBom(syncPricingBomDto);
             Date nowDate = new Date();
             copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
             //设置为已转大货
