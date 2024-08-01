@@ -327,12 +327,29 @@ public class SmpService {
                         packBom.setPurchasePrice(purchasePrice.setScale(2, RoundingMode.HALF_UP));
                     }
                 }
-                return packBomList.stream().filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice())).map(item -> {
+                List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
+
+                List<PackBom> newList = packBomList.stream().filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice())).map(item -> {
                     PackBom packBom = new PackBom();
                     packBom.setId(item.getId());
                     packBom.setPurchasePrice(item.getPurchasePrice());
+
+                    OperaLogEntity operaLogEntity = new OperaLogEntity();
+                    operaLogEntity.setName("核价信息-物料信息");
+                    operaLogEntity.setType("获取物料单价");
+                    operaLogEntity.setPath("packBigGoods");
+                    operaLogEntity.setJsonContent("无");
+                    operaLogEntity.setDocumentId(item.getId());
+                    operaLogEntity.setParentId(packInfo.getId());
+                    operaLogEntity.setContent(StrUtil.format("物料编号【{}】-规格编码【{}】-颜色编码【{}】，获取单价为【{}】",
+                            item.getMaterialCode(), item.getTranslateCode(), item.getColorCode(), item.getPurchasePrice()));
+                    operaLogEntity.setDocumentName(item.getMaterialCode());
+                    operaLogEntity.setDocumentCode(item.getMaterialCode());
+                    operaLogEntityList.add(operaLogEntity);
                     return packBom;
                 }).collect(Collectors.toList());
+                operaLogService.saveBatch(operaLogEntityList);
+                return newList;
             } else {
                 String errorMessage = StrUtil.format("未获取到料清单采购单价！");
                 log.error(errorMessage);
