@@ -877,6 +877,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // FOB
         List<PatternMakingTaskListVo> list;
         if (StrUtil.equals(dto.getDevtType(), ProductionType.FOB.getCode())) {
+            qw.notEmptyLike("s.design_no",dto.getDesignNo());
             qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "p.pattern_making_devt_type", dto.getDevtType());
             if (dto.getStatus().equals("已下发")) {
                 qw.isNullStr("tpmbc.bar_code");

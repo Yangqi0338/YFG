@@ -108,4 +108,6 @@ public class PatternMakingTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "fobFlag查询fob标识")
     private String fobFlag;
+
+    private String designNo;
 }
