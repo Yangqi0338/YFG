@@ -1476,6 +1476,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 designPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
                 designPs.setPostTechConfirm(BaseGlobal.NO);
                 designPs.setDesignTechConfirmDate(null);
+                designPs.setTechSpecVideoFileId(bigGoodsPs.getTechSpecVideoFileId());
 
 
             }
