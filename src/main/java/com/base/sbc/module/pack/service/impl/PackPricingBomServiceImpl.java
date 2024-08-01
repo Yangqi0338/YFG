@@ -94,8 +94,8 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
             BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(!loss ? packBom.getPlanningLoossRate() : packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP));
             BigDecimal mul = NumberUtil.mul(
                     !loss ? packBom.getBulkUnitUse() : packBom.getDesignUnitUse(),
-                    packBom.getPrice(),
-                            divide
+                    !loss ? Optional.ofNullable(packBom.getPurchasePrice()).orElse(BigDecimal.ZERO) : packBom.getPrice(),
+                    divide
                     );
                     return mul;
                 }

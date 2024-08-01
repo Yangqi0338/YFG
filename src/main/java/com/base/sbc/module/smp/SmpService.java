@@ -170,6 +170,9 @@ public class SmpService {
     private StyleSpecFabricService styleSpecFabricService;
 
     private final PackBomService packBomService;
+    @Resource
+    @Lazy
+    private PackPricingBomService packPricingBomService;
     private final PackBomVersionService packBomVersionService;
 
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
@@ -248,18 +251,18 @@ public class SmpService {
     public OperaLogService operaLogService;
 
     @DuplicationCheck
-    public List<PackBom> getMaterialPurchasePrice(List<String> packBomIdList) {
+    public List<PackPricingBom> getMaterialPurchasePrice(List<String> packBomIdList) {
         if (ObjectUtil.isEmpty(packBomIdList)) {
             throw new OtherException("请选择物料数据后在尝试拉取最新的物料采购单价！");
         }
         // 根据资料包 ID 查询大货 BOM 数据
-        List<PackBom> packBomList = packBomService.listByIds(packBomIdList);
-        if (ObjectUtil.isEmpty(packBomList)) {
+        List<PackPricingBom> packPricingBomList = packPricingBomService.listByIds(packBomIdList);
+        if (ObjectUtil.isEmpty(packPricingBomList)) {
             throw new OtherException("物料清单数据不存在，请添加后重试！");
         }
 
         // 过滤空数据 物料编号/物料规格编号/物料颜色编码/物料名称
-        List<PackBom> notEmptyPackBomList = packBomList.stream().filter(
+        List<PackPricingBom> notEmptyPackPricingBomList = packPricingBomList.stream().filter(
                 item ->
                         StrUtil.isNotBlank(item.getMaterialCode())
                                 && StrUtil.isNotBlank(item.getTranslateCode())
@@ -267,18 +270,18 @@ public class SmpService {
                                 && StrUtil.isNotBlank(item.getMaterialName())
 
         ).collect(Collectors.toList());
-        if (ObjectUtil.isEmpty(notEmptyPackBomList)) {
+        if (ObjectUtil.isEmpty(notEmptyPackPricingBomList)) {
             throw new OtherException("未获取到料清单采购单价！");
         }
         // 根据相同数据分组 物料编号/物料规格编号/物料颜色编码/物料名称 防止后面使用 map 分组出现重复的 key
-        Map<String, List<PackBom>> packBomMap = notEmptyPackBomList.stream().collect(Collectors.groupingBy(item ->
+        Map<String, List<PackPricingBom>> packPricingBomMap = notEmptyPackPricingBomList.stream().collect(Collectors.groupingBy(item ->
                 item.getMaterialCode() + "&"
                         + item.getTranslateCode() + "&"
                         + item.getColorCode() + "&"
                         + item.getMaterialName()));
 
         // 任意取一条 获取资料包的数据
-        PackInfo packInfo = packInfoService.getById(notEmptyPackBomList.get(0).getForeignId());
+        PackInfo packInfo = packInfoService.getById(notEmptyPackPricingBomList.get(0).getForeignId());
         if (ObjectUtil.isEmpty(packInfo)) {
             throw new OtherException("资料包数据不存在，请刷新后重试！");
         }
@@ -287,14 +290,12 @@ public class SmpService {
             throw new OtherException("当前资料包所关联款式不存在！");
         }
 
-
-
         // 初始化查询数据
-        List<MaterialPurchaseMaterialsInfo> materialPurchaseMaterialsInfoList = new ArrayList<>(packBomList.size());
-        for (Map.Entry<String, List<PackBom>> stringListEntry : packBomMap.entrySet()) {
+        List<MaterialPurchaseMaterialsInfo> materialPurchaseMaterialsInfoList = new ArrayList<>(packPricingBomMap.size());
+        for (Map.Entry<String, List<PackPricingBom>> stringListEntry : packPricingBomMap.entrySet()) {
             // 相同分组的 取一条即可
-            PackBom packBom = stringListEntry.getValue().get(0);
-            MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packBom, style, packInfo.getStyleNo());
+            PackPricingBom packPricingBom = stringListEntry.getValue().get(0);
+            MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packPricingBom, style, packInfo.getStyleNo());
             materialPurchaseMaterialsInfoList.add(materialPurchaseMaterialsInfo);
         }
 
@@ -317,37 +318,39 @@ public class SmpService {
                                         + item.getSpecificationsNo() + "&"
                                         + item.getMaterialsColorCode() + "&"
                                         + item.getMaterialsName(), MaterialPurchaseMaterialsInfo::getMaxPriceUnit));
-                for (PackBom packBom : packBomList) {
+                for (PackPricingBom packPricingBom : notEmptyPackPricingBomList) {
                     BigDecimal purchasePrice = map.get(
-                            packBom.getMaterialCode() + "&"
-                                    + packBom.getTranslateCode() + "&"
-                                    + packBom.getColorCode() + "&"
-                                    + packBom.getMaterialName());
+                            packPricingBom.getMaterialCode() + "&"
+                                    + packPricingBom.getTranslateCode() + "&"
+                                    + packPricingBom.getColorCode() + "&"
+                                    + packPricingBom.getMaterialName());
                     if (ObjectUtil.isNotEmpty(purchasePrice)) {
-                        packBom.setPurchasePrice(purchasePrice.setScale(2, RoundingMode.HALF_UP));
+                        packPricingBom.setPurchasePrice(purchasePrice.setScale(2, RoundingMode.HALF_UP));
                     }
                 }
                 List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
 
-                List<PackBom> newList = packBomList.stream().filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice())).map(item -> {
-                    PackBom packBom = new PackBom();
-                    packBom.setId(item.getId());
-                    packBom.setPurchasePrice(item.getPurchasePrice());
+                List<PackPricingBom> newList = notEmptyPackPricingBomList.stream()
+                        .filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice()))
+                        .map(item -> {
+                            PackPricingBom packPricingBom = new PackPricingBom();
+                            packPricingBom.setId(item.getId());
+                            packPricingBom.setPurchasePrice(item.getPurchasePrice());
 
-                    OperaLogEntity operaLogEntity = new OperaLogEntity();
-                    operaLogEntity.setName("核价信息-物料信息");
-                    operaLogEntity.setType("获取物料单价");
-                    operaLogEntity.setPath("packBigGoods");
-                    operaLogEntity.setJsonContent("无");
-                    operaLogEntity.setDocumentId(item.getId());
-                    operaLogEntity.setParentId(packInfo.getId());
-                    operaLogEntity.setContent(StrUtil.format("物料编号【{}】-规格编码【{}】-颜色编码【{}】，获取单价为【{}】",
-                            item.getMaterialCode(), item.getTranslateCode(), item.getColorCode(), item.getPurchasePrice()));
-                    operaLogEntity.setDocumentName(item.getMaterialCode());
-                    operaLogEntity.setDocumentCode(item.getMaterialCode());
-                    operaLogEntityList.add(operaLogEntity);
-                    return packBom;
-                }).collect(Collectors.toList());
+                            OperaLogEntity operaLogEntity = new OperaLogEntity();
+                            operaLogEntity.setName("核价信息-物料信息");
+                            operaLogEntity.setType("获取物料单价");
+                            operaLogEntity.setPath("packBigGoods");
+                            operaLogEntity.setJsonContent("无");
+                            operaLogEntity.setDocumentId(item.getId());
+                            operaLogEntity.setParentId(packInfo.getId());
+                            operaLogEntity.setContent(StrUtil.format("物料编号【{}】-规格编码【{}】-颜色编码【{}】，获取单价为【{}】",
+                                    item.getMaterialCode(), item.getTranslateCode(), item.getColorCode(), item.getPurchasePrice()));
+                            operaLogEntity.setDocumentName(item.getMaterialCode());
+                            operaLogEntity.setDocumentCode(item.getMaterialCode());
+                            operaLogEntityList.add(operaLogEntity);
+                            return packPricingBom;
+                        }).collect(Collectors.toList());
                 operaLogService.saveBatch(operaLogEntityList);
                 return newList;
             } else {
@@ -363,13 +366,13 @@ public class SmpService {
     }
 
     @NotNull
-    private static MaterialPurchaseMaterialsInfo getMaterialPurchaseMaterialsInfo(PackBom packBom, Style style, String styleNo) {
+    private static MaterialPurchaseMaterialsInfo getMaterialPurchaseMaterialsInfo(PackPricingBom packPricingBom, Style style, String styleNo) {
         MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = new MaterialPurchaseMaterialsInfo();
         materialPurchaseMaterialsInfo.setBrandCode(style.getBrand());
-        materialPurchaseMaterialsInfo.setMaterialsNo(packBom.getMaterialCode());
-        materialPurchaseMaterialsInfo.setSpecificationsNo(packBom.getTranslateCode());
-        materialPurchaseMaterialsInfo.setMaterialsColorCode(packBom.getColorCode());
-        materialPurchaseMaterialsInfo.setMaterialsName(packBom.getMaterialName());
+        materialPurchaseMaterialsInfo.setMaterialsNo(packPricingBom.getMaterialCode());
+        materialPurchaseMaterialsInfo.setSpecificationsNo(packPricingBom.getTranslateCode());
+        materialPurchaseMaterialsInfo.setMaterialsColorCode(packPricingBom.getColorCode());
+        materialPurchaseMaterialsInfo.setMaterialsName(packPricingBom.getMaterialName());
         materialPurchaseMaterialsInfo.setStyleNo(styleNo);
         return materialPurchaseMaterialsInfo;
     }

@@ -145,9 +145,8 @@ public class StylePricingController extends BaseController {
 
     @ApiOperation(value = "从 SCM 系统获取物料采购单价数据")
     @PostMapping("/getMaterialPurchasePrice")
-    public ApiResult<List<PackBom>> getMaterialPurchasePrice(@RequestBody List<String> packBomIdList) {
-        List<PackBom> packBomList = smpService.getMaterialPurchasePrice(packBomIdList);
-        return ApiResult.success("获取成功！", packBomList);
+    public ApiResult<List<PackPricingBom>> getMaterialPurchasePrice(@RequestBody List<String> packPricingBomList) {
+        return ApiResult.success("获取成功！", smpService.getMaterialPurchasePrice(packPricingBomList));
     }
 
     @ApiOperation(value = "保存")
