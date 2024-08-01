@@ -557,8 +557,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packDesignStatus.setToBigGoodsDate(nowDate);
             packInfoStatusService.updateById(packDesignStatus);
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
-            //只有反审才触发
-            if (null == packDesignStatus.getToDesignDate()){
+            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+            //只有不是反审并且不是报此款才触发
+            if (null == packDesignStatus.getToDesignDate() && !StrUtil.equals(BaseGlobal.YES,styleColor.getIsDefective())){
                 copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
                 PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
                 if (!Objects.isNull(packInfoStatusPre)){
@@ -579,7 +580,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
 
             /*配饰款会下发大货阶段的物料*/
-            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+
             if (StrUtil.equals(styleColor.getIsDefective(), BaseGlobal.YES)) {
                 List<PackBom> packBomList = packBomService.list(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
                 if(CollUtil.isNotEmpty(packBomList)){
