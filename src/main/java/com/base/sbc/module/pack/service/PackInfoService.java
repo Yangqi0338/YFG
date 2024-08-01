@@ -259,6 +259,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     PageInfo<FabricSummaryInfoVo> selectFabricSummaryStyle(FabricSummaryV2Dto dto);
 
+    String getByIdBrandName(String foreignId);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

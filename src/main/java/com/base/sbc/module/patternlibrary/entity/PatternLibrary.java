@@ -79,11 +79,17 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String styleNos;
 
     /**
-     * 大货款号
+     * 下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）
      */
-    @ApiModelProperty("大货款号")
+    @ApiModelProperty("下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）")
+    private String placeOrderStyleNos;
+
+    /**
+     * 款式设计下的大货款号集合，排除后缀为-9|-10|-11|-12|-ZC的数据
+     */
+    @ApiModelProperty("款式设计下的大货款号集合，排除后缀为-9|-10|-11|-12|-ZC的数据")
     @TableField(exist = false)
-    private String styleNo;
+    private String multipleStyleNo;
 
     /**
      * 大类 code
@@ -215,6 +221,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String materialName;
 
     /**
+     * 保存时的图片 ID（用作选择图片的时候保留选择的那个图片 id，因为选择的图片要重新上传可能导致回显的时候找不到上次选择的图片）
+     */
+    @ApiModelProperty("保存时的图片 ID")
+    private String oldPicId;
+
+    /**
      * 图片 ID
      */
     @ApiModelProperty("图片 ID")
@@ -260,6 +272,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("大货款号集合（款下面的所有大货）")
     @TableField(exist = false)
     private List<String> allStyleNoList;
+
+    /**
+     * 下单大货款集合（设计款下面的所有已投产的大货款）
+     */
+    @ApiModelProperty("下单大货款集合（设计款下面的所有已投产的大货款）")
+    @TableField(exist = false)
+    private List<String> placeOrderStyleNoList;
 
     /**
      * 版型使用率

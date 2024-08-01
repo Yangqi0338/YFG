@@ -155,13 +155,13 @@
             p.receive_sample
         </if>
         FROM
-        t_pattern_making p,
-        t_style s
-        where p.style_id = s.id
-        and p.design_send_status='1'
+        t_pattern_making p
+        LEFT JOIN t_style s ON p.style_id = s.id  and s.del_flag = '0'
+        LEFT JOIN t_node_status tns ON tns.data_id = p.id AND tns.del_flag = '0' AND tns.node = '样衣任务' and tns.`status` = '样衣完成'
+        where
+         p.design_send_status='1'
         and p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
-        and s.del_flag &lt;&gt; '1'
         AND (p.historical_data != '1' or (p.historical_data = '1' and p.design_send_date>= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) ))
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

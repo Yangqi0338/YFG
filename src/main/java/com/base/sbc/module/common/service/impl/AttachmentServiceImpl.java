@@ -261,7 +261,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
             return true;
         }
         if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
-            delByForeignIdType(targetForeignId, targetPackType);
+            delByForeignIdType(targetForeignId, targetPackType + StrUtil.DASHED+specType);
         }
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);

@@ -102,6 +102,7 @@
             </if>
             and p.style_no is not null
             and p.style_no !=''
+            and p.pack_type != 'packBigGoodsPre'
         </where>
         group by p.id
     </select>

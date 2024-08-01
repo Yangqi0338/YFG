@@ -115,6 +115,7 @@ import java.util.stream.Collectors;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,6 +247,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Resource
     private FieldValService fieldValService;
+
+    @Autowired
+    @Lazy
+    private PackSizeDetailService packSizeDetailService;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -551,9 +556,20 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packDesignStatus.setToBigGoodsDate(nowDate);
             packInfoStatusService.updateById(packDesignStatus);
-
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
-            //设置为已转大货
+            //只有反审才触发
+            if (null == packDesignStatus.getToDesignDate()){
+                copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
+                PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
+                if (!Objects.isNull(packInfoStatusPre)){
+                    packInfoStatusPre.setBomStatus(BasicNumber.ONE.getNumber());
+                    packInfoStatusPre.setToBigGoodsDate(nowDate);
+                    packInfoStatusPre.setDelFlag("1");
+                    packInfoStatus.setTechSpecVideoFileId(packInfoStatusPre.getTechSpecVideoFileId());
+                    packInfoStatusService.updateById(packInfoStatusPre);
+                }
+            }
+  //设置为已转大货
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
             packInfoStatus.setToBigGoodsDate(nowDate);
@@ -1299,6 +1315,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
+    public String getByIdBrandName(String id) {
+        PackInfo byId = getById(id);
+        if (null == byId){
+            return null;
+        }
+        Style style = styleService.getById(byId.getForeignId());
+        return Objects.isNull(style) ? null : style.getBrandName();
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);
@@ -1450,6 +1476,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 designPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
                 designPs.setPostTechConfirm(BaseGlobal.NO);
                 designPs.setDesignTechConfirmDate(null);
+                designPs.setTechSpecVideoFileId(bigGoodsPs.getTechSpecVideoFileId());
 
 
             }
@@ -1695,6 +1722,25 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         }
         packPricing.setCalcItemVal(JSON.toJSONString(jsonObject));
         packPricingService.updateById(packPricing);
+    }
+
+
+    private void copyPackPre(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg,String flag) {
+
+
+        //图样附件
+        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag,"");
+        //尺寸表
+        packSizeConfigService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        //工艺说明
+        packTechSpecService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        // 工艺说明包装方式
+        packTechPackagingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        packSizeConfigService.del(sourceForeignId,sourcePackType);
+        packSizeService.del(targetForeignId, sourcePackType);
+        packTechSpecService.del(targetForeignId, sourcePackType);
+        packTechPackagingService.del(targetForeignId, sourcePackType);
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -24,6 +24,7 @@ import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -41,7 +42,6 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -114,6 +114,32 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.vo.*;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
@@ -343,6 +369,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setDesignUnitUse(dto.getDesignUnitUse());
             BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
             updateById(db);
+            //特殊 判断这几个字段是否修改为空 为空时，设置置空
+            if (dto.getLossRate() == null || dto.getDesignUnitUse() == null || dto.getBulkUnitUse() == null) {
+                LambdaUpdateWrapper<PackBom> up = new LambdaUpdateWrapper<>();
+                up.set(PackBom::getLossRate, dto.getLossRate());
+                up.set(PackBom::getDesignUnitUse, dto.getDesignUnitUse());
+                up.set(PackBom::getBulkUnitUse, dto.getBulkUnitUse());
+                up.eq(PackBom::getId, db.getId());
+                update(up);
+            }
             packBom = db;
 
             /*替换物料时 当变更物料后（对应类型参照嘉威的业务配置字典），对用户进行提示
