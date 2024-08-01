@@ -40,6 +40,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
@@ -2097,7 +2098,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         String fileName = String.valueOf(System.currentTimeMillis());
         MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
-        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "materialUpload", numberByKeyDay);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.materialUpload, numberByKeyDay);
 
         //总计导入 成功 失败多少 修改多少
         return ApiResult.success("总计导入" + readAll.size() +"条,成功"+successSize+"条,失败"+(readAll.size() - successSize)+"条,修改"+updateSize+"条",attachmentVo);

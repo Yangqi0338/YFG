@@ -9,6 +9,7 @@ package com.base.sbc.module.common.service.impl;
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
 
+import cn.hutool.core.text.StrJoiner;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -251,7 +252,8 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         break;
                     case ingredientsAtactiform:
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
-                    case "Account":
+                        break;
+                    case Account:
                         objectName = "Account/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     case replayRating:
@@ -265,7 +267,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case markingOrderUpload:
                         objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
                         break;
-                    case "materialUpload":
+                    case materialUpload:
                         objectName = "ErrorMsg/material/" + code + "." + extName;
                         break;
                     default:
