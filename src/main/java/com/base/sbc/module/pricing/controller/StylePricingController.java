@@ -9,6 +9,9 @@ package com.base.sbc.module.pricing.controller;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.druid.support.console.OptionParseException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -16,6 +19,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -23,9 +27,12 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.entity.PackPricingBom;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingBomService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -36,7 +43,8 @@ import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -50,6 +58,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -57,14 +67,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 /**
  * 类描述：款式定价 Controller类
@@ -105,6 +107,9 @@ public class StylePricingController extends BaseController {
     private PackPricingService packPricingService;
     @Autowired
     private StyleService styleService;
+
+    @Autowired
+    private PackPricingBomService packPricingBomService;
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
@@ -231,11 +236,13 @@ public class StylePricingController extends BaseController {
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
             }
-
-            if ("1".equals(dto.getProductHangtagConfirm()) && (null == stylePricing.getControlPlanCost() || 0 == stylePricing.getControlPlanCost().compareTo(BigDecimal.ZERO))) {
-                throw new OtherException("请联系计控维护计控实际成本");
-
+            // 是FOB配饰款 则不加成本价校验
+            if ("1".equals(dto.getProductHangtagConfirm()) && (!"A05".equals(packInfo.getProdCategory1st()) || isCmt)) {
+                if (BigDecimalUtil.equalZero(stylePricing.getControlPlanCost())) {
+                    throw new OtherException("请联系计控维护计控实际成本");
+                }
             }
+
             if (!StringUtils.isEmpty(dto.getWagesConfirm())){
                 if (!isCmt || dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
                     throw new OtherException("工时部已确认");
@@ -336,6 +343,21 @@ public class StylePricingController extends BaseController {
             if (collect.length > 0) {
                 smpService.goods(collect);
             }
+        }
+        /*当计控成本确定时同时标记核价的物料*/
+        if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
+//           查询所有资料包的核价物料
+            QueryWrapper<PackPricingBom> packPricingBomQueryWrapper = new QueryWrapper<>();
+            packPricingBomQueryWrapper.eq("company_code",getUserCompany());
+            packPricingBomQueryWrapper.in("foreign_id", packIdList);
+            packPricingBomQueryWrapper.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
+            packPricingBomQueryWrapper.eq("del_flag", BaseGlobal.NO);
+            List<PackPricingBom> pricingBomList = packPricingBomService.list(packPricingBomQueryWrapper);
+            if(CollUtil.isNotEmpty(pricingBomList)){
+                pricingBomList.forEach(p -> p.setControlCostFlag(BaseGlobal.YES));
+                packPricingBomService.updateBatchById(pricingBomList);
+            }
+
         }
         return updateSuccess("提交成功");
     }

@@ -1,11 +1,5 @@
 package com.base.sbc.client.amc.service;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,14 +12,28 @@ import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 类描述： 用户信息
@@ -426,6 +434,31 @@ public class AmcFeignService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 获取用户头像及工号
+     *
+     * @param ids
+     * @return
+     */
+    public Map<String, UserCompany> getUserAvatarAndUserName(String ids) {
+        Map<String, UserCompany> userAvatarMap = new HashMap<>(16);
+        String userAvatarStr = amcService.getUserAvatar(ids);
+        JSONObject jsonObject = JSON.parseObject(userAvatarStr);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            List<UserCompany> userCompanies = data.toJavaList(UserCompany.class);
+            if (CollUtil.isNotEmpty(userCompanies)) {
+                for (UserCompany userCompany : userCompanies) {
+                    UserCompany userCompany1 = new UserCompany();
+                    userCompany1.setAliasUserAvatar(Opt.ofBlankAble(userCompany.getAvatar()).orElse(userCompany.getAliasUserAvatar()));
+                    userCompany1.setUsername(userCompany.getUsername());
+                    userAvatarMap.put(userCompany.getUserId(), userCompany1);
+                }
+            }
+        }
+        return userAvatarMap;
     }
 
 }

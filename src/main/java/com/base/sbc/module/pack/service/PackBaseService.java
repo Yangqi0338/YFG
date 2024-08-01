@@ -48,6 +48,15 @@ public interface PackBaseService<T> extends BaseService<T> {
     boolean del(String foreignId, String packType);
 
     /**
+     * 物理删除
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    boolean physicsDel(String foreignId, String packType);
+
+    /**
      * 获取1个
      *
      * @param foreignId

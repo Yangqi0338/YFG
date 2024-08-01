@@ -49,4 +49,9 @@ public class PackInfoSearchPageDto extends Page {
     @ApiModelProperty(value = "大货款号")
     private String styleNo;
 
+    @ApiModelProperty(value = "图片导出标记")
+    private String imgFlag ;
+
+
+
 }

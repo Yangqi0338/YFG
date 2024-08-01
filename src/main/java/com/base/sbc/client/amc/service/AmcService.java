@@ -3,6 +3,7 @@ package com.base.sbc.client.amc.service;
 import com.base.sbc.client.amc.entity.Job;
 import com.base.sbc.client.amc.entity.Team;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.dto.VirtualDept;
@@ -269,5 +270,11 @@ public interface AmcService {
     @GetMapping("/amc/api/token/dataPermissions/getByUserDataPermissionsAll")
     ApiResult<Map<String,String>> getByUserDataPermissionsAll(@RequestParam("businessType") String businessType,@RequestParam("type") String type
             ,@RequestParam("userId") String userId,@RequestParam("fieldName") String fieldName);
+
+    /**
+     * 根据按钮权限路径查询配置了此权限的所有用户
+     */
+    @GetMapping("/amc/api/token/user/getByMenuUrlUser")
+    List<UserCompany> getByMenuUrlUser(@RequestParam("url") String url);
 
 }

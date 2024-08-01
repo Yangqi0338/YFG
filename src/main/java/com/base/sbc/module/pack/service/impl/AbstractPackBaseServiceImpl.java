@@ -157,6 +157,14 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
     }
 
     @Override
+    public boolean physicsDel(String foreignId, String packType) {
+        QueryWrapper<T> delQw = new QueryWrapper<>();
+        delQw.eq("foreign_id", foreignId);
+        delQw.eq("pack_type", packType);
+        return physicalDeleteQWrap(delQw)>0;
+    }
+
+    @Override
     public boolean delByIds(String id) {
         return removeByIds(StrUtil.split(id, StrUtil.COMMA));
     }

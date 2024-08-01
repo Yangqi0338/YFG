@@ -37,11 +37,8 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
-import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
-import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
-import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -138,6 +135,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
     private final ColumnDefineService columnDefineService;
+
+    @Autowired
+    @Lazy
+    private PackPricingBomService packPricingBomService;
 
     // @Resource
     // @Lazy
@@ -343,7 +344,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 packCommonSearchDto.setForeignId(stylePricingVO.getId());
                 //材料成本,如果fob,则不计算
                 if ("CMT".equals(stylePricingVO.getProductionType())) {
-                    stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
+                    stylePricingVO.setMaterialCost(packPricingBomService.calculateCosts(packCommonSearchDto));
                 } else {
                     stylePricingVO.setMaterialCost(BigDecimal.ZERO);
                 }

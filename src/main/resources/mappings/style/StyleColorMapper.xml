@@ -169,13 +169,22 @@
         </select>
 
     <select id="pageBySampleDesign" resultType="com.base.sbc.module.style.entity.Style">
-        select ts.*,GROUP_CONCAT(tsc.style_no) bulkyCargoNo from t_style ts
+        select ts.* from t_style ts
         left join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
         <where>
             <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
                 ${ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
         </where>
+    </select>
+    <select id="pageBySampleDesign_COUNT" resultType="java.lang.Long">
+        select count(*) from (select ts.id from t_style ts
+        left join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        <where>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>) as tb
     </select>
 
 
@@ -269,10 +278,15 @@
             ts.prod_category3rd,
             ts.prod_category3rd_name,
             tsp.control_confirm,
+            tsp.control_confirm_time,
             tsp.control_plan_cost,
             tsp.product_hangtag_confirm,
+            tsp.product_hangtag_confirm_time,
             tsp.control_hangtag_confirm,
+            tsp.control_hangtag_confirm_time,
             tsp.wages_confirm,
+            tsp.wages_confirm_time,
+            tsp.planning_rate,
             ts.devt_type as devtType,
             ts.devt_type_name as devtTypeName,
             ts.channel,

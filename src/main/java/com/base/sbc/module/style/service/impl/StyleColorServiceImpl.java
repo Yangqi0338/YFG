@@ -40,6 +40,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -224,6 +225,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private PackBomService packBomService;
+
+    @Autowired
+    private PackPricingBomService packPricingBomService;
 
     @Autowired
     private StyleMainAccessoriesService styleMainAccessoriesService;
@@ -451,7 +455,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     packCommonSearchDto.setForeignId(styleVO.getPackInfoId());
                     //材料成本,如果fob,则不计算
                     if ("CMT".equals(styleVO.getDevtTypeName())) {
-                        styleVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
+                        styleVO.setMaterialCost(packPricingBomService.calculateCosts(packCommonSearchDto));
                     } else {
                         styleVO.setMaterialCost(BigDecimal.ZERO);
                     }
@@ -1449,7 +1453,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             packCommonSearchDto.setForeignId(packInfo.getId());
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
 //            核价成本
-            BigDecimal packBomCost = packBomService.calculateCosts(packCommonSearchDto);
+            BigDecimal packBomCost = packPricingBomService.calculateCosts(packCommonSearchDto);
 //            物料成本为0时查询核价信息的总成本
             if (packBomCost.compareTo(BigDecimal.ZERO) == 0) {
 //                核价信息总成本
@@ -1568,6 +1572,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
+        if (Constants.ONE_STR.equals(sampleStyleColor.getIsDefective()) && !styleNo.equals(updateStyleNoBandDto.getStyleNo())){
+            throw new OtherException("报此款的大货款号不允许修改！");
+        }
         String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "检查大货款号,仅允许字母数字",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
         Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
@@ -1817,7 +1824,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         baseMapper.insert(copyStyleColor);
 
         /*吊牌复制*/
-        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo());
+        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo(),true);
         /*新建一个资料包*/
         PackInfo copyPackInfo = new PackInfo();
         BeanUtils.copyProperties(packInfo, copyPackInfo, "id");
@@ -1827,6 +1834,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyPackInfo.setName(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
         copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+        copyPackInfo.insertInit();
         packInfoService.save(copyPackInfo);
 
         /*复制资料包里面的数据*/
@@ -1860,12 +1868,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*复制出款式定价确定数据*/
         StylePricing stylePricing = new StylePricing();
         stylePricing.setControlConfirm(styleColorVo.getControlConfirm());
+        stylePricing.setControlConfirmTime(styleColorVo.getControlConfirmTime());
         stylePricing.setProductHangtagConfirm(styleColorVo.getProductHangtagConfirm());
+        stylePricing.setProductHangtagConfirmTime(styleColorVo.getProductHangtagConfirmTime());
         stylePricing.setControlHangtagConfirm(styleColorVo.getControlHangtagConfirm());
+        stylePricing.setControlHangtagConfirmTime(styleColorVo.getControlHangtagConfirmTime());
         stylePricing.setWagesConfirm(styleColorVo.getWagesConfirm());
+        stylePricing.setWagesConfirmTime(styleColorVo.getWagesConfirmTime());
         stylePricing.setControlPlanCost(styleColorVo.getControlPlanCost());
+        stylePricing.setControlConfirmTime(styleColorVo.getControlConfirmTime());
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
+        stylePricing.setPlanningRate(styleColorVo.getPlanningRate());
         stylePricingMapper.insert(stylePricing);
 
 

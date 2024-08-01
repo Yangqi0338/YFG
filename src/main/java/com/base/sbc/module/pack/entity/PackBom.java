@@ -7,6 +7,8 @@
 package com.base.sbc.module.pack.entity;
 
 import cn.hutool.core.lang.Opt;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -103,6 +105,10 @@ public class PackBom extends BaseDataEntity<String> {
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
+    @ApiModelProperty(value = "复制来源id")
+    @TableField(exist = false)
+    private String copyId;
+
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**

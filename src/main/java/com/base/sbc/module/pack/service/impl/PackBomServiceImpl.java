@@ -408,6 +408,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         colorQw.eq("bom_version_id", version.getId());
         packBomColorService.addAndUpdateAndDelList(packBomColorList, colorQw, true);
         packBomVo.setPackBomColorVoList(BeanUtil.copyToList(packBomColorList, PackBomColorVo.class));
+        /*操作计算*/
+//        packPricingService.calculatePricingJson(dto.getForeignId(),dto.getPackType());
         return packBomVo;
     }
 
@@ -1232,19 +1234,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             if (!CommonUtils.isInitId(packBom.getId())) {
-                if (YesOrNoEnum.YES == packBom.getCopy()) {
-                    String sourceId = packBom.getId();
-                    String id = null;
-                    if (NumberUtil.isLong(sourceId)) {
-                        id = (NumberUtil.parseLong(sourceId) + 1) + "";
-                    }
-                    packBom.setId(id);
-                }else {
-                    pageBomIds.add(packBom.getId());
-                }
+                pageBomIds.add(packBom.getId());
             } else {
                 packBom.setCode(null);
-                packBom.setSort(Math.toIntExact(versionBomCount++));
+                if (StringUtils.isNotBlank(packBom.getCopyId())){
+                    packBom.setSort(getBaseMapper().getByIdSort(packBom.getCopyId()));
+                }else {
+                    packBom.setSort(Math.toIntExact(versionBomCount++));
+                }
             }
             packBom.calculateCost();
         }
@@ -1326,6 +1323,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (CollUtil.isNotEmpty(packBomColorList)) {
             packBomColorService.saveBatch(packBomColorList);
         }
+        /*操作计算*/
+//        packPricingService.calculatePricingJson(version.getForeignId(),version.getPackType());
         return true;
     }
 
@@ -1428,6 +1427,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if(StrUtil.equals(byId.getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(byId.getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(byId.getForeignId(),totalCost);
         }
+        /*操作计算*/
+//        packPricingService.calculatePricingJson(byId.getForeignId(),byId.getPackType());
         return true;
     }
 
@@ -1473,6 +1474,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(3, RoundingMode.HALF_UP);
     }
 
+    @Override
     public Map<String, BigDecimal> calculateCosts(List<String> foreignIdList, String packType) {
         Map<String, BigDecimal> map = new HashMap<>();
         //查询当前启用版本
@@ -1666,6 +1668,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delByIds(String id) {
         /*cha*/
         /*控制是否下发外部SMP系统开关*/
@@ -1682,6 +1685,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if(StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(packBomList.get(0).getForeignId(),totalCost);
         }
+        /*重新计算价格*/
+//        packPricingService.calculatePricingJson(packBomList.get(0).getForeignId(),packBomList.get(0).getPackType());
         return true;
     }
 

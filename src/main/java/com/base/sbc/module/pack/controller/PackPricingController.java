@@ -6,13 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.*;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
+import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
+import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
+import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -47,14 +52,14 @@ public class PackPricingController {
     private PackPricingService packPricingService;
 
     @Autowired
-    private PackBomService packBomService;
-    @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
     @Autowired
     private PackPricingProcessCostsService packPricingProcessCostsService;
 
     @Autowired
     private PackPricingCraftCostsService packPricingCraftCostsService;
+    @Autowired
+    private PackPricingBomService packPricingBomService;
 
     @ApiOperation(value = "获取合同价")
     @PostMapping("/getContractPrice")
@@ -84,9 +89,10 @@ public class PackPricingController {
 
     @ApiOperation(value = "物料费用-分页查询")
     @GetMapping("/materialCosts")
-    public PageInfo<PackBomVo> materialCosts(PackCommonPageSearchDto dto) {
-        return packBomService.pageInfo(dto);
+    public PageInfo materialCosts(PackCommonPageSearchDto dto) {
+        return packPricingBomService.pageInfo(dto);
     }
+
 
     @ApiOperation(value = "其他费用-分页查询", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @GetMapping("/otherCosts")
@@ -109,7 +115,7 @@ public class PackPricingController {
     @ApiOperation(value = "其他费用-删除", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @DeleteMapping("/otherCosts")
     public boolean delOtherCosts(@Valid IdsDto idsDto) {
-        return packPricingOtherCostsService.delByIds(idsDto.getId());
+        return packPricingOtherCostsService.delOtherCosts(idsDto.getId());
     }
 
     @ApiOperation(value = "加工费用-分页查询")
@@ -181,35 +187,25 @@ public class PackPricingController {
     public Map getPricingRoute(String styleNo) {
         return packPricingService.getPricingRoute(styleNo);
     }
+
+
+    @PostMapping("/pricingBom/sync")
+    @ApiOperation(value = "将物料清单数据同步到核价物料")
+    public boolean pricingBomSync(@RequestBody SyncPricingBomDto dto){
+        return packPricingService.syncPricingBom(dto);
+    }
+
+
+
+    @PostMapping("/pricingBom/save")
+    @ApiOperation(value = "保存核价物料")
+    public boolean pricingBomSave(@RequestBody List<PackPricingBomDto> list){
+        return packPricingBomService.saveOrUpdate(list);
+    }
+
+    @PostMapping("/pricingBom/del")
+    @ApiOperation(value = "删除核价物料")
+    public boolean pricingBomDel(@RequestBody IdsDto ids){
+        return packPricingBomService.pricingBomDel(ids);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

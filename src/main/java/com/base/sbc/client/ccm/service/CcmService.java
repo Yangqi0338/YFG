@@ -2,6 +2,7 @@ package com.base.sbc.client.ccm.service;
 
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -272,4 +273,16 @@ public interface CcmService {
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getAllByStructureCodes")
     String getAllByStructureCodes(@RequestParam("structureCode") String structureCode);
+
+
+    /**
+     * 获取结构管理
+     * @param structureName
+     * @param treeName
+     * @param status
+     * @return
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/queryTree")
+    ApiResult queryTree(@RequestParam("structureName") String structureName, @RequestParam("treeName") String treeName, @RequestParam("status") String status);
+
 }
