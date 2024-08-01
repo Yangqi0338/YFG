@@ -1414,7 +1414,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (packInfoStatus != null && StrUtil.isNotBlank(packInfoStatus.getTechSpecFileId())) {
 						UploadFile uploadFile = uploadFileService.getById(packInfoStatus.getTechSpecFileId());
 						if (uploadFile != null) {
-							tagPrinting.setTechSpecFileUrl(uploadFile.getUrl());
+							tagPrinting.setTechSpecFileUrl(minioUtils.getObjectUrl(uploadFile.getUrl()));
 						}
 					}
 				}
