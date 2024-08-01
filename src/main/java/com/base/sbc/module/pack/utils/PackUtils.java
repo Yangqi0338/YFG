@@ -92,7 +92,7 @@ public class PackUtils {
         }
         for (PackBom packBom : bom) {
             packBom.setDelFlag(Opt.ofBlankAble(packBom.getDelFlag()).orElse(BaseGlobal.NO));
-            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(BaseGlobal.YES));
+            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(YesOrNoEnum.YES));
             packBom.setUnusableFlag(Opt.ofBlankAble(packBom.getUnusableFlag()).orElse(BaseGlobal.NO));
             packBom.setScmSendFlag(Opt.ofBlankAble(packBom.getScmSendFlag()).orElse(BaseGlobal.NO));
         }

@@ -29,6 +29,16 @@ public class BomSelMaterialVo {
     @ApiModelProperty(value = "物料档案id")
     private String materialId;
     /**
+     * 大类编码
+     */
+    @ApiModelProperty(value = "大类编码")
+    private String category1Code;
+    /**
+     * 大类
+     */
+    @ApiModelProperty(value = "大类")
+    private String category1Name;
+    /**
      * 搭配
      */
     @ApiModelProperty(value = "搭配")

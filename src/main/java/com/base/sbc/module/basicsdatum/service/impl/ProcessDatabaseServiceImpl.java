@@ -331,6 +331,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.notEmptyLike("description", pageDto.getDescription());
         queryWrapper.notEmptyLike("create_name", pageDto.getCreateName());
         queryWrapper.notEmptyLike("process_name", pageDto.getProcessName());
+        queryWrapper.likeList("process_name", pageDto.getProcessNameList());
         queryWrapper.notEmptyLike("code", pageDto.getCode());
         queryWrapper.notEmptyLike("brand_id", pageDto.getBrandCode());
         queryWrapper.notEmptyLike("component", pageDto.getComponent());
