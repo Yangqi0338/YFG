@@ -15,6 +15,7 @@ public enum UnitConverterEnum {
     KILOMETER("km(千米)", "a / 1000"),
     METER("米", "a"),
     PIECE("件", "a * 1"),
+    HECTOMETER("百米", "a / 100"),
     ;
     /** 编码 */
     @EnumValue
