@@ -280,7 +280,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
                         break;
                     // /企划看板模块名/品牌/年份/季节/坑位id.文件后缀
-                    case "planningProjectPlank":
+                    case planningProjectPlank:
                         if (StrUtil.isBlank(code)) {
                             throw new OtherException("code 不能空");
                         }
