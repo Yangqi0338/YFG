@@ -12,6 +12,8 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -95,6 +97,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     @Lazy
     private PlanningProjectService planningProjectService;
     @Resource
+    @Lazy
+    private MinioUtils minioUtils;
+    @Resource
     private SmpService smpService;
 
     @Override
@@ -176,18 +181,18 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             // 获取所有波段,当作列  现在需要波段加上款式类别
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())) {
-                Integer i = map.get(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory());
+                Integer i = map.get(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode() + "," + planningProjectPlankVo.getStyleCategory());
                 if (i == null) {
                     if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())) {
-                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory(), 1);
+                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode() + "," + planningProjectPlankVo.getStyleCategory(), 1);
                     } else {
-                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory(), 0);
+                        map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode() + "," + planningProjectPlankVo.getStyleCategory(), 0);
                     }
                 } else {
                     if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())) {
                         i++;
                     }
-                    map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode()  + "," + planningProjectPlankVo.getStyleCategory(), i);
+                    map.put(planningProjectPlankVo.getBandName() + "," + planningProjectPlankVo.getBandCode() + "," + planningProjectPlankVo.getStyleCategory(), i);
                 }
             }
             // 获取所有的第一维度
@@ -359,10 +364,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         for (Map.Entry<String, Integer> stringStringEntry : map.entrySet()) {
             TableColumnVo tableColumnVo = new TableColumnVo();
             String[] split = stringStringEntry.getKey().split(",");
-            // tableColumnVo.setTitle(split[0] + "/" + split[2]);
-            // tableColumnVo.setColKey(split[1] + "/" + split[2]);
-            tableColumnVo.setTitle(split[0]);
-            tableColumnVo.setColKey(split[1]);
+            tableColumnVo.setTitle(split[0] + "/" + split[2]);
+            tableColumnVo.setColKey(split[1] + "/" + split[2]);
             tableColumnVo.setNum(String.valueOf(stringStringEntry.getValue()));
             tableColumnVos.add(tableColumnVo);
         }
@@ -393,8 +396,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 Map<String, SalesData> salesDataMap = salesDataList
                         .stream().collect(Collectors.toMap(SalesData::getGoodsNo, item -> item));
                 for (PlanningProjectPlankVo planningProjectPlankVo : list) {
-                    if (StrUtil.isNotBlank(planningProjectPlankVo.getHisDesignNo())) {
-                        SalesData salesData = salesDataMap.get(planningProjectPlankVo.getHisDesignNo());
+                    List<PlanningProjectPlankDimension> dimensionList = planningProjectPlankVo.getDimensionList();
+                    String bulkStyleNo = planningProjectPlankVo.getBulkStyleNo();
+                    if (StrUtil.isNotBlank(bulkStyleNo) && ObjectUtil.isNotEmpty(dimensionList)) {
+                        SalesData salesData = salesDataMap.get(bulkStyleNo);
                         if (ObjectUtil.isNotEmpty(salesData)) {
                             BigDecimal salesNum = salesData.getSalesNum();
                             BigDecimal productionNum = salesData.getProductionNum();
@@ -402,8 +407,17 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                                 planningProjectPlankVo.setSale("0");
                                 planningProjectPlankVo.setSaleInto("0");
                             } else {
-                                planningProjectPlankVo.setSale(String.valueOf(salesNum));
-                                planningProjectPlankVo.setSaleInto(salesNum.divide(productionNum, 2, RoundingMode.HALF_UP).multiply(new BigDecimal("100")) + "%");
+                                for (PlanningProjectPlankDimension planningProjectPlankDimension : dimensionList) {
+                                    FieldManagement fieldManagement = planningProjectPlankDimension.getFieldManagement();
+                                    if (ObjectUtil.isNotEmpty(fieldManagement)) {
+                                        if ("销量".equals(fieldManagement.getFieldExplain())) {
+                                            planningProjectPlankDimension.setDimensionValueName(String.valueOf(salesNum));
+                                        }
+                                        if ("产销".equals(fieldManagement.getFieldExplain())) {
+                                            planningProjectPlankDimension.setDimensionValueName(salesNum.multiply(new BigDecimal("100")).divide(productionNum, 2, RoundingMode.HALF_UP) + "%");
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -423,10 +437,14 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
     /**
      * 根据大货款号集合查询销售信息（销售量和投产量），这个是计算这个大货对应的合并款号下的所有大货的销售信息相加
+     *
      * @param styleNoList 大货款号集合
      * @return 销售信息（销售量和投产量）
      */
     public List<SalesData> querySaleDataByStyleNos(List<String> styleNoList) {
+        if (ObjectUtil.isEmpty(styleNoList)) {
+            return new ArrayList<>();
+        }
         // 先根据大货款号集合查询出大货款号对应的合并款号 大货款号-合并款号
         List<SalesData> goodsNoInfoList = smpService.queryMergeGoodsNoByGoodsNo(styleNoList);
         if (ObjectUtil.isNotEmpty(goodsNoInfoList)) {
@@ -774,6 +792,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 updateCategoryAndSeasonPlanning(planningProjectPlank, planningProjectDimension, pitPositionCount, 1);
             }
         } else {
+            planningProjectPlank.setPic(CommonUtils.removeQuery(planningProjectPlank.getPic()));
             updateById(planningProjectPlank);
         }
     }

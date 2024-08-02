@@ -254,7 +254,7 @@ public class PlanningProjectPlankController extends BaseController {
             // 是历史款或者未匹配就将历史款的数据放入当前坑位
             planningProjectPlank1.setHisDesignNo(planningProjectPlank.getHisDesignNo());
             planningProjectPlank1.setMatchingStyleStatus("3");
-            planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getBulkStyleNo());
+            planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getHisDesignNo());
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlank.getHisDesignNo()));
             planningProjectPlank1.setStyleColorId(styleColor.getId());
             // planningProjectPlank1.setPic(styleColor.getStyleColorPic());
@@ -389,6 +389,7 @@ public class PlanningProjectPlankController extends BaseController {
         planningProjectPlankService.saveData(planningProjectPlank);
         return ApiResult.success("操作成功");
     }
+
 
 
     // <==================== 企划看板 2.0
