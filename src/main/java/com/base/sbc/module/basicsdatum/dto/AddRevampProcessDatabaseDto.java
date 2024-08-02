@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -41,7 +42,7 @@ public class AddRevampProcessDatabaseDto {
     @ApiModelProperty(value = "状态")
     private String status;
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
-    private String type;
+    private ProcessDatabaseType type;
     /*部件类别*/
     @ApiModelProperty(value = "部件类别")
     private String component;

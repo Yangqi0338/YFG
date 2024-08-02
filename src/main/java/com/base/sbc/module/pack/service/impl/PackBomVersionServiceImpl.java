@@ -12,8 +12,11 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -27,10 +30,27 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.dto.PackBomBigGoodsEmptyCheckDto;
+import com.base.sbc.module.pack.dto.PackBomDesignEmptyCheckDto;
+import com.base.sbc.module.pack.dto.PackBomEmptyCheckDto;
+import com.base.sbc.module.pack.dto.PackBomSizeEmptyCheckDto;
+import com.base.sbc.module.pack.dto.PackBomVersionDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackInfoDto;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomColor;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomColorService;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
@@ -54,7 +74,14 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
@@ -76,6 +103,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
 
 // 自定义方法区 不替换的区域【other_start】
 
+    @Resource
+    private PackBomVersionService packBomVersionService;
     @Resource
     private PackBomService packBomService;
     @Resource
@@ -167,7 +196,18 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             // 1.将当前启用的停用 2.启用当前的
             enable(version);
             log(id, "启用");
+            packBomService.update(new LambdaUpdateWrapper<PackBom>()
+                    .eq(PackBom::getForeignId, version.getForeignId())
+                    .ne(PackBom::getBomVersionId, id)
+                    .set(PackBom::getStatus, BaseGlobal.NO)
+            );
         }
+
+        // 将所有packBom的状态改为version状态,方便调用
+        packBomService.update(new LambdaUpdateWrapper<PackBom>()
+                .eq(PackBom::getBomVersionId, id)
+                .set(PackBom::getStatus, version.getStatus())
+        );
         return true;
     }
 
@@ -490,6 +530,19 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             enable(newVersion);
         }
 
+        // 查询版本最后一个数据的排序值
+        PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(targetForeignId, targetPackType);
+        int targetSort = 0;
+        PackBom packBom = packBomService.getOne(new LambdaQueryWrapper<PackBom>()
+                .eq(PackBom::getForeignId, targetForeignId)
+                .eq(PackBom::getPackType, targetPackType)
+                .eq(PackBom::getBomVersionId, packBomVersion1.getId())
+                .orderByDesc(PackBom::getSort)
+                .last("limit 1")
+        );
+        if (ObjectUtil.isNotEmpty(packBom)) {
+            targetSort = packBom.getSort();
+        }
 
         //保存物料清单
         if (CollUtil.isNotEmpty(bomList)) {
@@ -506,6 +559,9 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 bom.setForeignId(targetForeignId);
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
+                if (StrUtil.equals(BasicNumber.ZERO.getNumber(), flg)) {
+                    bom.setSort(targetSort + i + 1);
+                }
                 bom.setBomVersionId(newVersion.getId());
                 bom.setHistoricalData(BaseGlobal.NO);
                 bom.insertInit();

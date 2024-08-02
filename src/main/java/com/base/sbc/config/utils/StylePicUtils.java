@@ -122,9 +122,9 @@ public class StylePicUtils {
      * @param list
      * @param fileIdKey 修改字段
      */
-    public void setStyleColorPic2(List list, String fileIdKey) {
+    public List<Object> setStyleColorPic2(List list, String fileIdKey) {
         if (CollUtil.isEmpty(list)) {
-            return;
+            return list;
         }
         List<String> fileId = new ArrayList<>(12);
         for (Object vo : list) {
@@ -134,16 +134,27 @@ public class StylePicUtils {
             }
         }
         if (CollUtil.isEmpty(fileId)) {
-            return;
+            return list;
         }
         /*获取款式图*/
+        List<Object> result = new ArrayList<>();
         for (Object l : list) {
             String v = BeanUtil.getProperty(l, fileIdKey);
             if (StrUtil.isBlank(v)) {
+                result.add(l);
                 continue;
             }
-            BeanUtil.setProperty(l, fileIdKey, Optional.of(getStyleColorUrl2(v,100)).orElse(""));
+            String url = Optional.of(getStyleColorUrl2(v, 100)).orElse("");
+            BeanUtil.setProperty(l, fileIdKey, url);
+            if (StrUtil.isBlank(v)) {
+                result.add(l);
+            }
         }
+        return result;
+    }
+
+    public void setStyleColorPic2(List list) {
+        setStyleColorPic2(setStyleColorPic2(list, "styleColorPic"), "stylePic");
     }
 
 

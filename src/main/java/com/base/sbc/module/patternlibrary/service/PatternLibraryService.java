@@ -1,6 +1,6 @@
 package com.base.sbc.module.patternlibrary.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 版型库-主表 服务类
@@ -25,7 +26,7 @@ import java.util.List;
  * @author xhte
  * @create 2024-03-22
  */
-public interface PatternLibraryService extends IService<PatternLibrary> {
+public interface PatternLibraryService extends BaseService<PatternLibrary> {
 
     /**
      * 版型库列表
@@ -126,12 +127,12 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     /**
      * 查询设计款号数据信息
      *
-     * @param search      查询条件
+     * @param search 查询条件
      * @return 设计款号数据信息
      */
     List<Style> listStyle(String search);
 
- /**
+    /**
      * 查询设计款号数据信息
      *
      * @param styleNoList 款号集合
@@ -199,11 +200,28 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 常青编号列表
      */
     PageInfo<PatternLibrary> listEverGreenCode(PatternLibraryPageDTO patternLibraryPageDTO);
-/**
+
+    /**
      * 根据款式 ID 获取可否改版信息
      *
      * @param styleId 设计款 ID
      * @return 常青编号列表
      */
     PatternLibraryTemplate queryPatternTypeByStyleId(String styleId);
+
+    /**
+     * 获取使用款记录
+     *
+     * @param useStyleDTO 筛选条件
+     * @return 获取使用款记录
+     */
+    Map<String, Integer> patternUseCountMap(UseStyleDTO useStyleDTO);
+
+    /**
+     * 款式设计获取版型库动态字段（长度、围度、廓形、涉及部件）
+     *
+     * @param patternLibraryId 版型库 ID
+     * @return 版型库信息
+     */
+    PatternLibrary queryPatternLibrarySomeInfo(String patternLibraryId);
 }

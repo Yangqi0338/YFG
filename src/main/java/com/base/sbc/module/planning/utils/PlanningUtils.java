@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -129,6 +130,10 @@ public class PlanningUtils {
         String coefficientFlag = (String)BeanUtil.getProperty(bean, "coefficientFlag");
         qw.notEmptyEq("planning_season_id", dto.getPlanningSeasonId());
         qw.notEmptyEq("channel", dto.getChannel());
+        Object dimensionalityName = BeanUtil.getProperty(bean, "dimensionalityName");
+        if (ObjectUtil.isNotEmpty(dimensionalityName)) {
+            qw.notEmptyIn("dimensionality_name", dimensionalityName.toString());
+        }
    /*     if(StrUtil.equals(coefficientFlag,BaseGlobal.YES)){
             qw.eq("coefficient_flag",BaseGlobal.YES);
         }else {

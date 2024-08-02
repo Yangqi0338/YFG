@@ -22,6 +22,9 @@ public class StylePmDetailVo extends StyleVo {
     @ApiModelProperty(value = "打版指令")
     private PatternMakingVo patternMaking;
 
+    @ApiModelProperty(value = "版型库文件地址 由于技术部看不了设计部的东西 所以需要在打版任务中展示链接并下载")
+    private String patternLibraryFileUrl;
+
 
     public String getDesignerName() {
         String designer = getDesigner();

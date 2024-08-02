@@ -3,8 +3,8 @@ package com.base.sbc.module.common.convert;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
@@ -15,7 +15,6 @@ import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.smp.dto.ScmProductionDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
@@ -31,7 +30,7 @@ import java.util.Map;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class})
 public interface OrderBookConvert {
     OrderBookConvert INSTANCE = Mappers.getMapper(OrderBookConvert.class);
 

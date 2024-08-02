@@ -80,5 +80,11 @@ public class StyleColorAgent extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态（0：未发送，1：已发送，2：重新打开，-1：停用）冗余暂时不用")
     private String status;
+
+    @ApiModelProperty(value = "国际号型")
+    private String extShape;
+    @ApiModelProperty(value = "国际尺码")
+    private String extSize;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

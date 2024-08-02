@@ -50,4 +50,12 @@ public class MangoHangTagExeclDto {
     @Excel(name = "*洗标编码", width = 20)
     private String washingCode;
 
+    @ApiModelProperty(name = "国际号型")
+    @Excel(name = "国际号型", width = 20)
+    private String extShape;
+
+    @ApiModelProperty(name = "国际号型")
+    @Excel(name = "国际尺码", width = 20)
+    private String extSize;
+
 }

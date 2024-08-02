@@ -144,10 +144,13 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
     private String fabricRemarks;
     private String fabricDrop;
     private String style;
+    private String styleId;
     private String prodCategory2ndName;
     private String prodCategory2ndCode;
     private String oldDesignNo;
     private String registeringNo;
+    private String registeringId;
+    private String groupBy;
     private String suitNo;
     private String patternDesignName;
     private String styleDesignerName;

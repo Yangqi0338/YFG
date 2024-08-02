@@ -59,6 +59,5 @@ public interface PackInfoMapper extends BaseMapper<PackInfo> {
     long countByQw(@Param(Constants.WRAPPER) QueryWrapper codeQw);
 
     List<FabricSummaryInfoVo> selectFabricSummaryStyle(@Param("dto") FabricSummaryV2Dto dto,@Param(Constants.WRAPPER)  BaseQueryWrapper qw);
-
 // 自定义方法区 不替换的区域【other_end】
 }

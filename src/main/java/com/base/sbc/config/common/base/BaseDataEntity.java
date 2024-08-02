@@ -25,7 +25,7 @@ import lombok.Data;
  * @date 2023/3/31 19:56:38
  */
 @Data
-public abstract class BaseDataEntity<T> extends BaseEntity {
+public class BaseDataEntity<T> extends BaseEntity {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 7022181519896948997L;
