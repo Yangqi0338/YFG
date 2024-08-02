@@ -11,13 +11,12 @@ import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 类描述：工作量评分配置 dao类
- *
- * @author KC
- * @version 1.0
+ * 类描述：工作量评分选项配置 dao类
  * @address com.base.sbc.module.workload.dao.WorkloadRatingConfigDao
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17 
+ * @version 1.0  
  */
 @Mapper
 public interface WorkloadRatingConfigMapper extends BaseEnhanceMapper<WorkloadRatingConfig> {

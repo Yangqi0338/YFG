@@ -6,19 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 类描述：工作量评分数据计算结果QueryDto 实体类
- *
- * @author KC
- * @version 1.0
  * @address com.base.sbc.module.workload.dto.WorkloadRatingDetailQueryDto
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,6 +30,13 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    public BigDecimal getCalculateTypeResult(WorkloadRatingCalculateType calculateType) {
+        return new BigDecimal(this.getExtend().getOrDefault(calculateType.getCode(), calculateType.getDefaultValue()).toString());
+    }
+
+    public BigDecimal getScoreByItemName(WorkloadRatingCalculateType calculateType) {
+        return new BigDecimal(this.getExtend().getOrDefault(calculateType.getCode(), "0").toString());
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

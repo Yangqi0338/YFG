@@ -13,16 +13,13 @@ import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailVO;
 import com.github.pagehelper.PageInfo;
 
-import java.util.List;
-
-/**
+/** 
  * 类描述：工作量评分数据计算结果 service类
- *
- * @author KC
- * @version 1.0
  * @address com.base.sbc.module.workload.service.WorkloadRatingDetailService
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0  
  */
 public interface WorkloadRatingDetailService extends BaseService<WorkloadRatingDetail> {
 
@@ -31,8 +28,6 @@ public interface WorkloadRatingDetailService extends BaseService<WorkloadRatingD
     PageInfo<WorkloadRatingDetailVO> queryPageInfo(WorkloadRatingDetailQO qo);
 
     WorkloadRatingDetailDTO detail(String id);
-
-    Boolean delByIds(List<String> ids);
 
     void save(WorkloadRatingDetailDTO workloadRatingDetail);
 

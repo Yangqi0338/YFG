@@ -25,12 +25,11 @@ import java.util.List;
 
 /**
  * 类描述：工作量评分数据计算结果 service类
- *
- * @author KC
- * @version 1.0
  * @address com.base.sbc.module.workload.service.WorkloadRatingDetailService
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0
  */
 @Service
 public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRatingDetailMapper, WorkloadRatingDetail> implements WorkloadRatingDetailService {
@@ -54,11 +53,6 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
     public WorkloadRatingDetailDTO detail(String id) {
         WorkloadRatingDetail entity = this.getById(id);
         return BeanUtil.copyProperties(entity, WorkloadRatingDetailDTO.class);
-    }
-
-    @Override
-    public Boolean delByIds(List<String> ids) {
-        return this.removeByIds(ids);
     }
 
     @Override

@@ -13,12 +13,11 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 类描述：工作量评分数据计算结果Vo 实体类
- *
- * @author KC
- * @version 1.0
  * @address com.base.sbc.module.workload.vo.WorkloadRatingDetailVo
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

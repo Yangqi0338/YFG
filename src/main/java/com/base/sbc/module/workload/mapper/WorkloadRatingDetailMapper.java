@@ -6,21 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.mapper;
 
-import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import org.apache.ibatis.annotations.Mapper;
 
-/**
+/** 
  * 类描述：工作量评分数据计算结果 dao类
- *
- * @author KC
- * @version 1.0
  * @address com.base.sbc.module.workload.dao.WorkloadRatingDetailDao
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17 
+ * @version 1.0  
  */
 @Mapper
-public interface WorkloadRatingDetailMapper extends BaseEnhanceMapper<WorkloadRatingDetail> {
+public interface WorkloadRatingDetailMapper extends BaseMapper<WorkloadRatingDetail> {
 // 自定义方法区 不替换的区域【other_start】
 
 

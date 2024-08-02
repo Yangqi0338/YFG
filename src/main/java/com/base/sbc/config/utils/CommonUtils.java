@@ -41,6 +41,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.Constants.COMMA;
+
 /**
  * @author 卞康
  * @date 2023/3/31 15:46:55
@@ -48,6 +50,8 @@ import java.util.stream.Collectors;
 public class CommonUtils {
 
     public static final String[] image_accept = {"jpg", "png", "jpeg"};
+    public static final StrJoiner iCommaJoiner = StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE);
+    public static final StrJoiner eCommaJoiner = StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.TO_EMPTY);
 
     /**
      * 取多个set集合相交的数据，集合可为null，不进行筛选，但是任何一个set集合的长度为0，则无任何相交对象
@@ -468,6 +472,26 @@ public class CommonUtils {
 
     public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
         return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static <T> List<T> listFlatten(List<T> sourceList, Function<T, List<T>> childrenListFunc) {
+        List<T> result = new ArrayList<>();
+        if (CollUtil.isEmpty(sourceList)) return sourceList;
+        for (T source : sourceList) {
+            result.add(source);
+            listFlatten(result, source, childrenListFunc);
+        }
+        return result;
+    }
+
+    private static <T> void listFlatten(List<T> newList, T source, Function<T, List<T>> childrenListFunc) {
+        if (source == null) return;
+        List<T> list = childrenListFunc.apply(source);
+        if (CollUtil.isEmpty(list)) return;
+        for (T t : list) {
+            newList.add(t);
+            listFlatten(newList, t, childrenListFunc);
+        }
     }
 
     public static <T> Supplier<? extends T> getListOne(List<T> list, T dto) {

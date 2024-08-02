@@ -7,20 +7,19 @@
 package com.base.sbc.module.workload.mapper;
 
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
-import com.base.sbc.module.workload.entity.WorkloadRatingItemConfig;
+import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 类描述：工作量评分选项配置 dao类
- *
+ * 类描述：工作量评分配置 dao类
+ * @address com.base.sbc.module.workload.dao.WorkloadRatingItemDao
  * @author KC
- * @version 1.0
- * @address com.base.sbc.module.workload.dao.WorkloadRatingItemConfigDao
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:44
+ * @date 创建时间：2024-7-27 16:19:16 
+ * @version 1.0  
  */
 @Mapper
-public interface WorkloadRatingItemConfigMapper extends BaseEnhanceMapper<WorkloadRatingItemConfig> {
+public interface WorkloadRatingItemMapper extends BaseEnhanceMapper<WorkloadRatingItem> {
 // 自定义方法区 不替换的区域【other_start】
 
 

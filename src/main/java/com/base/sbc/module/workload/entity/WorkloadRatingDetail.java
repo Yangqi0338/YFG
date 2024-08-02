@@ -8,6 +8,7 @@ package com.base.sbc.module.workload.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataExtendEntity;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,12 +18,11 @@ import java.math.BigDecimal;
 
 /**
  * 类描述：工作量评分数据计算结果 实体类
- *
- * @author KC
- * @version 1.0
  * @address com.base.sbc.module.workload.entity.WorkloadRatingDetail
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,16 +33,18 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
-
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 类型: sample 样衣工 */
     @ApiModelProperty(value = "类型: sample 样衣工")
-    private String type;
+    private WorkloadRatingType type;
     /** 品牌 */
     @ApiModelProperty(value = "品牌")
     private String brand;
+    /** 评分项id集合, 逗号拼接 */
+    @ApiModelProperty(value = "评分项id集合, 逗号拼接")
+    private String itemId;
     /** 评分项值集合, 逗号拼接 */
     @ApiModelProperty(value = "评分项值集合, 逗号拼接")
     private String itemValue;

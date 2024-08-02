@@ -6,27 +6,40 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
-import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Size;
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
- * 类描述：工作量评分选项配置QueryDto 实体类
- * @address com.base.sbc.module.workload.dto.WorkloadRatingConfigQueryDto
+ * 类描述：工作量评分配置QueryDto 实体类
+ *
  * @author KC
- * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 16:19:17
  * @version 1.0
+ * @address com.base.sbc.module.workload.dto.WorkloadRatingItemQueryDto
+ * @email kchange0915@gmail.com
+ * @date 创建时间：2024-7-27 16:19:16
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("工作量评分选项配置 WorkloadRatingConfigDTO")
-public class WorkloadRatingConfigDTO extends WorkloadRatingConfig {
+@ApiModel("工作量评分配置 WorkloadRatingItemDTO")
+public class WorkloadRatingItemDTO extends WorkloadRatingItem {
 
     private static final long serialVersionUID = 1L;
+
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    @Size(min = 3, message = "评分项|分值必须填写")
+    public Collection<String> checkList() {
+        return CollUtil.filterNew(Arrays.asList(this.getConfigId(), this.getItemValue(), BigDecimalUtil.convertString(this.getScore())), StrUtil::isNotBlank);
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

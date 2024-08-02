@@ -2,7 +2,6 @@ package com.base.sbc.client.ccm.service;
 
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
-import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -32,6 +32,15 @@ public interface CcmService {
      */
     @GetMapping("/ccm/api/saas/basicBaseModeltypes/getEndName")
     public String getCategoryName(@RequestHeader("Authorization") String token, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany);
+
+    /**
+     * 获取字典信息
+     *
+     * @param type 类型
+     * @return
+     */
+    @GetMapping("/ccm/api/saas/basicBaseDicts/selectAllDict")
+    public String selectAllDict(@NotBlank @RequestParam("type") String type, @RequestParam("parentId") String parentId);
 
     /**
      * 获取字典信息

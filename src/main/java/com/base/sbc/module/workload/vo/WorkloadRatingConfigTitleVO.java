@@ -6,24 +6,24 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.vo;
 
-import com.base.sbc.module.workload.entity.WorkloadRatingItemConfig;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
- * 类描述：工作量评分选项配置Vo 实体类
- *
+ * 类描述：工作量评分选项配置QueryDto 实体类
+ * @address com.base.sbc.module.workload.dto.WorkloadRatingConfigQueryDto
  * @author KC
- * @version 1.0
- * @address com.base.sbc.module.workload.vo.WorkloadRatingItemConfigVo
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:44
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("工作量评分选项配置 WorkloadRatingItemConfigVO")
-public class WorkloadRatingItemConfigVO extends WorkloadRatingItemConfig {
+@ApiModel("工作量评分选项配置 WorkloadRatingConfigDTO")
+public class WorkloadRatingConfigTitleVO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 

@@ -6,27 +6,42 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
-import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import io.swagger.annotations.ApiModel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
- * 类描述：工作量评分选项配置QueryDto 实体类
- * @address com.base.sbc.module.workload.dto.WorkloadRatingConfigQueryDto
+ * 类描述：工作量评分配置QueryDto 实体类
+ *
  * @author KC
- * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 16:19:17
  * @version 1.0
+ * @address com.base.sbc.module.workload.dto.WorkloadRatingItemQueryDto
+ * @email kchange0915@gmail.com
+ * @date 创建时间：2024-7-27 16:19:16
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("工作量评分选项配置 WorkloadRatingConfigDTO")
-public class WorkloadRatingConfigDTO extends WorkloadRatingConfig {
+@ApiModel("工作量评分配置 WorkloadRatingTitleFieldDTO")
+@AllArgsConstructor
+public class WorkloadRatingTitleFieldDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    private String code;
+
+    private String name;
+
+    private Integer index;
+
+    private String configId;
+
+    public WorkloadRatingTitleFieldDTO(String code, String name, Integer index) {
+        this.code = code;
+        this.name = name;
+        this.index = index;
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

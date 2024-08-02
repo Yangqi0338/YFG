@@ -11,28 +11,24 @@ import com.base.sbc.module.workload.dto.WorkloadRatingConfigDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
-import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
 /**
- * 类描述：工作量评分配置 service类
- *
- * @author KC
- * @version 1.0
+ * 类描述：工作量评分选项配置 service类
  * @address com.base.sbc.module.workload.service.WorkloadRatingConfigService
+ * @author KC
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-7-27 13:27:45
+ * @date 创建时间：2024-7-27 16:19:17
+ * @version 1.0  
  */
 public interface WorkloadRatingConfigService extends BaseService<WorkloadRatingConfig> {
 
 // 自定义方法区 不替换的区域【other_start】
 
-    PageInfo<WorkloadRatingConfigVO> queryPageInfo(WorkloadRatingConfigQO qo);
+    List<WorkloadRatingConfigVO> queryList(WorkloadRatingConfigQO qo);
 
     WorkloadRatingConfigDTO detail(String id);
-
-    Boolean delByIds(List<String> ids);
 
     void save(WorkloadRatingConfigDTO workloadRatingConfig);
 
