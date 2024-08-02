@@ -380,6 +380,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         // }
 
         stylePicUtils.setStyleColorPic2(list, "pic");
+        minioUtils.setObjectUrlToList(list, "selfPic");
 
         // 实时查询大货款对应的合并款下所有大货的总销量和总投产
         if (ObjectUtil.isNotEmpty(list)) {
@@ -397,9 +398,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         .stream().collect(Collectors.toMap(SalesData::getGoodsNo, item -> item));
                 for (PlanningProjectPlankVo planningProjectPlankVo : list) {
                     List<PlanningProjectPlankDimension> dimensionList = planningProjectPlankVo.getDimensionList();
-                    String bulkStyleNo = planningProjectPlankVo.getBulkStyleNo();
-                    if (StrUtil.isNotBlank(bulkStyleNo) && ObjectUtil.isNotEmpty(dimensionList)) {
-                        SalesData salesData = salesDataMap.get(bulkStyleNo);
+                    String hisDesignNo = planningProjectPlankVo.getHisDesignNo();
+                    if (StrUtil.isNotBlank(hisDesignNo) && ObjectUtil.isNotEmpty(dimensionList)) {
+                        SalesData salesData = salesDataMap.get(hisDesignNo);
                         if (ObjectUtil.isNotEmpty(salesData)) {
                             BigDecimal salesNum = salesData.getSalesNum();
                             BigDecimal productionNum = salesData.getProductionNum();
@@ -792,7 +793,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 updateCategoryAndSeasonPlanning(planningProjectPlank, planningProjectDimension, pitPositionCount, 1);
             }
         } else {
-            planningProjectPlank.setPic(CommonUtils.removeQuery(planningProjectPlank.getPic()));
+
             updateById(planningProjectPlank);
         }
     }

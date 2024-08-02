@@ -7,6 +7,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -254,7 +255,7 @@ public class PlanningProjectPlankController extends BaseController {
             // 是历史款或者未匹配就将历史款的数据放入当前坑位
             planningProjectPlank1.setHisDesignNo(planningProjectPlank.getHisDesignNo());
             planningProjectPlank1.setMatchingStyleStatus("3");
-            planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getHisDesignNo());
+            planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getBulkStyleNo());
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlank.getHisDesignNo()));
             planningProjectPlank1.setStyleColorId(styleColor.getId());
             // planningProjectPlank1.setPic(styleColor.getStyleColorPic());
@@ -387,6 +388,17 @@ public class PlanningProjectPlankController extends BaseController {
     @PostMapping("/save")
     public ApiResult save(@RequestBody PlanningProjectPlank planningProjectPlank) {
         planningProjectPlankService.saveData(planningProjectPlank);
+        return ApiResult.success("操作成功");
+    }
+
+    /**
+     * 修改坑位信息
+     */
+    @ApiOperation(value = "修改坑位信息")
+    @PostMapping("/updatePlank")
+    public ApiResult updatePlank(@RequestBody PlanningProjectPlank planningProjectPlank) {
+        planningProjectPlank.setPic(CommonUtils.removeQuery(planningProjectPlank.getPic()));
+        planningProjectPlankService.updateById(planningProjectPlank);
         return ApiResult.success("操作成功");
     }
 

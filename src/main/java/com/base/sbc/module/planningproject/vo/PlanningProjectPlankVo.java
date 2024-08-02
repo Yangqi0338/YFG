@@ -83,4 +83,5 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
     private List<TableColumnVo> columnVos;
 
     private  List<PlanningProjectPlankDimension> dimensionList;
+    private  String selfPic;
 }
