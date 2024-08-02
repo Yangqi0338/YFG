@@ -182,8 +182,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         nodeStatus.setDataId(patternMakingBarCode.getHeadId());
         nodeStatus.setNode("FOB");
         nodeStatus.setStatus("审样");
-        nodeStatus.setStartDate(patternMakingBarCode.getCreateDate());
-        nodeStatus.setEndDate(patternMakingBarCode.getCreateDate());
+        nodeStatus.setStartDate(patternMakingBarCode.getUpdateDate());
+        nodeStatus.setEndDate(patternMakingBarCode.getUpdateDate());
         nodeStatusServiceImpl.save(nodeStatus);
     }
 
