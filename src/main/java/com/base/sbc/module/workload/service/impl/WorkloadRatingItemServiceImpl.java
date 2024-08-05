@@ -15,6 +15,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
@@ -169,7 +170,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         workloadRatingItemList.forEach(saveDTO -> {
             List<WorkloadRatingDetailDTO> detailList = new ArrayList<>();
             List<WorkloadRatingItem> itemList = configTitleFieldList.stream().map(configTitle -> {
-                WorkloadRatingItemDTO dto = BeanUtil.copyProperties(saveDTO, WorkloadRatingItemDTO.class, "extend");
+                WorkloadRatingItemDTO dto = BeanUtil.copyProperties(saveDTO, WorkloadRatingItemDTO.class);
                 WorkloadRatingConfigVO configVO = configVOList.stream().filter(it -> it.getId().equals(configTitle.getConfigId()))
                         .findFirst().orElseThrow(() -> new OtherException("无效的配置项"));
                 dto.setType(configVO.getType());
@@ -192,7 +193,8 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                 // 修改detail
                 StrJoiner detailItemValue = StrJoiner.of("#").append(dto.getConfigName()).append(entity.getItemValue());
                 detailList.addAll(WORKLOAD_CV.copy2DTO(
-                        workloadRatingDetailService.list(new LambdaQueryWrapper<WorkloadRatingDetail>()
+                        workloadRatingDetailService.list(new BaseLambdaQueryWrapper<WorkloadRatingDetail>()
+                                .notEmptyNotIn(WorkloadRatingDetail::getId, detailList.stream().map(BaseEntity::getId).collect(Collectors.toList()))
                                 .eq(WorkloadRatingDetail::getType, dto.getType())
                                 .eq(WorkloadRatingDetail::getBrand, dto.getBrand())
                                 .like(WorkloadRatingDetail::getItemValue, detailItemValue.append(YesOrNoEnum.YES.getValueStr()).toString()))
@@ -204,8 +206,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                 String itemValue = entity.getItemValue();
                 LambdaQueryWrapper<WorkloadRatingItem> queryWrapper = new BaseLambdaQueryWrapper<WorkloadRatingItem>()
                         .notNullNe(WorkloadRatingItem::getId, entity.getId())
-                        .eq(WorkloadRatingItem::getConfigId, entity.getConfigId()
-                        );
+                        .eq(WorkloadRatingItem::getConfigId, entity.getConfigId());
                 boolean exists = this.exists(queryWrapper.eq(WorkloadRatingItem::getItemValue, itemValue));
                 if (exists) throw new OtherException("存在相同的评分项");
                 String[] itemSubValue = itemValue.split("/");
@@ -222,7 +223,6 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
             }).collect(Collectors.toList());
 
             List<WorkloadRatingDetail> valueList = findPerhapsItemValueList(configVOList, otherWorkloadRatingItemList, itemList, 0);
-            ;
 
             for (WorkloadRatingDetail detail : valueList) {
                 Optional<WorkloadRatingDetailDTO> detailOpt = detailList.stream().filter(it -> it.getItemId().equals(detail.getItemId())).findFirst();
@@ -250,6 +250,11 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
             });
             workloadRatingDetailService.saveOrUpdateBatch(valueList);
         });
+    }
+
+    @Override
+    public void calculate(WorkloadRatingItemDTO workloadRatingItemDTO) {
+
     }
 
     private List<WorkloadRatingDetail> findPerhapsItemValueList(List<WorkloadRatingConfigVO> configVOList,

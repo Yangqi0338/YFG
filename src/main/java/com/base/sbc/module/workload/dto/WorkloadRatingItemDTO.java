@@ -10,6 +10,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,6 +40,11 @@ public class WorkloadRatingItemDTO extends WorkloadRatingItem {
     @Size(min = 3, message = "评分项|分值必须填写")
     public Collection<String> checkList() {
         return CollUtil.filterNew(Arrays.asList(this.getConfigId(), this.getItemValue(), BigDecimalUtil.convertString(this.getScore())), StrUtil::isNotBlank);
+    }
+
+    @JsonAnySetter
+    public void decorateWebDTO(String key, Object obj) {
+        getExtend().put(key, obj);
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/

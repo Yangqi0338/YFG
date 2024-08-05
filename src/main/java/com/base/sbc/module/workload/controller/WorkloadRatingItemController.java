@@ -63,6 +63,13 @@ public class WorkloadRatingItemController extends BaseController {
         return updateSuccess(workloadRatingItemList);
     }
 
+    @ApiOperation(value = "计算新的总和")
+    @PostMapping("calculate")
+    public ApiResult<WorkloadRatingItemDTO> calculate(@Validated @RequestBody WorkloadRatingItemDTO workloadRatingItemDTO) {
+        workloadRatingItemService.calculate(workloadRatingItemDTO);
+        return updateSuccess(workloadRatingItemDTO);
+    }
+
 }
 
 

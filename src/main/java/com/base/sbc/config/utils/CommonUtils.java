@@ -3,6 +3,7 @@ package com.base.sbc.config.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Filter;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
@@ -15,6 +16,7 @@ import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.exception.OtherException;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -497,6 +499,22 @@ public class CommonUtils {
     public static <T> Supplier<? extends T> getListOne(List<T> list, T dto) {
         list.add(dto);
         return () -> dto;
+    }
+
+    public static <T> List<T> filterNotEmpty(List<T> list, Function<T, Object> func) {
+        return CollUtil.filter(list, notEmptyFunc(func));
+    }
+
+    public static <T> Collector<T, ?, Map<Boolean, List<T>>> groupNotBlank(Function<? super T, Object> classifier) {
+        return Collectors.groupingBy((it) -> notEmptyFunc(classifier).accept(it), LinkedHashMap::new, Collectors.toList());
+    }
+
+    public static <T> Filter<T> notEmptyFunc(Function<T, Object> func) {
+        return (t) -> ObjectUtil.isNotEmpty(func);
+    }
+
+    public static <T extends BaseEntity> List<String> getIds(List<T> list, Function<T, String> func) {
+        return list.stream().map(func).collect(Collectors.toList());
     }
 
 }

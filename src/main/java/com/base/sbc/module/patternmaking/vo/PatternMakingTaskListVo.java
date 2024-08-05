@@ -3,13 +3,20 @@ package com.base.sbc.module.patternmaking.vo;
 
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
+import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -165,6 +172,16 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private String userId;
 
     private String name;
+
+    private List<WorkloadRatingConfigVO> ratingConfigList;
+    private List<WorkloadRatingItemVO> ratingItemList;
+
+    private Map<String, Object> extendMap = new HashMap<>();
+
+    @JsonAnyGetter
+    public Map<String, Object> buildWebMap() {
+        return extendMap;
+    }
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

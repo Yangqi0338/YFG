@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,7 +19,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @version 1.0  
  */
 @Mapper
-public interface WorkloadRatingDetailMapper extends BaseMapper<WorkloadRatingDetail> {
+public interface WorkloadRatingDetailMapper extends BaseEnhanceMapper<WorkloadRatingDetail> {
 // 自定义方法区 不替换的区域【other_start】
 
 

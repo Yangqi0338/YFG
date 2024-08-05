@@ -45,7 +45,8 @@ public class UserUtils {
 
 
 	public GroupUser getUserBy(Principal user) {
-		String userName = user.getName();
+		String userName = getUserId();
+		if (user != null) userName = user.getName();
 		GroupUser users = (GroupUser) redisUtils.get(USER_ID+userName);
 		if(users==null) {
 			String retomeResult = oauthService.getUserInfo();

@@ -7,6 +7,7 @@
 package com.base.sbc.module.workload.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import io.swagger.annotations.ApiModel;
@@ -32,6 +33,18 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+
+    @ApiModelProperty(value = "基础合计")
+    @ExtendField
+    private BigDecimal baseTotal;
+
+    @ApiModelProperty(value = "比率合计")
+    @ExtendField
+    private BigDecimal rateTotal;
+
+    @ApiModelProperty(value = "追加合计")
+    @ExtendField
+    private BigDecimal appendTotal;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

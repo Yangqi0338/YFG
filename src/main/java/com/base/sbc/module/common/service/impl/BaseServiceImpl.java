@@ -761,7 +761,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> valueFunc) {
-        return this.list(new QueryWrapper<T>().select("id").in("id", ids).lambda().select(valueFunc)).stream().filter(Objects::nonNull).collect(CommonUtils.toMap(T::getId, valueFunc));
+        return mapOneField(new QueryWrapper<T>().select("id").in("id", ids).lambda().select(valueFunc), valueFunc);
     }
 
     /**

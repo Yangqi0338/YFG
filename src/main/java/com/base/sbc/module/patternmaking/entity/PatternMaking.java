@@ -428,6 +428,19 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "可否改版")
     private String patternType;
+
+    /**
+     * 评分详情id
+     */
+    @ApiModelProperty(value = "评分详情id")
+    private String workloadRatingId;
+
+    /**
+     * 面料名称
+     */
+    @ApiModelProperty(value = "评分延展项,json")
+    private String workloadExtend;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

@@ -124,7 +124,7 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
                 .notEmptyEq(WorkloadRatingConfig::getItemValue, qo.getItemValue())
                 .notNullEq(WorkloadRatingConfig::getIsConfigShow, qo.getIsConfigShow())
                 .notNullEq(WorkloadRatingConfig::getType, qo.getType())
-                .notEmptyEq(WorkloadRatingConfig::getBrand, qo.getBrand());
+                .notEmptyIn(WorkloadRatingConfig::getBrand, qo.getBrand());
         qw.orderByAsc(WorkloadRatingConfig::getSort);
         return qw;
     }
