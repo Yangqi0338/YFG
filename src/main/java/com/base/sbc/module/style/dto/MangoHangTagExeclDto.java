@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class MangoHangTagExeclDto {
     @ApiModelProperty(name = "合作方条码")
@@ -57,5 +59,9 @@ public class MangoHangTagExeclDto {
     @ApiModelProperty(name = "国际号型")
     @Excel(name = "国际尺码", width = 20)
     private String extSize;
+
+    @ApiModelProperty(name = "生产日期")
+    @Excel(name = "生产日期", width = 20)
+    private Date produceDate;
 
 }
