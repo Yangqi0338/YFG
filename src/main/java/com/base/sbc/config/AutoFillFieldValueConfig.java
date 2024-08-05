@@ -121,7 +121,7 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
             userCompany =new UserCompany();
             userCompany.setAliasUserName("系统管理员");
             userCompany.setUserId("0");
-            userCompany.setCompanyCode("0");
+            userCompany.setCompanyCode("677447590605750272");
         }
         if (StringUtils.isEmpty(userCompany.getUserId()) || StringUtils.isEmpty(userCompany.getCompanyCode())) {
             throw new RuntimeException("非法操作，当前登录用户信息不完整");
