@@ -13,6 +13,7 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -117,7 +118,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -128,6 +128,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -256,6 +257,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private PatternLibraryService patternLibraryService;
+
+    @Resource(name = "asyncExecutor")
+    private Executor asyncExecutor;
 
     /**
      * 表单字段类型名称
@@ -395,6 +399,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
+
+         styleColorIssuedToScm(style, isPushScm);
+
+
+        return style;
+    }
+
+
+    private void styleColorIssuedToScm(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
@@ -415,7 +428,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //检查配色数据是否投产，投产了就报错
                 checkColorSize(publicStyleColorDto);
                 try {
-                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                    asyncExecutor.execute(() ->
+                          smpService.goods(styleColorIds.toArray(new String[]{}))
+                    );
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
                     throw new OtherException("同步SCM失败：" + e.getMessage());
@@ -436,8 +451,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //                throw new OtherException("同步SCM失败："+e.getMessage());
 //            }
         }
-
-        return style;
     }
 
 
