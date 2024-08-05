@@ -2,6 +2,7 @@ package com.base.sbc.module.pack.vo;
 
 import com.base.sbc.module.pack.entity.PackBomSize;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 
@@ -17,4 +18,7 @@ import lombok.Data;
 @Data
 @ApiModel("资料包-物料清单-尺码 PackBomSizeVo")
 public class PackBomSizeVo extends PackBomSize {
+
+    @ApiModelProperty(value = "排序用")
+    private String sort;
 }

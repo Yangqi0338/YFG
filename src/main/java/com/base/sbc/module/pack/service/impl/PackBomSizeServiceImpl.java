@@ -9,16 +9,17 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.mapper.PackBomSizeMapper;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +35,9 @@ import java.util.stream.Collectors;
 public class PackBomSizeServiceImpl extends AbstractPackBaseServiceImpl<PackBomSizeMapper, PackBomSize> implements PackBomSizeService {
 
     // 自定义方法区 不替换的区域【other_start】
+
+    @Autowired
+    public BasicsdatumSizeService basicsdatumSizeService;
 
     @Override
     public Map<String, List<PackBomSizeVo>> getByBomIdsToMap(List<String> bomIds) {
@@ -52,7 +56,18 @@ public class PackBomSizeServiceImpl extends AbstractPackBaseServiceImpl<PackBomS
         QueryWrapper<PackBomSize> pbsQw = new QueryWrapper<>();
         pbsQw.in("bom_id", bomIds);
         List<PackBomSize> packBomSizeList = list(pbsQw);
-        return BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class);
+        List<PackBomSizeVo> packBomSizeVos = BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class);
+        //查询基表给返回数据做一下排序
+        List<BasicsdatumSize> list = basicsdatumSizeService.list();
+        Map<String, String> collect = list.stream().collect(Collectors.toMap(BaseEntity::getId, BasicsdatumSize::getCode));
+
+        for (PackBomSizeVo packBomSizeVo : packBomSizeVos) {
+            if(collect.containsKey(packBomSizeVo.getSizeId())) {
+                packBomSizeVo.setSort(collect.get(packBomSizeVo.getSizeId()));
+            }
+        }
+        packBomSizeVos.sort(Comparator.comparing(PackBomSizeVo::getSort));
+        return packBomSizeVos;
     }
 
     @Override
