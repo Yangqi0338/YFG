@@ -3,6 +3,8 @@ package com.base.sbc.module.patternmaking.vo;
 
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
+import com.base.sbc.module.workload.dto.WorkloadRatingItemDTO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -174,13 +176,11 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private String name;
 
     private List<WorkloadRatingConfigVO> ratingConfigList;
-    private List<WorkloadRatingItemVO> ratingItemList;
 
-    private Map<String, Object> extendMap = new HashMap<>();
+    private WorkloadRatingDetailDTO detailDTO;
 
-    @JsonAnyGetter
-    public Map<String, Object> buildWebMap() {
-        return extendMap;
+    public String getProdCategory() {
+        return "";
     }
 
     public Map<String, NodeStatusVo> getNodeStatus() {

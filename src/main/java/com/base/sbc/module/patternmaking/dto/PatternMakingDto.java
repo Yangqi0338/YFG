@@ -31,20 +31,4 @@ public class PatternMakingDto extends PatternMaking {
     @NotBlank(message = "款式设计id不能为空")
     private String styleId;
 
-    @JsonIgnore
-    private Map<String, Object> extend = new HashMap<>();
-
-    @JsonAnyGetter
-    public Map<String, Object> getExtend() {
-        if (StrUtil.isNotBlank(this.getWorkloadExtend())) {
-            extend.putAll(JSONUtil.parseObj(this.getWorkloadExtend()));
-        }
-        return extend;
-    }
-
-    @JsonAnySetter
-    public void getExtend(String key, Object value) {
-        extend.put(key, value);
-    }
-
 }

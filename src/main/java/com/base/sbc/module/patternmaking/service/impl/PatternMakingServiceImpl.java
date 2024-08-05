@@ -123,12 +123,14 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.service.WorkloadRatingConfigService;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.service.WorkloadRatingItemService;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -947,18 +949,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
 
         list.stream().collect(CommonUtils.groupNotBlank(PatternMakingTaskListVo::getWorkloadRatingId)).forEach((isExists, existsOrNotList) -> {
+            List<WorkloadRatingDetailDTO> workloadRatingDetailList = new ArrayList<>();
             if (isExists) {
-                List<WorkloadRatingDetail> workloadRatingDetailList = workloadRatingDetailService.listByIds(existsOrNotList.stream()
-                        .map(PatternMakingTaskListVo::getWorkloadRatingId)
-                        .distinct().collect(Collectors.toList()));
+                WorkloadRatingDetailQO ratingDetailQO = new WorkloadRatingDetailQO();
+                ratingDetailQO.setIds(existsOrNotList.stream().map(PatternMakingTaskListVo::getWorkloadRatingId).collect(Collectors.toList()));
+                workloadRatingDetailList.addAll(workloadRatingDetailService.queryList(ratingDetailQO));
+            }else {
+                existsOrNotList.forEach(it-> {
 
-                workloadRatingDetailList.stream().flatMap(it -> StrUtil.split(COMMA, it.getItemId()))
-            } else {
-                // 返回对应的item
-                // 再选出base类别的, 给他计算分数
+                });
             }
             existsOrNotList.forEach(taskVo -> {
-                taskVo.getExtendMap().putAll(JSONUtil.parseObj(taskVo.getWorkloadExtend()));
+                workloadRatingDetailList.stream().filter(it-> it.getId().equals(taskVo.getWorkloadRatingId())).findFirst().orElse().ifPresent(taskVo::setDetailDTO);
                 String brand = styleIdBrandMap.get(taskVo.getStyleId());
                 taskVo.setRatingConfigList(configVOList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()));
             });
@@ -2132,7 +2134,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateBean.setSampleMakingScore(dto.getSampleMakingScore());
         updateBean.setSecondProcessing(dto.getSecondProcessing());
         updateBean.setWorkloadRatingId(dto.getWorkloadRatingId());
-        updateBean.setWorkloadExtend(JSONUtils.toJSONString(dto.getExtend()));
 
         return update(updateBean, new LambdaUpdateWrapper<PatternMaking>().eq(PatternMaking::getId, id));
     }

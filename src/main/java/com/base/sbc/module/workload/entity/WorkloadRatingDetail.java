@@ -34,17 +34,13 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
-    @ApiModelProperty(value = "基础合计")
+    @ApiModelProperty(value = "面料名称")
     @ExtendField
-    private BigDecimal baseTotal;
-
-    @ApiModelProperty(value = "比率合计")
-    @ExtendField
-    private BigDecimal rateTotal;
+    private String fabricName;
 
     @ApiModelProperty(value = "追加合计")
     @ExtendField
-    private BigDecimal appendTotal;
+    private String otherName;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -65,4 +61,6 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     @ApiModelProperty(value = "结果")
     private BigDecimal result;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public
 }

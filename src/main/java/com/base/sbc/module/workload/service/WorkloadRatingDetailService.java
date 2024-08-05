@@ -10,8 +10,9 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
-import com.base.sbc.module.workload.vo.WorkloadRatingDetailVO;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /** 
  * 类描述：工作量评分数据计算结果 service类
@@ -25,9 +26,7 @@ public interface WorkloadRatingDetailService extends BaseService<WorkloadRatingD
 
 // 自定义方法区 不替换的区域【other_start】
 
-    PageInfo<WorkloadRatingDetailVO> queryPageInfo(WorkloadRatingDetailQO qo);
-
-    WorkloadRatingDetailDTO detail(String id);
+    List<WorkloadRatingDetailDTO> queryList(WorkloadRatingDetailQO qo);
 
     void save(WorkloadRatingDetailDTO workloadRatingDetail);
 

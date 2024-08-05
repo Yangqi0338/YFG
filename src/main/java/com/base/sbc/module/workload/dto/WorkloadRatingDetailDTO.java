@@ -6,13 +6,25 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 类描述：工作量评分数据计算结果QueryDto 实体类
@@ -30,12 +42,30 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
-    public BigDecimal getCalculateTypeResult(WorkloadRatingCalculateType calculateType) {
-        return new BigDecimal(this.getExtend().getOrDefault(calculateType.getCode(), calculateType.getDefaultValue()).toString());
+    @NotEmpty
+    private List<WorkloadRatingDetailSaveDTO> configList;
+
+    @Override
+    @JsonIgnore
+    public String getItemValue() {
+        return StrJoiner.of("-").append(configList.stream().map(it->
+                        StrJoiner.of("#").append(it.getConfigName()).append(it.getItemValue()).append(it.getEnableFlag().getValueStr())
+                ).collect(Collectors.toList())
+        ).toString();
     }
 
-    public BigDecimal getScoreByItemName(WorkloadRatingCalculateType calculateType) {
-        return new BigDecimal(this.getExtend().getOrDefault(calculateType.getCode(), "0").toString());
+    @Override
+    public String getItemId() {
+        return StrUtil.join(COMMA, configList);
+    }
+
+    @Override
+    public Map<Object, Object> decorateWebMap(){
+        Map<Object, Object> map = super.decorateWebMap();
+        configList.stream().collect(Collectors.groupingBy(WorkloadRatingDetailSaveDTO::getCalculateType)).forEach((calculateType,sameTypeList)-> {
+            map.put(calculateType, CommonUtils.sumBigDecimal(configList, WorkloadRatingDetailSaveDTO::getScore));
+        });
+        return map;
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/

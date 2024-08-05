@@ -44,4 +44,10 @@ public interface WorkloadRatingConvert {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void copy(@MappingTarget WorkloadRatingItem target, WorkloadRatingItemDTO source);
 
+    List<WorkloadRatingDetailDTO> copy2DetailDTO(List<WorkloadRatingDetail> source);
+    WorkloadRatingDetail copy2Entity(WorkloadRatingDetailDTO source);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void copy(@MappingTarget WorkloadRatingDetail target, WorkloadRatingDetailDTO source);
+
 }

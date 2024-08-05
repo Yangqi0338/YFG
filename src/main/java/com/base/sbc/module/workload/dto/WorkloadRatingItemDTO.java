@@ -8,6 +8,7 @@ package com.base.sbc.module.workload.dto;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -36,11 +37,6 @@ public class WorkloadRatingItemDTO extends WorkloadRatingItem {
     private static final long serialVersionUID = 1L;
 
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-
-    @Size(min = 3, message = "评分项|分值必须填写")
-    public Collection<String> checkList() {
-        return CollUtil.filterNew(Arrays.asList(this.getConfigId(), this.getItemValue(), BigDecimalUtil.convertString(this.getScore())), StrUtil::isNotBlank);
-    }
 
     @JsonAnySetter
     public void decorateWebDTO(String key, Object obj) {

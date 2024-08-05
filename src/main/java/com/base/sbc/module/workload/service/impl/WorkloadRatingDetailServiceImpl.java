@@ -16,12 +16,13 @@ import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.mapper.WorkloadRatingDetailMapper;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
-import com.base.sbc.module.workload.vo.WorkloadRatingDetailVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.base.sbc.module.common.convert.ConvertContext.WORKLOAD_CV;
 
 /**
  * 类描述：工作量评分数据计算结果 service类
@@ -37,22 +38,16 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
 // 自定义方法区 不替换的区域【other_start】
 
     @Override
-    public PageInfo<WorkloadRatingDetailVO> queryPageInfo(WorkloadRatingDetailQO qo) {
-        Page<WorkloadRatingDetail> page = qo.startPage();
+    public List<WorkloadRatingDetailDTO> queryList(WorkloadRatingDetailQO qo) {
         BaseQueryWrapper<WorkloadRatingDetail> qw = buildQueryWrapper(qo);
         List<WorkloadRatingDetail> list = this.list(qw);
-        return CopyUtil.copy(page.toPageInfo(), BeanUtil.copyToList(list, WorkloadRatingDetailVO.class));
+        return WORKLOAD_CV.copy2DetailDTO(list);
     }
 
     private BaseQueryWrapper<WorkloadRatingDetail> buildQueryWrapper(WorkloadRatingDetailQO qo) {
         BaseQueryWrapper<WorkloadRatingDetail> qw = new BaseQueryWrapper<>();
+        qw.notEmptyIn(WorkloadRatingDetail::getId, qo.getIds());
         return qw;
-    }
-
-    @Override
-    public WorkloadRatingDetailDTO detail(String id) {
-        WorkloadRatingDetail entity = this.getById(id);
-        return BeanUtil.copyProperties(entity, WorkloadRatingDetailDTO.class);
     }
 
     @Override
@@ -61,10 +56,10 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
         WorkloadRatingDetail entity;
         if (StrUtil.isNotBlank(id)) {
             entity = getById(id);
-            BeanUtil.copyProperties(workloadRatingDetail, entity);
+            WORKLOAD_CV.copy(entity, workloadRatingDetail);
             this.updateById(entity);
         } else {
-            entity = BeanUtil.copyProperties(workloadRatingDetail, WorkloadRatingDetail.class);
+            entity = WORKLOAD_CV.copy2Entity(workloadRatingDetail);
             this.save(entity);
         }
         workloadRatingDetail.setId(entity.getId());

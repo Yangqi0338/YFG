@@ -159,17 +159,17 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
 
         List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
         List<WorkloadRatingTitleFieldDTO> configTitleFieldList = CollUtil.removeWithAddIf(titleFieldDTOList, (it) -> StrUtil.isNotBlank(it.getConfigId()));
-        List<String> allConfigIdList = configTitleFieldList.stream().map(WorkloadRatingTitleFieldDTO::getConfigId).collect(Collectors.toList());
+//        List<String> allConfigIdList = configTitleFieldList.stream().map(WorkloadRatingTitleFieldDTO::getConfigId).collect(Collectors.toList());
 
-        List<WorkloadRatingItem> otherWorkloadRatingItemList = this.list(new LambdaQueryWrapper<WorkloadRatingItem>()
-                .notIn(WorkloadRatingItem::getConfigId, allConfigIdList)
-                .eq(WorkloadRatingItem::getType, config.getType())
-                .eq(WorkloadRatingItem::getBrand, config.getBrand())
-        );
+//        List<WorkloadRatingItem> otherWorkloadRatingItemList = this.list(new LambdaQueryWrapper<WorkloadRatingItem>()
+//                .notIn(WorkloadRatingItem::getConfigId, allConfigIdList)
+//                .eq(WorkloadRatingItem::getType, config.getType())
+//                .eq(WorkloadRatingItem::getBrand, config.getBrand())
+//        );
 
         workloadRatingItemList.forEach(saveDTO -> {
-            List<WorkloadRatingDetailDTO> detailList = new ArrayList<>();
-            List<WorkloadRatingItem> itemList = configTitleFieldList.stream().map(configTitle -> {
+//            List<WorkloadRatingDetailDTO> detailList = new ArrayList<>();
+            configTitleFieldList.forEach(configTitle -> {
                 WorkloadRatingItemDTO dto = BeanUtil.copyProperties(saveDTO, WorkloadRatingItemDTO.class);
                 WorkloadRatingConfigVO configVO = configVOList.stream().filter(it -> it.getId().equals(configTitle.getConfigId()))
                         .findFirst().orElseThrow(() -> new OtherException("无效的配置项"));
@@ -191,14 +191,14 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                 );
 
                 // 修改detail
-                StrJoiner detailItemValue = StrJoiner.of("#").append(dto.getConfigName()).append(entity.getItemValue());
-                detailList.addAll(WORKLOAD_CV.copy2DTO(
-                        workloadRatingDetailService.list(new BaseLambdaQueryWrapper<WorkloadRatingDetail>()
-                                .notEmptyNotIn(WorkloadRatingDetail::getId, detailList.stream().map(BaseEntity::getId).collect(Collectors.toList()))
-                                .eq(WorkloadRatingDetail::getType, dto.getType())
-                                .eq(WorkloadRatingDetail::getBrand, dto.getBrand())
-                                .like(WorkloadRatingDetail::getItemValue, detailItemValue.append(YesOrNoEnum.YES.getValueStr()).toString()))
-                ));
+//                StrJoiner detailItemValue = StrJoiner.of("#").append(dto.getConfigName()).append(entity.getItemValue());
+//                detailList.addAll(WORKLOAD_CV.copy2DTO(
+//                        workloadRatingDetailService.list(new BaseLambdaQueryWrapper<WorkloadRatingDetail>()
+//                                .notEmptyNotIn(WorkloadRatingDetail::getId, detailList.stream().map(BaseEntity::getId).collect(Collectors.toList()))
+//                                .eq(WorkloadRatingDetail::getType, dto.getType())
+//                                .eq(WorkloadRatingDetail::getBrand, dto.getBrand())
+//                                .like(WorkloadRatingDetail::getItemValue, detailItemValue.append(YesOrNoEnum.YES.getValueStr()).toString()))
+//                ));
 
                 WORKLOAD_CV.copy(entity, dto);
 
@@ -219,107 +219,101 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                 }
 
                 this.saveOrUpdate(entity);
-                return entity;
-            }).collect(Collectors.toList());
-
-            List<WorkloadRatingDetail> valueList = findPerhapsItemValueList(configVOList, otherWorkloadRatingItemList, itemList, 0);
-
-            for (WorkloadRatingDetail detail : valueList) {
-                Optional<WorkloadRatingDetailDTO> detailOpt = detailList.stream().filter(it -> it.getItemId().equals(detail.getItemId())).findFirst();
-                if (detailOpt.isPresent()) {
-                    WorkloadRatingDetailDTO existsDetail = detailOpt.get();
-                    detail.setId(existsDetail.getId());
-                    detailList.remove(existsDetail);
-                }
-            }
-            if (CollUtil.isNotEmpty(detailList)) {
-                workloadRatingDetailService.removeByIds(detailList);
-            }
-            valueList.forEach(value -> {
-                for (WorkloadRatingCalculateType calculateType : WorkloadRatingCalculateType.values()) {
-                    List<String> keyList = (List<String>) value.getExtend().getOrDefault(calculateType.getCode(), new ArrayList<>());
-                    BigDecimal increment = BigDecimal.ZERO;
-                    for (String key : keyList) {
-                        BigDecimal score = new BigDecimal(value.getExtend().getOrDefault(key, calculateType.getDefaultValue()).toString());
-                        Pair<BigDecimal, BigDecimal> pair = calculateType.calculate(value.getResult(), score);
-                        increment = increment.add(pair.getValue());
-                        value.setResult(pair.getKey());
-                    }
-                    value.getExtend().put(calculateType.getCode() + "Total", increment);
-                }
             });
-            workloadRatingDetailService.saveOrUpdateBatch(valueList);
+
+//            List<WorkloadRatingDetail> valueList = findPerhapsItemValueList(configVOList, otherWorkloadRatingItemList, itemList, 0);
+
+//            for (WorkloadRatingDetail detail : valueList) {
+//                Optional<WorkloadRatingDetailDTO> detailOpt = detailList.stream().filter(it -> it.getItemId().equals(detail.getItemId())).findFirst();
+//                if (detailOpt.isPresent()) {
+//                    WorkloadRatingDetailDTO existsDetail = detailOpt.get();
+//                    detail.setId(existsDetail.getId());
+//                    detailList.remove(existsDetail);
+//                }
+//            }
+//            if (CollUtil.isNotEmpty(detailList)) {
+//                workloadRatingDetailService.removeByIds(detailList);
+//            }
+//            valueList.forEach(value -> {
+//                for (WorkloadRatingCalculateType calculateType : WorkloadRatingCalculateType.values()) {
+//                    List<String> keyList = (List<String>) value.getExtend().getOrDefault(calculateType.getCode(), new ArrayList<>());
+//                    BigDecimal increment = BigDecimal.ZERO;
+//                    for (String key : keyList) {
+//                        BigDecimal score = new BigDecimal(value.getExtend().getOrDefault(key, calculateType.getDefaultValue()).toString());
+//                        Pair<BigDecimal, BigDecimal> pair = calculateType.calculate(value.getResult(), score);
+//                        increment = increment.add(pair.getValue());
+//                        value.setResult(pair.getKey());
+//                    }
+//                    value.getExtend().put(calculateType.getCode() + "Total", increment);
+//                }
+//            });
+//            workloadRatingDetailService.saveOrUpdateBatch(valueList);
         });
     }
 
-    @Override
-    public void calculate(WorkloadRatingItemDTO workloadRatingItemDTO) {
-
-    }
-
-    private List<WorkloadRatingDetail> findPerhapsItemValueList(List<WorkloadRatingConfigVO> configVOList,
-                                                                List<WorkloadRatingItem> otherWorkloadRatingItemList,
-                                                                List<WorkloadRatingItem> itemList, Integer sort) {
-        List<WorkloadRatingDetail> result = new ArrayList<>();
-        configVOList.stream().filter(it -> it.getSort().equals(sort)).forEach(configVO -> {
-            String configId = configVO.getId();
-            List<WorkloadRatingDetail> valueList = findPerhapsItemValueList(configVOList, otherWorkloadRatingItemList, itemList, sort + 1);
-            List<WorkloadRatingDetail> addValueList = new ArrayList<>();
-            if (CollUtil.isEmpty(valueList)) {
-                WorkloadRatingDetail detail = new WorkloadRatingDetail();
-                detail.setType(configVO.getType());
-                detail.setBrand(configVO.getBrand());
-                detail.setResult(BigDecimal.ZERO);
-                valueList.add(detail);
-            }
-            Optional<WorkloadRatingItem> itemOpt = itemList.stream().filter(it -> it.getConfigId().equals(configId)).findFirst();
-            if (itemOpt.isPresent()) {
-                WorkloadRatingItem currentItem = itemOpt.get();
-                valueList.forEach(it -> {
-                    it.setItemId(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(currentItem.getId()).append(it.getItemId()).toString());
-                    String itemValue = currentItem.getConfigName() + "#" + currentItem.getItemValue();
-                    for (YesOrNoEnum enableFlag : YesOrNoEnum.values()) {
-                        if (configVO.getIsConfigShow() == YesOrNoEnum.NO || configVO.getIsConfigShow() == enableFlag) {
-                            WorkloadRatingDetail newDetail = BeanUtil.copyProperties(it, WorkloadRatingDetail.class);
-                            String newItemValue = itemValue + "#" + enableFlag.getValueStr();
-                            newDetail.getExtend().put(newItemValue, enableFlag == YesOrNoEnum.NO ? currentItem.getCalculateType().getDefaultValue() : currentItem.getScore());
-                            List<String> keyList = (List<String>) newDetail.getExtend().getOrDefault(currentItem.getCalculateType().getCode(), new ArrayList<>());
-                            keyList.add(newItemValue);
-                            newDetail.getExtend().put(currentItem.getCalculateType().getCode(), keyList);
-                            newDetail.setItemValue(StrJoiner.of("-").setNullMode(StrJoiner.NullMode.IGNORE).append(newItemValue).append(newDetail.getItemValue()).toString());
-                            addValueList.add(newDetail);
-                        }
-                    }
-                });
-            } else {
-                otherWorkloadRatingItemList.stream().filter(it -> it.getConfigId().equals(configId)).forEach(otherItem -> {
-                    String itemValue = otherItem.getConfigName() + "#" + otherItem.getItemValue();
-                    valueList.forEach(value -> {
-                        for (YesOrNoEnum enableFlag : YesOrNoEnum.values()) {
-                            if (configVO.getIsConfigShow() == YesOrNoEnum.NO || configVO.getIsConfigShow() == enableFlag) {
-                                WorkloadRatingDetail newDetail = BeanUtil.copyProperties(value, WorkloadRatingDetail.class);
-                                newDetail.setType(configVO.getType());
-                                newDetail.setBrand(configVO.getBrand());
-                                newDetail.setItemId(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(otherItem.getId()).append(value.getItemId()).toString());
-                                String newItemValue = itemValue + "#" + enableFlag.getValueStr();
-                                newDetail.getExtend().put(newItemValue, otherItem.getScore());
-                                List<String> keyList = (List<String>) newDetail.getExtend().getOrDefault(otherItem.getCalculateType().getCode(), new ArrayList<>());
-                                keyList.add(newItemValue);
-                                newDetail.getExtend().put(otherItem.getCalculateType().getCode(), keyList);
-                                newDetail.setItemValue(StrJoiner.of("-").setNullMode(StrJoiner.NullMode.IGNORE).append(newItemValue).append(newDetail.getItemValue()).toString());
-                                addValueList.add(newDetail);
-                            }
-                        }
-                    });
-                });
-            }
-            if (CollUtil.isEmpty(addValueList) && CollUtil.isNotEmpty(valueList)) {
-                addValueList.addAll(valueList);
-            }
-            result.addAll(addValueList);
-        });
-        return result;
-    }
+//    private List<WorkloadRatingDetail> findPerhapsItemValueList(List<WorkloadRatingConfigVO> configVOList,
+//                                                                List<WorkloadRatingItem> otherWorkloadRatingItemList,
+//                                                                List<WorkloadRatingItem> itemList, Integer sort) {
+//        List<WorkloadRatingDetail> result = new ArrayList<>();
+//        configVOList.stream().filter(it -> it.getSort().equals(sort)).forEach(configVO -> {
+//            String configId = configVO.getId();
+//            List<WorkloadRatingDetail> valueList = findPerhapsItemValueList(configVOList, otherWorkloadRatingItemList, itemList, sort + 1);
+//            List<WorkloadRatingDetail> addValueList = new ArrayList<>();
+//            if (CollUtil.isEmpty(valueList)) {
+//                WorkloadRatingDetail detail = new WorkloadRatingDetail();
+//                detail.setType(configVO.getType());
+//                detail.setBrand(configVO.getBrand());
+//                detail.setResult(BigDecimal.ZERO);
+//                valueList.add(detail);
+//            }
+//            Optional<WorkloadRatingItem> itemOpt = itemList.stream().filter(it -> it.getConfigId().equals(configId)).findFirst();
+//            if (itemOpt.isPresent()) {
+//                WorkloadRatingItem currentItem = itemOpt.get();
+//                valueList.forEach(it -> {
+//                    it.setItemId(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(currentItem.getId()).append(it.getItemId()).toString());
+//                    String itemValue = currentItem.getConfigName() + "#" + currentItem.getItemValue();
+//                    for (YesOrNoEnum enableFlag : YesOrNoEnum.values()) {
+//                        if (configVO.getIsConfigShow() == YesOrNoEnum.NO || configVO.getIsConfigShow() == enableFlag) {
+//                            WorkloadRatingDetail newDetail = BeanUtil.copyProperties(it, WorkloadRatingDetail.class);
+//                            String newItemValue = itemValue + "#" + enableFlag.getValueStr();
+//                            newDetail.getExtend().put(newItemValue, enableFlag == YesOrNoEnum.NO ? currentItem.getCalculateType().getDefaultValue() : currentItem.getScore());
+//                            List<String> keyList = (List<String>) newDetail.getExtend().getOrDefault(currentItem.getCalculateType().getCode(), new ArrayList<>());
+//                            keyList.add(newItemValue);
+//                            newDetail.getExtend().put(currentItem.getCalculateType().getCode(), keyList);
+//                            newDetail.setItemValue(StrJoiner.of("-").setNullMode(StrJoiner.NullMode.IGNORE).append(newItemValue).append(newDetail.getItemValue()).toString());
+//                            addValueList.add(newDetail);
+//                        }
+//                    }
+//                });
+//            } else {
+//                otherWorkloadRatingItemList.stream().filter(it -> it.getConfigId().equals(configId)).forEach(otherItem -> {
+//                    String itemValue = otherItem.getConfigName() + "#" + otherItem.getItemValue();
+//                    valueList.forEach(value -> {
+//                        for (YesOrNoEnum enableFlag : YesOrNoEnum.values()) {
+//                            if (configVO.getIsConfigShow() == YesOrNoEnum.NO || configVO.getIsConfigShow() == enableFlag) {
+//                                WorkloadRatingDetail newDetail = BeanUtil.copyProperties(value, WorkloadRatingDetail.class);
+//                                newDetail.setType(configVO.getType());
+//                                newDetail.setBrand(configVO.getBrand());
+//                                newDetail.setItemId(StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE).append(otherItem.getId()).append(value.getItemId()).toString());
+//                                String newItemValue = itemValue + "#" + enableFlag.getValueStr();
+//                                newDetail.getExtend().put(newItemValue, otherItem.getScore());
+//                                List<String> keyList = (List<String>) newDetail.getExtend().getOrDefault(otherItem.getCalculateType().getCode(), new ArrayList<>());
+//                                keyList.add(newItemValue);
+//                                newDetail.getExtend().put(otherItem.getCalculateType().getCode(), keyList);
+//                                newDetail.setItemValue(StrJoiner.of("-").setNullMode(StrJoiner.NullMode.IGNORE).append(newItemValue).append(newDetail.getItemValue()).toString());
+//                                addValueList.add(newDetail);
+//                            }
+//                        }
+//                    });
+//                });
+//            }
+//            if (CollUtil.isEmpty(addValueList) && CollUtil.isNotEmpty(valueList)) {
+//                addValueList.addAll(valueList);
+//            }
+//            result.addAll(addValueList);
+//        });
+//        return result;
+//    }
 
 // 自定义方法区 不替换的区域【other_end】
 

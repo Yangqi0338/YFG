@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 类描述：工作量评分数据计算结果QueryDto 实体类
@@ -36,8 +37,10 @@ public class WorkloadRatingDetailQO extends Page {
     /** 评分项值集合, 逗号拼接 */
     @ApiModelProperty(value = "评分项值集合, 逗号拼接")
     private String itemValue;
-    /** 结果 */
-    @ApiModelProperty(value = "结果")
-    private BigDecimal result;
+
+    /** id列表 */
+    @ApiModelProperty(value = "id列表")
+    private List<String> ids;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

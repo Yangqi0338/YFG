@@ -35,8 +35,6 @@ public interface WorkloadRatingItemService extends BaseService<WorkloadRatingIte
 
     void save(List<WorkloadRatingItemDTO> workloadRatingItemList);
 
-    void calculate(WorkloadRatingItemDTO workloadRatingItemDTO);
-
 // 自定义方法区 不替换的区域【other_end】
 
 

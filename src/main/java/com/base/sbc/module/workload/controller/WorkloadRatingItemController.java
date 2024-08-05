@@ -9,7 +9,9 @@ package com.base.sbc.module.workload.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.fabric.dto.DelDTO;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.dto.WorkloadRatingItemDTO;
+import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.service.WorkloadRatingItemService;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
@@ -44,6 +46,9 @@ public class WorkloadRatingItemController extends BaseController {
     @Autowired
     private WorkloadRatingItemService workloadRatingItemService;
 
+    @Autowired
+    private WorkloadRatingDetailService workloadRatingDetailService;
+
     @ApiOperation(value = "分页查询")
     @GetMapping("queryPageInfo")
     public ApiResult<PageInfo<WorkloadRatingItemVO>> queryPageInfo(@Validated WorkloadRatingItemQO qo) {
@@ -65,9 +70,9 @@ public class WorkloadRatingItemController extends BaseController {
 
     @ApiOperation(value = "计算新的总和")
     @PostMapping("calculate")
-    public ApiResult<WorkloadRatingItemDTO> calculate(@Validated @RequestBody WorkloadRatingItemDTO workloadRatingItemDTO) {
-        workloadRatingItemService.calculate(workloadRatingItemDTO);
-        return updateSuccess(workloadRatingItemDTO);
+    public ApiResult<WorkloadRatingDetailDTO> calculate(@Validated @RequestBody WorkloadRatingDetailDTO workloadRatingDetailDTO) {
+        workloadRatingDetailService.save(workloadRatingDetailDTO);
+        return updateSuccess(workloadRatingDetailDTO);
     }
 
 }

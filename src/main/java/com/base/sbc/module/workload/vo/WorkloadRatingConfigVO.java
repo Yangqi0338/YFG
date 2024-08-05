@@ -31,20 +31,12 @@ import java.util.List;
 public class WorkloadRatingConfigVO extends WorkloadRatingConfig {
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
-    private YesOrNoEnum enableFlag = YesOrNoEnum.YES;
-
     private List<SelectOptionsChildrenVo> optionsList;
     private String titleField;
 
     public String getTypeText() {
         return Opt.ofNullable(this.getType()).map(WorkloadRatingType::getText).orElse("");
     }
-
-//    /**
-//     * 拥有的itemValue
-//     */
-//    @ApiModelProperty(value = "拥有的itemValue")
-//    private List<WorkloadRatingItemDTO> saveTemplateList;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
