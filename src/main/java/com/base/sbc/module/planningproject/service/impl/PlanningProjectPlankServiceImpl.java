@@ -399,8 +399,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 for (PlanningProjectPlankVo planningProjectPlankVo : list) {
                     List<PlanningProjectPlankDimension> dimensionList = planningProjectPlankVo.getDimensionList();
                     String hisDesignNo = planningProjectPlankVo.getHisDesignNo();
-                    if (StrUtil.isNotBlank(hisDesignNo) && ObjectUtil.isNotEmpty(dimensionList)) {
-                        SalesData salesData = salesDataMap.get(hisDesignNo);
+                    String bulkStyleNo = planningProjectPlankVo.getBulkStyleNo();
+                    String no = StrUtil.isNotBlank(bulkStyleNo) ? bulkStyleNo : hisDesignNo;
+                    if (StrUtil.isNotBlank(no) && ObjectUtil.isNotEmpty(dimensionList)) {
+                        SalesData salesData = salesDataMap.get(no);
                         if (ObjectUtil.isNotEmpty(salesData)) {
                             BigDecimal salesNum = salesData.getSalesNum();
                             BigDecimal productionNum = salesData.getProductionNum();
