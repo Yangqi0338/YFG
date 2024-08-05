@@ -735,12 +735,16 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             String id = sizeMap.remove("id").toString();
             sourceSaleFacList.stream().filter(it -> it.getId().equals(id)).findFirst().ifPresent(saleFac -> {
                 sizeMap.forEach((sizeName, value) -> {
-                    int stockQty = stockSizeList.stream().filter(it -> it.getSizeName().equals(sizeName)).mapToInt(StockSize::getQty).sum();
+                    int stockQty = stockSizeList.stream()
+                            .filter(it -> it.getBulkStyleNo().equals(saleFac.getBulkStyleNo()) && it.getSizeName().equals(sizeName))
+                            .mapToInt(StockSize::getQty).sum();
                     BigDecimal num = new BigDecimal(value.toString());
                     ProductionSaleDTO productionSaleDTO = list.stream()
                             .filter(it -> it.getBulkStyleNo().equals(saleFac.getBulkStyleNo()) && it.getSizeName().equals(sizeName))
                             .findFirst().orElseGet(() -> {
                                 ProductionSaleDTO saleDTO = new ProductionSaleDTO();
+                                saleDTO.setSaleUnit(BigDecimal.ONE);
+                                saleDTO.setProductionUnit(BigDecimal.ONE);
                                 list.add(saleDTO);
                                 return saleDTO;
                             });
