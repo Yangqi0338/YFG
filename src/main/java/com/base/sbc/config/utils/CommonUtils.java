@@ -510,11 +510,24 @@ public class CommonUtils {
     }
 
     public static <T> Filter<T> notEmptyFunc(Function<T, Object> func) {
-        return (t) -> ObjectUtil.isNotEmpty(func);
+        return (t) -> ObjectUtil.isNotEmpty(func.apply(t));
     }
 
     public static <T extends BaseEntity> List<String> getIds(List<T> list, Function<T, String> func) {
         return list.stream().map(func).collect(Collectors.toList());
+    }
+
+    public static String removeSuffix(CharSequence str, CharSequence suffix) {
+        if (StrUtil.isEmpty(str) || StrUtil.isEmpty(suffix)) {
+            return StrUtil.str(str);
+        }
+
+        String str2 = str.toString();
+        if (str2.endsWith(suffix.toString())) {
+            // 截取前半段
+            str2 = removeSuffix(StrUtil.subPre(str2, str2.length() - suffix.length()), suffix);
+        }
+        return str2;
     }
 
 }

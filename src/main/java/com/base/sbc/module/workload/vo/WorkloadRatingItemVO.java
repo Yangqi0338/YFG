@@ -53,14 +53,11 @@ public class WorkloadRatingItemVO extends WorkloadRatingItem {
     public Map<Object, Object> decorateWebMap() {
         Map<Object, Object> map = super.decorateWebMap();
         if (CollUtil.isNotEmpty(titleFieldList)) {
-            List<WorkloadRatingTitleFieldDTO> fieldDTOList = CollUtil.removeWithAddIf(titleFieldList, (it) -> StrUtil.isNotBlank(it.getConfigId()));
-            fieldDTOList.forEach(fieldDTO -> {
-                itemList.stream().filter(it -> it.getId().equals(fieldDTO.getConfigId())).findFirst().ifPresent(item -> {
-                    map.put(fieldDTO.getCode(), item.getScore());
-                });
-            });
-            titleFieldList.forEach(titleFieldDTO -> {
-                map.put(titleFieldDTO.getCode(), getItemNameByIndex(titleFieldDTO.getIndex()));
+            titleFieldList.stream().filter(it -> !this.getConfigId().equals(it.getConfigId())).forEach(titleFieldDTO -> {
+                String value = itemList.stream().filter(it -> it.getConfigId().equals(titleFieldDTO.getConfigId()))
+                        .findFirst().map(it -> it.getScore().toString())
+                        .orElse(getItemNameByIndex(titleFieldDTO.getIndex()));
+                map.put(titleFieldDTO.getCode(), value);
             });
         }
         return map;

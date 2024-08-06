@@ -6,12 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.vo;
 
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
-import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
+import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -64,4 +62,17 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
+    public WorkloadRatingDetailSaveDTO decorateConfig(WorkloadRatingConfig config) {
+        this.setConfigName(config.getItemName());
+        this.setCalculateType(config.getCalculateType());
+        return this;
+    }
+
+    public WorkloadRatingDetailSaveDTO decorateItem(WorkloadRatingItem item) {
+        this.setItemId(item.getId());
+        this.setItemValue(item.getItemValue());
+        this.setScore(item.getScore());
+        this.setScore(item.getScore());
+        return this;
+    }
 }

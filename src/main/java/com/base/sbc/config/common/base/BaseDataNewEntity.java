@@ -28,9 +28,9 @@ public class BaseDataNewEntity extends BaseEntity {
     @TableField(exist = false)
     private static final long serialVersionUID = 7022181519896948997L;
     /** 删除标记（0：正常；id：删除；） */
-    @TableLogic(value = "0", delval = "1")
+    @TableLogic(value = "0", delval = "NOW()")
     @TableField(fill = FieldFill.INSERT)
-    protected String delFlag;
+    protected Object delFlag;
     /** 更新者名称 */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @ExtendField

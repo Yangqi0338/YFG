@@ -8,6 +8,7 @@ import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
+import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -45,6 +46,8 @@ public interface WorkloadRatingConvert {
     void copy(@MappingTarget WorkloadRatingItem target, WorkloadRatingItemDTO source);
 
     List<WorkloadRatingDetailDTO> copy2DetailDTO(List<WorkloadRatingDetail> source);
+
+    List<WorkloadRatingItemVO> copy2ItemVO(List<WorkloadRatingItem> source);
     WorkloadRatingDetail copy2Entity(WorkloadRatingDetailDTO source);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

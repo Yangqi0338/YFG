@@ -4,10 +4,7 @@ package com.base.sbc.module.patternmaking.vo;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
-import com.base.sbc.module.workload.dto.WorkloadRatingItemDTO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
-import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -177,11 +174,9 @@ public class PatternMakingTaskListVo extends PatternMaking {
 
     private List<WorkloadRatingConfigVO> ratingConfigList;
 
-    private WorkloadRatingDetailDTO detailDTO;
+    private WorkloadRatingDetailDTO ratingDetailDTO;
 
-    public String getProdCategory() {
-        return "";
-    }
+    private String prodCategory;
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

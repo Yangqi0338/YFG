@@ -6,18 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.mapper.WorkloadRatingDetailMapper;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,13 +35,13 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
 
     @Override
     public List<WorkloadRatingDetailDTO> queryList(WorkloadRatingDetailQO qo) {
-        BaseQueryWrapper<WorkloadRatingDetail> qw = buildQueryWrapper(qo);
+        BaseLambdaQueryWrapper<WorkloadRatingDetail> qw = buildQueryWrapper(qo);
         List<WorkloadRatingDetail> list = this.list(qw);
         return WORKLOAD_CV.copy2DetailDTO(list);
     }
 
-    private BaseQueryWrapper<WorkloadRatingDetail> buildQueryWrapper(WorkloadRatingDetailQO qo) {
-        BaseQueryWrapper<WorkloadRatingDetail> qw = new BaseQueryWrapper<>();
+    private BaseLambdaQueryWrapper<WorkloadRatingDetail> buildQueryWrapper(WorkloadRatingDetailQO qo) {
+        BaseLambdaQueryWrapper<WorkloadRatingDetail> qw = new BaseLambdaQueryWrapper<>();
         qw.notEmptyIn(WorkloadRatingDetail::getId, qo.getIds());
         return qw;
     }

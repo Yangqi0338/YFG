@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @date 2023/3/31 19:56:38
  */
 @Data
-public class BaseDataExtendEntity extends BaseDataEntity<String> {
+public class BaseDataExtendEntity extends BaseDataNewEntity {
 
     private static Map<Class<?>, List<Field>> declaredFieldMap = new HashMap<>();
     private static MybatisPlusExtendHandler typeHandler;

@@ -31,7 +31,7 @@ import java.math.BigDecimal;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_workload_rating_item")
+@TableName(value = "t_workload_rating_item", autoResultMap = true)
 @ApiModel("工作量评分配置 WorkloadRatingItem")
 public class WorkloadRatingItem extends BaseDataExtendEntity {
 

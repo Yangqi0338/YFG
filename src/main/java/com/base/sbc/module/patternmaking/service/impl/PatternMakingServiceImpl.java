@@ -18,13 +18,12 @@ import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONUtil;
-import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -45,6 +44,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import com.base.sbc.config.exception.OtherException;
@@ -124,13 +124,15 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
-import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
+import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.base.sbc.module.workload.service.WorkloadRatingConfigService;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.service.WorkloadRatingItemService;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
+import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -939,32 +941,77 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     private void decorateWorkloadRating(List<PatternMakingTaskListVo> list) {
+        if (CollUtil.isEmpty(list)) return;
+        Map<String, Style> styleMap = styleService.listByIds(
+                list.stream().map(PatternMakingTaskListVo::getStyleId).collect(Collectors.toList())
+        ).stream().collect(CommonUtils.toMap(Style::getId));
+
         WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
         configQO.setNotSearch(Collections.singletonList(WorkloadRatingItemType.STRUCTURE));
         configQO.setType(WorkloadRatingType.SAMPLE);
-        Map<String, String> styleIdBrandMap = styleService.mapByIds2OneField(
-                list.stream().map(PatternMakingTaskListVo::getStyleId).collect(Collectors.toList()),
-                Style::getBrand);
-        configQO.setBrand(StrUtil.join(COMMA, styleIdBrandMap.values()));
+        configQO.setBrand(StrUtil.join(COMMA, styleMap.values().stream().map(Style::getBrand).collect(Collectors.toList())));
         List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
+
+        List<WorkloadRatingConfigVO> appendConfigList = CollUtil.removeWithAddIf(configVOList, (it) -> it.getCalculateType() == WorkloadRatingCalculateType.APPEND);
 
         list.stream().collect(CommonUtils.groupNotBlank(PatternMakingTaskListVo::getWorkloadRatingId)).forEach((isExists, existsOrNotList) -> {
             List<WorkloadRatingDetailDTO> workloadRatingDetailList = new ArrayList<>();
+            List<WorkloadRatingItem> workloadRatingItemList = new ArrayList<>();
             if (isExists) {
                 WorkloadRatingDetailQO ratingDetailQO = new WorkloadRatingDetailQO();
                 ratingDetailQO.setIds(existsOrNotList.stream().map(PatternMakingTaskListVo::getWorkloadRatingId).collect(Collectors.toList()));
                 workloadRatingDetailList.addAll(workloadRatingDetailService.queryList(ratingDetailQO));
             }else {
-                existsOrNotList.forEach(it-> {
-
+                configVOList.forEach(configVO -> {
+                    WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
+                    qo.reset2QueryList();
+                    qo.setConfigId(configVO.getId());
+                    workloadRatingItemList.addAll(workloadRatingItemService.queryPageInfo(qo).getList());
                 });
             }
-            existsOrNotList.forEach(taskVo -> {
-                workloadRatingDetailList.stream().filter(it-> it.getId().equals(taskVo.getWorkloadRatingId())).findFirst().orElse().ifPresent(taskVo::setDetailDTO);
-                String brand = styleIdBrandMap.get(taskVo.getStyleId());
+            for (PatternMakingTaskListVo taskVo : existsOrNotList) {
+                if (!styleMap.containsKey(taskVo.getStyleId())) continue;
+
+                Style style = styleMap.get(taskVo.getStyleId());
+                List<String> matchItemValueList = new ArrayList<>();
+                structureValueList(matchItemValueList, "/", style.getProdCategory1st(), style.getProdCategory(), style.getProdCategory2nd(), style.getProdCategory3rd());
+                taskVo.setProdCategory(matchItemValueList.stream().findFirst().orElse(""));
+
+                WorkloadRatingDetailDTO detailDTO = workloadRatingDetailList.stream()
+                        .filter(it -> it.getId().equals(taskVo.getWorkloadRatingId()))
+                        .findFirst().orElseGet(() -> {
+                            WorkloadRatingDetailDTO newDetailDTO = new WorkloadRatingDetailDTO();
+                            List<WorkloadRatingDetailSaveDTO> saveDTOList = configVOList.stream().map(configVO -> {
+                                WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
+                                List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
+                                        .filter(it -> it.getConfigName().equals(configVO.getItemName()))
+                                        .collect(Collectors.toList());
+
+                                Optional<String> itemValueOpt = matchItemValueList.stream()
+                                        .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
+                                if (itemValueOpt.isPresent()) {
+                                    configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
+                                }
+                                return detailSaveDTO;
+                            }).collect(Collectors.toList());
+                            appendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
+                            newDetailDTO.setConfigList(saveDTOList);
+                            return newDetailDTO;
+                        });
+
+                taskVo.setRatingDetailDTO(detailDTO);
+
+                String brand = style.getBrand();
                 taskVo.setRatingConfigList(configVOList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()));
-            });
+                taskVo.getRatingConfigList().addAll(appendConfigList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()));
+            }
         });
+    }
+
+    private void structureValueList(List<String> resultList, String delimiter, String... args) {
+        if (args.length == 0) return;
+        resultList.add(StrUtil.join(delimiter, args));
+        structureValueList(resultList, delimiter, ArrayUtil.remove(args, args.length - 1));
     }
 
     private static void userAuthQw(PatternMakingTaskSearchDto dto, BaseQueryWrapper qw) {

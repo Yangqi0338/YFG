@@ -6,10 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
@@ -19,7 +17,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotEmpty;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,7 +53,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
 
     @Override
     public String getItemId() {
-        return StrUtil.join(COMMA, configList);
+        return configList.stream().map(WorkloadRatingDetailSaveDTO::getItemId).filter(StrUtil::isNotBlank).collect(Collectors.joining(COMMA));
     }
 
     @Override

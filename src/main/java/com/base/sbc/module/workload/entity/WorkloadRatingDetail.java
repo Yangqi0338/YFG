@@ -27,7 +27,7 @@ import java.math.BigDecimal;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_workload_rating_detail")
+@TableName(value = "t_workload_rating_detail", autoResultMap = true)
 @ApiModel("工作量评分数据计算结果 WorkloadRatingDetail")
 public class WorkloadRatingDetail extends BaseDataExtendEntity {
 
@@ -62,5 +62,4 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     private BigDecimal result;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
-    public
 }
