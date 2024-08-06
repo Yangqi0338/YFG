@@ -261,7 +261,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     String getByIdBrandName(String foreignId);
 
-    void setTechReceiveDate(String id, Date techReceiveDate);
+    void setTechReceiveDate(String id, Date techReceiveDate, String orderDept);
 
 
 // 自定义方法区 不替换的区域【other_end】

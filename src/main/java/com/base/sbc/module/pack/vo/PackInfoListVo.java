@@ -103,4 +103,11 @@ public class PackInfoListVo extends PackInfoStatusVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "工艺接收时间")
     private Date techReceiveDate;
+
+    /**
+     * 下单员部门
+     */
+    @ApiModelProperty(value = "下单员部门")
+    private String orderDept;
+
 }

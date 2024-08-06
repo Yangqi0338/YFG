@@ -174,6 +174,12 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工艺接收时间")
     private Date techReceiveDate;
+
+    /**
+     * 下单员部门
+     */
+    @ApiModelProperty(value = "下单员部门")
+    private String orderDept;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

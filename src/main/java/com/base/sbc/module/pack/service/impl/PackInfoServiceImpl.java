@@ -1746,13 +1746,14 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
-    public void setTechReceiveDate(String id, Date techReceiveDate) {
+    public void setTechReceiveDate(String id, Date techReceiveDate, String orderDept) {
         LambdaUpdateWrapper<PackInfo> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(PackInfo::getId, id);
         updateWrapper.set(PackInfo::getUpdateId, getUserId());
         updateWrapper.set(PackInfo::getUpdateName, getUserName());
         updateWrapper.set(PackInfo::getUpdateDate, new Date());
         updateWrapper.set(PackInfo::getTechReceiveDate, techReceiveDate);
+        updateWrapper.set(PackInfo::getOrderDept, orderDept);
         update(updateWrapper);
     }
 

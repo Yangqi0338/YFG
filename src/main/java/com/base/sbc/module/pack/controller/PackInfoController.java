@@ -312,12 +312,13 @@ public class PackInfoController {
 
 	/**
 	 * 设置工艺接收时间
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "查询设计款号下的bom")
 	@GetMapping("/setTechReceiveDate")
-	public ApiResult setTechReceiveDate(String id, Date techReceiveDate) {
-		packInfoService.setTechReceiveDate(id,techReceiveDate);
+	public ApiResult setTechReceiveDate(String id, Date techReceiveDate, String orderDept) {
+		packInfoService.setTechReceiveDate(id, techReceiveDate, orderDept);
 		return ApiResult.success("操作成功");
 	}
 
