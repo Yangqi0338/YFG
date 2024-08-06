@@ -71,6 +71,10 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pricing.entity.PricingTemplate;
+import com.base.sbc.module.pricing.entity.PricingTemplateItem;
+import com.base.sbc.module.pricing.service.PricingTemplateItemService;
+import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
@@ -89,6 +93,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import org.bouncycastle.util.Pack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -128,6 +133,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
 // 自定义方法区 不替换的区域【other_start】
 
+    @Resource
+    @Lazy
+    private PricingTemplateItemService pricingTemplateItemService;
+    @Resource
+    @Lazy
+    private PricingTemplateService pricingTemplateService;
     @Resource
     private StyleService styleService;
 
@@ -1325,6 +1336,39 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         this.saveOperaLog("关联大货款号", dto.getName(), packInfo.getName(), packInfo.getCode(), map);
         color.setBom(packInfo.getCode());
         styleColorMapper.updateById(color);
+
+        // 修改核价模板 使用款式配色信息中的生产类型
+        // 查询核价模板
+        QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("devt_type", color.getDevtType());
+        queryWrapper.eq("default_flag", BaseGlobal.YES);
+        List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
+        if (!CollUtil.isEmpty(list)) {
+            PricingTemplate pricingTemplate = list.get(0);
+            Map<String, Object> hashMap = new HashMap<>();
+            /*获取核价的字段*/
+            List<PricingTemplateItem> itemServiceByList = pricingTemplateItemService.list(new QueryWrapper<PricingTemplateItem>().eq("pricing_template_id", pricingTemplate.getId()));
+            itemServiceByList.forEach(f ->{
+                hashMap.put(f.getName(),StrUtil.isNotBlank(f.getDefaultNum())?f.getDefaultNum():0);
+
+            });
+            hashMap.put("currencyCode", "");
+            hashMap.put("pricingTemplateId", pricingTemplate.getId());
+            hashMap.put("pricingTemplateName", pricingTemplate.getTemplateName());
+            hashMap.put("costPrice", 0);
+
+            // 查询核价信息
+            PackPricing packPricing = packPricingService.getOne(
+                    new LambdaQueryWrapper<PackPricing>()
+                            .eq(PackPricing::getForeignId, packInfo.getId())
+            );
+            packPricing.setCalcItemVal(JSON.toJSONString(hashMap));
+            packPricing.setPricingTemplateId(pricingTemplate.getId());
+            packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
+            packPricingService.updateById(packPricing);
+        }
+
+
         return true;
     }
 
