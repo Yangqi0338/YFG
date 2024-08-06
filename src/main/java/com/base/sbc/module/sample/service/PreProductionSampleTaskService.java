@@ -88,6 +88,8 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     List<String> stitcherList(PreProductionSampleTaskSearchDto dto);
 
     PreProductionSampleTaskDetailVo getDetailFOB(String id);
+
+    boolean setStitcher(PreProductionSampleTaskDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 

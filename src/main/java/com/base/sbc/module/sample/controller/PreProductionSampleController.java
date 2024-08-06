@@ -212,6 +212,12 @@ public class PreProductionSampleController extends BaseController{
         return ApiResult.success();
     }
 
+    @ApiOperation(value = "任务-分配车缝工")
+    @PostMapping("/task/setStitcher")
+    public boolean setStitcher(@Valid @RequestBody PreProductionSampleTaskDto dto) {
+        return preProductionSampleTaskService.setStitcher(dto);
+    }
+
 }
 
 

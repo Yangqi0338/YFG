@@ -728,6 +728,37 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         return result;
     }
 
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setStitcher(PreProductionSampleTaskDto dto) {
+        CommonUtils.removeQuery(dto, "samplePic","stylePic");
+        PreProductionSampleTask task = getById(dto.getId());
+        if (task == null) {
+            throw new OtherException("任务不存在");
+        }
+
+        LambdaUpdateWrapper<PreProductionSampleTask> uw = new LambdaUpdateWrapper<>();
+        uw.eq(PreProductionSampleTask::getId, dto.getId());
+        //是否齐套
+        uw.set(PreProductionSampleTask::getKitting, dto.getKitting());
+        // 齐套状态发生改变,修改齐套时间
+        if (!task.getKitting().equals(dto.getKitting())) {
+            uw.set(PreProductionSampleTask::getKittingTime, new Date());
+        }
+        uw.set(PreProductionSampleTask::getSampleBarCode,dto.getSampleBarCode());
+        uw.set(PreProductionSampleTask::getStitcher, dto.getStitcher());
+        uw.set(PreProductionSampleTask::getStitcherId, dto.getStitcherId());
+        update(uw);
+
+        //下发产前样
+        smpService.antenatalSample( new String[]{dto.getId()});
+
+        // 记录日志
+        this.saveOperaLog("分配车缝工", "产前样看板", dto, task);
+        return true;
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }
