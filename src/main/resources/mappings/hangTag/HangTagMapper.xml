@@ -239,7 +239,6 @@
         tsd.designer as designer,
         tsd.pattern_design_name as patternDesign,
         tsd.planning_season_id as planningSeasonId,
-        tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
         tsd.prod_category1st as prodCategory1st,
         tsd.dev_class as devClass,
@@ -248,6 +247,7 @@
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
+                tsd.devt_type_name as produceTypeName,
             </when>
             <otherwise>
                 tssc.style_no AS bulkStyleNo,
@@ -257,6 +257,7 @@
                 tssc.is_trim,
                 tssc.style_color_pic ,
                 tssc.bom_status ,
+                tssc.devt_type_name as produceTypeName,
             </otherwise>
         </choose>
 
