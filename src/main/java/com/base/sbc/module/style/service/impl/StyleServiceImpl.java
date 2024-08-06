@@ -56,7 +56,6 @@ import com.base.sbc.module.formtype.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formtype.entity.FieldOptionConfig;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.entity.FormType;
-import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -77,7 +76,6 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
@@ -240,9 +238,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private FormTypeService formTypeService;
 
     @Autowired
-    private FieldManagementMapper fieldManagementMapper;
-
-    @Autowired
     @Lazy
     private OrderBookDetailService orderBookDetailService;
 
@@ -253,9 +248,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
-    @Autowired
-    @Lazy
-    private PatternLibraryService patternLibraryService;
 
     /**
      * 表单字段类型名称
@@ -283,7 +275,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             style = saveNewStyle(dto);
         } else {
             style = getById(dto.getId());
-            String registeringId = style.getRegisteringId();
             String oldDesignNo = style.getDesignNo();
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
             resetDesignNo(dto, style);
@@ -775,6 +766,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         style.setCheckStartTime(new Date());
+        if (style.getActualPublicationDate() == null) {
+            style.setActualPublicationDate(new Date());
+        }
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         // 获取当前人所在的虚拟部门
