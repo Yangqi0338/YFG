@@ -99,6 +99,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         Page<StyleColorCorrectInfoVo> objects = PageHelper.startPage(page);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.andLike(page.getSearch(), "ts.design_no", "tsc.style_no");
+        queryWrapper.notEmptyEq("ts.pattern_design_id", page.getPlanningSeasonId());
         queryWrapper.notEmptyEq("ts.planning_season_id", page.getPlanningSeasonId());
         queryWrapper.notEmptyEq("ts.prod_category", page.getProdCategory());
         queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
