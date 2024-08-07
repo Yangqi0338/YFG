@@ -52,6 +52,11 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
      */
     private String bandCode;
 
+    @ApiModelProperty(value = "款式类别")
+    private String styleCategory;
+    @ApiModelProperty(value = "款式类别编码")
+    private String styleCategoryCode;
+
     /**
      * 色系
      */
@@ -69,10 +74,6 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     private String matchingStyleStatus;
 
     private String hisDesignNo;
-
-    @TableField(exist = false)
-    @ApiModelProperty(value = "样式类别")
-    private String styleCategory;
 
     @TableField(exist = false)
     @ApiModelProperty(value = "是否关联修改季节企划（0-否 1-是）")

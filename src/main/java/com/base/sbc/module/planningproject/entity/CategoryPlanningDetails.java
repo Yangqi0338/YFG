@@ -89,23 +89,25 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
     private String bandName;
     @ApiModelProperty(value = "波段编码")
     private String bandCode;
+    @ApiModelProperty(value = "款式类别")
+    private String styleCategory;
+    @ApiModelProperty(value = "款式类别编码")
+    private String styleCategoryCode;
     /**
      * 具体品类企划的需求数
      */
     @ApiModelProperty(value = "具体品类企划的需求数")
     private String number;
     /**
-     * SKC数量 取自季节企划各个款式类别的需求数（以一个中类-波段为颗粒度）
+     * SKC数量 取自季节企划各个款式类别的需求数（以一个中类-波段为颗粒度） 改成中类-波段-款式类别了
      */
-    @ApiModelProperty(value = "SKC数量 取自季节企划各个款式类别的需求数（以一个中类-波段为颗粒度）")
+    @ApiModelProperty(value = "SKC数量 取自季节企划各个款式类别的需求数（以一个中类-波段为颗粒度） 改成中类-波段-款式类别了")
     private String skcCount;
     /**
      * 合计数量 合并季节企划详情到品类-中类的数据
      */
     @ApiModelProperty(value = "合计数量 合并季节企划详情到品类-中类的数据")
     private String total;
-    @ApiModelProperty(value = "样式类别")
-    private String styleCategory;
     @ApiModelProperty(value = "下单时间")
     private String orderTime;
     @ApiModelProperty(value = "上市时间")

@@ -8,7 +8,6 @@ package com.base.sbc.module.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.text.StrJoiner;
@@ -79,6 +78,31 @@ import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Opt;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
+
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.HttpUtil;
+import com.base.sbc.config.utils.*;
+import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import lombok.extern.slf4j.Slf4j;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.util.*;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
 
 /**
  * 类描述：上传文件 service类
@@ -128,7 +152,12 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     private CustomStylePicUpload customStylePicUpload;
     @Autowired
     private StylePicUtils stylePicUtils;
-
+    @Autowired
+    private PlanningProjectPlankService planningProjectPlankService;
+    @Autowired
+    private PlanningProjectService planningProjectService;
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
     @Autowired
     private RedisUtils redisUtils;
 
@@ -251,6 +280,30 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         break;
                     case markingOrderUpload:
                         objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
+                        break;
+                    // /企划看板模块名/品牌/年份/季节/坑位id.文件后缀
+                    case planningProjectPlank:
+                        if (StrUtil.isBlank(code)) {
+                            throw new OtherException("code 不能空");
+                        }
+                        PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(code);
+                        if (ObjectUtil.isEmpty(planningProjectPlank)) {
+                            throw new OtherException("坑位不存在！");
+                        }
+                        PlanningProject planningProject = planningProjectService.getById(planningProjectPlank.getPlanningProjectId());
+                        if (ObjectUtil.isEmpty(planningProject)) {
+                            throw new OtherException("企划看板信息不存在！");
+                        }
+                        PlanningSeason planningSeason = planningSeasonService.getById(planningProject.getSeasonId());
+                        if (ObjectUtil.isEmpty(planningSeason)) {
+                            throw new OtherException("对应的产品季不存在！");
+                        }
+
+                        objectName = "PlanningProjectPlank"
+                                + "/" + planningSeason.getBrandName()
+                                + "/" + planningSeason.getYearName()
+                                + "/" + planningSeason.getSeasonName()
+                                + "/" + code + "." + extName;
                         break;
                     case materialUpload:
                         objectName = "ErrorMsg/material/" + code + "." + extName;
