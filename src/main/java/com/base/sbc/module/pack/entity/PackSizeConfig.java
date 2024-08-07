@@ -6,12 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.utils.CommonUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 类描述：资料包-尺寸表配置 实体类
@@ -107,5 +114,18 @@ public class PackSizeConfig extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注")
     private String remark;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public String getActiveSizes() {
+        return newSortSizeName(activeSizes);
+    }
+
+    public String getProductSizes() {
+        return newSortSizeName(productSizes);
+    }
+
+    private String newSortSizeName(String sizeName) {
+        if (StrUtil.isBlank(sizeName)) return sizeName;
+        return Arrays.stream(sizeName.split(COMMA)).sorted(CommonUtils.sizeNameSort()).collect(Collectors.joining(COMMA));
+    }
 }
 

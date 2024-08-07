@@ -1,6 +1,7 @@
 package com.base.sbc.open.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +16,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -22,6 +24,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
@@ -34,8 +37,10 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
+import com.base.sbc.open.dto.DesignStyleOverdueReasonDto;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.dto.OrderBookDto;
 import com.base.sbc.open.entity.*;
@@ -43,6 +48,7 @@ import com.base.sbc.open.service.BasicsdatumGarmentInspectionService;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.base.sbc.open.service.MtBqReqService;
 import com.base.sbc.open.service.OpenSmpService;
+import com.base.sbc.open.vo.DesignStyleOverdueReasonVo;
 import com.base.sbc.open.vo.OrderBookDetailDataVo;
 import com.base.sbc.open.vo.OrderBookNameVo;
 import io.swagger.annotations.ApiOperation;
@@ -254,9 +260,19 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             String say = "";
+            //1.成分备注不带括号，默认给它加英文括号；
+            //2.成分带括号时，默认改为英文括号；
+            //3.成分带英文括号，不做处理
             if(StringUtils.isNotEmpty(inspectContent.getRemark())){
+                String remark = inspectContent.getRemark();
+                if (remark.contains("（") || remark.contains("）")) {
+                    say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
+                }
+
+                if (!remark.contains("(") && !remark.contains(")")) {
+                    say = "("+inspectContent.getRemark()+")";
+                }
 //                 say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
-                say = "("+inspectContent.getRemark()+")";
                 basicsdatumMaterialIngredient.setSay(inspectContent.getRemark());
             }
             String contentProportion = inspectContent.getContentProportion().replace("%", "");
@@ -406,5 +422,22 @@ public class OpenSmpController extends BaseController {
             return ApiResult.error(code+"：找不到物料图片！",404);
         }
         return selectSuccess(basicsdatumMaterial.getImageUrl());
+    }
+
+    @PostMapping("/styleOverDueResaonList")
+    @ApiOperation(value = "设计下明细单逾期原因", notes = "设计下明细单逾期原因")
+    public ApiResult styleOverDueResaon(@RequestBody DesignStyleOverdueReasonDto designStyleOverdueReasonDto) {
+        if (CollUtil.isNotEmpty(designStyleOverdueReasonDto.getStyleNos())) {
+            //超过1000个款号，返回null
+            if (designStyleOverdueReasonDto.getStyleNos().size() > 1000) {
+                return selectSuccess(null);
+            }
+            QueryWrapper<StyleColor> styleColorQueryWrapper = new QueryWrapper<>();
+            styleColorQueryWrapper.in("style_no", designStyleOverdueReasonDto.getStyleNos());
+            styleColorQueryWrapper.select("style_no,send_main_fabric_overdue_reason,design_detail_overdue_reason,design_correct_overdue_reason");
+            List<StyleColor> list = styleColorService.list(styleColorQueryWrapper);
+            return selectSuccess(CopyUtil.copy(list, DesignStyleOverdueReasonVo.class));
+        }
+        return selectSuccess(null);
     }
 }

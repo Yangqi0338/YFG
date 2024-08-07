@@ -1,6 +1,7 @@
 package com.base.sbc.module.pricing.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -30,9 +31,26 @@ public class StylePricingVO {
      * 计控确认成本时间
      */
     @ApiModelProperty(value = "计控确认成本时间")
-//    @Excel(name = "计控确认成本时间", format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date controlConfirmTime;
-
+    /**
+     * 工时部确认工价时间
+     */
+    @ApiModelProperty(value = "工时部确认工价时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date wagesConfirmTime;
+    /**
+     * 是否商品吊牌确认时间
+     */
+    @ApiModelProperty(value = "商品吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date productHangtagConfirmTime;
+    /**
+     * 是否计控吊牌确认时间
+     */
+    @ApiModelProperty(value = "计控吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date controlHangtagConfirmTime;
     /**
      * 样衣图片
      */
@@ -83,9 +101,9 @@ public class StylePricingVO {
     @Excel(name = "款式",orderNum = "3")
     private String style;
 
-    public String getStyle() {
+/*    public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
-    }
+    }*/
 
     @ApiModelProperty(value = "款式名称")
 //    @Excel(name = "款式名称")
@@ -302,5 +320,9 @@ public class StylePricingVO {
 
     private String calcItemVal;
 
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }
 

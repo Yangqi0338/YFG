@@ -74,6 +74,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -151,7 +152,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), MoreLanguageProperties.hangTagMainDbAlias, null, false);
 
         searchDTO.setCompanyCode(userUtils.getCompanyCode());
-        return hangTagMapper.queryList(searchDTO, qw);
+        return hangTagMapper.queryList1(searchDTO, qw);
     }
 
     @Override
@@ -307,10 +308,12 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             // 根据分页的款号,将子数据封装成通用数据,让前端通过预先返回的结构,自行映射
             list.forEach(styleCountryStatus -> {
                 String bulkStyleNo = styleCountryStatus.getBulkStyleNo();
-                List<StyleCountryStatus> statusList = allList.stream()
+                Map<String, StyleCountryStatus> map = allList.stream()
                         .filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()))
-                        .collect(Collectors.toList());
-                moreLanguageStatusList.add(new MoreLanguageStatusDto(bulkStyleNo, styleCountryStatus.getBrand(), styleCountryStatus.getReceiveDeptId(), MORE_LANGUAGE_CV.copyList2CountryDTO(statusList)));
+                        .collect(CommonUtils.groupingSingleBy(StyleCountryStatus::getCode,
+                                (styleCountryStatusList) -> styleCountryStatusList.stream().min(Comparator.comparing(StyleCountryStatus::getStatusIndex)).orElse(null)));
+                moreLanguageStatusList.add(new MoreLanguageStatusDto(bulkStyleNo, styleCountryStatus.getBrand(), styleCountryStatus.getReceiveDeptId(),
+                        MORE_LANGUAGE_CV.copyList2CountryDTO(new ArrayList<>(map.values()))));
             });
         }
 

@@ -37,7 +37,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -102,6 +104,11 @@ public class PackInfoController {
 		return packInfoService.pageByBigGoods(pageDto);
 	}
 
+	@ApiOperation(value = "标准资料包导出")
+	@GetMapping("/pageByBigGoodsDerive")
+	public void pageByBigGoodsDerive(HttpServletResponse response, @Valid PackInfoSearchPageDto pageDto) throws IOException {
+		 packInfoService.pageByBigGoodsDerive(response,pageDto);
+	}
 
 	@ApiOperation(value = "新建BOM(通过款式设计)")
 	@PostMapping("/createByStyle")

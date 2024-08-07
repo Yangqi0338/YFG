@@ -9,6 +9,15 @@
         版本号：1.0
       -->
 
+    <update id="updateHiberarchy">
+        update t_file_tree
+        set parent_ids  = REPLACE(parent_ids,  #{oldId}, #{newId})
+        where parent_ids like CONCAT('%', #{oldId}, '%') and del_falg = '0'
+
+    </update>
+
+
+
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
 

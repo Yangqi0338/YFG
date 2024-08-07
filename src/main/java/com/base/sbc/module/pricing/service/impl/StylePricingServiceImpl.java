@@ -6,14 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.segments.GroupBySegmentList;
+import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -22,17 +23,25 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -47,7 +56,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -62,9 +71,31 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：款式定价 service类
@@ -106,6 +137,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
+    private final ColumnDefineService columnDefineService;
 
     // @Resource
     // @Lazy
@@ -117,9 +149,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.notEmptyEq("sd.year", dto.getYear());
+        qw.notEmptyEq("sd.band_code", dto.getBandCode());
         qw.notEmptyEq("sd.season", dto.getSeason());
         qw.notEmptyEq("sd.month", dto.getMonth());
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
+        qw.notEmptyEq("ht.product_name", dto.getProductName());
         qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
@@ -168,19 +202,118 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         return countDownLatch;
     }
 
+    @Override
+    public PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO dto) {
+        dto.setCompanyCode(super.getCompanyCode());
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+        Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        qw.likeList(StrUtil.isNotBlank(dto.getBulkStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getBulkStyleNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
+
+        MergeSegments mergeSegments = qw.getExpression();
+        String groupStr = null;
+        if (null != mergeSegments) {
+            GroupBySegmentList groupBySegmentList = mergeSegments.getGroupBy();
+            if (CollUtil.isNotEmpty(groupBySegmentList)) {
+                ISqlSegment segment = groupBySegmentList.get(0);
+                groupStr = segment.getSqlSegment();
+                groupBySegmentList.remove(0);
+            }
+        }
+        if (StrUtil.isBlank(groupStr)) {
+            qw.groupBy("p.id");
+        } else {
+            qw.groupBy(groupStr);
+        }
+
+        if (null == dto.getPageNum() || 0 == dto.getPageNum()) {
+            dto.setPageNum(1);
+        }
+        if (null == dto.getPageSize() || 0 == dto.getPageSize()) {
+            dto.setPageNum(20);
+        }
+        dto.setStartNum((dto.getPageNum()-1)*dto.getPageSize());
+        Map<String, String> columnMap = new HashMap<>();
+        Map<String,String> queryMap = dto.getFieldQueryMap();
+        if (StrUtil.isNotBlank(dto.getBulkStyleNo())) {
+            columnMap.put("ssc", "style_no");
+        }
+        if (StrUtil.isNotBlank(dto.getDesignNo())) {
+            columnMap.put("sd", "design_no");
+        }
+        if (null != queryMap) {
+            List<ColumnDefine> list = columnDefineService.getByTableCode(dto.getTableCode(), false);
+            if (CollUtil.isNotEmpty(list)) {
+                for (ColumnDefine column : list) {
+                    for (String columnCode : dto.getFieldQueryMap().keySet()) {
+                        if (StrUtil.equals(column.getColumnCode(), columnCode)) {
+                            String sqlCode = column.getSqlCode();
+                            if (StrUtil.isNotEmpty(sqlCode)) {
+                                String[] tablePre = sqlCode.split("\\.");
+                                columnMap.put(tablePre[0], columnCode);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dto.setColumnMap(columnMap);
+        com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+
+        if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("sd.") ) {
+            columnMap.put("sd", "design_no");
+        }
+        if (StringUtils.isNotBlank(dto.getPlanningSeasonId())){
+            qw.eq("sd.planning_season_id",dto.getPlanningSeasonId());
+            if (Objects.isNull(columnMap.get("sd"))){
+                columnMap.put("sd", "planning_season_id");
+            }
+        }
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
+        if (CollectionUtils.isEmpty(stylePricingList)) {
+            return page.toPageInfo();
+        }
+
+        if(StrUtil.equals(dto.getDeriveFlag(),BaseGlobal.YES) ){
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES) ){
+                if(stylePricingList.size() >1000){
+                    throw new OtherException("带图片最多只能导出1000条");
+                }else {
+                    stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
+                }
+            }else {
+                if(stylePricingList.size() >2000){
+                    throw new OtherException("不带图片最多只能导出2000条");
+                }
+            }
+        } else {
+            stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(stylePricingList);
+        }
+        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true, true);
+        PageInfo<StylePricingVO> packInfo = new PageInfo<>(stylePricingList);
+        return packInfo;
+    }
+
     /**
      * 数据组装处理
      *
      * @param stylePricingList
      * @param companyCode
      */
-    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode,boolean isPackType) {
+    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode, boolean isPackType, boolean decoratePic) {
+        if (CollUtil.isEmpty(stylePricingList)){
+            return;
+        }
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
         String packType="";
         if (isPackType){
-            packType ="packBigGoods";
+            packType = PackUtils.PACK_TYPE_BIG_GOODS;
         }
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
 //        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
@@ -190,8 +323,20 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 .build();
 
         try {
-        CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
-        for (StylePricingVO stylePricingVO : stylePricingList) {
+            CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
+            List<String> stylePricingIdList = stylePricingList.stream().map(StylePricingVO::getId).collect(Collectors.toList());
+            List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new LambdaQueryWrapper<PackPricingProcessCosts>()
+                    .select(PackPricingProcessCosts::getForeignId, PackPricingProcessCosts::getProcessPrice, PackPricingProcessCosts::getMultiple)
+                    .in(PackPricingProcessCosts::getForeignId, stylePricingIdList)
+                    .eq(PackPricingProcessCosts::getPackType, PackUtils.PACK_TYPE_BIG_GOODS)
+            );
+
+            List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>()
+                    .in("foreign_id", stylePricingIdList)
+                    .eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS)
+            );
+
+            for (StylePricingVO stylePricingVO : stylePricingList) {
             executor.submit(() -> {
                 // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
                 PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
@@ -222,30 +367,30 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
                 //加工费
-                List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-                if (!processCostsList.isEmpty()) {
+//                if (!processCostsList.isEmpty()) {
                     try {
                         processCostsList.stream()
+                                .filter(it-> it.getForeignId().equals(stylePricingVO.getId()))
                                 .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
                                 .reduce(BigDecimal::add)
                                 .ifPresent(stylePricingVO::setProcessingFee);
                     } catch (Exception e) {
                         logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常", e);
                     }
-
-                }
+//
+//                }
                 //二次加工费用
-                List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-                if (!pricingCraftCostsList.isEmpty()) {
+//                if (!pricingCraftCostsList.isEmpty()) {
                     try {
                         pricingCraftCostsList.stream()
+                                .filter(it-> it.getForeignId().equals(stylePricingVO.getId()))
                                 .map(costs -> costs.getPrice().multiply(costs.getNum()))
                                 .reduce(BigDecimal::add)
                                 .ifPresent(stylePricingVO::setSecondaryProcessingFee);
                     } catch (Exception e) {
                         logger.error("StylePricingServiceImpl#dataProcessing 二次加工费用计算异常", e);
                     }
-                }
+//                }
 
 
                 stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
@@ -284,17 +429,19 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 countDownLatch.countDown();
             });
         }
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
             executor.shutdown();
         }
-        stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
+        if (decoratePic) {
+            stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
+        }
     }
 
     public void dataProcessingExcelImport(List<StylePricingVO> stylePricingList, String companyCode) {
@@ -416,12 +563,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setPackId(packId);
-        stylePricingSearchDTO.setCompanyCode(companyCode);
-        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, new QueryWrapper<>());
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, new BaseQueryWrapper<>());
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }
-        this.dataProcessing(stylePricingList, companyCode,true);
+        this.dataProcessing(stylePricingList, companyCode,true, true);
         return stylePricingList.get(0);
     }
 
@@ -429,6 +575,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
+        StylePricing byId = getById(stylePricingSaveDTO.getId());
         StylePricing stylePricing = new StylePricing();
         if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
 
@@ -467,10 +614,24 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             styleService.updateProductCost(packInfo.getForeignId(), stylePricingSaveDTO.getTargetCost());
 
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", packInfo.getStyleNo()));
+            BigDecimal tagPrice = styleColor.getTagPrice();
             styleColor.setTagPrice(stylePricingSaveDTO.getTagPrice());
             styleColorService.updateById(styleColor);
             // smpService.goods(new String[]{styleColor.getId()});
+            if (!Objects.isNull(byId)){
+                byId.setTagPriceCopy(tagPrice);
+                stylePricing.setTagPriceCopy(stylePricingSaveDTO.getTagPrice());
+            }
         }
+        //修改记录
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName("款式定价");
+        operaLogEntity.setType(Objects.isNull(byId) ? "新增" : "修改");
+        operaLogEntity.setDocumentId(stylePricing.getId());
+        operaLogEntity.setDocumentCode(stylePricing.getId());
+        operaLogEntity.setDocumentName("");
+        operaLogEntity.setParentId(stylePricing.getId());
+        saveOrUpdateOperaLog(stylePricing, Objects.isNull(byId) ? new StylePricing():byId , operaLogEntity);
     }
 
     @Override
@@ -502,6 +663,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                             ) {
                                 throw new OtherException("计控确定成本、商品吊牌、计控吊牌未取消");
                             }
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getWagesConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
                         }
                         /*取消计控确定成本*/
                         if (StrUtil.equals(stylePricingSaveDTO.getControlConfirm(), BaseGlobal.IN)) {
@@ -511,12 +676,26 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                             ) {
                                 throw new OtherException("商品吊牌和计控吊牌未取消");
                             }
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getControlConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
                         }
                         if (StrUtil.equals(stylePricingSaveDTO.getProductHangtagConfirm(), BaseGlobal.IN)) {
                             /*校验商品吊牌和计控吊牌确定*/
                             if (StrUtil.equals(stylePricing1.getControlHangtagConfirm(), BaseGlobal.YES)) {
                                 throw new OtherException("计控吊牌未取消");
                             }
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getProductHangtagConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
+                        }
+                        if (StrUtil.equals(stylePricingSaveDTO.getControlHangtagConfirm(), BaseGlobal.IN)) {
+                            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.set(StylePricing::getControlHangtagConfirmTime, null);
+                            updateWrapper.eq(StylePricing::getId, stylePricingSaveDTO.getId());
+                            update(updateWrapper);
                         }
                         stylePricing.updateInit();
                     }
@@ -540,6 +719,15 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                     stylePricing.setCompanyCode(companyCode);
                     BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
+                    //修改记录
+                    OperaLogEntity operaLogEntity = new OperaLogEntity();
+                    operaLogEntity.setName("款式定价");
+                    operaLogEntity.setType( "修改");
+                    operaLogEntity.setDocumentId(stylePricing.getId());
+                    operaLogEntity.setDocumentCode(stylePricing.getId());
+                    operaLogEntity.setDocumentName("");
+                    operaLogEntity.setParentId(stylePricing.getId());
+                    saveOrUpdateOperaLog( stylePricingSaveDTO, stylePricing, operaLogEntity);
                     return stylePricing;
                 }).collect(Collectors.toList());
         super.saveOrUpdateBatch(stylePricings);

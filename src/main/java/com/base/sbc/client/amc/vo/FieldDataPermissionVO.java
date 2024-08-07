@@ -1,5 +1,6 @@
 package com.base.sbc.client.amc.vo;
 
+import com.base.sbc.client.amc.enums.DataPermissionsConditionTypeEnum;
 import lombok.Data;
 
 import java.util.List;
@@ -38,4 +39,8 @@ public class FieldDataPermissionVO {
     private String groupIdx;
 
     private String sortIdx;
+
+    public DataPermissionsConditionTypeEnum getConditionTypeEnum() {
+        return DataPermissionsConditionTypeEnum.findByK(conditionType);
+    }
 }

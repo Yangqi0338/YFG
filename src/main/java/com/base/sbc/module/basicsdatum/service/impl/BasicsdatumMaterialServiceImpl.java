@@ -18,21 +18,29 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.entity.BasicDictDepend;
+import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
@@ -47,7 +55,9 @@ import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -71,6 +81,7 @@ import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -78,6 +89,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -88,7 +102,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -162,6 +179,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Autowired
     private PlanningDimensionalityMapper planningDimensionalityMapper;
+
+    @Autowired
+    private CodeGen codeGen;
+
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -308,9 +331,30 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
         }
-
-        List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
-        list.get(0).setFieldValList(fieldManagementVos);
+        if(StrUtil.isNotEmpty(dto.getDetail())){
+            //当查询明细页面时，查询配置的字段
+            List<FieldManagementVo> fieldManagementVos = queryCoefficient(list.get(0));
+            list.get(0).setFieldValList(fieldManagementVos);
+        }else{
+            //当列表查询时，这里直接查询值内容
+            List<List<BasicsdatumMaterialPageVo>> partition = Lists.partition(list, 1000);
+            for (List<BasicsdatumMaterialPageVo> lists : partition) {
+                List<String> ids = lists.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+                List<FieldVal> fvList = fieldValService.list(ids, FieldValDataGroupConstant.MATERIAL);
+                Map<String, Map<String, String>> fvMap = fvList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,
+                        Collectors.toMap(FieldVal::getFieldName, o -> StrUtil.isNotEmpty(o.getValName()) ? o.getValName() : o.getVal(), (v1, v2) -> v1)));
+                for (BasicsdatumMaterialPageVo pageVo : lists) {
+                    if(fvMap.containsKey(pageVo.getId())){
+                        Map<String, String> stringStringMap = fvMap.get(pageVo.getId());
+                        pageVo.setNewCategory2(stringStringMap.get("new_category2"));
+                        pageVo.setNewCategory2(stringStringMap.get("new_category3"));
+                        pageVo.setStructureCategory2(stringStringMap.get("structure_category2"));
+                        pageVo.setStructureCategory3(stringStringMap.get("structure_category3"));
+                        pageVo.setFabricValue(stringStringMap.get("fabric_value"));
+                    }
+                }
+            }
+        }
 
         if (isColumnHeard) {
             return new PageInfo<>(list);
@@ -629,12 +673,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public void exportBasicsdatumNewMaterial(HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException {
+    public void exportBasicsdatumNewMaterial( String token,HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException {
         dto.setPageNum(0);
         dto.setPageSize(0);
         List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialNewList(dto).getList();
-        List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
-        ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
+//        List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
+//        ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
+        ExcelUtils.exportExcelByTableCode(list, "物料档案", response, dto);
+
     }
 
     @Override
@@ -1094,23 +1140,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         QueryWrapper<BasicsdatumMaterial> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("material_code", materialCode);
         List<BasicsdatumMaterial> list = list(queryWrapper);
-        if (CollUtil.isNotEmpty(list)){
+        if (CollUtil.isEmpty(list)){
             return null;
         }
         return list.get(0);
-    }
-
-    @Override
-    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
-        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
-    }
-
-    @Override
-    public FabricSummary getMaterialSummaryInfo(String materialCode) {
-        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
-        baseQueryWrapper.eq("tbm.material_code",materialCode);
-        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
-        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
     }
 
     @Transactional
@@ -1230,6 +1263,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return 1;
         }
         return 0;
+    }
+
+
+
+    @Override
+    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
+        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
+    }
+
+    @Override
+    public FabricSummary getMaterialSummaryInfo(String materialCode) {
+        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
+        baseQueryWrapper.eq("tbm.material_code",materialCode);
+        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
+        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
     }
 
     /**
@@ -1763,6 +1811,297 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         basicsdatumMaterialPageVo.setColorCode(colorCode.toString());
         basicsdatumMaterialPageVo.setColorName(colorName.toString());
         basicsdatumMaterialPageVo.setSupplierColorCode(supplierColorCode.toString());
+    }
+
+    @Override
+    public ApiResult importMaterial(List<Map<String, Object>> readAll) throws IOException {
+        //先遍历一遍拿到 物料号 查询出是否存在
+        List<String> materialCodes = new ArrayList<>();
+        //遍历导入数据
+        for (Map<String, Object> map : readAll) {
+            if (map.containsKey("物料编码")) {
+                materialCodes.add(map.get("物料编码").toString());
+            }else{
+                throw new OtherException("物料编码不能为空");
+            }
+        }
+        //根据 物料号 查询所有数据
+        BaseQueryWrapper<BasicsdatumMaterial> qw = new BaseQueryWrapper<>();
+        qw.in("tbm.material_code", materialCodes);
+        qw.eq("tbm.del_flag", "0");
+        List<BasicsdatumMaterialPageVo> materialList = baseMapper.getMaterialSkuList(qw);
+        //这里取供应商报价大的一个
+        Map<String, BasicsdatumMaterialPageVo> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterialPageVo::getMaterialCode,o->o,(v1,v2)->{
+            if(v1.getSupplierQuotationPrice() == null){
+                v1.setSupplierQuotationPrice(BigDecimal.ZERO);
+            }
+            if(v2.getSupplierQuotationPrice() == null){
+                v2.setSupplierQuotationPrice(BigDecimal.ZERO);
+            }
+            return v1.getSupplierQuotationPrice().compareTo(v2.getSupplierQuotationPrice()) > 0 ? v1 : v2;
+        }));
+
+        //获取所有物料库的动态字段
+        //这里是目前动态字段不多，直接获取全部，如果后期动态字段太多，建议重写此逻辑
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("tpd.coefficient_flag", BaseGlobal.YES);
+        queryWrapper.eq("tpd.del_flag", BaseGlobal.NO);
+        queryWrapper.orderByAsc("tpd.group_sort", "tpd.sort");
+        List<PlanningDimensionalityVo> coefficientList = planningDimensionalityMapper.getMaterialCoefficient(queryWrapper);
+        Map<String, List<PlanningDimensionalityVo>> collect = coefficientList.stream().collect(Collectors.groupingBy(PlanningDimensionality::getProdCategory1st));
+
+
+        //查询已经保存过的数据
+        List<String> ids = materialList.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+        List<FieldVal> fvList = fieldValService.list(ids, "MATERIAL");
+        Map<String, Map<String, FieldVal>> fvMap = fvList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,
+                Collectors.toMap(FieldVal::getFieldId, o -> o, (v1, v2) -> v1)));
+
+        Map<String, Map<String, String>> fieldValueMap = fvList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId,
+                Collectors.toMap(FieldVal::getFieldName, FieldVal::getVal, (v1, v2) -> StrUtil.isNotEmpty(v1) ? v1 : v2)));
+
+        //查询字典
+        List<String> dictList = new ArrayList<>();
+        for (PlanningDimensionalityVo planningDimensionality : coefficientList) {
+            if("1".equals(planningDimensionality.getIsOption())){
+                dictList.add(planningDimensionality.getOptionDictKey());
+            }
+            /*else if("2".equals(planningDimensionality.getIsOption())){
+                structList.add(planningDimensionality.getOptionDictKey());
+            }*/
+        }
+        Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
+        if(CollUtil.isNotEmpty(dictList)){
+            dictList = dictList.stream().distinct().collect(Collectors.toList());
+            dictInfoToMap = ccmFeignService.getDictInfoToMapTurnOver(String.join(",", dictList));
+        }
+
+        //查询字典依赖
+        BasicDictDependsQueryDto basicDictDependsQueryDto  = new BasicDictDependsQueryDto();
+        basicDictDependsQueryDto.setPageNum(1);
+        basicDictDependsQueryDto.setPageSize(9999);
+        basicDictDependsQueryDto.setDictTypeName("新中类");
+        //获取字典依赖管理的配置
+        List<BasicDictDepend> dictDependsList = ccmFeignService.getDictDependsList(basicDictDependsQueryDto);
+        basicDictDependsQueryDto.setDictTypeName("结构中类");
+        dictDependsList.addAll(ccmFeignService.getDictDependsList(basicDictDependsQueryDto));
+        List<String> dictDependsKeys = dictDependsList.stream().map(o->o.getDictCode()+o.getDependCode()).distinct().collect(Collectors.toList());
+
+        List<FieldVal> updateFieldValList = new ArrayList<>();
+        List<OperaLogEntity> updateLogs = new ArrayList<>();
+        List<LinkedHashMap<String,Object>> returnList = new ArrayList<>();
+        List<String> materialIds = new ArrayList<>();
+        int successSize = 0;
+        int updateSize = 0;
+
+        for (Map<String, Object> map : readAll) {
+            StringBuffer sbMsg = new StringBuffer();
+            String materialCode = map.get("物料编码").toString();
+            if(!materialMap.containsKey(materialCode)){
+                //没有找到该物料
+                LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
+                returnMap.put("错误信息","物料编码不存在;");
+                returnMap.putAll(map);
+                returnList.add(returnMap);
+                continue;
+            }
+
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            List<Map<String,String>> updateLogMaps = new ArrayList<>();
+
+            BasicsdatumMaterialPageVo basicsdatumMaterial = materialMap.get(materialCode);
+            String id = basicsdatumMaterial.getId();
+
+
+            BigDecimal supplierQuotationPrice = basicsdatumMaterial.getSupplierQuotationPrice();
+
+
+            List<PlanningDimensionalityVo> planningDimensionalityVos = new ArrayList<>();
+            if (collect.containsKey(basicsdatumMaterial.getCategory3Code())) {
+                planningDimensionalityVos = collect.get(basicsdatumMaterial.getCategory3Code());
+            } else if (collect.containsKey(basicsdatumMaterial.getCategory2Code())) {
+                planningDimensionalityVos = collect.get(basicsdatumMaterial.getCategory2Code());
+            } else if (collect.containsKey(basicsdatumMaterial.getCategory1Code())) {
+                planningDimensionalityVos = collect.get(basicsdatumMaterial.getCategory1Code());
+            }
+
+            if(CollUtil.isEmpty(planningDimensionalityVos)){
+                //没有动态字段
+                LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
+                returnMap.put("错误信息","没有查询到动态字段,如需要,请联系管理员维护;");
+                returnMap.putAll(map);
+                returnList.add(returnMap);
+                continue;
+            }
+
+            Map<String, PlanningDimensionalityVo> collect1 = planningDimensionalityVos.stream().collect(Collectors.toMap(PlanningDimensionalityVo::getFieldExplain, o -> o, (v1, v2) -> v1));
+
+            //历史保存的值
+            Map<String, FieldVal> fieldValMap = fvMap.getOrDefault(id, new HashMap<>());
+
+            //记录该条数据的动态字段,目前就5个动态字段，目前写死
+            String newCategory2 = fieldValueMap.getOrDefault(id,new HashMap<>()).getOrDefault("new_category2","");
+            String newCategory3 = fieldValueMap.getOrDefault(id,new HashMap<>()).getOrDefault("new_category3","");
+            String structureCategory2 = fieldValueMap.getOrDefault(id,new HashMap<>()).getOrDefault("structure_category2","");
+            String structureCategory3 = fieldValueMap.getOrDefault(id,new HashMap<>()).getOrDefault("structure_category3","");
+            String fabricValue = fieldValueMap.getOrDefault(id,new HashMap<>()).getOrDefault("fabric_value","");
+
+            //遍历导入的值
+            List<FieldVal> fieldValList = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if(!"物料编码".equals(entry.getKey())) {
+                    if (collect1.containsKey(entry.getKey())) {
+                        String value = String.valueOf(entry.getValue());
+                        String valName = "";
+                        //校验是否字典项
+                        PlanningDimensionalityVo planningDimensionality = collect1.get(entry.getKey());
+
+                        if(entry.getValue() != null && StrUtil.isNotEmpty(String.valueOf(entry.getValue()))){
+                            //判断动态字段类型，目前只有字典类型，暂不做结构字典
+                            if("1".equals(planningDimensionality.getIsOption())){
+                                Map<String, String> orDefault = dictInfoToMap.getOrDefault(planningDimensionality.getOptionDictKey(), new HashMap<>());
+                                if(orDefault.containsKey(value)){
+                                    valName = value;
+                                    value = orDefault.get(value);
+                                }else{
+                                    //字典项不存在
+                                    sbMsg.append(entry.getKey()).append("中不存在字典值:").append(value).append(";");
+                                    continue;
+                                }
+                            }
+                        }
+
+                        if("新中类".equals(planningDimensionality.getFieldExplain())){
+                            newCategory2 = value;
+                        } else if("新小类".equals(planningDimensionality.getFieldExplain())){
+                            newCategory3 = value;
+                        } else if("结构中类".equals(planningDimensionality.getFieldExplain())){
+                            structureCategory2 = value;
+                        } else if("结构小类".equals(planningDimensionality.getFieldExplain())){
+                            structureCategory3 = value;
+                        } else if("面料价值".equals(planningDimensionality.getFieldExplain())){
+                            fabricValue = value;
+                        }
+
+                        Map<String,String> updateLogMap = new HashMap<>();
+                        updateLogMap.put("name",planningDimensionality.getFieldExplain());
+                        updateLogMap.put("newStr",StrUtil.isEmpty(valName)?value:valName);
+                        if(fieldValMap.containsKey(planningDimensionality.getFieldId())){
+                            FieldVal fieldVal = fieldValMap.get(planningDimensionality.getFieldId());
+                            if(StrUtil.equals(StrUtil.isEmpty(valName)?value:valName,StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName())){
+                                //没有修改时跳过
+                                continue;
+                            }
+                            updateLogMap.put("oldStr",StrUtil.isEmpty(fieldVal.getValName())?fieldVal.getVal():fieldVal.getValName());
+                            fieldVal.setVal(value);
+                            fieldVal.setValName(valName);
+                            fieldValList.add(fieldVal);
+                        }else{
+                            updateLogMap.put("oldStr","");
+                            FieldVal fieldVal = new FieldVal();
+                            fieldVal.setForeignId(basicsdatumMaterial.getId());
+                            fieldVal.setDataGroup(FieldValDataGroupConstant.MATERIAL);
+                            fieldVal.setFieldId(planningDimensionality.getFieldId());
+                            fieldVal.setFieldName(planningDimensionality.getFieldName());
+                            fieldVal.setFieldExplain(planningDimensionality.getFieldExplain());
+                            fieldVal.setVal(value);
+                            fieldVal.setValName(valName);
+                            fieldVal.insertInit();
+                            fieldValList.add(fieldVal);
+                        }
+                        updateLogMaps.add(updateLogMap);
+                    }else {
+                        //物料不存在该动态字段
+                        //该款没有这个动态字段
+                        sbMsg.append("没有查询到动态字段").append(entry.getKey()).append(";");
+                    }
+                }
+            }
+
+            if(StrUtil.isEmpty(sbMsg)){
+                //判断字典依赖，是否符合条件
+                //判断新中类 和 新小类的关系
+                if(!dictDependsKeys.contains(newCategory2+newCategory3)){
+                    sbMsg.append("新中类和新小类依赖关系错误;");
+                }
+                if(StrUtil.isNotEmpty(structureCategory2)){
+                    //判断新中类 和 结构中类的关系
+                    if(!dictDependsKeys.contains(newCategory2+structureCategory2)){
+                        sbMsg.append("新中类和结构中类依赖关系错误;");
+                    }
+                    if(StrUtil.isNotEmpty(structureCategory3)){
+                        //判断结构中类和结构小类的关系
+                        if(!dictDependsKeys.contains(structureCategory2+structureCategory3)){
+                            sbMsg.append("结构中类和结构小类依赖关系错误;");
+                        }
+                    }
+                }
+
+                //判断面料价值是否符合条件
+                if(supplierQuotationPrice != null && supplierQuotationPrice.compareTo(new BigDecimal(50)) > 0){
+                    //大于50时，面料价值只能是高
+                    if(!"JZ001".equals(fabricValue)){
+                        //异常
+                        sbMsg.append("供应商报价大于50,面料价值只能是高;");
+                    }
+                }
+                if(StrUtil.isEmpty(sbMsg)){
+                    successSize++;
+                    if(!fieldValList.isEmpty()){
+                        materialIds.add(id);
+                        updateSize++;
+                    }
+                }
+                updateFieldValList.addAll(fieldValList);
+                operaLogEntity.setJsonContent(JSONObject.toJSONString(updateLogMaps));
+                operaLogEntity.setType("修改");
+                operaLogEntity.setDocumentId(id);
+                operaLogEntity.setName("物料库-批量导入修改");
+                operaLogEntity.setDocumentName(materialCode);
+                updateLogs.add(operaLogEntity);
+            }
+            LinkedHashMap<String, Object> returnMap = new LinkedHashMap<>();
+            returnMap.put("错误信息", sbMsg);
+            returnMap.putAll(map);
+            returnList.add(returnMap);
+        }
+
+        if(CollUtil.isNotEmpty(updateFieldValList)){
+            List<String> collect1 = updateFieldValList.stream().map(BaseEntity::getId).filter(StrUtil::isNotEmpty).collect(Collectors.toList());
+            List<List<String>> partition = Lists.partition(collect1, 1000);
+            for (List<String> strings : partition) {
+                fieldValService.removeByIds(strings);
+            }
+
+            fieldValService.saveBatch(updateFieldValList);
+        }
+
+        //生成流水号
+        String numberByKeyDay = codeGen.getNumberByKeyDay("MT", 4);
+
+        //保存修改记录
+        updateLogs.forEach(o->o.setDocumentCode(numberByKeyDay));
+        operaLogService.saveBatch(updateLogs);
+
+        if(CollUtil.isNotEmpty(materialIds)){
+            //推送下游系统
+            smpService.materialsAsync(materialIds.toArray(new String[0]));
+        }
+
+        //写一个excel
+        ExcelWriter writer = ExcelUtil.getWriter();
+        writer.write(returnList,true);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        writer.flush(baos);
+        writer.close();
+        ByteArrayInputStream inputStream  = new ByteArrayInputStream(baos.toByteArray());
+
+        String fileName = String.valueOf(System.currentTimeMillis());
+        MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.materialUpload, numberByKeyDay);
+
+        //总计导入 成功 失败多少 修改多少
+        return ApiResult.success("总计导入" + readAll.size() +"条,成功"+successSize+"条,失败"+(readAll.size() - successSize)+"条,修改"+updateSize+"条",attachmentVo);
     }
 
 }

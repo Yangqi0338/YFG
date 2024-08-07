@@ -2,33 +2,44 @@ package com.base.sbc.config.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
-import cn.hutool.core.util.*;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import io.swagger.annotations.ApiModelProperty;
-import org.apache.poi.ss.formula.functions.T;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 
 /**
  * @author 卞康
@@ -356,6 +367,32 @@ public class CommonUtils {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.mapping(mapper, Collectors.toList()));
     }
 
+    public static <T, K, U> Collector<T, ?, Map<K, U>> groupingSingleBy(Function<? super T, ? extends K> classifier, Function<? super List<T>, ? extends U> mapper) {
+        return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.collectingAndThen(Collectors.toList(), mapper::apply));
+    }
+
+    public static <T, K> Collector<T, ?, Map<K, T>> toMap(Function<? super T, ? extends K> classifier) {
+        return toMap(classifier, Function.identity());
+    }
+
+    public static <T, V> Collector<T, ?, Map<T, V>> toKeyMap(Function<? super T, ? extends V> classifier) {
+        return toMap(Function.identity(), classifier);
+    }
+
+    public static <T, K, U> Collector<T, ?, Map<K, U>> toMap(Function<? super T, ? extends K> classifier, Function<? super T, ? extends U> mapper) {
+        return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.collectingAndThen(Collectors.toList(), value -> mapper.apply(value.get(0))));
+    }
+
+    public static <T, V> Map<V, List<T>> inverse(Map<T, V> map) {
+        final Map<V, List<T>> result = MapUtil.createMap(map.getClass());
+        map.forEach((key, value) -> {
+            List<T> list = result.getOrDefault(value, new ArrayList<>());
+            list.add(key);
+            result.put(value, list);
+        });
+        return result;
+    }
+
     public static <T, U extends Enum<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor) {
         Objects.requireNonNull(keyExtractor);
         return (Comparator<T> & Serializable)
@@ -400,12 +437,42 @@ public class CommonUtils {
     }
 
     public static boolean judge(Collection<Integer> judgeList, int index, int defaultValue, Function<Integer, Boolean> handler) {
-        try {
-            Integer result = CollUtil.get(judgeList, index);
-            return handler.apply(result);
-        }catch (Exception ignored) {
-            return handler.apply(defaultValue);
-        }
+        Integer result = CollUtil.get(judgeList, index);
+        return result == null ? handler.apply(defaultValue) : handler.apply(result);
+    }
+
+    public static <T> Comparator<? super T> sizeNameSort(Function<? super T, String> func) {
+        return Comparator.comparing((it) -> {
+            String sizeName = func.apply(it);
+            int base = 1;
+            Integer rate = null;
+            for (char c : sizeName.toCharArray()) {
+                if (c == 'X') {
+                    base += 1;
+                } else if (c == 'S') {
+                    rate = -1;
+                } else if (c == 'M') {
+                    rate = 0;
+                } else if (c == 'L') {
+                    rate = 1;
+                }
+            }
+            if (rate == null) return Integer.MIN_VALUE;
+            return rate * base;
+        });
+    }
+
+    public static Comparator<? super String> sizeNameSort() {
+        return sizeNameSort(Function.identity());
+    }
+
+    public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
+        return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static <T> Supplier<? extends T> getListOne(List<T> list, T dto) {
+        list.add(dto);
+        return () -> dto;
     }
 
 }

@@ -14,8 +14,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -80,6 +81,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     private UploadFileService uploadFileService;
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto) {
@@ -106,7 +109,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         qw.orderByAsc("(SUBSTRING_INDEX(item.group_name,\"-\",-1))");
         qw.orderByAsc("item.sort_index");
 
-
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.esOrderBook.getK(), "ts.");
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
         if(CollUtil.isEmpty(list)){
             return new PageInfo<>(list);
@@ -116,9 +119,10 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         List<String> packId = list.stream().map(EsOrderBookItemVo::getPackId).distinct().collect(Collectors.toList());
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setCompanyCode(getCompanyCode());
-        QueryWrapper<Object> queryWrapper = new QueryWrapper<>().in("p.id", packId);
+        BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.in("p.id", packId);
         List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
-        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true);
+        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true, true);
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getPackId())) {

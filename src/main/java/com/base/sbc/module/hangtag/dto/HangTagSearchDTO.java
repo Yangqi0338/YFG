@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * @Author xhj
  * @Date 2023/6/26 17:53
@@ -122,4 +124,6 @@ public class HangTagSearchDTO extends QueryFieldDto {
      */
     @ApiModelProperty(value = "下单时间")
     private String[] placeOrderDate;
+
+    private Map<String, String> columnMap;
 }

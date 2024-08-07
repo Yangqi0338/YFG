@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.vo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -241,7 +242,9 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     private String bomVersionId;
 
-    private String packType;
+    public String getPackType(){
+        return PackUtils.getCodeByBomStatus(this.getBomStatus());
+    }
     private String foreignId;
 
 

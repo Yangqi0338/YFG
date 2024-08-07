@@ -274,4 +274,12 @@ public class QueryStyleColorDto extends QueryFieldDto {
     private String rePushFlag;
 
     private Map<String,String> idsMap;
+
+    /**
+     * 任务列表详情 map
+     * 用作任务列表详情重发的时候 能够确定重发的款式配色是哪一个任务列表详情的数据
+     * 款式配色 ID:任务列表详情 ID
+     */
+    @ApiModelProperty(value = "任务列表详情 map")
+    private Map<String,String> taskListDetailMap;
 }

@@ -6,8 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.hangtag.dto.*;
+import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.dto.InspectCompanyDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -31,6 +36,14 @@ import java.util.List;
 public interface HangTagService extends BaseService<HangTag> {
 
 // 自定义方法区 不替换的区域【other_start】
+    /**
+     * 分页查询（列头筛选）
+     *
+     * @param hangTagDTO
+     * @param userCompany
+     * @return
+     */
+    PageInfo<HangTagListVO> queryPageInfoByLine(HangTagSearchDTO hangTagDTO, String userCompany);
 
     /**
      * 分页查询
@@ -108,7 +121,7 @@ public interface HangTagService extends BaseService<HangTag> {
      * @param newStyleNo
      * @return
      */
-    Boolean copyPack(String styleNo, String newStyleNo);
+    Boolean copyPack(String styleNo, String newStyleNo, Boolean isCopyStatus);
 
     Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO);
 
@@ -120,6 +133,8 @@ public interface HangTagService extends BaseService<HangTag> {
      * @return
      */
     List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto);
+
+    ApiResult oneUpdateStatus(List<String> ids);
 
 // 自定义方法区 不替换的区域【other_end】
 

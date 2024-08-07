@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackSize;
@@ -39,6 +40,11 @@ public class PackUtils {
      * 资料包类型 大货资料包
      */
     public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
+
+    /**
+     * 资料包类型 大货资料包预填写
+     */
+    public static final String PACK_TYPE_BIG_GOODS_PRE = "packBigGoodsPre";
 
     /**
      * 资料包类型 款式设计
@@ -86,7 +92,7 @@ public class PackUtils {
         }
         for (PackBom packBom : bom) {
             packBom.setDelFlag(Opt.ofBlankAble(packBom.getDelFlag()).orElse(BaseGlobal.NO));
-            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(BaseGlobal.YES));
+            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(YesOrNoEnum.YES));
             packBom.setUnusableFlag(Opt.ofBlankAble(packBom.getUnusableFlag()).orElse(BaseGlobal.NO));
             packBom.setScmSendFlag(Opt.ofBlankAble(packBom.getScmSendFlag()).orElse(BaseGlobal.NO));
         }
@@ -152,5 +158,9 @@ public class PackUtils {
         return items.stream().map(item -> {
             return packType + StrUtil.DASHED + item;
         }).collect(Collectors.toList());
+    }
+
+    public static String getCodeByBomStatus(String bomStatus) {
+        return YesOrNoEnum.NO.getValueStr().equals(bomStatus) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
     }
 }

@@ -78,6 +78,8 @@ import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.*;
@@ -115,6 +117,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -125,7 +128,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -142,6 +144,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     protected static Logger logger = LoggerFactory.getLogger(StyleServiceImpl.class);
 
+    @Autowired
+    @Lazy
+    private PatternMakingService patternMakingService;
     @Autowired
     private FlowableService flowableService;
     @Autowired
@@ -390,9 +395,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
-
         if(isPushScm){
-
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
             //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
@@ -436,6 +439,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         return style;
     }
+
 
     /**
      * 保存款式设计详情颜色
@@ -727,7 +731,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         // 已下发打版  按下发打版时间
         else if (StrUtil.equals(BasicNumber.TWO.getNumber(), dto.getStatus())) {
-            dto.setOrderBy("send_pattern_making_date desc  ");
+            dto.setOrderBy("send_pattern_making_date desc ,create_date desc,id  ");
         } else {
             qw.orderByDesc("create_date");
         }
@@ -2145,6 +2149,20 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         StyleVo detail = getDetail(id);
         if (detail == null) {
             return null;
+        }
+        // 查询样衣图片
+        List<PatternMaking> patternMakingList = patternMakingService.list(
+                new LambdaQueryWrapper<PatternMaking>()
+                        .select(PatternMaking::getSamplePic)
+                        .isNotNull(PatternMaking::getSamplePic)
+                        .ne(PatternMaking::getSamplePic, "")
+                        .eq(PatternMaking::getDelFlag, BaseGlobal.NO)
+                        .eq(PatternMaking::getStyleId, detail.getId())
+        );
+        if (ObjectUtil.isNotEmpty(patternMakingList)) {
+            minioUtils.setObjectUrlToList(patternMakingList, "samplePic");
+            List<String> samplePicList = patternMakingList.stream().map(PatternMaking::getSamplePic).collect(Collectors.toList());
+            detail.setSamplePics(CollUtil.join(samplePicList, ","));
         }
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));

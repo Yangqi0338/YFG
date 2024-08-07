@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,7 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         qw.notEmptyIn("sc.style_no", designNos);
         qw.notEmptyEq("t.year", yearParam);
         qw.notEmptyEq("t.season", seasonParam);
+        qw.notIn("sc.defective_no", Arrays.asList("-9","-10","-11","-ZC"));
         QueryGenerator.reportParamBulkStyleNosCheck(designNos, yearParam, seasonParam);
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleAnalyseStyle.getK());

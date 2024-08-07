@@ -299,6 +299,12 @@ public class HangTagDTO {
     private HangTagStatusCheckEnum checkType;
 
     /**
+     * 查询类型
+     */
+    @ApiModelProperty(value = "查询类型")
+    private String selectType;
+
+    /**
      * 附件
      */
     private String attachment;

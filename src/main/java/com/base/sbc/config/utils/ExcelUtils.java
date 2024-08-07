@@ -27,12 +27,16 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.JacksonExtendHandler;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.vo.ExcelTableCodeVO;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -44,15 +48,29 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -191,7 +209,19 @@ public class ExcelUtils {
     public static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
         exportParams.setStyle(ExcelExportTitleStyle.class);
-        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
+        Workbook workbook;
+        if(list.size() < 10000){
+            workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
+        }else{
+            IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(exportParams, entityList);
+            List<? extends List<?>> partition = Lists.partition(list, 10000);
+            for (List<?> objects : partition) {
+                workbookIWriter.write(objects);
+            }
+            workbook = workbookIWriter.get();
+            workbookIWriter.close();
+        }
+
         downLoadExcel(fileName, response, workbook);
     }
 
@@ -254,7 +284,7 @@ public class ExcelUtils {
      * @param response
      * @param workbook excel数据
      */
-    private static void downLoadExcel(String fileName, HttpServletResponse response, Workbook workbook) throws IOException {
+    public static void downLoadExcel(String fileName, HttpServletResponse response, Workbook workbook) throws IOException {
         try (OutputStream out = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setHeader("content-Type", "application/vnd.ms-excel");
@@ -548,8 +578,35 @@ public class ExcelUtils {
         return excelEntity;
     }
 
+    public static void exportExcelByTableCode(List<?> list, String name, QueryFieldDto queryFieldDto) throws IOException {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attributes == null) return;
+        exportExcelByTableCode(list, name, attributes.getResponse(), queryFieldDto);
+    }
+
     public static void exportExcelByTableCode(List<?> list, String name, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
-        exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+//        exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+        if (list.size() < 10000){
+            exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+            return;
+        }
+
+        ExcelTableCodeVO excelTableCodeVO = ExcelUtils.exportExcelByTableCodeVo(queryFieldDto);
+        IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(new ExportParams(name, name, ExcelType.HSSF), excelTableCodeVO.getExcelParams());
+        try {
+            Workbook workbook = null;
+            List<? extends List<?>> partition = Lists.partition(list, 10000);
+            for (List<?> item : partition) {
+                JSONArray jsonArray = ExcelUtils.exportExcelByTableCodeList(item, excelTableCodeVO, queryFieldDto);
+                workbookIWriter.write(jsonArray);
+            }
+            workbook = workbookIWriter.get();
+            ExcelUtils.downLoadExcel(name, response, workbook);
+        }finally {
+            workbookIWriter.close();
+        }
+
     }
 
     public static void exportExcelByTableCode(List<?> list, String fileName, ExportParams exportParams, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
@@ -631,14 +688,25 @@ public class ExcelUtils {
         }
 
         //这里就是要转成JSONObject类型，不要保留原对象类型
-        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
+        JSONArray jsonArray = new JSONArray(list);
 
+        ObjectMapper objectMapper = JacksonExtendHandler.getObjectMapper();
+        JSONArray jacksonArray;
+        try {
+            jacksonArray = JSONArray.parseArray(objectMapper.writeValueAsString(list));
+        } catch (Exception ignored) {
+            jacksonArray = new JSONArray();
+        }
         for (int i = 0; i < jsonArray.size(); i++) {
             //其他一些补充的数据
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             Object o = jsonObject.get("replenish");
             if (o != null){
                 jsonObject.putAll((JSONObject) o);
+            }
+            JSONObject jacksonObject = jacksonArray.getJSONObject(i);
+            if (jacksonObject != null) {
+                jacksonObject.forEach(jsonObject::putIfAbsent);
             }
         }
         //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
@@ -662,15 +730,15 @@ public class ExcelUtils {
             ExecutorService executor = ExecutorBuilder.create()
                     .setCorePoolSize(8)
                     .setMaxPoolSize(10)
-                    .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                    .setWorkQueue(new LinkedBlockingQueue<>(jsonArray.size()))
                     .build();
             Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
             try {
                 /*导出图片*/
-                if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
+                if (CollUtil.isNotEmpty(jsonArray) && jsonArray.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                CountDownLatch countDownLatch = new CountDownLatch(jsonArray.size());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     executor.submit(() -> {
@@ -712,7 +780,191 @@ public class ExcelUtils {
                 executor.shutdown();
             }
         }
+        if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), (YesOrNoEnum.YES.getValue() + 1) + "")) {
+            try {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
+                        String imgColumn = entry.getKey();
+                        String key = imgColumn + "1";
+                        jsonObject.put(key, jsonObject.getString(imgColumn));
+                        excelParams.stream().filter(it -> key.equals(it.getKey())).findFirst().ifPresent(excelExportEntity -> {
+                            excelExportEntity.setExportImageType(1);
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                throw new OtherException(e.getMessage());
+            }
+        }
         defaultExport(jsonArray, fileName, response, exportParams, excelParams);
+    }
+
+
+
+    public static ExcelTableCodeVO exportExcelByTableCodeVo(QueryFieldDto queryFieldDto){
+        String tableCode = queryFieldDto.getTableCode();
+        Assert.notBlank(tableCode, "tableCode不能为空");
+        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
+        List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
+        Assert.notEmpty(detail, "没有找到对应列配置，请联系管理员维护");
+        List<ExcelExportEntity> excelParams = new ArrayList<>();
+
+        Map<String,String> imgColumnMap = new HashMap<>();
+        Set<String> mapColumns = new HashSet<>();
+        for (ColumnDefine columnDefine : detail) {
+            if (BaseGlobal.NO.equals(columnDefine.getHidden()) || filters.contains(columnDefine.getColumnCode()) ) {
+                continue;
+            }
+            ExcelExportEntity excelEntity = new ExcelExportEntity();
+            excelEntity.setKey(columnDefine.getColumnCode());
+            if(columnDefine.getColumnCode().contains(".")){
+                mapColumns.add(columnDefine.getColumnCode().split("\\.")[0]);
+            }
+            excelEntity.setName(columnDefine.getColumnName());
+            if (columnDefine.getColumnWidth() == null){
+                columnDefine.setColumnWidth(80);
+            }
+            excelEntity.setWidth((double) columnDefine.getColumnWidth() / 6.8);
+            //excelEntity.setHeight(excel.height());
+            if("1".equals(columnDefine.getColumnMerge())){
+                excelEntity.setNeedMerge(true);
+                excelEntity.setMergeVertical(true);
+                //excelEntity.setMergeRely(excel.mergeRely());
+            }
+            if (StrUtil.isNotEmpty(columnDefine.getDictType())) {
+                JSONArray jsonArray = JSONArray.parseArray(columnDefine.getDictType());
+                String[] replace = new String[jsonArray.size() + 1];
+                replace[jsonArray.size() ] = "_null";
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String label = jsonObject.getString("label");
+                    String value = jsonObject.getString("value");
+                    replace[i] = label + "_" + value;
+                }
+                excelEntity.setReplace(replace);
+            }
+            excelEntity.setOrderNum(columnDefine.getSortOrder());
+            //excelEntity.setWrap(excel.isWrap());
+            if(StrUtil.isNotEmpty(columnDefine.getColumnType())){
+                if ("img".equals(columnDefine.getColumnType())) {
+                    excelEntity.setExportImageType(2);
+                    excelEntity.setType(2);
+                    imgColumnMap.put(columnDefine.getColumnCode(),columnDefine.getDataFormat());
+                    //将key拼接1，后续将byte[]处理到对应字段上
+                    excelEntity.setKey(columnDefine.getColumnCode() + "1");
+                } else if ("date".equals(columnDefine.getColumnType())) {
+                    excelEntity.setFormat(columnDefine.getDataFormat());
+                    excelEntity.setDatabaseFormat(columnDefine.getDataFormat());
+                } else if ("num".equals(columnDefine.getColumnType())) {
+                    excelEntity.setType(10);
+                    excelEntity.setNumFormat("0.000");
+                }
+            }
+
+            if (StrUtil.isNotEmpty(columnDefine.getGroupName())) {
+                excelEntity.setGroupName(columnDefine.getGroupName());
+            }
+            excelParams.add(excelEntity);
+        }
+
+        ExcelTableCodeVO excelTableCodeVO = new ExcelTableCodeVO();
+        excelTableCodeVO.setExcelParams(excelParams);
+        excelTableCodeVO.setImgColumnMap(imgColumnMap);
+        excelTableCodeVO.setMapColumns(mapColumns);
+        return excelTableCodeVO;
+    }
+
+    public static JSONArray exportExcelByTableCodeList(List<?> list, ExcelTableCodeVO excelTableCodeVO,QueryFieldDto queryFieldDto){
+        Set<String> mapColumns = excelTableCodeVO.getMapColumns();
+        Map<String, String> imgColumnMap = excelTableCodeVO.getImgColumnMap();
+        //这里就是要转成JSONObject类型，不要保留原对象类型
+//        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
+        JSONArray jsonArray = new JSONArray(list);
+        for (int i = 0; i < jsonArray.size(); i++) {
+            //其他一些补充的数据
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            Object o = jsonObject.get("replenish");
+            if (o != null){
+                jsonObject.putAll((JSONObject) o);
+            }
+        }
+        //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
+        if (!mapColumns.isEmpty()) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                for (String mapColumn : mapColumns) {
+                    if (jsonObject.containsKey(mapColumn) && jsonObject.get(mapColumn) instanceof Map) {
+                        JSONObject jsonObject1 = jsonObject.getJSONObject(mapColumn);
+                        for (Map.Entry<String, Object> entry : jsonObject1.entrySet()) {
+                            jsonObject.put(mapColumn + "." + entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
+            StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);
+            MinioUtils minioUtils = SpringUtil.getBean(MinioUtils.class);
+            ExecutorService executor = ExecutorBuilder.create()
+                    .setCorePoolSize(8)
+                    .setMaxPoolSize(10)
+                    .setWorkQueue(new LinkedBlockingQueue<>(jsonArray.size()))
+                    .build();
+            Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
+            try {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(jsonArray) && jsonArray.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(jsonArray.size());
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    executor.submit(() -> {
+                        try {
+                            for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
+                                String imgColumn = entry.getKey();
+                                String type = entry.getValue();
+
+                                byte[] bytes;
+                                if(picMap.containsKey(imgColumn)){
+                                    bytes = picMap.get(imgColumn);
+                                }else{
+                                    String imgUrl;
+                                    if(StrUtil.isEmpty(type) || "stylePic".equals(type)){
+                                        //stylePic
+                                        imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
+                                    }else {
+                                        //minio
+                                        imgUrl = minioUtils.getObjectUrl(jsonObject.getString(imgColumn));
+                                    }
+                                    bytes = HttpUtil.downloadBytes(imgUrl);
+                                }
+
+                                jsonObject.put(imgColumn + "1", bytes);
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            } catch (Exception e) {
+                throw new OtherException(e.getMessage());
+            } finally {
+                executor.shutdown();
+            }
+        }
+        return jsonArray;
     }
 
 }

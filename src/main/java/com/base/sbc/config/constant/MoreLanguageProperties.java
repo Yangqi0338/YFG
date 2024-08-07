@@ -2,21 +2,12 @@ package com.base.sbc.config.constant;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.enums.business.RFIDType;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.standard.entity.StandardColumn;
-import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -38,8 +29,9 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
  */
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("more-language")
+@ConfigurationProperties(MoreLanguageProperties.PREFIX)
 public class MoreLanguageProperties {
+    public static final String PREFIX = "more-language";
 
     public static String internalLanguageCode = "ZH";
     public static Boolean internalCheck = false;

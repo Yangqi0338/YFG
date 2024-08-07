@@ -2,13 +2,10 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -23,7 +20,7 @@ import java.util.Map;
  * @date 2023/4/13 11:49:17
  * 自定义增强
  */
-public interface BaseService<T> extends IService<T> {
+public interface BaseService<T> extends IService<T>, BaseEnhanceService<T> {
 
     /**
      * 跟据字段名称和字段集合查询列表
@@ -183,9 +180,15 @@ public interface BaseService<T> extends IService<T> {
     boolean exists(String id);
 
     T findOne(QueryWrapper<T> wrapper);
+
+    T findOne(String id);
     T findOne(LambdaQueryWrapper<T> wrapper);
     <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <K,R> Map<K,R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,K> keyFunction, SFunction<T,R> valueFunction);
+    <R> Map<String,R> mapOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
     <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);
+
+    <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> function);
 
     /**
      * 用于redis回查

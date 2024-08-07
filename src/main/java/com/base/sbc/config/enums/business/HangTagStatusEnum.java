@@ -1,5 +1,6 @@
 package com.base.sbc.config.enums.business;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
@@ -44,12 +45,30 @@ public enum HangTagStatusEnum {
 
     }
 
+    public static String getTextByCode(String code) {
+        if (StrUtil.isNotEmpty(code)) {
+            for (HangTagStatusEnum e : HangTagStatusEnum.values()) {
+                if (e.getCode() == code) {
+                    return e.getText();
+                }
+            }
+        }
+        return null;
+    }
+
     public static HangTagStatusEnum findByCode(String code){
         return Arrays.stream(HangTagStatusEnum.values()).filter(it-> it.code.equals(code)).findFirst().orElse(null);
     }
 
     public boolean lessThan(HangTagStatusEnum statusEnum){
         return this.code.compareTo(statusEnum.code) < 0;
+    }
+
+    public HangTagStatusEnum nextLevel() {
+        HangTagStatusEnum[] values = HangTagStatusEnum.values();
+        int index = this.ordinal() + 1;
+        if (index == values.length) return this;
+        return values[index];
     }
 
     public boolean greatThan(HangTagStatusEnum statusEnum){

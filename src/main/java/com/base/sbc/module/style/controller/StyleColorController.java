@@ -70,6 +70,20 @@ public class StyleColorController {
         return styleColorService.getSampleStyleColorList(user, querySampleStyleColorDto);
     }
 
+    @ApiOperation(value = "更改上会状态为未上会")
+    @PostMapping("/updateNoMeetFlag")
+    public ApiResult<String> updateNoMeetFlag(@RequestBody List<String> styleColorIdList) {
+        styleColorService.updateNoMeetFlag(styleColorIdList);
+        return ApiResult.success();
+    }
+
+    @ApiOperation(value = "更改上会状态为已上会")
+    @PostMapping("/updateYesMeetFlag")
+    public ApiResult<String> updateYesMeetFlag(@RequestBody List<String> styleColorIdList) {
+        styleColorService.updateYesMeetFlag(styleColorIdList);
+        return ApiResult.success();
+    }
+
     @ApiOperation(value = "大货款列表")
     @GetMapping("/getStyleColorList")
     public PageInfo<CompleteStyleVo> getStyleColorList(QueryBulkCargoDto queryBulkCargoDto) {
@@ -434,7 +448,7 @@ public class StyleColorController {
     @PostMapping("/importMarkingOrder")
     public ApiResult importMarkingOrder(@RequestParam("file") MultipartFile file) throws Exception {
         ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
-        List<Map<String,Object>> readAll = reader.readAll();
+        List<Map<String, Object>> readAll = reader.readAll();
 
         return styleColorService.importMarkingOrder(readAll);
     }

@@ -145,5 +145,8 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
 
     List<BomFabricVo> bomFabricDetailsList(@Param(Constants.WRAPPER)QueryWrapper qw);
 
+
+    Integer getByIdSort(@Param("id") String id);
+
 // 自定义方法区 不替换的区域【other_end】
 }

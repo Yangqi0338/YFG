@@ -102,7 +102,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
             }else {
                 // 新创建编码
                 StandardColumn maxStandColumn = this.findOne(new BaseLambdaQueryWrapper<StandardColumn>()
-                        .eq(typeFunc, type).orderByDesc(idFunc));
+                        .eq(typeFunc, type).eq(showFlagFunc,YesOrNoEnum.YES).orderByDesc(idFunc));
                 int code = Integer.parseInt(maxStandColumn.getCode().replace(type.getPreCode(), "")) + 1;
                 standardColumn.setCode(type.getPreCode() + code);
             }

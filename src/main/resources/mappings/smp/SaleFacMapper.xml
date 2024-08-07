@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.smp.mapper.SaleFacMapper">
+
+    <sql id="ewSelect">
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </sql>
+
+    <sql id="sizeSQL">
+        XXS,
+        XS,
+        S,
+        M,
+        L,
+        XL,
+        XXL,
+    </sql>
+
+    <select id="findSizeMap" resultType="java.util.Map">
+        select
+            <include refid="sizeSQL"/>
+            GUID as id
+        from DM_SALE_FAC
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

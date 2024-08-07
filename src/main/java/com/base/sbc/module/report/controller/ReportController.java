@@ -11,9 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -54,14 +52,14 @@ public class ReportController {
     }
 
     @ApiOperation(value = "供应商材料报价报表")
-    @GetMapping("/materialsAndQuoteReport")
-    public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(MaterialSupplierQuoteQueryDto dto) {
+    @PostMapping("/materialsAndQuoteReport")
+    public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(@RequestBody MaterialSupplierQuoteQueryDto dto) {
         return reportService.getMaterialSupplierQuoteReportPage(dto);
     }
 
     @ApiOperation(value = "供应商材料报价报表-导出")
-    @GetMapping("/materialSupplierQuoteExport")
-    public void materialSupplierQuoteExport(HttpServletResponse response,MaterialSupplierQuoteQueryDto dto) throws IOException {
+    @PostMapping("/materialSupplierQuoteExport")
+    public void materialSupplierQuoteExport(HttpServletResponse response,@RequestBody MaterialSupplierQuoteQueryDto dto) throws IOException {
         reportService.materialSupplierQuoteExport(response,dto);
     }
 

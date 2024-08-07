@@ -23,7 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -97,7 +103,7 @@ public class DataPermissionsService {
         Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
-
+//(xxx and (xxx or xxx`))
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
@@ -214,22 +220,15 @@ public class DataPermissionsService {
                             if(StrUtil.isBlank(fieldName)){
                                 fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() :  tablePre + fieldDataPermissionVO.getFieldName();
                             }
+                            DataPermissionsConditionTypeEnum conditionTypeEnum = fieldDataPermissionVO.getConditionTypeEnum();
                             if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
                                 //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
                                 //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
                                 fieldName = tablePre + "create_id";
                                 String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
-                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                    fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
-                                } else {
-                                    fieldArr.add(fieldName + " not in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
-                                }
+                                fieldArr.add(conditionTypeEnum.handleSql(fieldName, Collections.singletonList("( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")")));
                             }else {
-                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                    fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                                } else {
-                                    fieldArr.add(fieldName + " not in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                                }
+                                fieldArr.add(conditionTypeEnum.handleSql(fieldName, fieldDataPermissionVO.getFieldValues()));
                             }
                         }
                         if (StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
