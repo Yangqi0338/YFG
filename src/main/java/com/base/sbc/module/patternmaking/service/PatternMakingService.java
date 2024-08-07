@@ -95,7 +95,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param dto
      * @return
      */
-    PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto);
+    PageInfo<TechnologyCenterTaskVo> technologyCenterTaskList(TechnologyCenterTaskSearchDto dto);
 
     void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto);
 

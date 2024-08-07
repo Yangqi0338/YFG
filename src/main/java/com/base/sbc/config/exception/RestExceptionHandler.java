@@ -73,9 +73,9 @@ public class RestExceptionHandler {
         List<FieldError> fieldErrors = result.getFieldErrors();
         StringBuilder sb=new StringBuilder();
         for (FieldError error : fieldErrors) {
-            String field = error.getField();
+            // String field = error.getField();
             String code = error.getDefaultMessage();
-            sb.append(String.format("%s:%s;", field, code));
+            sb.append(String.format("%s;", code));
         }
         logger.error("参数验证失败(@Valid对应实体类验证异常)", e);
 //        return error(BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorMessage(),message);

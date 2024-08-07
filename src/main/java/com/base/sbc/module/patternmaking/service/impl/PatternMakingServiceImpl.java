@@ -76,10 +76,14 @@ import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.service.ScoreConfigService;
 import com.base.sbc.module.patternmaking.vo.*;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
+import com.base.sbc.module.taskassignment.enums.TriggerMenuEnum;
+import com.base.sbc.module.taskassignment.service.TaskAssignmentService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -131,6 +135,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Autowired
     private UserUtils userUtils;
+    @Autowired
+    @Lazy
+    private TaskAssignmentService taskAssignmentService;
     @Autowired
     private MinioUtils minioUtils;
 
@@ -481,6 +488,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.set("send_pattern_making_date", new Date());
         styleService.update(sdUw);
 
+        // 技术看板自动任务
+        // TaskAssignmentDTO taskAssignmentDTO = getTaskAssignmentDTO(patternMaking, style);
+        // taskAssignmentService.runTaskAssignment(taskAssignmentDTO);
+
         /*发送消息*/
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
 
@@ -495,6 +506,19 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 修改单据
         return true;
     }
+
+    // private TaskAssignmentDTO getTaskAssignmentDTO(PatternMaking patternMaking, Style style) {
+    //     TaskAssignmentDTO taskAssignmentDTO = new TaskAssignmentDTO();
+    //     taskAssignmentDTO.setDataId(patternMaking.getId());
+    //     taskAssignmentDTO.setBrand(style.getBrand());
+    //     taskAssignmentDTO.setVirtualDeptId(patternMaking.getPatternRoomId());
+    //     taskAssignmentDTO.setProdCategory1st(style.getProdCategory1st());
+    //     taskAssignmentDTO.setProdCategory(style.getProdCategory());
+    //     taskAssignmentDTO.setProdCategory2nd(style.getProdCategory2nd());
+    //     taskAssignmentDTO.setProdCategory3rd(style.getProdCategory3rd());
+    //     taskAssignmentDTO.setTriggerMenu(TriggerMenuEnum.JSZXKB.getValue());
+    //     return taskAssignmentDTO;
+    // }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -587,12 +611,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
+    public PageInfo<TechnologyCenterTaskVo> technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
         BaseQueryWrapper qw = new BaseQueryWrapper();
 
         QueryGenerator.initQueryWrapperByMap(qw,dto);
 
         //不要注释，滞留款查询正在使用这些条件
+        qw.eq(StrUtil.isNotBlank(dto.getPatternMakingId()), "p.id", dto.getPatternMakingId());
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.like(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type_name", dto.getSampleType());
         qw.eq(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());

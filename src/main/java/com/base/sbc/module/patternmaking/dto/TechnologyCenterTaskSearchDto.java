@@ -69,4 +69,7 @@ public class TechnologyCenterTaskSearchDto extends QueryFieldDto {
     @ApiModelProperty(value = "图片标记"  )
     private String imgFlag;
 
+    @ApiModelProperty(value = "打样管理 ID"  )
+    private String patternMakingId;
+
 }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.taskassignment.mapper.TaskAssignmentMapper">
+
+    <select id="queryTaskAssignmentPage" resultType="com.base.sbc.module.taskassignment.vo.TaskAssignmentVO">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+			tta.id,
+			tta.brand,
+			tta.brand_name,
+			tta.virtual_dept_id,
+			tta.virtual_dept_name,
+			concat(tta.prod_category1st_name,"/",tta.prod_category_name,"/",tta.prod_category2nd_name,"/",tta.prod_category3rd_name) prodCategoryName,
+			tta.user_id,
+			tta.user_name,
+			tta.trigger_menus,
+			tta.enable_flag,
+			tta.create_id,
+			tta.create_name,
+			tta.create_date,
+			tta.update_id,
+			tta.update_name,
+			tta.update_date,
+			tta.del_flag,
+			tta.company_code
+		</if>
+        FROM
+        t_task_assignment tta
+        where tta.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+	<select id="queryTaskAssignmentRecordsCount" resultType="com.base.sbc.module.taskassignment.vo.TaskAssignmentRecordsVO">
+		SELECT
+		ttar.task_assignment_id, count(ttar.id) count
+		FROM
+		t_task_assignment_records ttar
+		where ttar.del_flag = '0'
+		and ttar.task_assignment_id in
+		<foreach collection="taskAssignmentIdList" item="item" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+		group by ttar.task_assignment_id
+	</select>
+
+</mapper>

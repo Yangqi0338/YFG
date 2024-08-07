@@ -44,13 +44,38 @@ public class ApiResult<T>  implements Serializable{
 		return attributes;
 	}
 
+	/**
+	 *  请求错误
+	 * @param msg
+	 * @return
+	 */
+	public static <T> ApiResult<T>  error(String msg) {
+		ApiResult<T> result = new ApiResult<>();
+		result.setSuccess(Boolean.FALSE);
+		result.setStatus(400);
+		result.setMessage(msg);
+		return result;
+	}
+
+	/**
+	 * 请求成功/错误
+	 * @param status
+	 * @return
+	 */
+	public static <T> ApiResult<T>  status(Boolean status) {
+		if (status) {
+			return ApiResult.success("操作成功");
+		} else {
+			return ApiResult.error("操作失败");
+		}
+	}
 
 	/**
 	 *  请求错误
 	 * @param msg
 	 * @return
 	 */
-	public static <T> ApiResult<T> error(String msg,int code) {
+	public static <T> ApiResult<T>  error(String msg,int code) {
 		ApiResult<T> result = new ApiResult<>();
 		result.setSuccess(Boolean.FALSE);
 		result.setStatus(code);
@@ -87,9 +112,22 @@ public class ApiResult<T>  implements Serializable{
 		result.setAttributes(attributes);
 		return result;
 	}
-	
-	
-	
+
+
+	/**
+	 * 请求成功
+	 *
+	 * @param data 返回数据
+	 * @return
+	 */
+	public static <T> ApiResult<T> data(T data) {
+		ApiResult<T> result = new ApiResult<>();
+		result.setSuccess(Boolean.TRUE);
+		result.setStatus(ApiResult.SUCCESS);
+		result.setMessage("操作成功");
+		result.setData(data);
+		return result;
+	}
 	
 	/**
 	 * 请求成功

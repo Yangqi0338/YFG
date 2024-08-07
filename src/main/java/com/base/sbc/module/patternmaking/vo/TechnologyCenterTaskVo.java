@@ -165,7 +165,7 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "颜色名称")
     private String colorName;
 
-    @ApiModelProperty(value = "打板类型")
+    @ApiModelProperty(value = "打板类型名称")
     private String   sampleTypeName;
 
     @ApiModelProperty(value = "版师工作量评分")
@@ -230,4 +230,15 @@ public class TechnologyCenterTaskVo {
      */
     private Integer groupCount;
 
+    /**
+     * 样板号
+     */
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
+
+    /**
+     * 打版类型
+     */
+    @ApiModelProperty(value = "打版类型")
+    private String sampleType;
 }
