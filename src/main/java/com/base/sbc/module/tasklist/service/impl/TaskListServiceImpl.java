@@ -14,6 +14,7 @@ import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.client.portal.MessageSendClient;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -47,6 +48,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -63,6 +65,8 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
     private TaskListDetailService taskListDetailService;
     @Autowired
     private MessageUtils messageUtils;
+    @Autowired
+    private MessageSendClient messageSendClient;
     @Autowired
     @Lazy
     private StylePicUtils stylePicUtils;
@@ -99,9 +103,14 @@ public class TaskListServiceImpl extends BaseServiceImpl<TaskListMapper, TaskLis
         String message = StrUtil.format("{}任务：{}，详情请点击查看", TaskListTaskTypeEnum.getValueByCode(taskList.getTaskType()), taskList.getTaskContent());
         String receiveUserId = taskList.getReceiveUserId();
         if (ObjectUtil.isNotEmpty(receiveUserId)) {
-            for (String string : receiveUserId.split("/")) {
+            // 用 set 去重
+            HashSet<String> userIdList = CollUtil.newHashSet(receiveUserId.split("/"));
+            for (String string : userIdList) {
                 messageUtils.sendCommonMessage(string, message, "/taskList/toDoTasks", userUtils.getUser(string));
             }
+            messageSendClient
+                    .dingMsg("任务列表：" + TaskListTaskTypeEnum.getValueByCode(taskList.getTaskType()),
+                    message, CollUtil.newArrayList(userIdList));
         }
         return Boolean.TRUE;
     }

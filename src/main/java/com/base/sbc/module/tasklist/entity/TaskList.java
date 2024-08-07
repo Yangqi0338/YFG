@@ -68,14 +68,14 @@ public class TaskList extends BaseDataEntity<String> {
     @ApiModelProperty(value = "发起人名称")
     private String initiateUserName;
     /**
-     * 接收人 ID
+     * 接收人 ID（多个/分隔）
      */
-    @ApiModelProperty(value = "接收人 ID")
+    @ApiModelProperty(value = "接收人 ID（多个/分隔）")
     private String receiveUserId;
     /**
-     * 接收人名称
+     * 接收人名称（多个/分隔）
      */
-    @ApiModelProperty(value = "接收人名称")
+    @ApiModelProperty(value = "接收人名称（多个/分隔）")
     private String receiveUserName;
 
     /**
