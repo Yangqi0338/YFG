@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
-import cn.hutool.core.text.StrJoiner;
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
@@ -45,15 +43,12 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     @Override
     @JsonIgnore
     public String getItemValue() {
-        return StrJoiner.of("-").append(configList.stream().map(it->
-                        StrJoiner.of("#").append(it.getConfigName()).append(it.getItemValue()).append(it.getEnableFlag().getValueStr())
-                ).collect(Collectors.toList())
-        ).toString();
+        return CommonUtils.strJoin("-", configList, WorkloadRatingDetailSaveDTO::getValue);
     }
 
     @Override
     public String getItemId() {
-        return configList.stream().map(WorkloadRatingDetailSaveDTO::getItemId).filter(StrUtil::isNotBlank).collect(Collectors.joining(COMMA));
+        return CommonUtils.strJoin(COMMA, configList, WorkloadRatingDetailSaveDTO::getItemId);
     }
 
     @Override

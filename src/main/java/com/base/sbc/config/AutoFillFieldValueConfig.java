@@ -102,6 +102,8 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
                     throw new RuntimeException(e);
                 }
             });
+            Map<String, Object> existsMap = (Map<String, Object>) this.getFieldValByName(extendFieldName, metaObject);
+            map.putAll(existsMap);
             this.setFieldValByName(extendFieldName, map, metaObject);
         }
     }

@@ -411,23 +411,28 @@ public class CommonUtils {
     }
 
     // 封装Hutool的StrJoiner
-    public static StrJoiner strJoin(CharSequence delimiter, CharSequence prefix, CharSequence suffix) {
-        return strJoin(delimiter, prefix, suffix, StrJoiner.NullMode.IGNORE);
+    public static <T> String saftyStrJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
+        return saftyStrJoin(delimiter, list.stream().map(func).map(Object::toString).toArray(String[]::new)).toString();
     }
-    public static StrJoiner strJoin(CharSequence delimiter) {
-        return strJoin(delimiter, StrJoiner.NullMode.IGNORE);
+
+    public static <T> String strJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
+        return strJoin(delimiter, list.stream().map(func).map(StrUtil::utf8Str).toArray(String[]::new)).toString();
+    }
+
+    public static StrJoiner strJoin(CharSequence delimiter, CharSequence... str) {
+        return strJoin(delimiter, StrJoiner.NullMode.IGNORE, str);
     }
 
     public static StrJoiner saftyStrJoin(CharSequence delimiter, CharSequence... str) {
-        return strJoin(delimiter, StrJoiner.NullMode.IGNORE).append(Arrays.stream(str).map(it-> Opt.ofBlankAble(it).orElse(" ")).collect(Collectors.toList()));
+        return strJoin(delimiter).append(Arrays.stream(str).map(it -> Opt.ofBlankAble(it).orElse(" ")).collect(Collectors.toList()));
     }
 
-    public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode) {
-        return StrJoiner.of(delimiter).setNullMode(nullMode);
+    public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode, CharSequence... str) {
+        return StrJoiner.of(delimiter).setNullMode(nullMode).append(str);
     }
 
-    public static StrJoiner strJoin(CharSequence delimiter, CharSequence prefix, CharSequence suffix, StrJoiner.NullMode nullMode) {
-        return StrJoiner.of(delimiter, prefix, suffix).setNullMode(nullMode);
+    public static StrJoiner appendPreAndSuffix(StrJoiner joiner, CharSequence prefix, CharSequence suffix) {
+        return joiner.setPrefix(prefix).setSuffix(suffix);
     }
 
     public static <T> T listGet(Collection<T> collection, int index, T defaultValue) {
@@ -476,23 +481,27 @@ public class CommonUtils {
         return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public static <T> List<T> listFlatten(List<T> sourceList, Function<T, List<T>> childrenListFunc) {
+    public static <T> List<T> listFlatten(List<T>... sourceList) {
+        return Arrays.stream(sourceList).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> listTreeFlatten(List<T> sourceList, Function<T, List<T>> childrenListFunc) {
         List<T> result = new ArrayList<>();
         if (CollUtil.isEmpty(sourceList)) return sourceList;
         for (T source : sourceList) {
             result.add(source);
-            listFlatten(result, source, childrenListFunc);
+            listTreeFlatten(result, source, childrenListFunc);
         }
         return result;
     }
 
-    private static <T> void listFlatten(List<T> newList, T source, Function<T, List<T>> childrenListFunc) {
+    private static <T> void listTreeFlatten(List<T> newList, T source, Function<T, List<T>> childrenListFunc) {
         if (source == null) return;
         List<T> list = childrenListFunc.apply(source);
         if (CollUtil.isEmpty(list)) return;
         for (T t : list) {
             newList.add(t);
-            listFlatten(newList, t, childrenListFunc);
+            listTreeFlatten(newList, t, childrenListFunc);
         }
     }
 
@@ -501,15 +510,15 @@ public class CommonUtils {
         return () -> dto;
     }
 
-    public static <T> List<T> filterNotEmpty(List<T> list, Function<T, Object> func) {
+    public static <T> List<T> filterNotEmpty(List<T> list, Function<T, ?> func) {
         return CollUtil.filter(list, notEmptyFunc(func));
     }
 
-    public static <T> Collector<T, ?, Map<Boolean, List<T>>> groupNotBlank(Function<? super T, Object> classifier) {
+    public static <T> Collector<T, ?, Map<Boolean, List<T>>> groupNotBlank(Function<T, ?> classifier) {
         return Collectors.groupingBy((it) -> notEmptyFunc(classifier).accept(it), LinkedHashMap::new, Collectors.toList());
     }
 
-    public static <T> Filter<T> notEmptyFunc(Function<T, Object> func) {
+    public static <T> Filter<T> notEmptyFunc(Function<T, ?> func) {
         return (t) -> ObjectUtil.isNotEmpty(func.apply(t));
     }
 

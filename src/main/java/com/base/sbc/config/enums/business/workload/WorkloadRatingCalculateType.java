@@ -1,6 +1,9 @@
 package com.base.sbc.config.enums.business.workload;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -12,6 +15,8 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code 描述：订货本渠道类型}
@@ -60,14 +65,21 @@ public enum WorkloadRatingCalculateType {
 
     public Pair<BigDecimal, BigDecimal> calculate(BigDecimal... args) {
         Expression expression = AviatorEvaluator.compile(this.formula);
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, BigDecimal> map = new HashMap<>();
         for (int i = 1, argsLength = args.length; i < argsLength; i++) {
             map.put(String.valueOf((char) (i + 96)), args[i]);
         }
-        Object execute = expression.execute(map);
-        BigDecimal source = args[0];
-        BigDecimal increment = new BigDecimal(execute.toString()).setScale(1, RoundingMode.HALF_UP);
-        return Pair.of(source.add(increment), increment);
+        BigDecimal source = Opt.ofNullable(args[0]).orElse(BigDecimal.ZERO);
+        if (MapUtil.isEmpty(map)) return Pair.of(source, BigDecimal.ZERO);
+        try {
+            Object execute = expression.execute(MapUtil.map(map, (key, value) -> value));
+            BigDecimal increment = new BigDecimal(execute.toString()).setScale(1, RoundingMode.HALF_UP);
+            return Pair.of(source.add(increment), increment);
+        } catch (Exception e) {
+            List<BigDecimal> argsList = CollUtil.newArrayList(source, source);
+            argsList.addAll(map.values());
+            return calculate(argsList.toArray(new BigDecimal[]{}));
+        }
     }
 
 }

@@ -6,16 +6,22 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.service.impl;
 
-import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
+import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.base.sbc.module.workload.mapper.WorkloadRatingDetailMapper;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
+import com.base.sbc.module.workload.service.WorkloadRatingItemService;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static com.base.sbc.module.common.convert.ConvertContext.WORKLOAD_CV;
@@ -33,6 +39,9 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
 
 // 自定义方法区 不替换的区域【other_start】
 
+    @Autowired
+    private WorkloadRatingItemService workloadRatingItemService;
+
     @Override
     public List<WorkloadRatingDetailDTO> queryList(WorkloadRatingDetailQO qo) {
         BaseLambdaQueryWrapper<WorkloadRatingDetail> qw = buildQueryWrapper(qo);
@@ -48,16 +57,32 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
 
     @Override
     public void save(WorkloadRatingDetailDTO workloadRatingDetail) {
-        String id = workloadRatingDetail.getId();
-        WorkloadRatingDetail entity;
-        if (StrUtil.isNotBlank(id)) {
-            entity = getById(id);
-            WORKLOAD_CV.copy(entity, workloadRatingDetail);
-            this.updateById(entity);
-        } else {
-            entity = WORKLOAD_CV.copy2Entity(workloadRatingDetail);
-            this.save(entity);
-        }
+        workloadRatingDetail.setId(null);
+        List<WorkloadRatingDetailSaveDTO> configList = workloadRatingDetail.getConfigList();
+        configList.stream().sorted(Comparator.comparing(WorkloadRatingDetailSaveDTO::getIndex)).forEach(config -> {
+            WorkloadRatingCalculateType calculateType = config.getCalculateType();
+            if (calculateType != WorkloadRatingCalculateType.APPEND)
+                workloadRatingItemService.warnMsg(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), config.getItemValue()));
+            workloadRatingItemService.defaultValue(new WorkloadRatingItem());
+            WorkloadRatingItem ratingItem = workloadRatingItemService.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
+                    .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
+                    .eq(WorkloadRatingItem::getItemValue, config.getItemValue())
+            );
+            config.setScore(ratingItem.getScore());
+            config.setItemId(ratingItem.getId());
+            workloadRatingDetail.setResult(calculateType.calculate(null, config.getScore()).getKey());
+        });
+
+        String itemValue = workloadRatingDetail.getItemValue();
+        // type brand itemValue 唯一
+        this.defaultValue(WORKLOAD_CV.copy2Entity(workloadRatingDetail));
+        WorkloadRatingDetail entity = this.findOne(new LambdaQueryWrapper<WorkloadRatingDetail>()
+                .eq(WorkloadRatingDetail::getType, workloadRatingDetail.getType())
+                .eq(WorkloadRatingDetail::getBrand, workloadRatingDetail.getBrand())
+                .eq(WorkloadRatingDetail::getItemValue, itemValue)
+        );
+        WORKLOAD_CV.copy(entity, workloadRatingDetail);
+        this.saveOrUpdate(entity);
         workloadRatingDetail.setId(entity.getId());
     }
 

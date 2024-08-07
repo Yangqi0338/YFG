@@ -40,6 +40,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
@@ -164,6 +165,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -934,78 +937,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
         // 查询样衣评分状态
-        if ("sampleTask".equals(dto.getBusinessType()) && "车缝进行中".equals(dto.getStatus())) {
-            decorateWorkloadRating(list);
+        if ("sampleTask".equals(dto.getBusinessType()) && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+            Map<String, Style> styleMap = styleService.listByIds(
+                    list.stream().map(PatternMakingTaskListVo::getStyleId).collect(Collectors.toList())
+            ).stream().collect(CommonUtils.toMap(Style::getId));
+            list.forEach(it -> it.setStyle(styleMap.getOrDefault(it.getStyleId(), null)));
+            decorateWorkloadRating(list, PatternMakingTaskListVo::getStyle, PatternMakingTaskListVo::getWorkloadRatingId,
+                    PatternMakingTaskListVo::setProdCategory, PatternMakingTaskListVo::setRatingDetailDTO, PatternMakingTaskListVo::setRatingConfigList);
         }
         return objects.toPageInfo();
-    }
-
-    private void decorateWorkloadRating(List<PatternMakingTaskListVo> list) {
-        if (CollUtil.isEmpty(list)) return;
-        Map<String, Style> styleMap = styleService.listByIds(
-                list.stream().map(PatternMakingTaskListVo::getStyleId).collect(Collectors.toList())
-        ).stream().collect(CommonUtils.toMap(Style::getId));
-
-        WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
-        configQO.setNotSearch(Collections.singletonList(WorkloadRatingItemType.STRUCTURE));
-        configQO.setType(WorkloadRatingType.SAMPLE);
-        configQO.setBrand(StrUtil.join(COMMA, styleMap.values().stream().map(Style::getBrand).collect(Collectors.toList())));
-        List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
-
-        List<WorkloadRatingConfigVO> appendConfigList = CollUtil.removeWithAddIf(configVOList, (it) -> it.getCalculateType() == WorkloadRatingCalculateType.APPEND);
-
-        list.stream().collect(CommonUtils.groupNotBlank(PatternMakingTaskListVo::getWorkloadRatingId)).forEach((isExists, existsOrNotList) -> {
-            List<WorkloadRatingDetailDTO> workloadRatingDetailList = new ArrayList<>();
-            List<WorkloadRatingItem> workloadRatingItemList = new ArrayList<>();
-            if (isExists) {
-                WorkloadRatingDetailQO ratingDetailQO = new WorkloadRatingDetailQO();
-                ratingDetailQO.setIds(existsOrNotList.stream().map(PatternMakingTaskListVo::getWorkloadRatingId).collect(Collectors.toList()));
-                workloadRatingDetailList.addAll(workloadRatingDetailService.queryList(ratingDetailQO));
-            }else {
-                configVOList.forEach(configVO -> {
-                    WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
-                    qo.reset2QueryList();
-                    qo.setConfigId(configVO.getId());
-                    workloadRatingItemList.addAll(workloadRatingItemService.queryPageInfo(qo).getList());
-                });
-            }
-            for (PatternMakingTaskListVo taskVo : existsOrNotList) {
-                if (!styleMap.containsKey(taskVo.getStyleId())) continue;
-
-                Style style = styleMap.get(taskVo.getStyleId());
-                List<String> matchItemValueList = new ArrayList<>();
-                structureValueList(matchItemValueList, "/", style.getProdCategory1st(), style.getProdCategory(), style.getProdCategory2nd(), style.getProdCategory3rd());
-                taskVo.setProdCategory(matchItemValueList.stream().findFirst().orElse(""));
-
-                WorkloadRatingDetailDTO detailDTO = workloadRatingDetailList.stream()
-                        .filter(it -> it.getId().equals(taskVo.getWorkloadRatingId()))
-                        .findFirst().orElseGet(() -> {
-                            WorkloadRatingDetailDTO newDetailDTO = new WorkloadRatingDetailDTO();
-                            List<WorkloadRatingDetailSaveDTO> saveDTOList = configVOList.stream().map(configVO -> {
-                                WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
-                                List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
-                                        .filter(it -> it.getConfigName().equals(configVO.getItemName()))
-                                        .collect(Collectors.toList());
-
-                                Optional<String> itemValueOpt = matchItemValueList.stream()
-                                        .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
-                                if (itemValueOpt.isPresent()) {
-                                    configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
-                                }
-                                return detailSaveDTO;
-                            }).collect(Collectors.toList());
-                            appendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
-                            newDetailDTO.setConfigList(saveDTOList);
-                            return newDetailDTO;
-                        });
-
-                taskVo.setRatingDetailDTO(detailDTO);
-
-                String brand = style.getBrand();
-                taskVo.setRatingConfigList(configVOList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()));
-                taskVo.getRatingConfigList().addAll(appendConfigList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()));
-            }
-        });
     }
 
     private void structureValueList(List<String> resultList, String delimiter, String... args) {
@@ -1671,7 +1611,87 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+        decorateWorkloadRating(pageVo.getList(), (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+                SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+
         return pageVo;
+    }
+
+    private <T extends BaseEntity> void decorateWorkloadRating(List<T> list,
+                                                               Function<T, Style> styleFunc,
+                                                               Function<T, String> workloadRatingIdFunc,
+                                                               BiConsumer<T, String> prodCategoryFunc,
+                                                               BiConsumer<T, WorkloadRatingDetailDTO> resultKeyFunc,
+                                                               BiConsumer<T, List<WorkloadRatingConfigVO>> resultValueFunc
+    ) {
+        if (CollUtil.isEmpty(list)) return;
+
+        WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
+        configQO.setNotSearch(Collections.singletonList(WorkloadRatingItemType.STRUCTURE));
+        configQO.setType(WorkloadRatingType.SAMPLE);
+        configQO.setBrand(StrUtil.join(COMMA, list.stream().map(styleFunc).map(Style::getBrand).collect(Collectors.toList())));
+        List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
+
+        List<WorkloadRatingConfigVO> appendConfigList = CollUtil.removeWithAddIf(configVOList, (it) -> it.getCalculateType() == WorkloadRatingCalculateType.APPEND);
+
+        list.stream().collect(CommonUtils.groupNotBlank(workloadRatingIdFunc)).forEach((isExists, existsOrNotList) -> {
+            List<WorkloadRatingDetailDTO> workloadRatingDetailList = new ArrayList<>();
+            List<WorkloadRatingItem> workloadRatingItemList = new ArrayList<>();
+            if (isExists) {
+                WorkloadRatingDetailQO ratingDetailQO = new WorkloadRatingDetailQO();
+                ratingDetailQO.setIds(existsOrNotList.stream().map(workloadRatingIdFunc).collect(Collectors.toList()));
+                workloadRatingDetailList.addAll(workloadRatingDetailService.queryList(ratingDetailQO));
+            } else {
+                configVOList.forEach(configVO -> {
+                    WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
+                    qo.reset2QueryList();
+                    qo.setConfigId(configVO.getId());
+                    workloadRatingItemList.addAll(workloadRatingItemService.queryPageInfo(qo).getList());
+                });
+            }
+            for (T vo : existsOrNotList) {
+                Style style = styleFunc.apply(vo);
+                String workloadRatingId = workloadRatingIdFunc.apply(vo);
+                if (style == null) continue;
+
+                String brand = style.getBrand();
+                List<String> matchItemValueList = new ArrayList<>();
+                structureValueList(matchItemValueList, "/", style.getProdCategory1st(), style.getProdCategory(), style.getProdCategory2nd(), style.getProdCategory3rd());
+
+                WorkloadRatingDetailDTO detailDTO = workloadRatingDetailList.stream()
+                        .filter(it -> it.getId().equals(workloadRatingId))
+                        .findFirst().orElseGet(() -> {
+                            WorkloadRatingDetailDTO newDetailDTO = new WorkloadRatingDetailDTO();
+                            newDetailDTO.setType(WorkloadRatingType.SAMPLE);
+                            newDetailDTO.setBrand(brand);
+                            List<WorkloadRatingDetailSaveDTO> saveDTOList = configVOList.stream().map(configVO -> {
+                                String itemName = configVO.getItemName();
+                                WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
+                                List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
+                                        .filter(it -> it.getConfigName().equals(itemName))
+                                        .collect(Collectors.toList());
+                                if ("C8_品类".equals(configVO.getTitleDictKey())) {
+                                    prodCategoryFunc.accept(vo, itemName);
+                                }
+                                Optional<String> itemValueOpt = matchItemValueList.stream()
+                                        .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
+                                if (itemValueOpt.isPresent()) {
+                                    configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
+                                }
+                                return detailSaveDTO;
+                            }).collect(Collectors.toList());
+                            appendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
+                            newDetailDTO.setConfigList(saveDTOList);
+                            return newDetailDTO;
+                        });
+
+                resultKeyFunc.accept(vo, detailDTO);
+                resultValueFunc.accept(vo, CommonUtils.listFlatten(
+                        configVOList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()),
+                        appendConfigList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()))
+                );
+            }
+        });
     }
 
     /**

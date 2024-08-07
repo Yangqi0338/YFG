@@ -8,13 +8,16 @@ package com.base.sbc.module.workload.vo;
 
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -33,6 +36,11 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /** 配置id */
+    @ApiModelProperty(value = "配置id")
+    @NotBlank(message = "配置id不能为空")
+    private String configId;
+
     /** 配置名 */
     @ApiModelProperty(value = "配置名")
     @NotBlank(message = "配置名不能为空")
@@ -47,14 +55,19 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     @NotBlank(message = "配置项名不能为空")
     private String itemValue;
 
+    /** 配置项名 */
+    @ApiModelProperty(value = "配置项名")
+    @JsonIgnore
+    private String itemName;
+
     /** 是否启用 */
     @ApiModelProperty(value = "是否启用")
-    @NotBlank(message = "启用状态不能为空")
+    @NotNull(message = "启用状态不能为空")
     private YesOrNoEnum enableFlag = YesOrNoEnum.YES;
 
     /** 分数 */
     @ApiModelProperty(value = "分数")
-    private BigDecimal score;
+    private BigDecimal score = BigDecimal.ZERO;
 
     /** 计算类型 base 基础分 rate 浮动比率分 append 附加分 */
     @ApiModelProperty(value = "计算类型 base 基础分 rate 浮动比率分 append 附加分")
@@ -63,6 +76,7 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     public WorkloadRatingDetailSaveDTO decorateConfig(WorkloadRatingConfig config) {
+        this.setConfigId(config.getId());
         this.setConfigName(config.getItemName());
         this.setCalculateType(config.getCalculateType());
         return this;
@@ -71,8 +85,19 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     public WorkloadRatingDetailSaveDTO decorateItem(WorkloadRatingItem item) {
         this.setItemId(item.getId());
         this.setItemValue(item.getItemValue());
-        this.setScore(item.getScore());
+        this.setItemName(item.getItemName());
         this.setScore(item.getScore());
         return this;
+    }
+
+    @JsonIgnore
+    public String getValue() {
+        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag().getValueStr()).toString();
+    }
+
+    @JsonIgnore
+    public Integer getIndex() {
+        if (calculateType == null) return WorkloadRatingCalculateType.values().length - 1;
+        return calculateType.ordinal();
     }
 }

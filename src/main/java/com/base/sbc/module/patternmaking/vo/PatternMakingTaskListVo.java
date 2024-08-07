@@ -3,9 +3,11 @@ package com.base.sbc.module.patternmaking.vo;
 
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -175,6 +177,9 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private List<WorkloadRatingConfigVO> ratingConfigList;
 
     private WorkloadRatingDetailDTO ratingDetailDTO;
+
+    @JsonIgnore
+    private Style style;
 
     private String prodCategory;
 

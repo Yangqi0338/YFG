@@ -96,7 +96,7 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
                             }
                         }
                         int maxValue = titleFieldDTOList.stream().mapToInt(WorkloadRatingTitleFieldDTO::getIndex).max().orElse(-1);
-                        titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score", result.getCalculateType().getText(), maxValue + 1, result.getId()));
+                        titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score", result.getCalculateType().getText(), maxValue + 1, result.getItemName()));
                         // 查询相同的show
                         WorkloadRatingConfigQO notShowQo = new WorkloadRatingConfigQO();
                         notShowQo.setType(result.getType());
@@ -107,7 +107,7 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
                         List<WorkloadRatingConfig> notShowList = this.list(buildQueryWrapper(notShowQo));
                         for (int i = 1; i <= notShowList.size(); i++) {
                             WorkloadRatingConfig notShowConfig = notShowList.get(i - 1);
-                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getId()));
+                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getItemName()));
                         }
                         result.setTitleField(JSONUtil.toJsonStr(titleFieldDTOList));
                     }

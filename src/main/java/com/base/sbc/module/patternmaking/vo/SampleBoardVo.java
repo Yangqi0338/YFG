@@ -1,6 +1,8 @@
 package com.base.sbc.module.patternmaking.vo;
 
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
+import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,6 +10,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -353,4 +356,19 @@ public class SampleBoardVo extends Style {
      * 列头筛选数量
      */
     private Integer groupCount;
+
+    /**
+     * 工作量评分id
+     */
+    private String workloadRatingId;
+
+    private List<WorkloadRatingConfigVO> ratingConfigList;
+
+    private WorkloadRatingDetailDTO ratingDetailDTO;
+
+    /**
+     * 工作量品类
+     */
+    @ApiModelProperty(value = "工作量品类")
+    private String ratingProdCategory;
 }

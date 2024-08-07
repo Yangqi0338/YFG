@@ -40,6 +40,7 @@ public class BaseDataExtendEntity extends BaseDataNewEntity {
     private static Map<Class<?>, List<Field>> declaredFieldMap = new HashMap<>();
     private static MybatisPlusExtendHandler typeHandler;
     @TableField(exist = false)
+    @JsonIgnore
     private boolean parsed = false;
     /** 扩展字段 */
     @JsonIgnore

@@ -6,19 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import javax.validation.constraints.Size;
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * 类描述：工作量评分配置QueryDto 实体类
@@ -37,6 +29,7 @@ public class WorkloadRatingItemDTO extends WorkloadRatingItem {
     private static final long serialVersionUID = 1L;
 
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private Boolean applyAll;
 
     @JsonAnySetter
     public void decorateWebDTO(String key, Object obj) {

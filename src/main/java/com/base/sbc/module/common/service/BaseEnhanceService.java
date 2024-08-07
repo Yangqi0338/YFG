@@ -15,7 +15,7 @@ public interface BaseEnhanceService<T> {
     ThreadLocal<String> warnMsg = new TransmittableThreadLocal<>();
     ThreadLocal<Object> defaultValue = new TransmittableThreadLocal<>();
 
-    default void warnMsg(String warnMsg) {
+    default BaseEnhanceService<T> warnMsg(String warnMsg) {
         while (getWarnMsg() == null) {
             try {
                 Thread.sleep(50);
@@ -23,6 +23,7 @@ public interface BaseEnhanceService<T> {
             } catch (InterruptedException ignored) {
             }
         }
+        return this;
     }
 
     default void removeMsg() {
@@ -35,7 +36,7 @@ public interface BaseEnhanceService<T> {
         return BaseEnhanceService.warnMsg.get();
     }
 
-    default void defaultValue(Object defaultValue) {
+    default BaseEnhanceService<T> defaultValue(Object defaultValue) {
         while (getDefaultValue() == null) {
             try {
                 Thread.sleep(50);
@@ -43,6 +44,7 @@ public interface BaseEnhanceService<T> {
             } catch (InterruptedException ignored) {
             }
         }
+        return this;
     }
 
     default void removeDefaultValue() {

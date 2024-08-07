@@ -12,6 +12,8 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -24,7 +26,6 @@ import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.base.sbc.module.workload.mapper.WorkloadRatingItemMapper;
 import com.base.sbc.module.workload.service.WorkloadRatingConfigService;
-import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.service.WorkloadRatingItemService;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +63,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
     private WorkloadRatingConfigService workloadRatingConfigService;
 
     @Autowired
-    private WorkloadRatingDetailService workloadRatingDetailService;
+    private CcmFeignService ccmFeignService;
 
     @Override
     public PageInfo<WorkloadRatingItemVO> queryPageInfo(WorkloadRatingItemQO qo) {
@@ -141,13 +143,21 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         String titleField = config.getTitleField();
 
         // 获取全部配置
-        WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
-        configQO.setBrand(config.getBrand());
-        configQO.setType(config.getType());
-        configQO.setSearchValue(false);
-        configQO.setBuildTitleField(false);
-        configQO.reset2QueryList();
-        List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
+        List<WorkloadRatingConfigVO> configVOList = new ArrayList<>();
+        List<String> brandList = CollUtil.newArrayList(config.getBrand());
+        if (workloadRatingItemList.stream().noneMatch(WorkloadRatingItemDTO::getApplyAll)) {
+            List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList("C8_Brand");
+            brandList.addAll(dictList.stream().map(BasicBaseDict::getValue).collect(Collectors.toList()));
+        }
+        brandList.stream().distinct().forEach(brand -> {
+            WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
+            configQO.setBrand(brand);
+            configQO.setType(config.getType());
+            configQO.setSearchValue(false);
+            configQO.setBuildTitleField(false);
+            configQO.reset2QueryList();
+            configVOList.addAll(workloadRatingConfigService.queryList(configQO));
+        });
 
         List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
         List<WorkloadRatingTitleFieldDTO> configTitleFieldList = CollUtil.removeWithAddIf(titleFieldDTOList, (it) -> StrUtil.isNotBlank(it.getConfigId()));
@@ -180,28 +190,33 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                 )) throw new OtherException("已经存在上一级的评分项, 请删除后添加");
             }
 
-            configTitleFieldList.forEach(configTitle -> {
-                WorkloadRatingItemDTO dto = BeanUtil.copyProperties(saveDTO, WorkloadRatingItemDTO.class);
-                WorkloadRatingConfigVO configVO = configVOList.stream().filter(it -> it.getId().equals(configTitle.getConfigId()))
+            List<WorkloadRatingItem> entityList = configTitleFieldList.stream().flatMap(configTitle -> {
+                WorkloadRatingConfigVO currentConfigVO = configVOList.stream().filter(it -> it.getId().equals(configTitle.getConfigId()))
                         .findFirst().orElseThrow(() -> new OtherException("无效的配置项"));
-                dto.setType(configVO.getType());
-                dto.setBrand(configVO.getBrand());
-                dto.setItemType(configVO.getItemType());
-                dto.setItemName(CommonUtils.removeSuffix(Opt.ofBlankAble(titleFieldDTOList.stream()
-                        .map(it -> StrUtil.toStringOrNull(dto.getExtend().getOrDefault(it.getCode(), null)))
-                        .filter(StrUtil::isNotBlank).collect(Collectors.joining("/"))).orElse(dto.getItemName()), "/"));
-                dto.setConfigId(configVO.getId());
-                dto.setConfigName(configVO.getItemName());
-                dto.setCalculateType(configVO.getCalculateType());
-                dto.setScore(new BigDecimal(dto.getExtend().getOrDefault(configTitle.getCode(), dto.getScore()).toString()));
+                List<WorkloadRatingConfigVO> applyConfigVoList = CollUtil.newArrayList(currentConfigVO);
+                if (saveDTO.getApplyAll()) {
+                    applyConfigVoList.addAll(configVOList.stream().filter(it -> it.getItemName().equals(currentConfigVO.getItemName())).collect(Collectors.toList()));
+                }
+                return applyConfigVoList.stream().map(configVO -> {
+                    WorkloadRatingItemDTO dto = BeanUtil.copyProperties(saveDTO, WorkloadRatingItemDTO.class);
+                    dto.setType(configVO.getType());
+                    dto.setBrand(configVO.getBrand());
+                    dto.setItemType(configVO.getItemType());
+                    dto.setItemName(CommonUtils.removeSuffix(Opt.ofBlankAble(titleFieldDTOList.stream()
+                            .map(it -> StrUtil.toStringOrNull(dto.getExtend().getOrDefault(it.getCode(), null)))
+                            .filter(StrUtil::isNotBlank).collect(Collectors.joining("/"))).orElse(dto.getItemName()), "/"));
+                    dto.setConfigId(configVO.getId());
+                    dto.setConfigName(configVO.getItemName());
+                    dto.setCalculateType(configVO.getCalculateType());
+                    dto.setScore(new BigDecimal(dto.getExtend().getOrDefault(configTitle.getCode(), dto.getScore()).toString()));
 
-                this.defaultValue(new WorkloadRatingItem());
-                WorkloadRatingItem entity = this.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
-                        .eq(WorkloadRatingItem::getConfigId, dto.getConfigId())
-                        .eq(WorkloadRatingItem::getItemValue, dto.getItemValue())
-                );
+                    this.defaultValue(new WorkloadRatingItem());
+                    WorkloadRatingItem entity = this.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
+                            .eq(WorkloadRatingItem::getConfigId, dto.getConfigId())
+                            .eq(WorkloadRatingItem::getItemValue, dto.getItemValue())
+                    );
 
-                // 修改detail
+                    // 修改detail
 //                StrJoiner detailItemValue = StrJoiner.of("#").append(dto.getConfigName()).append(entity.getItemValue());
 //                detailList.addAll(WORKLOAD_CV.copy2DTO(
 //                        workloadRatingDetailService.list(new BaseLambdaQueryWrapper<WorkloadRatingDetail>()
@@ -211,11 +226,12 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
 //                                .like(WorkloadRatingDetail::getItemValue, detailItemValue.append(YesOrNoEnum.YES.getValueStr()).toString()))
 //                ));
 
-                dto.setId(null);
-                WORKLOAD_CV.copy(entity, dto);
-
-                this.saveOrUpdate(entity);
-            });
+                    dto.setId(null);
+                    WORKLOAD_CV.copy(entity, dto);
+                    return entity;
+                });
+            }).collect(Collectors.toList());
+            this.saveOrUpdateBatch(entityList);
 
 //            List<WorkloadRatingDetail> valueList = findPerhapsItemValueList(configVOList, otherWorkloadRatingItemList, itemList, 0);
 
