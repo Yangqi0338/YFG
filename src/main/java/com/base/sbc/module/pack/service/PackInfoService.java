@@ -223,6 +223,13 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     boolean updatePackInfoStatusField(PackInfoStatusVo dto);
 
+    /**
+     * 修改资料包信息
+     * @param packInfo
+     * @return
+     */
+    boolean updatePackInfo(PackInfoDto packInfo);
+
     AttachmentVo saveVideoFile(String foreignId, String packType, String fileId);
 
     /**
