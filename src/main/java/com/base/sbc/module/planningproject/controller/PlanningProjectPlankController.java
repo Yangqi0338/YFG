@@ -7,6 +7,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -389,6 +390,18 @@ public class PlanningProjectPlankController extends BaseController {
         planningProjectPlankService.saveData(planningProjectPlank);
         return ApiResult.success("操作成功");
     }
+
+    /**
+     * 修改坑位信息
+     */
+    @ApiOperation(value = "修改坑位信息")
+    @PostMapping("/updatePlank")
+    public ApiResult updatePlank(@RequestBody PlanningProjectPlank planningProjectPlank) {
+        planningProjectPlank.setPic(CommonUtils.removeQuery(planningProjectPlank.getPic()));
+        planningProjectPlankService.updateById(planningProjectPlank);
+        return ApiResult.success("操作成功");
+    }
+
 
 
     // <==================== 企划看板 2.0
