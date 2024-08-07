@@ -210,4 +210,7 @@ public class PackInfoStatusVo {
      */
     @ApiModelProperty(value = "工艺引用人")
     private String techRhdUser;
+
+    @ApiModelProperty(value = "备注 /E品牌")
+    private String remark;
 }

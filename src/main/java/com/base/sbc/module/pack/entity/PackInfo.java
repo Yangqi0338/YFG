@@ -161,6 +161,9 @@ public class PackInfo extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式名称")
     private String styleName;
 
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
     /**
      * 是否是迁移历史数据
      */
