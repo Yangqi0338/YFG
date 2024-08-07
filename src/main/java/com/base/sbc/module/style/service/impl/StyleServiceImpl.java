@@ -75,8 +75,11 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -255,7 +258,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private PatternLibraryService patternLibraryService;
-
+    @Lazy
+    @Autowired
+    private PackInfoService packInfoService;
     /**
      * 表单字段类型名称
      * 维度系数
@@ -282,6 +287,116 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             style = saveNewStyle(dto);
         } else {
             style = getById(dto.getId());
+            //24.8.1添加逻辑
+            //判断是否修改了尺码、是否修改了号型类型
+            if(!dto.getSizeRange().equals(style.getSizeRange()) || !dto.getSizeIds().equals(style.getSizeIds())){
+                if(dto.getSizeIds().startsWith(",") || dto.getSizeIds().endsWith(",")){
+                    throw new OtherException("尺码参数错误！");
+                }
+                List<String> newList = Arrays.asList(dto.getSizeIds().split(","));
+                List<String> sizeDList = Arrays.asList(dto.getProductSizes().split(","));
+
+                Map<String,String> IdCodeMap = new HashMap<>();
+                for (int i = 0; i < newList.size(); i++) {
+                    IdCodeMap.put(newList.get(i), sizeDList.get(i));
+                }
+
+                //查询配色款
+                LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
+                queryWrapper.eq(StyleColor::getStyleId, style.getId());
+                List<StyleColor> styleColorList = styleColorService.getBaseMapper().selectList(queryWrapper);
+
+                //校验是否所有配色数据都是设计阶段
+                for (StyleColor styleColor : styleColorList) {
+                    if("1".equals(styleColor.getBomStatus())){
+                        throw new OtherException("修改尺码或者号型类型，大货阶段不允许修改，需退回设计阶段");
+                    }
+                }
+
+                //保存时校验设计BOM，是否是解锁状态
+                PackInfoSearchPageDto pageDto = new PackInfoSearchPageDto();
+                pageDto.setStyleId(style.getId());
+                pageDto.setPageSize(Integer.MAX_VALUE);
+                PageInfo<PackInfoListVo> packInfoListVoPageInfo = packInfoService.pageInfo(pageDto);
+                //BOM集合
+                List<List<PackBomVo>> packBomListList = new ArrayList<>();
+                for (PackInfoListVo packInfoListVo : packInfoListVoPageInfo.getList()) {
+                    /*0:全部下发 1:全部未下发 2:部分下发 null:无物料清单*/
+                    if(StrUtil.isNotBlank(packInfoListVo.getScmSendFlag()) && !"1".equals(packInfoListVo.getScmSendFlag())){
+                        throw new OtherException("修改尺码或者号型类型，请检查设计BOM物料清单是否全部解锁");
+                    }
+                    PackCommonPageSearchDto searchDto = new PackBomPageSearchDto();
+                    searchDto.setForeignId(packInfoListVo.getId());
+                    searchDto.setPackType("packDesign");
+                    PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(searchDto);
+                    List<PackBomVo> list = packBomVoPageInfo.getList();
+                    packBomListList.add(list);
+                }
+
+                List<String> ids = new ArrayList<>();
+                List<PackBomSize> addPackBomSizeList = new ArrayList<>();
+
+                if(!dto.getSizeRange().equals(style.getSizeRange())){
+                    //修改号型，直接删除全部尺码数据
+                    for (List<PackBomVo> packBomVos : packBomListList) {
+                        for (PackBomVo packBomVo : packBomVos) {
+                            for (PackBomSizeVo packBomSizeVo : packBomVo.getPackBomSizeList()) {
+                                ids.add(packBomSizeVo.getId());
+                            }
+                            //按照新的尺码集合填充数据
+                            for (String sizeId : newList) {
+                                PackBomSize packBomSize = new PackBomSize();
+                                packBomSize.setForeignId(packBomVo.getForeignId());
+                                packBomSize.setPackType(packBomVo.getPackType());
+                                packBomSize.setBomVersionId(packBomVo.getBomVersionId());
+                                packBomSize.setBomId(packBomVo.getId());
+                                packBomSize.setSize(IdCodeMap.get(sizeId));
+                                packBomSize.setSizeId(sizeId);
+                                packBomSize.setQuantity(packBomVo.getDesignUnitUse());
+                                packBomSize.setWidth(packBomVo.getTranslate());
+                                packBomSize.setWidthCode(packBomVo.getTranslateCode());
+                                addPackBomSizeList.add(packBomSize);
+                            }
+                        }
+                    }
+                }else {
+                    //判断添加或删除的尺码，操作对应的数据
+
+                    List<String> oldList = Arrays.asList(style.getSizeIds().split(","));
+
+                    List<String> addList = newList.stream().filter(o -> !oldList.contains(o)).collect(Collectors.toList());
+                    List<String> delList = oldList.stream().filter(o -> !newList.contains(o)).collect(Collectors.toList());
+
+                    for (List<PackBomVo> packBomVos : packBomListList) {
+                        for (PackBomVo packBomVo : packBomVos) {
+                            for (PackBomSizeVo packBomSizeVo : packBomVo.getPackBomSizeList()) {
+                                if(delList.contains(packBomSizeVo.getSizeId())){
+                                    ids.add(packBomSizeVo.getId());
+                                }
+                            }
+                            for (String sizeId : addList) {
+                                PackBomSize packBomSize = new PackBomSize();
+                                packBomSize.setForeignId(packBomVo.getForeignId());
+                                packBomSize.setPackType(packBomVo.getPackType());
+                                packBomSize.setBomVersionId(packBomVo.getBomVersionId());
+                                packBomSize.setBomId(packBomVo.getId());
+                                packBomSize.setSize(IdCodeMap.get(sizeId));
+                                packBomSize.setSizeId(sizeId);
+                                packBomSize.setQuantity(packBomVo.getDesignUnitUse());
+                                packBomSize.setWidth(packBomVo.getTranslate());
+                                packBomSize.setWidthCode(packBomVo.getTranslateCode());
+                                addPackBomSizeList.add(packBomSize);
+                            }
+                        }
+                    }
+                }
+                if(CollUtil.isNotEmpty(ids)){
+                    packBomSizeService.removeByIds(ids);
+                }
+                if(CollUtil.isNotEmpty(addPackBomSizeList)){
+                    packBomSizeService.saveBatch(addPackBomSizeList);
+                }
+            }
             String registeringId = style.getRegisteringId();
             String oldDesignNo = style.getDesignNo();
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
