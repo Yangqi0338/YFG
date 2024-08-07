@@ -56,7 +56,6 @@ import com.base.sbc.module.formtype.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formtype.entity.FieldOptionConfig;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.entity.FormType;
-import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -242,9 +241,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private FormTypeService formTypeService;
 
     @Autowired
-    private FieldManagementMapper fieldManagementMapper;
-
-    @Autowired
     @Lazy
     private OrderBookDetailService orderBookDetailService;
 
@@ -255,6 +251,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
+
     @Autowired
     @Lazy
     private PatternLibraryService patternLibraryService;
@@ -893,6 +890,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         style.setCheckStartTime(new Date());
+        if (style.getActualPublicationDate() == null) {
+            style.setActualPublicationDate(new Date());
+        }
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         // 获取当前人所在的虚拟部门
