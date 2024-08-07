@@ -1958,7 +1958,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		Map<HangTagStatusEnum, List<HangTag>> statusMap = hangTags.stream()
 				.sorted(Comparator.comparing(it -> (it.getStatus().ordinal())))
 				.collect(CommonUtils.groupingBy(HangTag::getStatus));
-		updateStatus(statusMap, warnMsgList);
+		if (MapUtil.isNotEmpty(statusMap)) {
+			updateStatus(statusMap, warnMsgList);
+		}
 		int warnSize = warnMsgList.size();
 		String warnMsg = StrUtil.join("\n", warnMsgList);
 		// 全错
