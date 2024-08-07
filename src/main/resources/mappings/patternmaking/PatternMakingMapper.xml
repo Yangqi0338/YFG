@@ -241,7 +241,8 @@
             p.status pStatus,
             p.create_date as `pmCreateDate`,
             p.demand_finish_date as demandFinishDate,
-            p.del_flag
+            p.del_flag,
+            p.workload_rating_id
         </if>
         FROM
         t_style s

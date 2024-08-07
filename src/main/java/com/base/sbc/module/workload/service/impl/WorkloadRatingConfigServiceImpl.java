@@ -36,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.Constants.COMMA;
+
 /**
  * 类描述：工作量评分选项配置 service类
  * @address com.base.sbc.module.workload.service.WorkloadRatingConfigService
@@ -130,18 +132,20 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
     }
 
     public void initDataList(WorkloadRatingConfigQO qo) {
-        String originBrand = qo.getBrand();
-        WorkloadRatingConfigQO existsQo = new WorkloadRatingConfigQO();
-        existsQo.setType(qo.getType());
-        existsQo.setBrand(originBrand);
-        if (!this.exists(buildQueryWrapper(existsQo))) {
-            existsQo.setBrand("ALL");
-            List<WorkloadRatingConfig> list = this.list(buildQueryWrapper(existsQo));
-            list.forEach(it -> {
-                it.setBrand(originBrand);
-                it.preInsert(null);
-                save(BeanUtil.copyProperties(it, WorkloadRatingConfigDTO.class));
-            });
+        if (StrUtil.isBlank(qo.getBrand())) return;
+        for (String originBrand : qo.getBrand().split(COMMA)) {
+            WorkloadRatingConfigQO existsQo = new WorkloadRatingConfigQO();
+            existsQo.setType(qo.getType());
+            existsQo.setBrand(originBrand);
+            if (!this.exists(buildQueryWrapper(existsQo))) {
+                existsQo.setBrand("ALL");
+                List<WorkloadRatingConfig> list = this.list(buildQueryWrapper(existsQo));
+                list.forEach(it -> {
+                    it.setBrand(originBrand);
+                    it.preInsert(null);
+                    save(BeanUtil.copyProperties(it, WorkloadRatingConfigDTO.class));
+                });
+            }
         }
     }
 

@@ -125,6 +125,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
+import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.base.sbc.module.workload.service.WorkloadRatingConfigService;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
@@ -1611,8 +1612,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
-        decorateWorkloadRating(pageVo.getList(), (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
-                SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
+            decorateWorkloadRating(pageVo.getList(), (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        }
 
         return pageVo;
     }
@@ -1705,6 +1708,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+
+        // 获取评分
+        List<SampleBoardExcel> ratingExcelList = CommonUtils.filterNotEmpty(excelList, SampleBoardExcel::getWorkloadRatingId);
+        List<String> workloadRatingIdList = ratingExcelList.stream().map(SampleBoardExcel::getWorkloadRatingId).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(workloadRatingIdList)) {
+            List<WorkloadRatingDetail> list = workloadRatingDetailService.listByIds(workloadRatingIdList);
+            ratingExcelList.forEach(excel -> {
+                list.stream().filter(it -> it.getId().equals(excel.getWorkloadRatingId())).findFirst().ifPresent(detail -> {
+                    excel.setAppend(new BigDecimal(detail.getExtend().getOrDefault("append", BigDecimal.ZERO).toString()));
+                    excel.setBase(new BigDecimal(detail.getExtend().getOrDefault("append", "0").toString()));
+                    excel.setRate(new BigDecimal(detail.getExtend().getOrDefault("append", "0").toString()));
+                    excel.setRatingFabricName(detail.getFabricName());
+                    excel.setRatingOtherName(detail.getOtherName());
+                });
+            });
+        }
+
 
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()

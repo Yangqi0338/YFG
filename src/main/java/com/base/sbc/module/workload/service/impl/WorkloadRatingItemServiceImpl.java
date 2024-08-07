@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -143,21 +142,18 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         String titleField = config.getTitleField();
 
         // 获取全部配置
-        List<WorkloadRatingConfigVO> configVOList = new ArrayList<>();
         List<String> brandList = CollUtil.newArrayList(config.getBrand());
         if (workloadRatingItemList.stream().noneMatch(WorkloadRatingItemDTO::getApplyAll)) {
             List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList("C8_Brand");
             brandList.addAll(dictList.stream().map(BasicBaseDict::getValue).collect(Collectors.toList()));
         }
-        brandList.stream().distinct().forEach(brand -> {
-            WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
-            configQO.setBrand(brand);
-            configQO.setType(config.getType());
-            configQO.setSearchValue(false);
-            configQO.setBuildTitleField(false);
-            configQO.reset2QueryList();
-            configVOList.addAll(workloadRatingConfigService.queryList(configQO));
-        });
+        WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
+        configQO.setBrand(String.join(COMMA, brandList));
+        configQO.setType(config.getType());
+        configQO.setSearchValue(false);
+        configQO.setBuildTitleField(false);
+        configQO.reset2QueryList();
+        List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
 
         List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
         List<WorkloadRatingTitleFieldDTO> configTitleFieldList = CollUtil.removeWithAddIf(titleFieldDTOList, (it) -> StrUtil.isNotBlank(it.getConfigId()));
