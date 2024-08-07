@@ -148,6 +148,11 @@ public class PackInfoStatusVo {
      */
     @ApiModelProperty(value = "特殊工艺备注")
     private String specialSpecComments;
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
+    private String remark;
 
     @ApiModelProperty(value = "设计转大货时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -211,6 +216,5 @@ public class PackInfoStatusVo {
     @ApiModelProperty(value = "工艺引用人")
     private String techRhdUser;
 
-    @ApiModelProperty(value = "备注 /E品牌")
-    private String remark;
+
 }
