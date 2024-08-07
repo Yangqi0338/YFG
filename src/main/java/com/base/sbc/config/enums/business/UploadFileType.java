@@ -38,6 +38,7 @@ public enum UploadFileType {
     replayRatingFile("ReplayRatingFile", "复盘评分附件", Arrays.asList("DOCX", "DOC", "PDF", "PPT", "PPTX", "XLS", "XLSX", "RTF")),
     markingOrderUpload("markingOrderUpload"),
     materialUpload("materialUpload"),
+    fob("fob"),
     Account(""),
 
     ;

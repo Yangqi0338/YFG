@@ -6,17 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service.impl;
 
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
-
-import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
@@ -33,11 +28,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.DateUtils;
-import com.base.sbc.config.utils.ImgUtils;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.common.dto.DelStylePicDto;
@@ -64,7 +55,7 @@ import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
@@ -74,29 +65,20 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
-import cn.hutool.http.HttpUtil;
-import lombok.extern.slf4j.Slf4j;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
 
 /**
  * 类描述：上传文件 service类
