@@ -197,6 +197,11 @@ public class PackInfoStatus extends BaseDataEntity<String> {
     @ApiModelProperty(value = "特殊工艺备注")
     private String specialSpecComments;
     /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
+    private String remark;
+    /**
      * 是否是迁移历史数据
      */
     @ApiModelProperty(value = "是否是迁移历史数据")
