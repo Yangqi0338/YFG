@@ -153,6 +153,7 @@
             p.second_processing,
             p.receive_sample,
             tbs.supplier as supplierName,
+            tbs.supplier_abbreviation as supplierAbbreviation,
             p.pattern_making_devt_type,
             s.style_origin_name
         </if>
@@ -227,6 +228,7 @@
             p.second_processing,
             p.receive_sample,
             tbs.supplier as supplierName,
+            tbs.supplier_abbreviation as supplierAbbreviation,
             p.pattern_making_devt_type,
             s.style_origin_name,
             tpmbc.bar_code as sampleBarCode,
@@ -408,6 +410,7 @@
             s.style_origin_name,
             p.supplier_id,
             tbs.supplier as supplierName,
+            tbs.supplier_abbreviation as supplierAbbreviation,
             tpmbc.bar_code,
             tpmbc.img,
             tpmbc.create_date as receiveSampleDate,
@@ -452,7 +455,8 @@
                d.pat_diff_name as sd_pat_diff_name,
                d.default_size,
                tpl.pattern_type,
-               tbs.supplier as supplierName
+               tbs.supplier as supplierName,
+               tbs.supplier_abbreviation as supplierAbbreviation
         from t_pattern_making m
                  left join t_style d on (m.style_id = d.id)
                  left join t_pattern_library tpl on (tpl.style_id = d.id and tpl.del_flag = '0')

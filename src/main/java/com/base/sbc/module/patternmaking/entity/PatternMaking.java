@@ -408,15 +408,31 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "是否参考样衣，0：否，1：是"  )
     private Integer referSample;
 
-    @ApiModelProperty(value = "挂起时间记录"  )
-    private String suspendDateRecord;
-
-
     @ApiModelProperty(value = "是否齐套原因"  )
     private String kittingReason;
 
     @ApiModelProperty(value = "是否齐套原因名称"  )
     private String kittingReasonName;
+
+    @ApiModelProperty(value = "挂起时间记录"  )
+    private String suspendDateRecord;
+
+    /** 停留原因 */
+    @ApiModelProperty(value = "打版图片文件id"  )
+    private String samplePicFileId;
+
+    @ApiModelProperty(value = "打版图片文件id"  )
+    private String samplePicFileId1;
+
+    @ApiModelProperty(value = "打版图片文件id"  )
+    private String samplePicFileId2;
+
+    /** 停留原因 */
+    @ApiModelProperty(value = "打版视频文件id"  )
+    private String sampleVideoFileId;
+
+    @ApiModelProperty(value = "打版视频名称"  )
+    private String sampleVideoName;
 
     @ApiModelProperty(value = "是否更换面料 0：否，1：是"  )
     private Integer isChangeFabric;

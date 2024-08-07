@@ -63,4 +63,7 @@ public class PatternMakingBarCode extends BaseDataEntity<String> {
     /** 意见图片4 */
     @ApiModelProperty(value = "意见图片4"  )
     private String suggestionImg4;
+    /** 样衣评价 */
+    @ApiModelProperty(value = "样衣评价"  )
+    private String sampleEvaluate;
 }

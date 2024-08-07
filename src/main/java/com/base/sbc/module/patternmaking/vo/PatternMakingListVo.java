@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -39,8 +40,50 @@ public class PatternMakingListVo extends PatternMaking {
     private String sdPatDiff;
     @ApiModelProperty(value = "样衣打版难度")
     private String sdPatDiffName;
+
+    /** 打版图片文件url */
+    @ApiModelProperty(value = "打版图片文件url"  )
+    private String samplePicUrl;
+
+    private String samplePicUrl1;
+
+    private String samplePicUrl2;
+
+    /** 打版视频文件url */
+    @ApiModelProperty(value = "打版视频文件url"  )
+    private String sampleVideoUrl;
+
+    public String getSamplePicUrl() {
+        if (StringUtils.isEmpty(samplePicUrl)){
+            this.samplePicUrl = getSamplePicFileId();
+        }
+        return samplePicUrl;
+    }
+
+    public String getSamplePicUrl1() {
+        if (StringUtils.isEmpty(samplePicUrl1)){
+            this.samplePicUrl1 = getSamplePicFileId1();
+        }
+        return samplePicUrl1;
+    }
+
+    public String getSamplePicUrl2() {
+        if (StringUtils.isEmpty(samplePicUrl2)){
+            this.samplePicUrl2 = getSamplePicFileId2();
+        }
+        return samplePicUrl2;
+    }
+
+    public String getSampleVideoUrl() {
+        if (StringUtils.isEmpty(sampleVideoUrl)){
+            this.sampleVideoUrl =  getSampleVideoFileId();
+        }
+        return sampleVideoUrl;
+    }
+
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
+    private String supplierAbbreviation;
     @Override
     public String getPatDiff() {
         return Optional.ofNullable(patDiff).orElse(sdPatDiff);

@@ -358,6 +358,7 @@ public class SampleBoardVo extends Style {
     private String supplierId;
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
+    private String supplierAbbreviation;
     private String img;
     private String barCode;
     private String code;

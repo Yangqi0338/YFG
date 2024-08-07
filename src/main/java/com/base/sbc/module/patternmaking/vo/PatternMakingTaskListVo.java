@@ -167,6 +167,7 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private String name;
 
     private String supplierName;
+    private String supplierAbbreviation;
 
     private String styleOriginName;
 

@@ -35,6 +35,7 @@
             fob.tech_remarks,
             fob.process_department_date,
             tbs.supplier as supplierName,
+            tbs.supplier_abbreviation as supplierAbbreviation,
             tpm.pattern_designer_id,
             tpm.pattern_designer_name,
             tpm.pattern_technician_id,
@@ -58,11 +59,11 @@
                                                                  `bar_code`, `create_id`, `create_name`, `create_date`,
                                                                  `update_id`, `update_name`, `update_date`, `del_flag`,
                                                                  `company_code`, `suggestion_img1`, `suggestion_img2`,
-                                                                 `suggestion_img3`, `suggestion_img4`)
+                                                                 `suggestion_img3`, `suggestion_img4`, `sample_evaluate`)
         VALUES (#{id}, #{headId}, #{img}, #{status}, #{suggestion}, #{suggestionImg}, #{suggestionVideo},
                 #{pitSite}, #{barCode}, #{createId}, #{createName}, #{createDate}, #{updateId}, #{updateName},
                 #{updateDate}, #{delFlag}, #{companyCode}, #{suggestionImg1}, #{suggestionImg2},
-                #{suggestionImg3}, #{suggestionImg4})
+                #{suggestionImg3}, #{suggestionImg4}, #{sampleEvaluate})
     </insert>
 
     <select id="findPageLog" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo">
