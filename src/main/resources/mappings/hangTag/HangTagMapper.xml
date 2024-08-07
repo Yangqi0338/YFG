@@ -78,6 +78,7 @@
 
             </otherwise>
         </choose>
+        LEFT JOIN t_style_color tsc ON tpi.style_color_id = tsc.id
         LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
         <where>
@@ -1124,7 +1125,6 @@
         tsd.designer as designer,
         tsd.pattern_design_name as patternDesign,
         tsd.planning_season_id as planningSeasonId,
-        tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
         tsd.prod_category1st as prodCategory1st,
         tsd.dev_class as devClass,
@@ -1133,6 +1133,7 @@
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
+                tsd.devt_type_name as produceTypeName,
             </when>
             <otherwise>
                 tssc.style_no AS bulkStyleNo,
@@ -1142,6 +1143,7 @@
                 tssc.is_trim,
                 tssc.style_color_pic ,
                 tssc.bom_status ,
+                tssc.devt_type_name as produceTypeName,
             </otherwise>
         </choose>
 
