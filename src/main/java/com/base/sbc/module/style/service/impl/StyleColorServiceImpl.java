@@ -4742,6 +4742,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         //查询款式配色
         List<StyleColorVo> sampleStyleColorList = baseMapper.materialListQuote(queryWrapper);
 
+        List<String> stringList = IdGen.getIds(sampleStyleColorList.size());
+        int index = 0;
+        for (StyleColorVo styleColorVo : sampleStyleColorList) {
+            if (stringList != null) {
+                styleColorVo.setIssuerId(stringList.get(index));
+            }
+            index++;
+        }
+
         /*查询款式图*/
         stylePicUtils.setStylePic(sampleStyleColorList, "stylePic");
         /*查询款式配色图*/
