@@ -18,8 +18,6 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -353,4 +351,6 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentUnControl(String id);
 
     ApiResult importMarkingOrder(List<Map<String, Object>> readAll) throws IOException;
+
+    PageInfo<StyleColorVo> materialListQuote(Principal user, QueryStyleColorDto querySampleStyleColorDto);
 }
