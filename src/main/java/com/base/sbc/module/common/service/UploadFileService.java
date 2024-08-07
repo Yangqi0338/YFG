@@ -11,6 +11,7 @@ import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
@@ -136,6 +137,18 @@ public interface UploadFileService extends BaseService<UploadFile> {
      * @return
      */
     MultipartFile downloadImage(String key,String fileName) throws IOException;
+
+    /**
+     *  通过fileId 给 list 设置访问地址
+     *
+     * @param list
+     * @param property 属性
+     */
+    void setObjectUrlToList(List list, String... property);
+
+    void setObjectUrlToObject(Object o, String... property);
+
+
 
     /**
      * 通过id获取预览地址

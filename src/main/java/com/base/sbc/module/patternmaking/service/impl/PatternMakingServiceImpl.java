@@ -51,9 +51,12 @@ import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -157,6 +160,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
 
     @Autowired
+    private UploadFileService uploadFileService;
+
+    @Autowired
     @Lazy
     private PatternLibraryService patternLibraryService;
 
@@ -183,6 +189,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
+        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl", "sampleVideoUrl");
         if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
             // 根据款查询对应套版款的可否改版信息并设置
             Style styleInfo = styleService.getById(styleId);
@@ -369,6 +376,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private PatternMakingScoreVo sampleBoardScore(BaseQueryWrapper<SampleBoardVo> qw ) {
         return getBaseMapper().sampleBoardScore(qw);
 
+    }
+
+    @Override
+    public boolean cancelConfirm(PatternMakingDto dto) {
+        PatternMaking patternMaking = getById(dto.getId());
+        if (Objects.isNull(patternMaking)){
+            throw new OtherException("打版数据不存在");
+        }
+        if (null != patternMaking.getReceiveSampleDate()){
+            UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+            uw.lambda().eq(PatternMaking::getId,dto.getId());
+            uw.lambda().set(PatternMaking::getReceiveSampleDate,null);
+            return update(uw);
+        }
+
+        return true;
     }
 
     @Override
@@ -1095,6 +1118,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         vo.setAttachmentList(attachmentVoList);
         // 设置状态
         nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");
+        //填充url
+        uploadFileService.setObjectUrlToObject(vo,"samplePicUrl", "sampleVideoUrl");
         // 根据款查询对应套版款的版型库文件信息
         Style styleInfo = styleService.getById(vo.getStyleId());
         if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {

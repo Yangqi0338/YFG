@@ -121,4 +121,6 @@ public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSuppl
          * @return
          */
         List<BasicsdatumSupplier> getBySupplierId(String supplierCode);
+
+        List<BasicsdatumSupplier> getBySupplierIds(List<String> supplierIds);
 }

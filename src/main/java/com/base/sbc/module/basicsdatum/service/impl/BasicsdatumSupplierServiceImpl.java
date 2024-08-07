@@ -423,6 +423,15 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         return this.list(queryWrapper);
     }
 
+    @Override
+    public List<BasicsdatumSupplier> getBySupplierIds(List<String> supplierCodes) {
+        QueryWrapper<BasicsdatumSupplier> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(BasicsdatumSupplier::getSupplierCode, supplierCodes);
+        queryWrapper.lambda().eq(BasicsdatumSupplier::getStatus,"0");
+        queryWrapper.lambda().eq(BasicsdatumSupplier::getDelFlag,"0");
+        return this.list(queryWrapper);
+    }
+
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }

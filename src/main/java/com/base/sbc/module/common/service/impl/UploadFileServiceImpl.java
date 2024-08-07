@@ -8,9 +8,15 @@ package com.base.sbc.module.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
+
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
@@ -42,7 +48,13 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
@@ -78,31 +90,8 @@ import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Opt;
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
-
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
-import cn.hutool.http.HttpUtil;
-import com.base.sbc.config.utils.*;
-import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planningproject.entity.PlanningProject;
-import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
-import lombok.extern.slf4j.Slf4j;
 import javax.imageio.ImageIO;
-import java.io.*;
-import java.util.*;
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
+
 
 /**
  * 类描述：上传文件 service类
@@ -749,6 +738,18 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     }
 
     @Override
+    public void setObjectUrlToList(List list, String... property) {
+        if (CollUtil.isEmpty(list) || ArrayUtil.isEmpty(property)) {
+            return;
+        }
+        for (Object o : list) {
+            for (String s : property) {
+                setObjectUrlToObject(o, s);
+            }
+        }
+    }
+
+    @Override
     public String getReviewUrlById(String id) {
         return minioUtils.getObjectUrl(getUrlById(id));
     }
@@ -767,6 +768,27 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         // 删除临时文件
         tempFile.delete();
         return temporaryFilePath;
+    }
+
+    /**
+     * 给obj 设置 访问地址
+     *
+     * @param o        bean or map
+     * @param property 属性
+     */
+    public void setObjectUrlToObject(Object o, String... property) {
+        if (ObjectUtil.isEmpty(o) || ArrayUtil.isEmpty(property)) {
+            return;
+        }
+        for (String s : property) {
+            JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(o));
+            Object val = jsonObject.get(s);
+            if (ObjectUtil.isEmpty(val)) {
+                continue;
+            }
+            String url = this.getUrlById(String.valueOf(val));
+            BeanUtil.setProperty(o, s, minioUtils.getObjectUrl(url));
+        }
     }
 
 

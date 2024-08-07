@@ -425,7 +425,6 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     Boolean updateReferSample(PatternMakingReferSampleDto dto);
 
-
     boolean cancelConfirm(PatternMakingDto dto);
 
     ApiResult<String> copyUrl(String id, Integer hours);

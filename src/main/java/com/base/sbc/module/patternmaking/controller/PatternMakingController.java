@@ -537,13 +537,6 @@ public class PatternMakingController {
         return patternMakingService.updateReferSample(dto);
     }
 
-
-    @ApiOperation(value = "样衣看板取消确认", notes = "样衣看板取消确认")
-    @PostMapping("/cancelConfirm")
-    public boolean cancelConfirm(@RequestBody PatternMakingDto dto) {
-        return patternMakingService.cancelConfirm(dto);
-    }
-
     /**
      * 复制链接
      */
