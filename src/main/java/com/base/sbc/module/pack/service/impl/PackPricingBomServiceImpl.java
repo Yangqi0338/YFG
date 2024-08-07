@@ -141,7 +141,11 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
      */
     @Override
     public boolean saveOrUpdate(List<PackPricingBomDto> list) {
-        this.saveOrUpdateBatch(BeanUtil.copyToList(list, PackPricingBom.class));
+        List<PackPricingBom> pricingBomList = BeanUtil.copyToList(list, PackPricingBom.class);
+        for (PackPricingBom packPricingBom : pricingBomList) {
+            packPricingBom.calculateCost();
+        }
+        this.saveOrUpdateBatch(pricingBomList);
         packPricingService.calculatePricingJson(list.get(0).getForeignId(),list.get(0).getPackType());
         return true;
     }

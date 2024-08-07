@@ -503,23 +503,13 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
                 enableVersionBomList = enableVersionBomList.stream().filter(e -> !stringList.contains(e.getId())).collect(Collectors.toList());
             }
             if(CollUtil.isNotEmpty(enableVersionBomList)){
-//                packBomService.querySubList(enableVersionBomList);
                 /*用与新增*/
-                List<PackPricingBom> packPricingBoms=new ArrayList<>();
-                for (PackBomVo packBomVo : enableVersionBomList) {
-                    PackPricingBom pbom=BeanUtil.copyProperties(packBomVo, PackPricingBom.class);
-                    pbom.insertInit();
-                    pbom.setBomId(packBomVo.getId());
-                    pbom.setId(null);
-                    /*重新获取报价*/
-                  /*  SupplierDetailPriceDto supplierDetailPriceDto = new SupplierDetailPriceDto();
-                    supplierDetailPriceDto.setWidth(packBomVo.getTranslateCode());
-                    supplierDetailPriceDto.setSupplierId(packBomVo.getSupplierId());
-                    supplierDetailPriceDto.setMaterialCode(packBomVo.getMaterialCode());
-                    supplierDetailPriceDto.setColor(packBomVo.getColorCode());
-                    BigDecimal price = basicsdatumMaterialPriceDetailService.gatSupplierPrice(supplierDetailPriceDto).getQuotationPrice();
-                    pbom.setPrice(price);*/
-                    packPricingBoms.add(pbom);
+                List<PackPricingBom> packPricingBoms = BeanUtil.copyToList(enableVersionBomList,PackPricingBom.class);
+                for (PackPricingBom packPricingBom : packPricingBoms) {
+                    packPricingBom.calculateCost();
+                    packPricingBom.insertInit();
+                    packPricingBom.setBomId(packPricingBom.getId());
+                    packPricingBom.setId(null);
                 }
                 if(CollUtil.isNotEmpty(packPricingBoms)){
                     packPricingBomService.saveBatch(packPricingBoms);

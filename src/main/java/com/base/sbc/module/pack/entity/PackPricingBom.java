@@ -6,7 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -30,7 +33,17 @@ public class PackPricingBom extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-
+    /**
+     * 计算成本
+     */
+    public void calculateCost() {
+        //设计成本价=单价*设计用量*(1+损耗)
+        /*大货成本价=采购单价*大货用量*(1+额定损耗)*/
+        this.cost = Optional.ofNullable("packDesign".equals(this.packType) ? this.price : this.purchasePrice).orElse(BigDecimal.ZERO)
+                .multiply(Optional.ofNullable("packDesign".equals(this.packType) ? this.designUnitUse : this.bulkUnitUse).orElse(BigDecimal.ZERO)).multiply(
+                        BigDecimal.ONE.add(Optional.ofNullable("packDesign".equals(this.packType) ? this.lossRate : this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP))
+                );
+    }
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
