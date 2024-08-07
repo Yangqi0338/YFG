@@ -6,6 +6,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -19,6 +20,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -97,6 +99,7 @@ import com.base.sbc.module.tasklist.service.TaskListService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,9 +111,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -163,6 +168,9 @@ public class SmpService {
     private StyleSpecFabricService styleSpecFabricService;
 
     private final PackBomService packBomService;
+    @Resource
+    @Lazy
+    private PackPricingBomService packPricingBomService;
     private final PackBomVersionService packBomVersionService;
 
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
@@ -239,6 +247,134 @@ public class SmpService {
 
     @Resource
     public OperaLogService operaLogService;
+
+    @DuplicationCheck
+    public List<PackPricingBom> getMaterialPurchasePrice(List<String> packBomIdList) {
+        if (ObjectUtil.isEmpty(packBomIdList)) {
+            throw new OtherException("请选择物料数据后在尝试拉取最新的物料采购单价！");
+        }
+        // 根据资料包 ID 查询大货 BOM 数据
+        List<PackPricingBom> packPricingBomList = packPricingBomService.listByIds(packBomIdList);
+        if (ObjectUtil.isEmpty(packPricingBomList)) {
+            throw new OtherException("物料清单数据不存在，请添加后重试！");
+        }
+
+        // 过滤空数据 物料编号/物料规格编号/物料颜色编码/物料名称
+        List<PackPricingBom> notEmptyPackPricingBomList = packPricingBomList.stream().filter(
+                item ->
+                        StrUtil.isNotBlank(item.getMaterialCode())
+                                && StrUtil.isNotBlank(item.getTranslateCode())
+                                && StrUtil.isNotBlank(item.getColorCode())
+                                && StrUtil.isNotBlank(item.getMaterialName())
+
+        ).collect(Collectors.toList());
+        if (ObjectUtil.isEmpty(notEmptyPackPricingBomList)) {
+            throw new OtherException("未获取到料清单采购单价！");
+        }
+        // 根据相同数据分组 物料编号/物料规格编号/物料颜色编码/物料名称 防止后面使用 map 分组出现重复的 key
+        Map<String, List<PackPricingBom>> packPricingBomMap = notEmptyPackPricingBomList.stream().collect(Collectors.groupingBy(item ->
+                item.getMaterialCode() + "&"
+                        + item.getTranslateCode() + "&"
+                        + item.getColorCode() + "&"
+                        + item.getMaterialName()));
+
+        // 任意取一条 获取资料包的数据
+        PackInfo packInfo = packInfoService.getById(notEmptyPackPricingBomList.get(0).getForeignId());
+        if (ObjectUtil.isEmpty(packInfo)) {
+            throw new OtherException("资料包数据不存在，请刷新后重试！");
+        }
+        Style style = styleService.getById(packInfo.getStyleId());
+        if (ObjectUtil.isEmpty(style)) {
+            throw new OtherException("当前资料包所关联款式不存在！");
+        }
+
+        // 初始化查询数据
+        List<MaterialPurchaseMaterialsInfo> materialPurchaseMaterialsInfoList = new ArrayList<>(packPricingBomMap.size());
+        for (Map.Entry<String, List<PackPricingBom>> stringListEntry : packPricingBomMap.entrySet()) {
+            // 相同分组的 取一条即可
+            PackPricingBom packPricingBom = stringListEntry.getValue().get(0);
+            MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = getMaterialPurchaseMaterialsInfo(packPricingBom, style, packInfo.getStyleNo());
+            materialPurchaseMaterialsInfoList.add(materialPurchaseMaterialsInfo);
+        }
+
+        Map<String, Object> paramMap = new HashMap<>(1);
+        paramMap.put("data", materialPurchaseMaterialsInfoList);
+        String jsonStr = JSONUtil.toJsonStr(paramMap);
+        HttpResp httpResp = restTemplateService.spmPost(
+                SCM_URL.replace("/information/pdm", "") + "/bill/materialPurchaseBill/getInfoByCondtion",
+                jsonStr,
+                Pair.of("moduleName", "scm"),
+                Pair.of("functionName", "获取物料采购单价")
+        );
+
+        if (httpResp.isSuccess()) {
+            List<MaterialPurchaseMaterialsInfo> list = JSONUtil.toList(httpResp.getData(), MaterialPurchaseMaterialsInfo.class);
+            if (ObjectUtil.isNotEmpty(list)) {
+                Map<String, BigDecimal> map = list.stream().collect(Collectors.toMap(
+                        item ->
+                                item.getMaterialsNo() + "&"
+                                        + item.getSpecificationsNo() + "&"
+                                        + item.getMaterialsColorCode() + "&"
+                                        + item.getMaterialsName(), MaterialPurchaseMaterialsInfo::getMaxPriceUnit));
+                for (PackPricingBom packPricingBom : notEmptyPackPricingBomList) {
+                    BigDecimal purchasePrice = map.get(
+                            packPricingBom.getMaterialCode() + "&"
+                                    + packPricingBom.getTranslateCode() + "&"
+                                    + packPricingBom.getColorCode() + "&"
+                                    + packPricingBom.getMaterialName());
+                    if (ObjectUtil.isNotEmpty(purchasePrice)) {
+                        packPricingBom.setPurchasePrice(purchasePrice.setScale(2, RoundingMode.HALF_UP));
+                    }
+                }
+                List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
+
+                List<PackPricingBom> newList = notEmptyPackPricingBomList.stream()
+                        .filter(item -> ObjectUtil.isNotEmpty(item.getPurchasePrice()))
+                        .map(item -> {
+                            PackPricingBom packPricingBom = new PackPricingBom();
+                            packPricingBom.setId(item.getId());
+                            packPricingBom.setPurchasePrice(item.getPurchasePrice());
+
+                            OperaLogEntity operaLogEntity = new OperaLogEntity();
+                            operaLogEntity.setName("核价信息-物料信息");
+                            operaLogEntity.setType("获取物料单价");
+                            operaLogEntity.setPath("packBigGoods");
+                            operaLogEntity.setJsonContent("无");
+                            operaLogEntity.setDocumentId(item.getId());
+                            operaLogEntity.setParentId(packInfo.getId());
+                            operaLogEntity.setContent(StrUtil.format("物料编号【{}】-规格编码【{}】-颜色编码【{}】，获取单价为【{}】",
+                                    item.getMaterialCode(), item.getTranslateCode(), item.getColorCode(), item.getPurchasePrice()));
+                            operaLogEntity.setDocumentName(item.getMaterialCode());
+                            operaLogEntity.setDocumentCode(item.getMaterialCode());
+                            operaLogEntityList.add(operaLogEntity);
+                            return packPricingBom;
+                        }).collect(Collectors.toList());
+                operaLogService.saveBatch(operaLogEntityList);
+                return newList;
+            } else {
+                String errorMessage = StrUtil.format("未获取到料清单采购单价！");
+                log.error(errorMessage);
+                throw new OtherException(errorMessage);
+            }
+        } else {
+            String errorMessage = StrUtil.format("获取料清单采购单价失败！失败原因：{}", httpResp.getMessage());
+            log.error(errorMessage);
+            throw new OtherException(errorMessage);
+        }
+    }
+
+    @NotNull
+    private static MaterialPurchaseMaterialsInfo getMaterialPurchaseMaterialsInfo(PackPricingBom packPricingBom, Style style, String styleNo) {
+        MaterialPurchaseMaterialsInfo materialPurchaseMaterialsInfo = new MaterialPurchaseMaterialsInfo();
+        materialPurchaseMaterialsInfo.setBrandCode(style.getBrand());
+        materialPurchaseMaterialsInfo.setMaterialsNo(packPricingBom.getMaterialCode());
+        materialPurchaseMaterialsInfo.setSpecificationsNo(packPricingBom.getTranslateCode());
+        materialPurchaseMaterialsInfo.setMaterialsColorCode(packPricingBom.getColorCode());
+        materialPurchaseMaterialsInfo.setMaterialsName(packPricingBom.getMaterialName());
+        materialPurchaseMaterialsInfo.setStyleNo(styleNo);
+        return materialPurchaseMaterialsInfo;
+    }
+
 
     public Integer goods(String[] ids) {
         return goods(ids, null, null, null);

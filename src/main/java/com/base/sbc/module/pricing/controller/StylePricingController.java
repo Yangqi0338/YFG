@@ -6,8 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
+import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.druid.support.console.OptionParseException;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -19,9 +23,16 @@ import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.entity.PackPricingBom;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingBomService;
 import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -82,7 +93,11 @@ public class StylePricingController extends BaseController {
     private BaseController baseController;
 
     @Autowired
+    @Lazy
     private PackInfoService packInfoService;
+    @Autowired
+    @Lazy
+    private PackBomService packBomService;
 
     @Autowired
     @Lazy
@@ -92,6 +107,9 @@ public class StylePricingController extends BaseController {
     private PackPricingService packPricingService;
     @Autowired
     private StyleService styleService;
+
+    @Autowired
+    private PackPricingBomService packPricingBomService;
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
@@ -125,6 +143,12 @@ public class StylePricingController extends BaseController {
         return selectSuccess(stylePricingService.getByPackId(packId, super.getUserCompany()));
     }
 
+    @ApiOperation(value = "从 SCM 系统获取物料采购单价数据")
+    @PostMapping("/getMaterialPurchasePrice")
+    public ApiResult<List<PackPricingBom>> getMaterialPurchasePrice(@RequestBody List<String> packPricingBomList) {
+        return ApiResult.success("获取成功！", smpService.getMaterialPurchasePrice(packPricingBomList));
+    }
+
     @ApiOperation(value = "保存")
     @PostMapping("/insertOrUpdate")
     @DuplicationCheck
@@ -155,6 +179,7 @@ public class StylePricingController extends BaseController {
             dto.setIds("packInfo:" + dto.getId());
         }
         dto.setControlConfirm(BaseGlobal.YES);
+
         return updateStatus(dto);
     }
 
@@ -230,6 +255,26 @@ public class StylePricingController extends BaseController {
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
                     throw new OtherException("计控已确认");
                 }
+
+                // 计控确认时 判断物料采购单价是否都是大于 0，只要一个不是，那么抛出异常
+                PackCommonPageSearchDto packCommonPageSearchDto = new PackCommonPageSearchDto();
+                packCommonPageSearchDto.setForeignId(stylePricing.getPackId());
+                packCommonPageSearchDto.setPackType("packBigGoods");
+                PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(packCommonPageSearchDto);
+                if (ObjectUtil.isNotEmpty(packBomVoPageInfo)) {
+                    List<PackBomVo> pageInfoList = packBomVoPageInfo.getList();
+                    if (ObjectUtil.isNotEmpty(pageInfoList)) {
+                        // 过滤出采购单价为空 或者 不大于 0 的数据
+                        List<String> emptyData = pageInfoList.stream()
+                                .filter(item -> ObjectUtil.isEmpty(item.getPurchasePrice()) || !(item.getPurchasePrice().compareTo(BigDecimal.ZERO) > 0))
+                                .map(PackBomVo::getMaterialCode).collect(Collectors.toList());
+                        if (ObjectUtil.isNotEmpty(emptyData)) {
+                            String errorMsg = StrUtil.format("大货款号【{}】下的物料编码为【{}】的数据采购单价必须大于 0 才能进行计控确认！", packInfo.getStyleNo(), CollUtil.join(emptyData, ","));
+                            throw new OtherException(errorMsg);
+                        }
+                    }
+                }
+
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
                 operaLogEntity.setDocumentName("计控确认");
@@ -297,6 +342,21 @@ public class StylePricingController extends BaseController {
             if (collect.length > 0) {
                 smpService.goods(collect);
             }
+        }
+        /*当计控成本确定时同时标记核价的物料*/
+        if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
+//           查询所有资料包的核价物料
+            QueryWrapper<PackPricingBom> packPricingBomQueryWrapper = new QueryWrapper<>();
+            packPricingBomQueryWrapper.eq("company_code",getUserCompany());
+            packPricingBomQueryWrapper.in("foreign_id", packIdList);
+            packPricingBomQueryWrapper.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
+            packPricingBomQueryWrapper.eq("del_flag", BaseGlobal.NO);
+            List<PackPricingBom> pricingBomList = packPricingBomService.list(packPricingBomQueryWrapper);
+            if(CollUtil.isNotEmpty(pricingBomList)){
+                pricingBomList.forEach(p -> p.setControlCostFlag(BaseGlobal.YES));
+                packPricingBomService.updateBatchById(pricingBomList);
+            }
+
         }
         return updateSuccess("提交成功");
     }

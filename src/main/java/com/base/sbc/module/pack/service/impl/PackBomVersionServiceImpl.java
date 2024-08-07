@@ -128,6 +128,10 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     private SmpService smpService;
     @Resource
     private StyleService styleService;
+
+    @Resource
+    private  PackPricingBomService packPricingBomService;
+
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
         QueryWrapper<PackBomVersion> qw = new QueryWrapper<>();
@@ -567,7 +571,9 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 bom.insertInit();
             }
             packBomService.saveBatch(BeanUtil.copyToList(bomList, PackBom.class));
-
+            if(StrUtil.equals(BasicNumber.ONE.getNumber(), flg)){
+                packPricingBomService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType,newIdMaps);
+            }
         }
         // 复制物料清单-单款多色数据到大货资料包
         if (CollUtil.isNotEmpty(packBomColorList)) {

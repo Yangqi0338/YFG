@@ -23,6 +23,7 @@ import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper;
 import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.beust.jcommander.internal.Lists;
@@ -56,6 +57,10 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Autowired
+    private  PackPricingService packPricingService;
+
 // 自定义方法区 不替换的区域【other_start】
 
     @Override
@@ -103,6 +108,8 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     public Boolean batchOtherCosts(List<PackPricingOtherCostsDto> dto) {
         List<PackPricingOtherCosts> list =BeanUtil.copyToList(dto,PackPricingOtherCosts.class);
         saveOrUpdateBatch(list);
+        /*重新计算*/
+        packPricingService.calculatePricingJson(dto.get(0).getForeignId(),dto.get(0).getPackType());
         return true;
     }
 
@@ -161,7 +168,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                     PackPricingOtherCosts packPricingOtherCosts = new PackPricingOtherCosts();
                     packPricingOtherCosts.setPackType(packType);
                     packPricingOtherCosts.setForeignId(foreignId);
-                    packPricingOtherCosts.setCostsItem( "costOtherPrice".equals(outerEntry.getKey())?"其他费":"外协加工费"  );
+                    packPricingOtherCosts.setCostsItem( "costOtherPrice".equals(outerEntry.getKey())?"其它费":"外协加工费"  );
                     packPricingOtherCosts.setCostsType(innerEntry.getValue());
                     packPricingOtherCosts.setCostsTypeId(innerEntry.getKey());
                     packPricingOtherCosts.setPrice(BigDecimal.ZERO);
@@ -175,6 +182,22 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         return true;
     }
 
+    /**
+     * 其他费用外协加工费-删除
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean delOtherCosts(String id) {
+        PackPricingOtherCosts packPricingOtherCosts = baseMapper.selectById(id);
+        if(ObjectUtil.isEmpty(packPricingOtherCosts)){
+            throw new OtherException("id错误");
+        }
+        baseMapper.deleteById(packPricingOtherCosts.getId());
+        packPricingService.calculatePricingJson(packPricingOtherCosts.getForeignId(),packPricingOtherCosts.getPackType());
+        return true;
+    }
 
 
     @Override
