@@ -166,13 +166,16 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                                 List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
                                         .filter(it -> it.getConfigName().equals(itemName))
                                         .collect(Collectors.toList());
-                                if ("C8_品类".equals(configVO.getTitleDictKey())) {
-                                    prodCategoryFunc.accept(vo, itemName);
-                                }
+                                String prodCategory = String.format("未找到当前品类%s的评分数据", CommonUtils.strJoin("/",
+                                        style.getProdCategory1stName(), style.getProdCategoryName(), style.getProdCategory2ndName(), style.getProdCategory3rdName()));
                                 Optional<String> itemValueOpt = matchItemValueList.stream()
                                         .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
                                 if (itemValueOpt.isPresent()) {
                                     configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
+                                    prodCategory = detailSaveDTO.getItemName();
+                                }
+                                if ("C8_品类".equals(configVO.getTitleDictKey())) {
+                                    prodCategoryFunc.accept(vo, prodCategory);
                                 }
                                 return detailSaveDTO;
                             }).collect(Collectors.toList());
