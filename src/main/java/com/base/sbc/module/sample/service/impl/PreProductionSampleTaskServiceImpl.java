@@ -29,7 +29,12 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -59,6 +64,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -115,6 +121,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private SmpService smpService;
     @Autowired
     private AmcService amcService;
+
+    @Autowired
+    private WorkloadRatingDetailService workloadRatingDetailService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -274,6 +283,15 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 设置图
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
+
+        if ("车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+            Map<String, Style> styleMap = styleService.listByIds(
+                    list.stream().map(PreProductionSampleTaskVo::getStyleId).collect(Collectors.toList())
+            ).stream().collect(CommonUtils.toMap(Style::getId));
+            list.forEach(it -> it.setStyleEntity(styleMap.getOrDefault(it.getStyleId(), null)));
+            workloadRatingDetailService.decorateWorkloadRating(list, PreProductionSampleTaskVo::getStyleEntity, PreProductionSampleTaskVo::getWorkloadRatingId,
+                    PreProductionSampleTaskVo::setProdCategory, PreProductionSampleTaskVo::setRatingDetailDTO, PreProductionSampleTaskVo::setRatingConfigList);
+        }
         return objects.toPageInfo();
     }
 
