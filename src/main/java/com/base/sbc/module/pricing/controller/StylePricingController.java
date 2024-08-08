@@ -265,12 +265,12 @@ public class StylePricingController extends BaseController {
                 packCommonPageSearchDto.setPackType("packBigGoods");
                 PageInfo pageInfo = packPricingBomService.pageInfo(packCommonPageSearchDto);
                 if (ObjectUtil.isNotEmpty(pageInfo)) {
-                    List<PackPricingBomVo> pageInfoList = pageInfo.getList();
+                    List<PackPricingBom> pageInfoList = pageInfo.getList();
                     if (ObjectUtil.isNotEmpty(pageInfoList)) {
                         // 过滤出采购单价为空 或者 不大于 0 的数据
                         List<String> emptyData = pageInfoList.stream()
                                 .filter(item -> ObjectUtil.isEmpty(item.getPurchasePrice()) || !(item.getPurchasePrice().compareTo(BigDecimal.ZERO) > 0))
-                                .map(PackPricingBomVo::getMaterialCode).collect(Collectors.toList());
+                                .map(PackPricingBom::getMaterialCode).collect(Collectors.toList());
                         if (ObjectUtil.isNotEmpty(emptyData)) {
                             String errorMsg = StrUtil.format("大货款号【{}】下的物料编码为【{}】的数据采购单价必须大于 0 才能进行计控确认！", packInfo.getStyleNo(), CollUtil.join(emptyData, ","));
                             throw new OtherException(errorMsg);
