@@ -58,7 +58,6 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
  * @since 1.0.0
  */
 
-@Component
 @Intercepts({
         @Signature(
                 type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class
