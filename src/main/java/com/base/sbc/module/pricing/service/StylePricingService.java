@@ -42,7 +42,7 @@ public interface StylePricingService extends BaseService<StylePricing> {
      * @param stylePricingSearchDTO
      * @return
      */
-    PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO stylePricingSearchDTO);
+    PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO stylePricingSearchDTO) ;
 
     /**
      * 通过资料包id获取
