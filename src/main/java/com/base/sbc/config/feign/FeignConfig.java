@@ -32,6 +32,10 @@ public class FeignConfig {
                     if (headerNames != null) {
                         while (headerNames.hasMoreElements()) {
                             String name = headerNames.nextElement();
+                            // springboot2.x+ 增加了参数校验,会检查content-length
+                            if (name.equals("content-length")){
+                                continue;
+                            }
                             if(!"Content-type".equalsIgnoreCase(name)){
                                 String values = request.getHeader(name);
                                 requestTemplate.header(name, values);
