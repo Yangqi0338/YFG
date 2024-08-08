@@ -164,29 +164,30 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             WorkloadRatingDetailDTO newDetailDTO = new WorkloadRatingDetailDTO();
                             newDetailDTO.setType(WorkloadRatingType.SAMPLE);
                             newDetailDTO.setBrand(brand);
-                            List<WorkloadRatingDetailSaveDTO> saveDTOList = configVOList.stream().map(configVO -> {
-                                String itemName = configVO.getItemName();
-                                WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
-                                List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
-                                        .filter(it -> it.getConfigName().equals(itemName))
-                                        .collect(Collectors.toList());
-                                String prodCategory = String.format("未找到当前品类%s的评分数据", CommonUtils.strJoin("/",
-                                        style.getProdCategory1stName(), style.getProdCategoryName(), style.getProdCategory2ndName(), style.getProdCategory3rdName()));
-                                Optional<String> itemValueOpt = matchItemValueList.stream()
-                                        .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
-                                if (itemValueOpt.isPresent()) {
-                                    configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
-                                    prodCategory = detailSaveDTO.getItemName();
-                                }
-                                if ("C8_品类".equals(configVO.getTitleDictKey())) {
-                                    prodCategoryFunc.accept(vo, prodCategory);
-                                }
-                                return detailSaveDTO;
-                            }).collect(Collectors.toList());
-                            appendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
-                            newDetailDTO.setConfigList(saveDTOList);
                             return newDetailDTO;
                         });
+
+                List<WorkloadRatingDetailSaveDTO> saveDTOList = configVOList.stream().map(configVO -> {
+                    String itemName = configVO.getItemName();
+                    WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
+                    List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
+                            .filter(it -> it.getConfigName().equals(itemName))
+                            .collect(Collectors.toList());
+                    String prodCategory = String.format("未找到当前品类%s的评分数据", CommonUtils.strJoin("/",
+                            style.getProdCategory1stName(), style.getProdCategoryName(), style.getProdCategory2ndName(), style.getProdCategory3rdName()));
+                    Optional<String> itemValueOpt = matchItemValueList.stream()
+                            .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
+                    if (itemValueOpt.isPresent()) {
+                        configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
+                        prodCategory = detailSaveDTO.getItemName();
+                    }
+                    if ("C8_品类".equals(configVO.getTitleDictKey())) {
+                        prodCategoryFunc.accept(vo, prodCategory);
+                    }
+                    return detailSaveDTO;
+                }).collect(Collectors.toList());
+                appendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
+                detailDTO.setConfigList(saveDTOList);
 
                 resultKeyFunc.accept(vo, detailDTO);
                 resultValueFunc.accept(vo, CommonUtils.listFlatten(

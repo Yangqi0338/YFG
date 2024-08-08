@@ -25,7 +25,7 @@ import com.base.sbc.module.workload.mapper.WorkloadRatingConfigMapper;
 import com.base.sbc.module.workload.service.WorkloadRatingConfigService;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,55 +63,63 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
         BaseLambdaQueryWrapper<WorkloadRatingConfig> qw = buildQueryWrapper(qo);
         List<WorkloadRatingConfigVO> resultList = BeanUtil.copyToList(this.list(qw), WorkloadRatingConfigVO.class);
 
-        resultList.stream().collect(CommonUtils.toMap(it -> Pair.of(it.getItemType(), it.getItemValue())))
-                .forEach((key, result) -> {
-                    WorkloadRatingItemType itemType = key.getKey();
-                    String valueKey = key.getValue();
+        resultList.stream().collect(CommonUtils.groupingBy(it -> Triple.of(it.getItemType(), it.getItemValue(), it.getTitleDictKey())))
+                .forEach((key, sameKeyList) -> {
+                    WorkloadRatingItemType itemType = key.getLeft();
+                    String valueKey = key.getMiddle();
 
                     if (qo.isSearchValue() && (CollUtil.isEmpty(notSearch) || !notSearch.contains(itemType))) {
                         List<SelectOptionsChildrenVo> valueList = itemType.findSelectOptionsByKey(valueKey);
-                        result.setOptionsList(valueList);
+                        sameKeyList.forEach(it -> it.setOptionsList(valueList));
                     }
 
                     if (qo.isBuildTitleField()) {
-                        List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = new ArrayList<>();
-                        String titleDictKey = result.getTitleDictKey();
+                        List<WorkloadRatingTitleFieldDTO> baseTitleFieldDTOList = new ArrayList<>();
+                        String titleDictKey = key.getRight();
+                        boolean itemNameShow = Arrays.asList(WorkloadRatingItemType.ARRAY, WorkloadRatingItemType.ENUM).contains(itemType);
                         if (StrUtil.isNotBlank(titleDictKey)) {
-                            titleFieldDTOList.addAll(ccmFeignService.getDictInfoToList(titleDictKey).stream().map(it ->
+                            baseTitleFieldDTOList.addAll(ccmFeignService.getDictInfoToList(titleDictKey).stream().map(it ->
                                     new WorkloadRatingTitleFieldDTO(it.getDescription(), it.getName(), it.getSort().intValue())
                             ).collect(Collectors.toList()));
-                        } else if (Arrays.asList(WorkloadRatingItemType.ARRAY, WorkloadRatingItemType.ENUM).contains(itemType)) {
-                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("itemName", result.getItemName(), 0));
-                        } else {
+                        } else if (!itemNameShow) {
                             List<BasicBaseDict> parentDictList = ccmFeignService.getDictParentByType(valueKey);
                             parentDictList.stream().findFirst().ifPresent(parentDict -> {
-                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("itemName", parentDict.getName(), 0));
+                                baseTitleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("itemName", parentDict.getName(), 0));
                             });
                         }
                         Class<?> titleClass = itemType.getTitleClass();
                         if (titleClass != null) {
                             List<String> fieldNameList = Arrays.stream(titleClass.getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
-                            List<String> codeList = titleFieldDTOList.stream().map(WorkloadRatingTitleFieldDTO::getCode).collect(Collectors.toList());
+                            List<String> codeList = baseTitleFieldDTOList.stream().map(WorkloadRatingTitleFieldDTO::getCode).collect(Collectors.toList());
                             boolean isIntersection = CollUtil.containsAny(codeList, fieldNameList);
                             if (isIntersection) {
-                                titleFieldDTOList.removeIf(it -> !fieldNameList.contains(it.getCode()));
+                                baseTitleFieldDTOList.removeIf(it -> !fieldNameList.contains(it.getCode()));
                             }
                         }
-                        int maxValue = titleFieldDTOList.stream().mapToInt(WorkloadRatingTitleFieldDTO::getIndex).max().orElse(-1);
-                        titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score", result.getCalculateType().getText(), maxValue + 1, result.getId()));
+                        int maxValue = baseTitleFieldDTOList.stream().mapToInt(WorkloadRatingTitleFieldDTO::getIndex).max().orElse(-1);
+
                         // 查询相同的show
                         WorkloadRatingConfigQO notShowQo = new WorkloadRatingConfigQO();
-                        notShowQo.setType(result.getType());
-                        notShowQo.setBrand(result.getBrand());
-                        notShowQo.setItemType(result.getItemType());
-                        notShowQo.setItemValue(result.getItemValue());
+                        notShowQo.setType(qo.getType());
+                        notShowQo.setBrand(sameKeyList.stream().map(WorkloadRatingConfigVO::getBrand).collect(Collectors.joining(COMMA)));
+                        notShowQo.setItemType(itemType);
+                        notShowQo.setItemValue(valueKey);
                         notShowQo.setIsConfigShow(YesOrNoEnum.NO);
                         List<WorkloadRatingConfig> notShowList = this.list(buildQueryWrapper(notShowQo));
-                        for (int i = 1; i <= notShowList.size(); i++) {
-                            WorkloadRatingConfig notShowConfig = notShowList.get(i - 1);
-                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getId()));
+
+                        for (WorkloadRatingConfigVO result : sameKeyList) {
+                            List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = CollUtil.newArrayList(baseTitleFieldDTOList);
+                            if (itemNameShow) {
+                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("itemName", result.getItemName(), 0));
+                            }
+                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score", result.getCalculateType().getText(), maxValue + 1, result.getId()));
+                            List<WorkloadRatingConfig> brandNotShowList = notShowList.stream().filter(it -> it.getBrand().equals(result.getBrand())).collect(Collectors.toList());
+                            for (int i = 1; i <= brandNotShowList.size(); i++) {
+                                WorkloadRatingConfig notShowConfig = brandNotShowList.get(i - 1);
+                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getId()));
+                            }
+                            result.setTitleField(JSONUtil.toJsonStr(titleFieldDTOList));
                         }
-                        result.setTitleField(JSONUtil.toJsonStr(titleFieldDTOList));
                     }
                 });
 
