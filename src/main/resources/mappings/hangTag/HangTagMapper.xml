@@ -706,11 +706,8 @@
         CONCAT( tsd.design_no, tsd.style_name ) AS style,
         tsd.id as styleId,
         tpi.id as packInfoId,
-        tsd.devt_type AS produceType,
-        tsd.devt_type AS devtType,
         tsd.receive_dept_id AS receiveDeptId,
         tsd.style_type AS styleType,
-        tsd.devt_type_name AS produceTypeName,
         tsd.style_type_name AS styleTypeName,
         tsd.size_range AS modelType,
         tsd.size_range_name AS modelTypeName,
@@ -719,6 +716,9 @@
         tsd.year AS year,
         tsd.season AS season,
         tsd.brand_name AS brandName,
+        tssc.devt_type AS produceType,
+        tssc.devt_type AS devtType,
+        tssc.devt_type_name AS produceTypeName,
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -747,6 +747,7 @@
                 LEFT JOIN t_pack_info_status ps ON ( tpi.id = ps.foreign_id AND ps.del_flag = '0' )
                 LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id )
                 LEFT JOIN t_hang_tag ht ON tpi.design_no = ht.bulk_style_no
+                LEFT JOIN t_style_color tssc ON tssc.id = tpi.style_color_id
             </when>
             <otherwise>
                 t_style_color tssc
