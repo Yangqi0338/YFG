@@ -152,6 +152,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     private StylePicUtils stylePicUtils;
     @Autowired
     private PlanningProjectPlankService planningProjectPlankService;
+    @Lazy
     @Autowired
     private PlanningProjectService planningProjectService;
     @Autowired
