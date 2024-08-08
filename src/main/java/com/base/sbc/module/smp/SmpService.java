@@ -64,6 +64,7 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
+import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
@@ -143,13 +144,17 @@ public class SmpService {
 
     private final RestTemplateService restTemplateService;
 
-    private final PushRecordsService pushRecordsService;
+    @Resource
+    @Lazy
+    private PushRecordsService pushRecordsService;
 
     @Resource
     @Lazy
     private BasicsdatumMaterialService basicsdatumMaterialService;
 
-    private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+    @Resource
+    @Lazy
+    private BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
     private final AmcService amcService;
 
@@ -157,32 +162,48 @@ public class SmpService {
 
     @Resource
     @Lazy
-    private final PackInfoService packInfoService;
+    private PackInfoService packInfoService;
 
     @Resource
     @Lazy
-    private final PackTechSpecService packTechSpecService;
+    private PackTechSpecService packTechSpecService;
 
     @Resource
     @Lazy
     private StyleSpecFabricService styleSpecFabricService;
 
-    private final PackBomService packBomService;
+    @Resource
+    @Lazy
+    private PackBomService packBomService;
+
     @Resource
     @Lazy
     private PackPricingBomService packPricingBomService;
-    private final PackBomVersionService packBomVersionService;
 
-    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+    @Resource
+    @Lazy
+    private PackBomVersionService packBomVersionService;
 
-    private final PackBomSizeService packBomSizeService;
+    @Resource
+    @Lazy
+    private BasicsdatumColourLibraryService basicsdatumColourLibraryService;
 
-    private final BasicsdatumSizeService basicsdatumSizeService;
+    @Resource
+    @Lazy
+    private PackBomSizeService packBomSizeService;
 
-    private final StyleService styleService;
+    @Resource
+    @Lazy
+    private BasicsdatumSizeService basicsdatumSizeService;
 
-    private final StyleColorAgentService styleColorAgentService;
-    ;
+    @Resource
+    @Lazy
+    private StyleService styleService;
+
+    @Resource
+    @Lazy
+    private StyleColorAgentService styleColorAgentService;
+
     @Resource
     @Lazy
     private StyleColorService styleColorService;
@@ -193,37 +214,82 @@ public class SmpService {
     @Lazy
     private PackSizeService packSizeService;
 
-    private final AttachmentService attachmentService;
+    @Resource
+    @Lazy
+    private AttachmentService attachmentService;
 
-    private final PackInfoStatusService packInfoStatusService;
+    @Resource
+    @Lazy
+    private PackInfoStatusService packInfoStatusService;
 
-    private final PackPricingService packPricingService;
+    @Resource
+    @Lazy
+    private PackPricingService packPricingService;
 
+    @Resource
+    @Lazy
     private final PackTechPackagingService packTechPackagingService;
 
-    private final StylePricingService stylePricingService;
-
-    private final PatternMakingService patternMakingService;
-
-    private final BasicsdatumIngredientService basicsdatumIngredientService;
-    private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
-    private final PreProductionSampleTaskService preProductionSampleTaskService;
-    private final UploadFileService uploadFileService;
-    private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
-    private final StyleMainAccessoriesService styleMainAccessoriesService;
-
-    private final BasicsdatumSupplierService basicsdatumSupplierService;
-    private final HangTagServiceImpl hangTagService;
-    private final FieldValService fieldValService;
-    private final SaleProductIntoService saleProductIntoService;
-    private final DataPermissionsService dataPermissionsService;
+    @Resource
     @Lazy
-    private final HangTagIngredientService hangTagIngredientService;
+    private StylePricingService stylePricingService;
+
+    @Resource
+    @Lazy
+    private PatternMakingService patternMakingService;
+
+
+    @Resource
+    @Lazy
+    private BasicsdatumIngredientService basicsdatumIngredientService;
+
+    @Resource
+    @Lazy
+    private BasicsdatumMaterialColorService basicsdatumMaterialColorService;
+
+    @Resource
+    @Lazy
+    private PreProductionSampleTaskService preProductionSampleTaskService;
+
+    @Resource
+    @Lazy
+    private UploadFileService uploadFileService;
+
+    @Resource
+    @Lazy
+    private BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
+
+    @Resource
+    @Lazy
+    private StyleMainAccessoriesService styleMainAccessoriesService;
+
+    @Resource
+    @Lazy
+    private BasicsdatumSupplierService basicsdatumSupplierService;
+
+    @Resource
+    @Lazy
+    private HangTagService hangTagService;
+
+    @Resource
+    @Lazy
+    private FieldValService fieldValService;
+
+    @Resource
+    @Lazy
+    private SaleProductIntoService saleProductIntoService;
+
+    @Resource
+    @Lazy
+    private DataPermissionsService dataPermissionsService;
+
+    @Resource
+    @Lazy
+    private HangTagIngredientService hangTagIngredientService;
 
     @Resource
     @Lazy
     private StyleColorCorrectInfoService styleColorCorrectInfoService;
-
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -234,7 +300,8 @@ public class SmpService {
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
 
-    @Autowired
+    @Resource
+    @Lazy
     private FieldBusinessSystemService fieldBusinessSystemService;
 
     @Autowired
