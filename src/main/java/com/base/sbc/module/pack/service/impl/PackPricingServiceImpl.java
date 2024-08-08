@@ -63,12 +63,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -487,33 +482,43 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
                 throw new OtherException("物料清单不存在");
             }
         }else{
-            //全量同步
-            //删除之前没计控确认的（物理删除）
+            // 全量同步
+            // 删除之前没计控确认的（物理删除）
             BaseQueryWrapper<PackPricingBom> pricingBomQw = new BaseQueryWrapper<>();
-            PackUtils.commonQw(pricingBomQw,dto);
+            PackUtils.commonQw(pricingBomQw, dto);
             pricingBomQw.isNotNull("bom_id");
-            pricingBomQw.eq("control_cost_flag",BaseGlobal.NO);
+            pricingBomQw.eq("control_cost_flag", BaseGlobal.NO);
             packPricingBomService.physicalDeleteQWrap(pricingBomQw);
-            /*过滤调已确定计控的物料*/
-            List<PackPricingBom> pricingBomList = packPricingBomService.getByList("control_cost_flag", BaseGlobal.YES);
+            // 获取已确定计控的物料
+            QueryWrapper<PackPricingBom> queryWrapper = new QueryWrapper<>();
+            PackUtils.commonQw(queryWrapper, dto);
+            queryWrapper.eq("control_cost_flag", BaseGlobal.YES);
+            List<PackPricingBom> pricingBomList = packPricingBomService.list(queryWrapper);
+            // 获取所有有效的版本物料
             List<PackBomVo> enableVersionBomList = packBomVersionService.getEnableVersionBomList(dto.getForeignId(), dto.getPackType());
-            if(CollUtil.isNotEmpty(pricingBomList)){
-                List<String>  stringList =pricingBomList.stream().map(PackPricingBom::getBomId).collect(Collectors.toList());
-                /*过滤已确定核价的数据*/
-                enableVersionBomList = enableVersionBomList.stream().filter(e -> !stringList.contains(e.getId())).collect(Collectors.toList());
+            // 过滤掉已确定核价的数据
+            Set<String> confirmedBomIds = new HashSet<>();
+            if (CollUtil.isNotEmpty(pricingBomList)) {
+                confirmedBomIds = pricingBomList.stream().map(PackPricingBom::getBomId).collect(Collectors.toSet());
             }
-            if(CollUtil.isNotEmpty(enableVersionBomList)){
-                /*用与新增*/
-                List<PackPricingBom> packPricingBoms = BeanUtil.copyToList(enableVersionBomList,PackPricingBom.class);
+            /*过滤已计控确认的数据*/
+            Set<String> finalConfirmedBomIds = confirmedBomIds;
+            List<PackBomVo> filteredBomList = CollUtil.isNotEmpty(enableVersionBomList) ?
+                    enableVersionBomList.stream().filter(bom -> !finalConfirmedBomIds.contains(bom.getId())).collect(Collectors.toList()) :Collections.emptyList();
+
+            if (CollUtil.isNotEmpty(filteredBomList)) {
+                // 使用 BeanUtil 的 copyToList 方法批量转换
+                List<PackPricingBom> packPricingBoms = BeanUtil.copyToList(filteredBomList, PackPricingBom.class);
+
+                // 设置额外的字段
                 for (PackPricingBom packPricingBom : packPricingBoms) {
                     packPricingBom.calculateCost();
                     packPricingBom.insertInit();
                     packPricingBom.setBomId(packPricingBom.getId());
                     packPricingBom.setId(null);
                 }
-                if(CollUtil.isNotEmpty(packPricingBoms)){
-                    packPricingBomService.saveBatch(packPricingBoms);
-                }
+                // 批量保存
+                packPricingBomService.saveBatch(packPricingBoms);
             }
         }
         /*重新计算核价*/
