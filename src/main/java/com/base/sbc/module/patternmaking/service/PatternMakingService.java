@@ -14,9 +14,34 @@ import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
-import com.base.sbc.module.patternmaking.dto.*;
+import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
+import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
+import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
+import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
+import com.base.sbc.module.patternmaking.dto.SetKittingDto;
+import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
+import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
+import com.base.sbc.module.patternmaking.dto.SetSortDto;
+import com.base.sbc.module.patternmaking.dto.StyleSendDto;
+import com.base.sbc.module.patternmaking.dto.SuspendDto;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
-import com.base.sbc.module.patternmaking.vo.*;
+import com.base.sbc.module.patternmaking.vo.NodeListVo;
+import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingCommonPageSearchVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
+import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
+import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
+import com.base.sbc.module.patternmaking.vo.StyleResearchNodeVo;
+import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
+import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
@@ -337,7 +362,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean patternMakingScore(Principal user, String id, BigDecimal score);
 
-    boolean sampleMakingScore(Principal user, String id, BigDecimal score);
+    boolean sampleMakingScore(PatternMakingDto dto);
 
     boolean setSampleBarCode(SetSampleBarCodeDto dto);
 
@@ -351,7 +376,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean patternMakingQualityScore(Principal user, String id, BigDecimal score);
 
-    boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score);
+    boolean sampleMakingQualityScore(String id, BigDecimal score);
 
     /**
      * 样衣工编辑
@@ -359,7 +384,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param dto
      * @return
      */
-    boolean sampleMakingEdit(Principal user,PatternMakingDto dto);
+    boolean sampleMakingEdit(PatternMakingDto dto);
 
     /**
      * 获取所有版师列表

@@ -3,6 +3,7 @@ package com.base.sbc.config.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Filter;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
@@ -15,6 +16,7 @@ import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.exception.OtherException;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -41,6 +43,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.Constants.COMMA;
+
 /**
  * @author 卞康
  * @date 2023/3/31 15:46:55
@@ -48,6 +52,8 @@ import java.util.stream.Collectors;
 public class CommonUtils {
 
     public static final String[] image_accept = {"jpg", "png", "jpeg"};
+    public static final StrJoiner iCommaJoiner = StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE);
+    public static final StrJoiner eCommaJoiner = StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.TO_EMPTY);
 
     /**
      * 取多个set集合相交的数据，集合可为null，不进行筛选，但是任何一个set集合的长度为0，则无任何相交对象
@@ -405,23 +411,28 @@ public class CommonUtils {
     }
 
     // 封装Hutool的StrJoiner
-    public static StrJoiner strJoin(CharSequence delimiter, CharSequence prefix, CharSequence suffix) {
-        return strJoin(delimiter, prefix, suffix, StrJoiner.NullMode.IGNORE);
+    public static <T> String saftyStrJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
+        return saftyStrJoin(delimiter, list.stream().map(func).map(Object::toString).toArray(String[]::new)).toString();
     }
-    public static StrJoiner strJoin(CharSequence delimiter) {
-        return strJoin(delimiter, StrJoiner.NullMode.IGNORE);
+
+    public static <T> String strJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
+        return strJoin(delimiter, list.stream().map(func).map(StrUtil::utf8Str).toArray(String[]::new)).toString();
+    }
+
+    public static StrJoiner strJoin(CharSequence delimiter, CharSequence... str) {
+        return strJoin(delimiter, StrJoiner.NullMode.IGNORE, str);
     }
 
     public static StrJoiner saftyStrJoin(CharSequence delimiter, CharSequence... str) {
-        return strJoin(delimiter, StrJoiner.NullMode.IGNORE).append(Arrays.stream(str).map(it-> Opt.ofBlankAble(it).orElse(" ")).collect(Collectors.toList()));
+        return strJoin(delimiter).append(Arrays.stream(str).map(it -> Opt.ofBlankAble(it).orElse(" ")).collect(Collectors.toList()));
     }
 
-    public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode) {
-        return StrJoiner.of(delimiter).setNullMode(nullMode);
+    public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode, CharSequence... str) {
+        return StrJoiner.of(delimiter).setNullMode(nullMode).append(str);
     }
 
-    public static StrJoiner strJoin(CharSequence delimiter, CharSequence prefix, CharSequence suffix, StrJoiner.NullMode nullMode) {
-        return StrJoiner.of(delimiter, prefix, suffix).setNullMode(nullMode);
+    public static StrJoiner appendPreAndSuffix(StrJoiner joiner, CharSequence prefix, CharSequence suffix) {
+        return joiner.setPrefix(prefix).setSuffix(suffix);
     }
 
     public static <T> T listGet(Collection<T> collection, int index, T defaultValue) {
@@ -470,9 +481,62 @@ public class CommonUtils {
         return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
     }
 
+    public static <T> List<T> listFlatten(List<T>... sourceList) {
+        return Arrays.stream(sourceList).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> listTreeFlatten(List<T> sourceList, Function<T, List<T>> childrenListFunc) {
+        List<T> result = new ArrayList<>();
+        if (CollUtil.isEmpty(sourceList)) return sourceList;
+        for (T source : sourceList) {
+            result.add(source);
+            listTreeFlatten(result, source, childrenListFunc);
+        }
+        return result;
+    }
+
+    private static <T> void listTreeFlatten(List<T> newList, T source, Function<T, List<T>> childrenListFunc) {
+        if (source == null) return;
+        List<T> list = childrenListFunc.apply(source);
+        if (CollUtil.isEmpty(list)) return;
+        for (T t : list) {
+            newList.add(t);
+            listTreeFlatten(newList, t, childrenListFunc);
+        }
+    }
+
     public static <T> Supplier<? extends T> getListOne(List<T> list, T dto) {
         list.add(dto);
         return () -> dto;
+    }
+
+    public static <T> List<T> filterNotEmpty(List<T> list, Function<T, ?> func) {
+        return CollUtil.filter(list, notEmptyFunc(func));
+    }
+
+    public static <T> Collector<T, ?, Map<Boolean, List<T>>> groupNotBlank(Function<T, ?> classifier) {
+        return Collectors.groupingBy((it) -> notEmptyFunc(classifier).accept(it), LinkedHashMap::new, Collectors.toList());
+    }
+
+    public static <T> Filter<T> notEmptyFunc(Function<T, ?> func) {
+        return (t) -> ObjectUtil.isNotEmpty(func.apply(t));
+    }
+
+    public static <T extends BaseEntity> List<String> getIds(List<T> list, Function<T, String> func) {
+        return list.stream().map(func).collect(Collectors.toList());
+    }
+
+    public static String removeSuffix(CharSequence str, CharSequence suffix) {
+        if (StrUtil.isEmpty(str) || StrUtil.isEmpty(suffix)) {
+            return StrUtil.str(str);
+        }
+
+        String str2 = str.toString();
+        if (str2.endsWith(suffix.toString())) {
+            // 截取前半段
+            str2 = removeSuffix(StrUtil.subPre(str2, str2.length() - suffix.length()), suffix);
+        }
+        return str2;
     }
 
 }

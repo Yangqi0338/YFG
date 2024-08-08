@@ -726,7 +726,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public T findOne(QueryWrapper<T> wrapper) {
-        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst(), null);
+        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst());
     }
 
     @Override
@@ -736,7 +736,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public T findOne(LambdaQueryWrapper<T> wrapper) {
-        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst(), null);
+        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst());
     }
 
     @Override
@@ -761,7 +761,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> valueFunc) {
-        return this.list(new QueryWrapper<T>().select("id").in("id", ids).lambda().select(valueFunc)).stream().filter(Objects::nonNull).collect(CommonUtils.toMap(T::getId, valueFunc));
+        return mapOneField(new QueryWrapper<T>().select("id").in("id", ids).lambda().select(valueFunc), valueFunc);
     }
 
     /**
@@ -799,7 +799,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         // 先清掉PageHelper,以免报错
         // https://blog.csdn.net/qq_42696265/article/details/131944397
         SqlUtil.clearLocalPage();
-        return decorateResult(this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function), null);
+        return decorateResult(this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function));
     }
 
     @Override

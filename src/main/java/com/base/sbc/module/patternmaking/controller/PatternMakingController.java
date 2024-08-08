@@ -28,11 +28,35 @@ import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.patternmaking.dto.*;
+import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
+import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
+import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
+import com.base.sbc.module.patternmaking.dto.ScoreDto;
+import com.base.sbc.module.patternmaking.dto.SetKittingDto;
+import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
+import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
+import com.base.sbc.module.patternmaking.dto.SetSortDto;
+import com.base.sbc.module.patternmaking.dto.StyleSendDto;
+import com.base.sbc.module.patternmaking.dto.SuspendDto;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.patternmaking.vo.*;
+import com.base.sbc.module.patternmaking.vo.NodeListVo;
+import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingCommonPageSearchVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
+import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
+import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
+import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
+import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageInfo;
@@ -47,7 +71,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -448,21 +480,21 @@ public class PatternMakingController {
 
     @ApiOperation(value = "样衣制作评分", notes = "")
     @PostMapping("/sampleMakingScore")
-    public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
-        return patternMakingService.sampleMakingScore(user, dto.getId(), dto.getScore());
+    public boolean sampleMakingScore(@Validated @RequestBody PatternMakingDto dto) {
+        return patternMakingService.sampleMakingScore(dto);
     }
 
 
     @ApiOperation(value = "样衣工的质量打分", notes = "")
     @PostMapping("/sampleMakingQualityScore")
-    public boolean sampleMakingQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
-        return patternMakingService.sampleMakingQualityScore(user, dto.getId(), dto.getScore());
+    public boolean sampleMakingQualityScore(@Validated @RequestBody ScoreDto dto) {
+        return patternMakingService.sampleMakingQualityScore(dto.getId(), dto.getScore());
     }
 
     @ApiOperation(value = "样衣工编辑", notes = "")
     @PostMapping("/sampleMakingEdit")
-    public boolean sampleMakingEdit(Principal user, @Validated @RequestBody PatternMakingDto dto) {
-        return patternMakingService.sampleMakingEdit(user, dto);
+    public boolean sampleMakingEdit(@Validated @RequestBody PatternMakingDto dto) {
+        return patternMakingService.sampleMakingEdit(dto);
     }
 
     @ApiOperation(value = "设置样衣条码", notes = "")

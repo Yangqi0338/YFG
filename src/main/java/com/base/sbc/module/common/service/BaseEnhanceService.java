@@ -13,8 +13,9 @@ import java.util.Optional;
 public interface BaseEnhanceService<T> {
 
     ThreadLocal<String> warnMsg = new TransmittableThreadLocal<>();
+    ThreadLocal<Object> defaultValue = new TransmittableThreadLocal<>();
 
-    default void warnMsg(String warnMsg) {
+    default BaseEnhanceService<T> warnMsg(String warnMsg) {
         while (getWarnMsg() == null) {
             try {
                 Thread.sleep(50);
@@ -22,6 +23,7 @@ public interface BaseEnhanceService<T> {
             } catch (InterruptedException ignored) {
             }
         }
+        return this;
     }
 
     default void removeMsg() {
@@ -34,14 +36,43 @@ public interface BaseEnhanceService<T> {
         return BaseEnhanceService.warnMsg.get();
     }
 
-    default <V> V decorateResult(Optional<V> opt, V defaultValue) {
-        String msg = getWarnMsg();
-        if (msg != null) {
-            removeMsg();
-            return opt.orElseThrow(() -> new OtherException(msg));
-        } else {
-            return opt.orElse(defaultValue);
+    default BaseEnhanceService<T> defaultValue(Object defaultValue) {
+        while (getDefaultValue() == null) {
+            try {
+                Thread.sleep(50);
+                BaseEnhanceService.defaultValue.set(defaultValue);
+            } catch (InterruptedException ignored) {
+            }
         }
+        return this;
+    }
+
+    default void removeDefaultValue() {
+        if (getDefaultValue() != null) {
+            BaseEnhanceService.defaultValue.remove();
+        }
+    }
+
+    default Object getDefaultValue() {
+        return BaseEnhanceService.defaultValue.get();
+    }
+
+    default <V> V decorateResult(Optional<V> opt) {
+        String msg = getWarnMsg();
+        V result;
+        if (msg != null) {
+            result = opt.orElseThrow(() -> new OtherException(msg));
+        } else {
+            Object defaultValue = getDefaultValue();
+            if (defaultValue != null) {
+                result = opt.orElse((V) defaultValue);
+            } else {
+                result = opt.orElse(null);
+            }
+        }
+        removeMsg();
+        removeDefaultValue();
+        return result;
     }
 
 

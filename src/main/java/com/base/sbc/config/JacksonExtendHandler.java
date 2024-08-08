@@ -35,6 +35,15 @@ public class JacksonExtendHandler extends MybatisPlusExtendHandler {
         super(type);
     }
 
+    @Override
+    public Object parse(String json, Class<?> parameterType) {
+        try {
+            return getObjectMapper().readValue(json, parameterType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static ObjectMapper getObjectMapper() {
         if (null == OBJECT_MAPPER) {
             OBJECT_MAPPER = new ObjectMapper();

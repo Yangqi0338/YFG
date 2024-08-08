@@ -207,7 +207,9 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
         public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) {
             try {
                 String text = p.getText();
-                Class<?> rawClass = ReflectUtil.getField(p.getCurrentValue().getClass(), p.getCurrentName()).getType();
+                Object currentValue = p.getCurrentValue();
+                String currentName = p.getCurrentName();
+                Class<?> rawClass = ReflectUtil.getField(currentValue.getClass(), currentName).getType();
                 if (!rawClass.isEnum()) return null;
                 Class<Enum<?>> clazz = (Class<Enum<?>>) rawClass;
                 if (StrUtil.isBlank(text)) return null;
