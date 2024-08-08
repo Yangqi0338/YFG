@@ -53,6 +53,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -138,7 +139,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                     esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
                     esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
-                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(4)));
                 }
             }
         }
