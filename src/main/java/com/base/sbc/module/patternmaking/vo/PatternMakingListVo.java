@@ -49,6 +49,10 @@ public class PatternMakingListVo extends PatternMaking {
 
     private String samplePicUrl2;
 
+    private String samplePicUrl3;
+
+    private String samplePicUrl4;
+
     /** 打版视频文件url */
     @ApiModelProperty(value = "打版视频文件url"  )
     private String sampleVideoUrl;
@@ -72,6 +76,20 @@ public class PatternMakingListVo extends PatternMaking {
             this.samplePicUrl2 = getSamplePicFileId2();
         }
         return samplePicUrl2;
+    }
+
+    public String getSamplePicUrl3() {
+        if (StringUtils.isEmpty(samplePicUrl3)){
+            this.samplePicUrl3 = getSamplePicFileId3();
+        }
+        return samplePicUrl3;
+    }
+
+    public String getSamplePicUrl4() {
+        if (StringUtils.isEmpty(samplePicUrl4)){
+            this.samplePicUrl4 = getSamplePicFileId4();
+        }
+        return samplePicUrl4;
     }
 
     public String getSampleVideoUrl() {

@@ -427,6 +427,12 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "打版图片文件id"  )
     private String samplePicFileId2;
 
+    @ApiModelProperty(value = "打版图片文件id"  )
+    private String samplePicFileId3;
+
+    @ApiModelProperty(value = "打版图片文件id"  )
+    private String samplePicFileId4;
+
     /** 停留原因 */
     @ApiModelProperty(value = "打版视频文件id"  )
     private String sampleVideoFileId;
