@@ -204,7 +204,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     }
 
     @Override
-    public PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO dto) {
+    public PageInfo<StylePricingVO> getStylePricingByLine(StylePricingSearchDTO dto){
         dto.setCompanyCode(super.getCompanyCode());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         Boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
@@ -223,7 +223,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
         }
         if (StrUtil.isBlank(groupStr)) {
-            qw.groupBy("p.id");
+//            qw.groupBy("p.id");
         } else {
             qw.groupBy(groupStr);
         }
@@ -278,9 +278,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
                 }
             }else {
-                if(stylePricingList.size() >2000){
+               /* if(stylePricingList.size() >2000){
                     throw new OtherException("不带图片最多只能导出2000条");
-                }
+                }*/
             }
         } else {
             stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
@@ -288,7 +288,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (isColumnHeard) {
             return new PageInfo<>(stylePricingList);
         }
-        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true, true);
+        try {
+            List<List<StylePricingVO>> split = CollUtil.split(stylePricingList, 2000);
+            CountDownLatch countDownLatch = getCountDownLatch(dto, split);
+            countDownLatch.await();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         PageInfo<StylePricingVO> packInfo = new PageInfo<>(stylePricingList);
         return packInfo;
     }
@@ -441,6 +447,56 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     public void dataProcessingExcelImport(List<StylePricingVO> stylePricingList, String companyCode) {
         if (ObjectUtil.isNotEmpty(stylePricingList)) {
+            for (StylePricingVO stylePricingVO : stylePricingList) {
+                /*核价中的价格json*/
+                /*核价为空时设置一下json 用于处理历史错误数据*/
+                if(StrUtil.isEmpty(stylePricingVO.getCalcItemVal())){
+                    stylePricingVO.setCalcItemVal("{'毛纱加工费':0}");
+                }
+                JSONObject jsonObject = JSONObject.parseObject(stylePricingVO.getCalcItemVal());
+                // 材料成本,如果fob,则不计算
+                if ("CMT".equals(stylePricingVO.getProductionType())) {
+
+                    stylePricingVO.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
+                } else {
+                    stylePricingVO.setMaterialCost(BigDecimal.ZERO);
+                }
+
+                stylePricingVO.setWoolenYarnProcessingFee(jsonObject.getBigDecimal("毛纱加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("毛纱加工费"));
+                stylePricingVO.setSewingProcessingFee(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                stylePricingVO.setCoordinationProcessingFee(jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费"));
+                stylePricingVO.setPackagingFee(jsonObject.getBigDecimal("包装费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("包装费"));
+                stylePricingVO.setTestingFee(jsonObject.getBigDecimal("检测费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("检测费"));
+                stylePricingVO.setTotalCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+           /*      BigDecimal taxRate = BigDecimal.ONE;
+               if ("CMT".equals(stylePricingVO.getProductionType())) {
+                    if (jsonObject != null) {
+                        taxRate = jsonObject.getBigDecimal("税率");
+
+                    }
+                    if (stylePricingVO.getTotalCost() != null && taxRate != null) {
+                        stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate).setScale(3, RoundingMode.HALF_UP));
+                    }
+                }*/
+                stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
+                // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
+                //*优先展示手数的数据*//*
+                if (stylePricingVO.getControlPlanCost() != null) {
+                    stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
+                } else {
+                    // 目前逻辑修改为取计控实际成本取总成本
+                    stylePricingVO.setPlanCost(stylePricingVO.getTotalCost());
+                }
+                // 计控实际倍率 = 吊牌价/计控实际成本
+                stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
+                // 实际倍率 = 吊牌价/总成本
+                stylePricingVO.setActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
+            }
+            stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
+        }
+    }
+/*    public void dataProcessingExcelImport(List<StylePricingVO> stylePricingList, String companyCode) {
+        if (ObjectUtil.isNotEmpty(stylePricingList)) {
             List<String> foreignIdList = stylePricingList.stream()
                     .map(StylePricingVO::getId)
                     .collect(Collectors.toList());
@@ -535,7 +591,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
                 // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
-                /*优先展示手数的数据*/
+                *//*优先展示手数的数据*//*
                 if (stylePricingVO.getControlPlanCost() != null) {
                     stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
                 } else {
@@ -549,7 +605,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
             stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
         }
-    }
+    }*/
 
     @Override
     public StylePricingVO getByPackId(String packId, String companyCode) {
