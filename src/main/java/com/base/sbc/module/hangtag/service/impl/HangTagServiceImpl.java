@@ -34,6 +34,7 @@ import com.base.sbc.config.annotation.EditPermission;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.MFunc;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
@@ -1082,15 +1083,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 				}
 			}
+
 			HangTag hangTag = new HangTag();
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
 			hangTag.setStatus(updateStatus);
 			if (updateStatus.lessThan(TRANSLATE_CHECK)) {
-				hangTag.setConfirmDate(null);
+				MFunc<HangTag, Date> func = HangTag::getConfirmDate;
+				AutoFillFieldValueConfig.setNull(hangTag.getId(), func);
 			}else if (updateStatus == TRANSLATE_CHECK) {
 				hangTag.setConfirmDate(new Date());
-				hangTag.setTranslateConfirmDate(null);
+				MFunc<HangTag, Date> func = HangTag::getTranslateConfirmDate;
+				AutoFillFieldValueConfig.setNull(hangTag.getId(), func);
 			}else {
 				hangTag.setTranslateConfirmDate(new Date());
 			}

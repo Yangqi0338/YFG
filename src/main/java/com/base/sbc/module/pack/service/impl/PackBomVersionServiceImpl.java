@@ -6,6 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
@@ -45,7 +48,12 @@ import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomColorService;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
@@ -57,17 +65,13 @@ import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,8 +83,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
+import javax.annotation.Resource;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -714,11 +729,13 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         PackBomVersion version = getById(id);
         PackInfoStatus packInfoStatus = packInfoStatusService.get(version.getForeignId(), version.getPackType());
         version.setConfirmStatus("0");
-        packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.NO);
-        packInfoStatus.setBulkOrderClerkConfirmDate(null);
         /*审核通过锁定状态*/
         version.setLockFlag(BaseGlobal.STATUS_NORMAL);
-        packInfoStatusService.updateById(packInfoStatus);
+        UpdateWrapper<PackInfoStatus> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PackInfoStatus::getId,packInfoStatus.getId());
+        uw.lambda().set(PackInfoStatus::getBulkOrderClerkConfirm,BaseGlobal.NO);
+        uw.lambda().set(PackInfoStatus::getBulkOrderClerkConfirmDate,null);
+        packInfoStatusService.update(uw);
         updateById(version);
         return true;
     }
