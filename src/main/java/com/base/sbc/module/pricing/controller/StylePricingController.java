@@ -33,6 +33,7 @@ import com.base.sbc.module.pack.service.PackPricingBomService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackPricingBomVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -98,6 +99,9 @@ public class StylePricingController extends BaseController {
     @Autowired
     @Lazy
     private PackBomService packBomService;
+    @Autowired
+    @Lazy
+    private PackPricingBomService packPricingBomService;
 
     @Autowired
     @Lazy
@@ -260,14 +264,14 @@ public class StylePricingController extends BaseController {
                 PackCommonPageSearchDto packCommonPageSearchDto = new PackCommonPageSearchDto();
                 packCommonPageSearchDto.setForeignId(stylePricing.getPackId());
                 packCommonPageSearchDto.setPackType("packBigGoods");
-                PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(packCommonPageSearchDto);
-                if (ObjectUtil.isNotEmpty(packBomVoPageInfo)) {
-                    List<PackBomVo> pageInfoList = packBomVoPageInfo.getList();
+                PageInfo pageInfo = packPricingBomService.pageInfo(packCommonPageSearchDto);
+                if (ObjectUtil.isNotEmpty(pageInfo)) {
+                    List<PackPricingBomVo> pageInfoList = pageInfo.getList();
                     if (ObjectUtil.isNotEmpty(pageInfoList)) {
                         // 过滤出采购单价为空 或者 不大于 0 的数据
                         List<String> emptyData = pageInfoList.stream()
                                 .filter(item -> ObjectUtil.isEmpty(item.getPurchasePrice()) || !(item.getPurchasePrice().compareTo(BigDecimal.ZERO) > 0))
-                                .map(PackBomVo::getMaterialCode).collect(Collectors.toList());
+                                .map(PackPricingBomVo::getMaterialCode).collect(Collectors.toList());
                         if (ObjectUtil.isNotEmpty(emptyData)) {
                             String errorMsg = StrUtil.format("大货款号【{}】下的物料编码为【{}】的数据采购单价必须大于 0 才能进行计控确认！", packInfo.getStyleNo(), CollUtil.join(emptyData, ","));
                             throw new OtherException(errorMsg);
