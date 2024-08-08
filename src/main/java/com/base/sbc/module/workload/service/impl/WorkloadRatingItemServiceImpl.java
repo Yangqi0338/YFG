@@ -9,6 +9,7 @@ package com.base.sbc.module.workload.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -143,7 +145,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
 
         // 获取全部配置
         List<String> brandList = CollUtil.newArrayList(config.getBrand());
-        if (workloadRatingItemList.stream().noneMatch(WorkloadRatingItemDTO::getApplyAll)) {
+        if (workloadRatingItemList.stream().anyMatch(it -> BooleanUtil.isTrue(it.getApplyAll()))) {
             List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList("C8_Brand");
             brandList.addAll(dictList.stream().map(BasicBaseDict::getValue).collect(Collectors.toList()));
         }
@@ -189,9 +191,11 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
             List<WorkloadRatingItem> entityList = configTitleFieldList.stream().flatMap(configTitle -> {
                 WorkloadRatingConfigVO currentConfigVO = configVOList.stream().filter(it -> it.getId().equals(configTitle.getConfigId()))
                         .findFirst().orElseThrow(() -> new OtherException("无效的配置项"));
-                List<WorkloadRatingConfigVO> applyConfigVoList = CollUtil.newArrayList(currentConfigVO);
-                if (saveDTO.getApplyAll()) {
+                List<WorkloadRatingConfigVO> applyConfigVoList = new ArrayList<>();
+                if (Boolean.TRUE.equals(saveDTO.getApplyAll())) {
                     applyConfigVoList.addAll(configVOList.stream().filter(it -> it.getItemName().equals(currentConfigVO.getItemName())).collect(Collectors.toList()));
+                } else {
+                    applyConfigVoList.add(currentConfigVO);
                 }
                 return applyConfigVoList.stream().map(configVO -> {
                     WorkloadRatingItemDTO dto = BeanUtil.copyProperties(saveDTO, WorkloadRatingItemDTO.class);
