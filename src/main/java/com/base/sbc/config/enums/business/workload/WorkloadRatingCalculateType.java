@@ -73,7 +73,7 @@ public enum WorkloadRatingCalculateType {
         if (MapUtil.isEmpty(map)) return Pair.of(source, BigDecimal.ZERO);
         try {
             Object execute = expression.execute(MapUtil.map(map, (key, value) -> value));
-            BigDecimal increment = new BigDecimal(execute.toString()).setScale(1, RoundingMode.HALF_UP);
+            BigDecimal increment = new BigDecimal(execute.toString()).setScale(2, RoundingMode.HALF_UP);
             return Pair.of(source.add(increment), increment);
         } catch (Exception e) {
             List<BigDecimal> argsList = CollUtil.newArrayList(source, source);

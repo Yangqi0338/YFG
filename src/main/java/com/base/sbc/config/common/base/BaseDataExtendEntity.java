@@ -145,7 +145,12 @@ public class BaseDataExtendEntity extends BaseDataNewEntity {
                     Class<?> type = field.getType();
                     MybatisPlusExtendHandler typeHandler = getTypeHandler();
                     if (typeHandler == null) throw new UnsupportedOperationException("不支持该操作");
-                    field.set(this, typeHandler.parse(json, type));
+                    Object object = json;
+                    try {
+                        object = typeHandler.parse(json, type);
+                    } catch (Exception e) {
+                    }
+                    field.set(this, object);
                 }
             }
         } catch (IllegalAccessException e) {

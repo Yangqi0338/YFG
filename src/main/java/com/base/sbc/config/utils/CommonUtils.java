@@ -412,10 +412,12 @@ public class CommonUtils {
 
     // 封装Hutool的StrJoiner
     public static <T> String saftyStrJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
+        if (CollUtil.isEmpty(list)) return "";
         return saftyStrJoin(delimiter, list.stream().map(func).map(Object::toString).toArray(String[]::new)).toString();
     }
 
     public static <T> String strJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
+        if (CollUtil.isEmpty(list)) return "";
         return strJoin(delimiter, list.stream().map(func).map(StrUtil::utf8Str).toArray(String[]::new)).toString();
     }
 

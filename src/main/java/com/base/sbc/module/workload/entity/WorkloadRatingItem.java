@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -33,6 +34,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "t_workload_rating_item", autoResultMap = true)
 @ApiModel("工作量评分配置 WorkloadRatingItem")
+@NoArgsConstructor
 public class WorkloadRatingItem extends BaseDataExtendEntity {
 
     private static final long serialVersionUID = 1L;
@@ -86,4 +88,8 @@ public class WorkloadRatingItem extends BaseDataExtendEntity {
     private BigDecimal score;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public WorkloadRatingItem(BigDecimal score) {
+        this.score = score;
+    }
 }
