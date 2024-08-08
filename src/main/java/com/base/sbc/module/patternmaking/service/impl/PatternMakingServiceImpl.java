@@ -1578,12 +1578,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
-        PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
-        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+
         if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
-            workloadRatingDetailService.decorateWorkloadRating(pageVo.getList(), (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
                     SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
         }
+
+        PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
+        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
 
         return pageVo;
     }
@@ -2102,7 +2104,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public boolean sampleMakingScore(PatternMakingDto dto) {
-        if (dto.getSampleMakingScore() == null || StrUtil.isNotBlank(dto.getWorkloadRatingId()))
+        if (dto.getSampleMakingScore() == null || StrUtil.isBlank(dto.getWorkloadRatingId()))
             throw new OtherException("样衣工作量评分必传参数异常");
 
         String id = dto.getId();

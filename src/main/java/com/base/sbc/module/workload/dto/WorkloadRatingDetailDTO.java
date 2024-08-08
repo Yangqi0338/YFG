@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
     @NotEmpty
-    private List<WorkloadRatingDetailSaveDTO> configList;
+    private List<WorkloadRatingDetailSaveDTO> configList = new ArrayList<>();
 
     @Override
     @JsonIgnore
@@ -55,7 +56,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     public Map<Object, Object> decorateWebMap(){
         Map<Object, Object> map = super.decorateWebMap();
         configList.stream().collect(Collectors.groupingBy(WorkloadRatingDetailSaveDTO::getCalculateType)).forEach((calculateType,sameTypeList)-> {
-            map.put(calculateType, CommonUtils.sumBigDecimal(configList, WorkloadRatingDetailSaveDTO::getScore));
+            map.put(calculateType, CommonUtils.sumBigDecimal(sameTypeList, WorkloadRatingDetailSaveDTO::getScore));
         });
         return map;
     }

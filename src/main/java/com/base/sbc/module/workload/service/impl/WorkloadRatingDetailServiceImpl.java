@@ -7,6 +7,7 @@
 package com.base.sbc.module.workload.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -34,6 +35,7 @@ import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -84,19 +86,21 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
     @Override
     public void save(WorkloadRatingDetailDTO workloadRatingDetail) {
         workloadRatingDetail.setId(null);
+        workloadRatingDetail.setResult(BigDecimal.ZERO);
         List<WorkloadRatingDetailSaveDTO> configList = workloadRatingDetail.getConfigList();
         configList.stream().sorted(Comparator.comparing(WorkloadRatingDetailSaveDTO::getIndex)).forEach(config -> {
             WorkloadRatingCalculateType calculateType = config.getCalculateType();
             if (calculateType != WorkloadRatingCalculateType.APPEND)
                 workloadRatingItemService.warnMsg(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), config.getItemValue()));
-            workloadRatingItemService.defaultValue(new WorkloadRatingItem());
+            workloadRatingItemService.defaultValue(new WorkloadRatingItem(BigDecimal.ZERO));
             WorkloadRatingItem ratingItem = workloadRatingItemService.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
                     .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
                     .eq(WorkloadRatingItem::getItemValue, config.getItemValue())
             );
-            config.setScore(ratingItem.getScore());
+            Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
+            config.setScore(calculatePair.getValue());
             config.setItemId(ratingItem.getId());
-            workloadRatingDetail.setResult(calculateType.calculate(null, config.getScore()).getKey());
+            workloadRatingDetail.setResult(calculatePair.getKey());
         });
 
         String itemValue = workloadRatingDetail.getItemValue();
