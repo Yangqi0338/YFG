@@ -112,9 +112,6 @@ public class StylePricingController extends BaseController {
     @Autowired
     private StyleService styleService;
 
-    @Autowired
-    private PackPricingBomService packPricingBomService;
-
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, @Valid @RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
