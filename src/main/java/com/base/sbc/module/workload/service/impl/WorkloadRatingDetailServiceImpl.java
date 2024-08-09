@@ -19,7 +19,6 @@ import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.style.entity.Style;
@@ -126,11 +125,13 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 if (calculateType != WorkloadRatingCalculateType.APPEND && CollUtil.isNotEmpty(disjunctionItemValueList))
                     throw new OtherException(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), disjunctionItemValueList));
 
-                ratingItemList.forEach(ratingItem -> {
+                BigDecimal score = BigDecimal.ZERO;
+                for (WorkloadRatingItem ratingItem : ratingItemList) {
                     Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
-                    config.setScore(BigDecimalUtil.add(config.getScore(), calculatePair.getValue()));
+                    score = score.add(calculatePair.getValue());
                     workloadRatingDetail.setResult(calculatePair.getKey());
-                });
+                }
+                config.setScore(score);
                 config.setItemId(ratingItemList.stream().map(WorkloadRatingItem::getId).collect(Collectors.joining(COMMA)));
             });
         });
