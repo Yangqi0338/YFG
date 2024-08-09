@@ -113,7 +113,6 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
     public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
-        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO));
     }
 
