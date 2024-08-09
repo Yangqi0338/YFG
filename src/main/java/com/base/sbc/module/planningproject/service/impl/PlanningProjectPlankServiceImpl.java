@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningProjectPlankMapper, PlanningProjectPlank> implements PlanningProjectPlankService {
+    @Lazy
     @Autowired
     private StyleColorService styleColorService;
     @Autowired
