@@ -36,6 +36,7 @@ public class ReplayRatingProperties {
     public static String noMaterialCode = "0000";
     public static OrderBookDetailOrderStatusEnum orderBookStatus = OrderBookDetailOrderStatusEnum.ORDER;
     public static String packType = PackUtils.PACK_TYPE_BIG_GOODS;
+    public static Boolean totalCurrentPage = false;
     public static int[] years = IntStream.rangeClosed(Year.now().minusYears(2).getValue(), Year.now().getValue()).toArray();
 
     public void setCategory1Code(String category1Code) {
@@ -88,6 +89,10 @@ public class ReplayRatingProperties {
 
     public void setYears(int[] years) {
         ReplayRatingProperties.years = years;
+    }
+
+    public void setTotalCurrentPage(Boolean totalCurrentPage) {
+        ReplayRatingProperties.totalCurrentPage = totalCurrentPage;
     }
 
 

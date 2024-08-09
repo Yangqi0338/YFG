@@ -131,6 +131,7 @@ public class SmpProperties {
         SCM(null,"http://10.8.250.100:1980/"),
         SMP(null,"http://10.98.250.31:7006/"),
         OA(null,"http://10.8.240.161:40002/"),
+        SCM1(null,"http://10.98.250.69:9900/"),
 
         /** 模块枚举 (不要相信这个URL, 只是默认值, 有可能通过Nacos配置进行了修改) */
         APP_INFORMATION(SCM,"/escm-app/information/pdm/"),
@@ -175,6 +176,7 @@ public class SmpProperties {
 
     public static UrlConfig SCM_NEW_MF_FAC_PRODUCTION_IN_URL = UrlConfig.of("/v1/api/facPrdOrder/saveFacPrdOrder");
     public static UrlConfig SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL = UrlConfig.of("/v1/api/facPrdOrder/facPrdOrderUpCheck");
+    public static UrlConfig SCM1_SPARE_URL = UrlConfig.of("/spare/trace/yflList");
 
     public static UrlConfig SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL = UrlConfig.of("/productionBudget/option/List");
 

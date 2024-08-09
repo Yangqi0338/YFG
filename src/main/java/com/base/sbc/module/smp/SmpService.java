@@ -2430,5 +2430,24 @@ public class SmpService {
         jsonObject.put("loginName", loginName);
         return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "反审核投产单"), Pair.of("code", orderNo), Pair.of("name", loginName));
     }
+
+    /**
+     * 剩余备料
+     */
+    public ApiResult<List<Scm1SpareMaterialDTO>> spareList(String materialNo, Integer spareType) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderNo", materialNo);
+        jsonObject.put("spareType", spareType);
+
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
+                Pair.of("moduleName", "scm1"),
+                Pair.of("functionName", "剩余备料"),
+                Pair.of("code", materialNo)
+        );
+
+        ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
+        result.setSuccess(httpResp.isSuccess());
+        return result;
+    }
 }
 
