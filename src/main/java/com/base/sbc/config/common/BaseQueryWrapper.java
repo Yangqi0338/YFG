@@ -202,6 +202,27 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     /**
+     * 模糊搜索一个字段为集合
+     * @param columns
+     * @param val
+     * @return
+     */
+    public QueryWrapper<T> likeListOrNull(String columns, List<String> val) {
+        if (CollUtil.isEmpty(val)) {
+            return this;
+        }
+        this.and(wrapper -> {
+            wrapper.and(i -> {
+                for (int j = 0; j < val.size(); j++) {
+                    String value = val.get(j);
+                    i.like(StrUtil.isNotBlank(value), columns, value).or(j < val.size() - 1);
+                }
+            }).or(qw -> qw.isNull(columns).or(qw2 -> qw2.eq(columns, "")));
+        });
+        return this;
+    }
+
+    /**
      * 判断时间区间 或者时间是否为空
      * @param columns
      * @param val
