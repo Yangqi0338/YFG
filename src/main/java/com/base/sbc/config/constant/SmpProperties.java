@@ -131,7 +131,7 @@ public class SmpProperties {
         SCM(null,"http://10.8.250.100:1980/"),
         SMP(null,"http://10.98.250.31:7006/"),
         OA(null,"http://10.8.240.161:40002/"),
-        SCM1(null,"http://10.98.250.69:9900/"),
+        SCM1(null,"http://10.98.250.71:9900/"),
 
         /** 模块枚举 (不要相信这个URL, 只是默认值, 有可能通过Nacos配置进行了修改) */
         APP_INFORMATION(SCM,"/escm-app/information/pdm/"),
