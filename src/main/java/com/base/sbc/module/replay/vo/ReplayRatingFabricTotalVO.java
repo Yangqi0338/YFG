@@ -8,6 +8,7 @@ package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.enums.UnitConverterEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,7 +30,13 @@ public class ReplayRatingFabricTotalVO {
 
     /** 大货款号 */
     @ApiModelProperty(value = "大货款号")
+    @JsonIgnore
     private String bulkStyleNo;
+
+    /** 物料编码 */
+    @ApiModelProperty(value = "物料编码")
+    @JsonIgnore
+    private String materialCode;
 
     /** 单位用量 */
     @ApiModelProperty(value = "单位用量")
@@ -45,6 +52,7 @@ public class ReplayRatingFabricTotalVO {
 
     /** 使用米数计算器 */
     @ApiModelProperty(value = "使用米数计算器")
+    @JsonIgnore
     private UnitConverterEnum unitConverter = UnitConverterEnum.METER;
 
     /** 投产量 */

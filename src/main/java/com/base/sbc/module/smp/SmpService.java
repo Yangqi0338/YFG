@@ -2285,5 +2285,24 @@ public class SmpService {
                 Pair.of("name", loginName)
         );
     }
+
+    /**
+     * 剩余备料
+     */
+    public ApiResult<List<Scm1SpareMaterialDTO>> spareList(String materialNo, Integer spareType) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderNo", materialNo);
+        jsonObject.put("spareType", spareType);
+
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
+                Pair.of("moduleName", "scm1"),
+                Pair.of("functionName", "剩余备料"),
+                Pair.of("code", materialNo)
+        );
+
+        ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
+        result.setSuccess(httpResp.isSuccess());
+        return result;
+    }
 }
 
