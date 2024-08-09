@@ -333,6 +333,14 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     @ApiModelProperty(value = "评分详情id")
     private String workloadRatingId;
 
+
+    /**
+     * 下单员部门
+     */
+    @ApiModelProperty(value = "下单员部门")
+    private String orderDept;
+
+    private String orderDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

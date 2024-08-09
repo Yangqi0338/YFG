@@ -462,6 +462,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
         task.setCreateDeptId(ids);
         task.setStatus("任务待下发");
+        task.setOrderDept(packInfo.getOrderDept());
+        task.setOrderDeptId(packInfo.getOrderDeptId());
 
         boolean bl = save(task, "产前样看板");
         //保存时间节点

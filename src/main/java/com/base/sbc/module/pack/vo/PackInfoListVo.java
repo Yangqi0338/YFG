@@ -110,4 +110,6 @@ public class PackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "下单员部门")
     private String orderDept;
 
+    private String orderDeptId;
+
 }

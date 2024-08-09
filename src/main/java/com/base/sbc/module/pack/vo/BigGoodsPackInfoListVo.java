@@ -82,6 +82,8 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "下单员部门")
     private String orderDept;
 
+    private String orderDeptId;
+
     public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
