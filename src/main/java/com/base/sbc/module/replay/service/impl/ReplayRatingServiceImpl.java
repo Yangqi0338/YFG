@@ -536,9 +536,11 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             fabric.setFabricOwnDevelopFlag(YesOrNoEnum.findByValue(increment < 2 ? increment : (increment / 2) % 2));
             // TODO
             ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(fabric.getMaterialCode(), 2);
+            BigDecimal remainingMaterial = BigDecimal.ZERO;
             if (result.getSuccess() && CollUtil.isNotEmpty(result.getData())) {
-                fabric.setRemainingMaterial(BigDecimal.valueOf(result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum()));
+                remainingMaterial = BigDecimal.valueOf(result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum());
             }
+            fabric.setRemainingMaterial(remainingMaterial);
         });
 
         /* ----------------------------大货款维度投产量 + 使用米数---------------------------- */
