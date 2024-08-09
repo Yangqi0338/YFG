@@ -157,6 +157,8 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 String brand = style.getBrand();
                 List<String> matchItemValueList = new ArrayList<>();
                 structureValueList(matchItemValueList, "/", style.getProdCategory1st(), style.getProdCategory(), style.getProdCategory2nd(), style.getProdCategory3rd());
+                List<WorkloadRatingConfigVO> brandConfigVOList = configVOList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList());
+                List<WorkloadRatingConfigVO> brandAppendConfigList = appendConfigList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList());
 
                 WorkloadRatingDetailDTO detailDTO = workloadRatingDetailList.stream()
                         .filter(it -> it.getId().equals(workloadRatingId))
@@ -167,7 +169,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             return newDetailDTO;
                         });
 
-                List<WorkloadRatingDetailSaveDTO> saveDTOList = configVOList.stream().map(configVO -> {
+                List<WorkloadRatingDetailSaveDTO> saveDTOList = brandConfigVOList.stream().map(configVO -> {
                     String itemName = configVO.getItemName();
                     WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
                     List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
@@ -186,13 +188,13 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     }
                     return detailSaveDTO;
                 }).collect(Collectors.toList());
-                appendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
+                brandAppendConfigList.stream().map(it -> new WorkloadRatingDetailSaveDTO().decorateConfig(it)).forEach(saveDTOList::add);
                 detailDTO.setConfigList(saveDTOList);
 
                 resultKeyFunc.accept(vo, detailDTO);
                 resultValueFunc.accept(vo, CommonUtils.listFlatten(
-                        configVOList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()),
-                        appendConfigList.stream().filter(it -> it.getBrand().equals(brand)).collect(Collectors.toList()))
+                        brandConfigVOList,
+                        brandAppendConfigList)
                 );
             }
         });
