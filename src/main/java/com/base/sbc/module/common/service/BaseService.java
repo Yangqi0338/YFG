@@ -120,6 +120,7 @@ public interface BaseService<T> extends IService<T>, BaseEnhanceService<T> {
      void saveOperaLog(String type, String name,String documentName,String documentCode, T newObject, T oldObject);
 
     public void saveOperaLog(String type, String name, String documentName, String documentCode, Map<String,String> data);
+    public void saveOperaLog(String type,String parentId,String path, String name, String documentName, String documentCode, Map<String,String> data);
     /**
      * 保存操作日志
      */
