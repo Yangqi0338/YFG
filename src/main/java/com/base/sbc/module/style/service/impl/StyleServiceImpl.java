@@ -13,7 +13,6 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -57,6 +56,7 @@ import com.base.sbc.module.formtype.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formtype.entity.FieldOptionConfig;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.entity.FormType;
+import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -75,11 +75,8 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -120,6 +117,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -130,7 +128,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -243,6 +240,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private FormTypeService formTypeService;
 
     @Autowired
+    private FieldManagementMapper fieldManagementMapper;
+
+    @Autowired
     @Lazy
     private OrderBookDetailService orderBookDetailService;
 
@@ -253,17 +253,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
-
     @Autowired
     @Lazy
     private PatternLibraryService patternLibraryService;
 
-    @Resource(name = "asyncExecutor")
-    private Executor asyncExecutor;
-
-    @Lazy
-    @Autowired
-    private PackInfoService packInfoService;
     /**
      * 表单字段类型名称
      * 维度系数
@@ -290,116 +283,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             style = saveNewStyle(dto);
         } else {
             style = getById(dto.getId());
-            //24.8.1添加逻辑
-            //判断是否修改了尺码、是否修改了号型类型
-            if(!dto.getSizeRange().equals(style.getSizeRange()) || !dto.getSizeIds().equals(style.getSizeIds())){
-                if(dto.getSizeIds().startsWith(",") || dto.getSizeIds().endsWith(",")){
-                    throw new OtherException("尺码参数错误！");
-                }
-                List<String> newList = Arrays.asList(dto.getSizeIds().split(","));
-                List<String> sizeDList = Arrays.asList(dto.getProductSizes().split(","));
-
-                Map<String,String> IdCodeMap = new HashMap<>();
-                for (int i = 0; i < newList.size(); i++) {
-                    IdCodeMap.put(newList.get(i), sizeDList.get(i));
-                }
-
-                //查询配色款
-                LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.eq(StyleColor::getStyleId, style.getId());
-                List<StyleColor> styleColorList = styleColorService.getBaseMapper().selectList(queryWrapper);
-
-                //校验是否所有配色数据都是设计阶段
-                for (StyleColor styleColor : styleColorList) {
-                    if("1".equals(styleColor.getBomStatus())){
-                        throw new OtherException("修改尺码或者号型类型，大货阶段不允许修改，需退回设计阶段");
-                    }
-                }
-
-                //保存时校验设计BOM，是否是解锁状态
-                PackInfoSearchPageDto pageDto = new PackInfoSearchPageDto();
-                pageDto.setStyleId(style.getId());
-                pageDto.setPageSize(Integer.MAX_VALUE);
-                PageInfo<PackInfoListVo> packInfoListVoPageInfo = packInfoService.pageInfo(pageDto);
-                //BOM集合
-                List<List<PackBomVo>> packBomListList = new ArrayList<>();
-                for (PackInfoListVo packInfoListVo : packInfoListVoPageInfo.getList()) {
-                    /*0:全部下发 1:全部未下发 2:部分下发 null:无物料清单*/
-                    if(StrUtil.isNotBlank(packInfoListVo.getScmSendFlag()) && !"1".equals(packInfoListVo.getScmSendFlag())){
-                        throw new OtherException("修改尺码或者号型类型，请检查设计BOM物料清单是否全部解锁");
-                    }
-                    PackCommonPageSearchDto searchDto = new PackBomPageSearchDto();
-                    searchDto.setForeignId(packInfoListVo.getId());
-                    searchDto.setPackType("packDesign");
-                    PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(searchDto);
-                    List<PackBomVo> list = packBomVoPageInfo.getList();
-                    packBomListList.add(list);
-                }
-
-                List<String> ids = new ArrayList<>();
-                List<PackBomSize> addPackBomSizeList = new ArrayList<>();
-
-                if(!dto.getSizeRange().equals(style.getSizeRange())){
-                    //修改号型，直接删除全部尺码数据
-                    for (List<PackBomVo> packBomVos : packBomListList) {
-                        for (PackBomVo packBomVo : packBomVos) {
-                            for (PackBomSizeVo packBomSizeVo : packBomVo.getPackBomSizeList()) {
-                                ids.add(packBomSizeVo.getId());
-                            }
-                            //按照新的尺码集合填充数据
-                            for (String sizeId : newList) {
-                                PackBomSize packBomSize = new PackBomSize();
-                                packBomSize.setForeignId(packBomVo.getForeignId());
-                                packBomSize.setPackType(packBomVo.getPackType());
-                                packBomSize.setBomVersionId(packBomVo.getBomVersionId());
-                                packBomSize.setBomId(packBomVo.getId());
-                                packBomSize.setSize(IdCodeMap.get(sizeId));
-                                packBomSize.setSizeId(sizeId);
-                                packBomSize.setQuantity(packBomVo.getDesignUnitUse());
-                                packBomSize.setWidth(packBomVo.getTranslate());
-                                packBomSize.setWidthCode(packBomVo.getTranslateCode());
-                                addPackBomSizeList.add(packBomSize);
-                            }
-                        }
-                    }
-                }else {
-                    //判断添加或删除的尺码，操作对应的数据
-
-                    List<String> oldList = Arrays.asList(style.getSizeIds().split(","));
-
-                    List<String> addList = newList.stream().filter(o -> !oldList.contains(o)).collect(Collectors.toList());
-                    List<String> delList = oldList.stream().filter(o -> !newList.contains(o)).collect(Collectors.toList());
-
-                    for (List<PackBomVo> packBomVos : packBomListList) {
-                        for (PackBomVo packBomVo : packBomVos) {
-                            for (PackBomSizeVo packBomSizeVo : packBomVo.getPackBomSizeList()) {
-                                if(delList.contains(packBomSizeVo.getSizeId())){
-                                    ids.add(packBomSizeVo.getId());
-                                }
-                            }
-                            for (String sizeId : addList) {
-                                PackBomSize packBomSize = new PackBomSize();
-                                packBomSize.setForeignId(packBomVo.getForeignId());
-                                packBomSize.setPackType(packBomVo.getPackType());
-                                packBomSize.setBomVersionId(packBomVo.getBomVersionId());
-                                packBomSize.setBomId(packBomVo.getId());
-                                packBomSize.setSize(IdCodeMap.get(sizeId));
-                                packBomSize.setSizeId(sizeId);
-                                packBomSize.setQuantity(packBomVo.getDesignUnitUse());
-                                packBomSize.setWidth(packBomVo.getTranslate());
-                                packBomSize.setWidthCode(packBomVo.getTranslateCode());
-                                addPackBomSizeList.add(packBomSize);
-                            }
-                        }
-                    }
-                }
-                if(CollUtil.isNotEmpty(ids)){
-                    packBomSizeService.removeByIds(ids);
-                }
-                if(CollUtil.isNotEmpty(addPackBomSizeList)){
-                    packBomSizeService.saveBatch(addPackBomSizeList);
-                }
-            }
             String registeringId = style.getRegisteringId();
             String oldDesignNo = style.getDesignNo();
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
@@ -512,25 +395,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
-
-         styleColorIssuedToScm(style, isPushScm);
-
-
-        return style;
-    }
-
-
-    private void styleColorIssuedToScm(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
             //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
             QueryWrapper<StyleColor> colorQueryWrapper = new QueryWrapper<>();
             colorQueryWrapper.eq("style_id", style.getId());
-            //如果是款式打标下单阶段保存，只下发该大货款
-            if (StrUtil.isNotEmpty(dto.getMarkingType())) {
-                colorQueryWrapper.eq("id", dto.getStyleColorId());
-            }
             colorQueryWrapper.eq("status","0");
             colorQueryWrapper.eq("del_flag","0");
             colorQueryWrapper.eq("scm_send_flag","1");
@@ -545,9 +415,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //检查配色数据是否投产，投产了就报错
                 checkColorSize(publicStyleColorDto);
                 try {
-                    asyncExecutor.execute(() ->
-                          smpService.goods(styleColorIds.toArray(new String[]{}))
-                    );
+                    smpService.goods(styleColorIds.toArray(new String[]{}));
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
                     throw new OtherException("同步SCM失败：" + e.getMessage());
@@ -568,6 +436,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //                throw new OtherException("同步SCM失败："+e.getMessage());
 //            }
         }
+
+        return style;
     }
 
 
@@ -905,9 +775,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         style.setCheckStartTime(new Date());
-        if (style.getActualPublicationDate() == null) {
-            style.setActualPublicationDate(new Date());
-        }
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         // 获取当前人所在的虚拟部门
