@@ -184,7 +184,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                         .notNullNe(WorkloadRatingItem::getId, saveDTO.getId())
                         .eq(WorkloadRatingItem::getConfigId, saveDTO.getConfigId())
                         .likeRight(WorkloadRatingItem::getItemValue, itemSubValue[0])
-                        .apply("(LENGTH(item_value) - LENGTH(REPLACE(item_value, '/', ''))) > {0}", length - 1)
+                        .apply("(LENGTH(item_value) - LENGTH(REPLACE(item_value, '/', ''))) < {0}", length - 1)
                 )) throw new OtherException("已经存在上一级的评分项, 请删除后添加");
             }
 
