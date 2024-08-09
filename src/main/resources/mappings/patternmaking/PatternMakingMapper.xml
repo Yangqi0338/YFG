@@ -1082,10 +1082,10 @@
         sum(p.sample_making_score) as sampleMakingScoreSum,
         sum(p.sample_making_quality_score) as sampleMakingQualityScoreSum,
         sum(p.pattern_making_score) as patternMakingScoreSum,
-        sum(p.requirement_num) as requirementNum,
-        sum(p.workload_rating_base) as workloadRatingBase,
-        sum(p.workload_rating_rate) as workloadRatingRate,
-        sum(p.workload_rating_append) as workloadRatingAppend
+        sum(p.requirement_num) as requirementNumSum,
+        sum(p.workload_rating_base) as workloadRatingBaseSum,
+        sum(p.workload_rating_rate) as workloadRatingRateSum,
+        sum(p.workload_rating_append) as workloadRatingAppendSum
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
