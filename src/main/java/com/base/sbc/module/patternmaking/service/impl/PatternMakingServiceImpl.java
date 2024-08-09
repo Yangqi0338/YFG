@@ -1007,6 +1007,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
+        // 查询样衣评分状态
+        if ("sampleTask".equals(dto.getBusinessType()) && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+            Map<String, Style> styleMap = styleService.listByIds(
+                    list.stream().map(PatternMakingTaskListVo::getStyleId).collect(Collectors.toList())
+            ).stream().collect(CommonUtils.toMap(Style::getId));
+            list.forEach(it -> it.setStyle(styleMap.getOrDefault(it.getStyleId(), null)));
+            workloadRatingDetailService.decorateWorkloadRating(list, PatternMakingTaskListVo::getStyle, PatternMakingTaskListVo::getWorkloadRatingId,
+                    PatternMakingTaskListVo::setProdCategory, PatternMakingTaskListVo::setRatingDetailDTO, PatternMakingTaskListVo::setRatingConfigList);
+        }
         return objects.toPageInfo();
     }
 
