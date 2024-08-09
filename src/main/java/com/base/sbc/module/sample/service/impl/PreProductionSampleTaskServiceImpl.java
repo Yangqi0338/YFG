@@ -114,6 +114,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private DataPermissionsService dataPermissionsService;
     @Autowired
     private StylePicUtils stylePicUtils;
+    @Lazy
     @Autowired
     private StyleColorService styleColorService;
     @Lazy
