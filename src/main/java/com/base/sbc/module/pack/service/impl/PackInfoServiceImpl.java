@@ -17,7 +17,6 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -95,7 +94,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
-import org.bouncycastle.util.Pack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -112,27 +112,14 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import static com.base.sbc.module.pack.utils.PackUtils.*;
 
 /**
  * 类描述：资料包 service类
@@ -1809,14 +1796,14 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
-    public void setTechReceiveDate(String id, Date techReceiveDate, String orderDept) {
+    public void setTechReceiveDate(PackInfo packInfo) {
         LambdaUpdateWrapper<PackInfo> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(PackInfo::getId, id);
+        updateWrapper.eq(PackInfo::getId, packInfo.getId());
         updateWrapper.set(PackInfo::getUpdateId, getUserId());
         updateWrapper.set(PackInfo::getUpdateName, getUserName());
         updateWrapper.set(PackInfo::getUpdateDate, new Date());
-        updateWrapper.set(PackInfo::getTechReceiveDate, techReceiveDate);
-        updateWrapper.set(PackInfo::getOrderDept, orderDept);
+        updateWrapper.set(PackInfo::getTechReceiveDate, packInfo.getTechReceiveDate());
+        updateWrapper.set(PackInfo::getOrderDept, packInfo.getOrderDept());
         update(updateWrapper);
     }
 

@@ -42,7 +42,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -323,8 +322,8 @@ public class PackInfoController {
 	 */
 	@ApiOperation(value = "查询设计款号下的bom")
 	@GetMapping("/setTechReceiveDate")
-	public ApiResult setTechReceiveDate(String id, Date techReceiveDate, String orderDept) {
-		packInfoService.setTechReceiveDate(id, techReceiveDate, orderDept);
+	public ApiResult setTechReceiveDate(@RequestBody PackInfo packInfo) {
+		packInfoService.setTechReceiveDate(packInfo);
 		return ApiResult.success("操作成功");
 	}
 
