@@ -401,7 +401,6 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             languageDTO.setBulkStyleNo(needSearchMap.values().stream().flatMap(Collection::stream).distinct().collect(Collectors.joining(COMMA)));
             languageDTO.setSource(SystemSource.SYSTEM);
             languageDTO.setCode(String.join(COMMA,needSearchMap.keySet()));
-            languageDTO.setUserCompany(userUtils.getCompanyCode());
             webBaseVOList.addAll((List<HangTagMoreLanguageBaseVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO));
         }
         Map<CountryLanguageType, List<HangTagMoreLanguageBaseVO>> listMap = webBaseVOList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCountryLanguageType));

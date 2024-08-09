@@ -58,7 +58,6 @@ import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
@@ -169,6 +168,7 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.DESIGN_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.FINISH;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.PART_TRANSLATE_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TECH_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
@@ -272,6 +272,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private CcmFeignService ccmFeignService;
 	@Autowired
 	private AttachmentService attachmentService;
+	@Autowired
+	private UserUtils userUtils;
 
 	@Override
 	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
@@ -974,7 +976,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTags.forEach(e -> {
 			if (HangTagStatusEnum.NOT_COMMIT != updateStatus) {
 				try {
-					if (FINISH == e.getStatus()) {
+					// 如果完成,但是是翻译批量反审
+					if (FINISH == e.getStatus() &&
+							(hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.MULTI_CHECK
+									||
+							!Arrays.asList(TRANSLATE_CHECK, PART_TRANSLATE_CHECK).contains(updateStatus))
+					) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
@@ -1069,7 +1076,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (TRANSLATE_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
+							((HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus)
+									&& (hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.CHECK || FINISH != updateStatus)
+							)) {
 						throw new OtherException("存在待翻译确认数据，请先翻译确认");
 					}
 					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
@@ -1524,7 +1533,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取所有的吊牌
 		List<MoreLanguageHangTagVO> hangTagVOList = HANG_TAG_CV.copyList2MoreLanguage(hangTagMapper.getDetailsByBulkStyleNo(
-				bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType()
+				bulkStyleNoList, userUtils.getCompanyCode(), hangTagMoreLanguageDTO.getSelectType()
 		));
 
 		// 获取吊牌成分

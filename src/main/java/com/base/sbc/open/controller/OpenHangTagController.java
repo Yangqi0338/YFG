@@ -93,7 +93,6 @@ public class OpenHangTagController extends BaseController {
                 , CountryLanguage::getCode)
         );
         if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException(MoreLanguageProperties.getMsg(NOT_INSERT));
-        languageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO));
     }
 
@@ -138,7 +137,6 @@ public class OpenHangTagController extends BaseController {
         // 已经没有可处理的国家就直接结束了
         if (CollUtil.isNotEmpty(hangTagMoreLanguageCheckDTOList))  {
             HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
-            hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
             hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);
             hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).distinct().collect(Collectors.joining(COMMA)));
             hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).distinct().collect(Collectors.joining(COMMA)));
