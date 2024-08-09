@@ -1927,9 +1927,15 @@ public class SmpService {
     /**
      * 正确样下发
      */
+    @Async
     public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
         String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
-        restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌和款式定价确认信息"));
+        restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
+                Pair.of("moduleName", "scm"),
+                Pair.of("code", tagConfirmDateDto.getStyleNo()),
+                Pair.of("name", tagConfirmDateDto.getStyleNo()),
+                Pair.of("functionName", "下发吊牌和款式定价确认信息")
+        );
     }
 
     /**
