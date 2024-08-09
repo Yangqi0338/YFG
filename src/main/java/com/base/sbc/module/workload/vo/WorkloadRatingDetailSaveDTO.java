@@ -94,10 +94,4 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     public String getValue() {
         return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag().getValueStr()).toString();
     }
-
-    @JsonIgnore
-    public Integer getIndex() {
-        if (calculateType == null) return WorkloadRatingCalculateType.values().length - 1;
-        return calculateType.ordinal();
-    }
 }
