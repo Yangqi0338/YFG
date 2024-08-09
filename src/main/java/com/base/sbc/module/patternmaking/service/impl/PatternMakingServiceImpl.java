@@ -48,9 +48,11 @@ import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.DateUtils;
@@ -115,8 +117,10 @@ import com.base.sbc.module.taskassignment.dto.TaskAssignmentDTO;
 import com.base.sbc.module.taskassignment.enums.TriggerMenuEnum;
 import com.base.sbc.module.taskassignment.service.TaskAssignmentService;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -135,7 +139,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -2285,6 +2297,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateBean.setSampleMakingScore(dto.getSampleMakingScore());
         updateBean.setSecondProcessing(dto.getSecondProcessing());
         updateBean.setWorkloadRatingId(dto.getWorkloadRatingId());
+
+        WorkloadRatingDetailQO qo = new WorkloadRatingDetailQO();
+        qo.reset2QueryFirst();
+        qo.setIds(Collections.singletonList(dto.getWorkloadRatingId()));
+        WorkloadRatingDetailDTO detailDTO = workloadRatingDetailService.queryList(qo).stream().findFirst().orElseThrow(() -> new OtherException("未找到对应的评分详情"));
+
+        updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
+        updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
+        updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
 
         return update(updateBean, new LambdaUpdateWrapper<PatternMaking>().eq(PatternMaking::getId, id));
     }

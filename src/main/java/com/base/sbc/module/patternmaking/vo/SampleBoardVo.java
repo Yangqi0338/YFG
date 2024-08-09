@@ -374,6 +374,9 @@ public class SampleBoardVo extends Style {
     private List<WorkloadRatingConfigVO> ratingConfigList;
 
     private WorkloadRatingDetailDTO ratingDetailDTO;
+    private BigDecimal workloadRatingBase;
+    private BigDecimal workloadRatingRate;
+    private BigDecimal workloadRatingAppend;
 
     /**
      * 工作量品类
