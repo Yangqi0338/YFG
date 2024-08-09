@@ -19,6 +19,7 @@ import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.style.entity.Style;
@@ -41,6 +42,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -109,22 +112,25 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     .filter(it -> configTitleFieldList.stream().anyMatch(titleFieldDTO -> titleFieldDTO.getConfigId().equals(it.getConfigId())))
                     .collect(Collectors.toList());
 
-            List<String> itemValueList = configList.stream().map(WorkloadRatingDetailSaveDTO::getItemValue).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
-            if (itemValueList.size() != 1) throw new OtherException("!基础项数据有误,请刷新页面重试!");
+            List<String> allItemValueList = configList.stream().map(WorkloadRatingDetailSaveDTO::getItemValue).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
+            if (allItemValueList.size() != 1) throw new OtherException("!基础项数据有误,请刷新页面重试!");
             configList.forEach(config -> {
-                config.setItemValue(itemValueList.get(0));
-                if (calculateType != WorkloadRatingCalculateType.APPEND)
-                    workloadRatingItemService.warnMsg(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), config.getItemValue()));
-                workloadRatingItemService.defaultValue(new WorkloadRatingItem(BigDecimal.ZERO));
-                WorkloadRatingItem ratingItem = workloadRatingItemService.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
-                        .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
-                        .eq(WorkloadRatingItem::getItemValue, config.getItemValue())
-                );
-                Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
-                config.setScore(calculatePair.getValue());
-                config.setItemId(ratingItem.getId());
-                workloadRatingDetail.setResult(calculatePair.getKey());
+                List<String> itemValueList = Arrays.asList(allItemValueList.get(0).split(COMMA));
 
+                List<WorkloadRatingItem> ratingItemList = workloadRatingItemService.list(new LambdaQueryWrapper<WorkloadRatingItem>()
+                        .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
+                        .in(WorkloadRatingItem::getItemValue, itemValueList)
+                );
+                Collection<String> disjunctionItemValueList = CollUtil.disjunction(ratingItemList.stream().map(WorkloadRatingItem::getItemValue).collect(Collectors.toList()), itemValueList);
+                if (calculateType != WorkloadRatingCalculateType.APPEND && CollUtil.isNotEmpty(disjunctionItemValueList))
+                    throw new OtherException(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), disjunctionItemValueList));
+
+                ratingItemList.forEach(ratingItem -> {
+                    Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
+                    config.setScore(BigDecimalUtil.add(config.getScore(), calculatePair.getValue()));
+                    workloadRatingDetail.setResult(calculatePair.getKey());
+                });
+                config.setItemId(ratingItemList.stream().map(WorkloadRatingItem::getId).collect(Collectors.joining(COMMA)));
             });
         });
 
