@@ -321,7 +321,7 @@ public class PackInfoController {
 	 * @return
 	 */
 	@ApiOperation(value = "查询设计款号下的bom")
-	@GetMapping("/setTechReceiveDate")
+	@PostMapping("/setTechReceiveDate")
 	public ApiResult setTechReceiveDate(@RequestBody PackInfo packInfo) {
 		packInfoService.setTechReceiveDate(packInfo);
 		return ApiResult.success("操作成功");
