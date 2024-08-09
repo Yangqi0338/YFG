@@ -112,10 +112,11 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     .filter(it -> configTitleFieldList.stream().anyMatch(titleFieldDTO -> titleFieldDTO.getConfigId().equals(it.getConfigId())))
                     .collect(Collectors.toList());
 
-            List<String> allItemValueList = configList.stream().map(WorkloadRatingDetailSaveDTO::getItemValue).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
-            if (allItemValueList.size() != 1) throw new OtherException("!基础项数据有误,请刷新页面重试!");
+            String itemValue = configList.stream().filter(it -> it.getConfigId().equals(configVO.getId()))
+                    .findFirst().map(WorkloadRatingDetailSaveDTO::getItemValue)
+                    .orElseThrow(() -> new OtherException("!基础项数据有误,请刷新页面重试!"));
             configList.forEach(config -> {
-                List<String> itemValueList = Arrays.asList(allItemValueList.get(0).split(COMMA));
+                List<String> itemValueList = Arrays.asList(itemValue.split(COMMA));
 
                 List<WorkloadRatingItem> ratingItemList = workloadRatingItemService.list(new LambdaQueryWrapper<WorkloadRatingItem>()
                         .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
