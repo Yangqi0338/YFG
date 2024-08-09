@@ -10,17 +10,21 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
+import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.base.sbc.module.workload.mapper.WorkloadRatingDetailMapper;
@@ -87,20 +91,41 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
     public void save(WorkloadRatingDetailDTO workloadRatingDetail) {
         workloadRatingDetail.setId(null);
         workloadRatingDetail.setResult(BigDecimal.ZERO);
-        List<WorkloadRatingDetailSaveDTO> configList = workloadRatingDetail.getConfigList();
-        configList.stream().sorted(Comparator.comparing(WorkloadRatingDetailSaveDTO::getIndex)).forEach(config -> {
-            WorkloadRatingCalculateType calculateType = config.getCalculateType();
-            if (calculateType != WorkloadRatingCalculateType.APPEND)
-                workloadRatingItemService.warnMsg(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), config.getItemValue()));
-            workloadRatingItemService.defaultValue(new WorkloadRatingItem(BigDecimal.ZERO));
-            WorkloadRatingItem ratingItem = workloadRatingItemService.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
-                    .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
-                    .eq(WorkloadRatingItem::getItemValue, config.getItemValue())
-            );
-            Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
-            config.setScore(calculatePair.getValue());
-            config.setItemId(ratingItem.getId());
-            workloadRatingDetail.setResult(calculatePair.getKey());
+
+        WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
+        configQO.setSearchValue(true);
+        configQO.setType(WorkloadRatingType.SAMPLE);
+        configQO.setBrand(workloadRatingDetail.getBrand());
+        configQO.setIsConfigShow(YesOrNoEnum.YES);
+        List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
+
+        configVOList.stream().sorted(Comparator.comparing(WorkloadRatingConfigVO::getIndex)).forEach(configVO -> {
+            WorkloadRatingCalculateType calculateType = configVO.getCalculateType();
+
+            String titleField = configVO.getTitleField();
+            List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
+            List<WorkloadRatingTitleFieldDTO> configTitleFieldList = CollUtil.removeWithAddIf(titleFieldDTOList, (it) -> StrUtil.isNotBlank(it.getConfigId()));
+            List<WorkloadRatingDetailSaveDTO> configList = workloadRatingDetail.getConfigList().stream()
+                    .filter(it -> configTitleFieldList.stream().anyMatch(titleFieldDTO -> titleFieldDTO.getConfigId().equals(it.getConfigId())))
+                    .collect(Collectors.toList());
+
+            List<String> itemValueList = configList.stream().map(WorkloadRatingDetailSaveDTO::getItemValue).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
+            if (itemValueList.size() != 1) throw new OtherException("!基础项数据有误,请刷新页面重试!");
+            configList.forEach(config -> {
+                config.setItemValue(itemValueList.get(0));
+                if (calculateType != WorkloadRatingCalculateType.APPEND)
+                    workloadRatingItemService.warnMsg(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), config.getItemValue()));
+                workloadRatingItemService.defaultValue(new WorkloadRatingItem(BigDecimal.ZERO));
+                WorkloadRatingItem ratingItem = workloadRatingItemService.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
+                        .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
+                        .eq(WorkloadRatingItem::getItemValue, config.getItemValue())
+                );
+                Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
+                config.setScore(calculatePair.getValue());
+                config.setItemId(ratingItem.getId());
+                workloadRatingDetail.setResult(calculatePair.getKey());
+
+            });
         });
 
         String itemValue = workloadRatingDetail.getItemValue();

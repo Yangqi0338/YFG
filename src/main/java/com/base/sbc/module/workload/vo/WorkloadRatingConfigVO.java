@@ -7,10 +7,11 @@
 package com.base.sbc.module.workload.vo;
 
 import cn.hutool.core.lang.Opt;
-import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import com.base.sbc.module.common.vo.SelectOptionsChildrenVo;
 import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,6 +37,12 @@ public class WorkloadRatingConfigVO extends WorkloadRatingConfig {
 
     public String getTypeText() {
         return Opt.ofNullable(this.getType()).map(WorkloadRatingType::getText).orElse("");
+    }
+
+    @JsonIgnore
+    public Integer getIndex() {
+        if (this.getCalculateType() == null) return WorkloadRatingCalculateType.values().length - 1;
+        return this.getCalculateType().ordinal();
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
