@@ -9,6 +9,7 @@ package com.base.sbc.module.workload.vo;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
@@ -34,6 +35,9 @@ import java.util.Map;
 @ApiModel("工作量评分配置 WorkloadRatingItemVO")
 public class WorkloadRatingItemVO extends WorkloadRatingItem {
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+
+    @JsonIgnore
+    private YesOrNoEnum enableFlag = YesOrNoEnum.YES;
 
     /**
      * 拥有的itemValue

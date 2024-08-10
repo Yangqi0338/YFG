@@ -36,6 +36,7 @@ import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
+import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -169,11 +170,28 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
 
         list.stream().collect(CommonUtils.groupNotBlank(workloadRatingIdFunc)).forEach((isExists, existsOrNotList) -> {
             List<WorkloadRatingDetailDTO> workloadRatingDetailList = new ArrayList<>();
-            List<WorkloadRatingItem> workloadRatingItemList = new ArrayList<>();
+            List<WorkloadRatingItemVO> workloadRatingItemList = new ArrayList<>();
             if (isExists) {
                 WorkloadRatingDetailQO ratingDetailQO = new WorkloadRatingDetailQO();
                 ratingDetailQO.setIds(existsOrNotList.stream().map(workloadRatingIdFunc).collect(Collectors.toList()));
-                workloadRatingDetailList.addAll(this.queryList(ratingDetailQO));
+                List<WorkloadRatingDetailDTO> ratingDetailDTOS = this.queryList(ratingDetailQO);
+                // 手动构建ratingItemList
+                ratingDetailDTOS.forEach(ratingDetail -> {
+                    List<String> itemValueList = StrUtil.split(ratingDetail.getOriginItemValue(), "-");
+                    List<String> itemIdList = StrUtil.split(ratingDetail.getOriginItemId(), COMMA);
+                    for (int i = 0, itemValueListSize = itemValueList.size(); i < itemValueListSize; i++) {
+                        String itemValue = itemValueList.get(i);
+                        String itemId = itemIdList.get(i);
+                        List<String> keyList = StrUtil.split(itemValue, "#");
+                        WorkloadRatingItemVO item = new WorkloadRatingItemVO();
+                        item.setId(itemId);
+                        item.setConfigName(CollUtil.get(keyList, 0));
+                        item.setItemValue(CollUtil.get(keyList, 1));
+                        item.setEnableFlag(YesOrNoEnum.findByValue(CollUtil.get(keyList, 2)));
+                        workloadRatingItemList.add(item);
+                    }
+                });
+                workloadRatingDetailList.addAll(ratingDetailDTOS);
             } else {
                 configVOList.forEach(configVO -> {
                     WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
@@ -205,7 +223,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 List<WorkloadRatingDetailSaveDTO> saveDTOList = brandConfigVOList.stream().map(configVO -> {
                     String itemName = configVO.getItemName();
                     WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configVO);
-                    List<WorkloadRatingItem> configItemList = workloadRatingItemList.stream()
+                    List<WorkloadRatingItemVO> configItemList = workloadRatingItemList.stream()
                             .filter(it -> it.getConfigName().equals(itemName))
                             .collect(Collectors.toList());
                     String prodCategory = String.format("未找到当前品类%s的评分数据", CommonUtils.strJoin("/",
@@ -213,7 +231,10 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     Optional<String> itemValueOpt = matchItemValueList.stream()
                             .filter(itemValue -> configItemList.stream().anyMatch(it -> it.getItemValue().equals(itemValue))).findFirst();
                     if (itemValueOpt.isPresent()) {
-                        configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(detailSaveDTO::decorateItem);
+                        configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).findFirst().ifPresent(it -> {
+                            detailSaveDTO.decorateItem(it);
+                            detailSaveDTO.setEnableFlag(it.getEnableFlag());
+                        });
                         prodCategory = detailSaveDTO.getItemName();
                     }
                     if ("C8_品类".equals(configVO.getTitleDictKey())) {
@@ -225,10 +246,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 detailDTO.setConfigList(saveDTOList);
 
                 resultKeyFunc.accept(vo, detailDTO);
-                resultValueFunc.accept(vo, CommonUtils.listFlatten(
-                        brandConfigVOList,
-                        brandAppendConfigList)
-                );
+                resultValueFunc.accept(vo, CommonUtils.listFlatten(brandConfigVOList, brandAppendConfigList));
             }
         });
     }
