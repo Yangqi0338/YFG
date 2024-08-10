@@ -2070,11 +2070,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return update(updateBean, uw);
     }
 
-    private void checkUser(String id) {
-        checkUser(id, true);
+    private PatternMaking checkUser(String id) {
+        return checkUser(id, true);
     }
 
-    private void checkUser(String id, boolean isCheckUser) {
+    private PatternMaking checkUser(String id, boolean isCheckUser) {
         PatternMaking bean = this.getById(id);
         if (bean == null) {
             throw new OtherException("打版信息为空");
@@ -2087,6 +2087,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
             }
         }
+        return bean;
     }
 
     /**
