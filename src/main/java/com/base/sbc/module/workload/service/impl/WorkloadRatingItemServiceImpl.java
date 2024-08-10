@@ -112,7 +112,8 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
     private BaseLambdaQueryWrapper<WorkloadRatingItem> buildQueryWrapper(WorkloadRatingItemQO qo) {
         BaseLambdaQueryWrapper<WorkloadRatingItem> qw = new BaseLambdaQueryWrapper<WorkloadRatingItem>()
                 .notEmptyIn(WorkloadRatingItem::getConfigId, qo.getConfigId())
-                .notEmptyEq(WorkloadRatingItem::getItemValue, qo.getItemValue());
+                .notEmptyEq(WorkloadRatingItem::getItemValue, qo.getItemValue())
+                .notEmptyEq(WorkloadRatingItem::getId, qo.getId());
         return qw;
     }
 

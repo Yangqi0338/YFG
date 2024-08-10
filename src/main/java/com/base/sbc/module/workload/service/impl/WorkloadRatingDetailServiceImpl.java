@@ -177,18 +177,20 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 List<WorkloadRatingDetailDTO> ratingDetailDTOS = this.queryList(ratingDetailQO);
                 // 手动构建ratingItemList
                 ratingDetailDTOS.forEach(ratingDetail -> {
+                    WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
+                    qo.reset2QueryList();
+                    qo.setId(ratingDetail.getOriginItemId());
+                    List<WorkloadRatingItemVO> itemList = workloadRatingItemService.queryPageInfo(qo).getList();
+                    workloadRatingItemList.addAll(itemList);
                     List<String> itemValueList = StrUtil.split(ratingDetail.getOriginItemValue(), "-");
                     List<String> itemIdList = StrUtil.split(ratingDetail.getOriginItemId(), COMMA);
-                    for (int i = 0, itemValueListSize = itemValueList.size(); i < itemValueListSize; i++) {
+                    for (int i = 0, itemIdListSize = itemIdList.size(); i < itemIdListSize; i++) {
                         String itemValue = itemValueList.get(i);
                         String itemId = itemIdList.get(i);
                         List<String> keyList = StrUtil.split(itemValue, "#");
-                        WorkloadRatingItemVO item = new WorkloadRatingItemVO();
-                        item.setId(itemId);
-                        item.setConfigName(CollUtil.get(keyList, 0));
-                        item.setItemValue(CollUtil.get(keyList, 1));
-                        item.setEnableFlag(YesOrNoEnum.findByValue(CollUtil.get(keyList, 2)));
-                        workloadRatingItemList.add(item);
+                        itemList.stream().filter(it -> it.getId().equals(itemId)).findFirst().ifPresent(item -> {
+                            item.setEnableFlag(YesOrNoEnum.findByValue(CollUtil.get(keyList, 2)));
+                        });
                     }
                 });
                 workloadRatingDetailList.addAll(ratingDetailDTOS);
