@@ -70,9 +70,9 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
 
     boolean updateByDto(PreProductionSampleTaskDto dto);
 
-    boolean sampleMakingScore(Principal user, String id, BigDecimal score);
+    boolean sampleMakingScore(PreProductionSampleTaskDto dto);
 
-    boolean sampleQualityScore(Principal user, String id, BigDecimal score);
+    boolean sampleQualityScore(String id, BigDecimal score);
 
     boolean techRemarks(Principal user, String id, String remark);
 
@@ -90,6 +90,8 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     PreProductionSampleTaskDetailVo getDetailFOB(String id);
 
     boolean setStitcher(PreProductionSampleTaskDto dto);
+
+    boolean sampleMakingEdit(PreProductionSampleTaskDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 

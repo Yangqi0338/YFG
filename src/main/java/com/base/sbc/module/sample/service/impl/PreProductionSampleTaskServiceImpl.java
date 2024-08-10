@@ -27,8 +27,10 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -64,7 +66,9 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -80,6 +84,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -645,37 +654,32 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     }
 
     @Override
-    public boolean sampleMakingScore(Principal user, String id, BigDecimal score) {
+    public boolean sampleMakingScore(PreProductionSampleTaskDto dto) {
+        if (dto.getSampleMakingScore() == null || StrUtil.isBlank(dto.getWorkloadRatingId()))
+            throw new OtherException("样衣工作量评分必传参数异常");
 
-        PreProductionSampleTask bean = getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-//        //校验是否是样衣组长
-//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-//        if(!sampleTeamLeader){
-//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
-//        }
+        String id = dto.getId();
+        checkUser(id);
         PreProductionSampleTask updateBean = new PreProductionSampleTask();
-        updateBean.setSampleMakingScore(score);
-        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
-        uw.lambda().eq(PreProductionSampleTask::getId, id);
-        return update(updateBean, uw);
+        updateBean.setSampleMakingScore(dto.getSampleMakingScore());
+        updateBean.setSecondProcessing(dto.getSecondProcessing());
+        updateBean.setWorkloadRatingId(dto.getWorkloadRatingId());
+
+        WorkloadRatingDetailQO qo = new WorkloadRatingDetailQO();
+        qo.reset2QueryFirst();
+        qo.setIds(Collections.singletonList(dto.getWorkloadRatingId()));
+        WorkloadRatingDetailDTO detailDTO = workloadRatingDetailService.queryList(qo).stream().findFirst().orElseThrow(() -> new OtherException("未找到对应的评分详情"));
+
+        updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
+        updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
+        updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
+
+        return update(updateBean, new LambdaUpdateWrapper<PreProductionSampleTask>().eq(PreProductionSampleTask::getId, id));
     }
 
     @Override
-    public boolean sampleQualityScore(Principal user, String id, BigDecimal score) {
-        PreProductionSampleTask bean = getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-//        //校验是否是样衣组长
-//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-//        if(!sampleTeamLeader){
-//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
-//        }
+    public boolean sampleQualityScore(String id, BigDecimal score) {
+        checkUser(id, false);
         PreProductionSampleTask updateBean = new PreProductionSampleTask();
         updateBean.setSampleQualityScore(score);
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
@@ -778,6 +782,35 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 记录日志
         this.saveOperaLog("分配车缝工", "产前样看板", dto, task);
         return true;
+    }
+
+    @Override
+    public boolean sampleMakingEdit(PreProductionSampleTaskDto dto) {
+        /*样衣工的质量打分*/
+        sampleQualityScore(dto.getId(), dto.getSampleQualityScore());
+        /*样衣制作评分*/
+        sampleMakingScore(dto);
+        return true;
+    }
+
+    private PreProductionSampleTask checkUser(String id) {
+        return checkUser(id, true);
+    }
+
+    private PreProductionSampleTask checkUser(String id, boolean isCheckUser) {
+        PreProductionSampleTask bean = this.getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        if (isCheckUser) {
+            GroupUser groupUser = userUtils.getUserBy(null);
+            // 校验是否是样衣组长
+            boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+            if (!sampleTeamLeader) {
+                throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+            }
+        }
+        return bean;
     }
 
 // 自定义方法区 不替换的区域【other_end】
