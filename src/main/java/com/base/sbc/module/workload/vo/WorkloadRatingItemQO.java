@@ -47,6 +47,9 @@ public class WorkloadRatingItemQO extends Page {
     @ApiModelProperty(value = "评分项具体值")
     @NotBlank(message = "具体评分项必须传入", groups = {WorkloadRatingItemDTO.class})
     private String itemValue;
+    /** id */
+    @ApiModelProperty(value = "id")
+    private String id;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
     /* 只接受两种请求 */
