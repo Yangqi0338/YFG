@@ -480,7 +480,7 @@ public class PatternMakingController {
 
     @ApiOperation(value = "样衣制作评分", notes = "")
     @PostMapping("/sampleMakingScore")
-    public boolean sampleMakingScore(@Validated @RequestBody PatternMakingDto dto) {
+    public boolean sampleMakingScore(@RequestBody PatternMakingDto dto) {
         return patternMakingService.sampleMakingScore(dto);
     }
 

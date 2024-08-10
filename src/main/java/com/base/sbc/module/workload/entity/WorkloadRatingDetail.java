@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -61,5 +62,15 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     @ApiModelProperty(value = "结果")
     private BigDecimal result;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    @JsonIgnore
+    public String getOriginItemValue() {
+        return itemValue;
+    }
+
+    @JsonIgnore
+    public String getOriginItemId() {
+        return itemId;
+    }
 
 }

@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.dto;
 
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
@@ -15,9 +17,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotEmpty;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -55,10 +59,21 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     @Override
     public Map<Object, Object> decorateWebMap(){
         Map<Object, Object> map = super.decorateWebMap();
-        configList.stream().collect(Collectors.groupingBy(WorkloadRatingDetailSaveDTO::getCalculateType)).forEach((calculateType,sameTypeList)-> {
-            map.put(calculateType, CommonUtils.sumBigDecimal(sameTypeList, WorkloadRatingDetailSaveDTO::getScore));
-        });
+        buildCalculateTypeResult(map, it -> it);
         return map;
+    }
+
+    @Override
+    public void build() {
+        buildCalculateTypeResult(this.getExtend(), WorkloadRatingCalculateType::getCode);
+        super.build();
+    }
+
+    private <T> void buildCalculateTypeResult(Map<T, Object> map, Function<WorkloadRatingCalculateType, T> func) {
+        configList.stream().collect(Collectors.groupingBy(WorkloadRatingDetailSaveDTO::getCalculateType)).forEach((calculateType, sameTypeList) -> {
+            BigDecimal score = CommonUtils.sumBigDecimal(sameTypeList, WorkloadRatingDetailSaveDTO::getScore);
+            if (BigDecimalUtil.biggerThenZero(score)) map.put(func.apply(calculateType), score);
+        });
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/

@@ -63,7 +63,7 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     /** 是否启用 */
     @ApiModelProperty(value = "是否启用")
     @NotNull(message = "启用状态不能为空")
-    private YesOrNoEnum enableFlag = YesOrNoEnum.YES;
+    private YesOrNoEnum enableFlag;
 
     /** 分数 */
     @ApiModelProperty(value = "分数")
