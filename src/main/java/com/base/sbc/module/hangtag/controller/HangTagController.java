@@ -83,7 +83,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")
-    public PageInfo<HangTagListVO> queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
+    public PageInfo<HangTagListVO>  queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
         return hangTagService.queryPageInfo(hangTagSearchDTO, super.getUserCompany());
     }
 
