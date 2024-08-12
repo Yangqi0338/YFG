@@ -63,6 +63,8 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setHidden(userDefineItem.getHidden());
                 columnDefine.setIsEdit(userDefineItem.getIsEdit());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
+                columnDefine.setColumnColor(userDefineItem.getColumnColor());
+                columnDefine.setIsRequired(userDefineItem.getIsRequired());
             } else {
                 columnDefine.setId(null);
             }
@@ -91,6 +93,8 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                     columnDefine.setHidden(groupDefineItem.getHidden());
                     columnDefine.setIsEdit(groupDefineItem.getIsEdit());
                     columnDefine.setSortOrder(groupDefineItem.getSortOrder());
+                    columnDefine.setColumnColor(groupDefineItem.getColumnColor());
+                    columnDefine.setIsRequired(groupDefineItem.getIsRequired());
                     byTableCode1.add(columnDefine);
                 }
             }
@@ -172,6 +176,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setIsEdit(userDefineItem.getIsEdit());
                 columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
+                columnDefine.setIsRequired(userDefineItem.getIsRequired());
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
             } else {
                 columnDefine.setId(null);
