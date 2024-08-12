@@ -99,6 +99,8 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -492,6 +494,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         //查看资料包信息是否存在
         PackInfo packInfo = this.getById(dto.getForeignId());
+        StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+        //检查ESCM难度
+        checkESCM(styleColor);
         try {
 
             if (packInfo == null) {
@@ -519,7 +524,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             if (issuedToExternalSmpSystemSwitch) {
                 /*查询物料*/
                 List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PACK_TYPE_DESIGN, version.getId());
-                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+//                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
                 /*判断是否使用rfid*/
                 if (StrUtil.equals(styleColor.getRfidFlag(), YesOrNoEnum.YES.getValueStr())) {
                     /*查询有没有RFID*/
@@ -569,7 +574,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packDesignStatus.setToBigGoodsDate(nowDate);
             packInfoStatusService.updateById(packDesignStatus);
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
-            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+//            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
             //只有不是反审并且不是报此款才触发
             if (null == packDesignStatus.getToDesignDate() && !StrUtil.equals(BaseGlobal.YES,styleColor.getIsDefective())){
                 copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
@@ -1822,6 +1827,28 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         uw.set(PreProductionSampleTask::getUpdateName, getUserName());
         uw.set(PreProductionSampleTask::getUpdateDate, new Date());
         preProductionSampleTaskService.update(uw);
+    }
+
+    private void checkESCM(StyleColor styleColor) {
+        if (!"cmt".equalsIgnoreCase(styleColor.getDevtType().name())){
+            return;
+        }
+        if ("1".equals(styleColor.getIsDefective())){
+            return;
+        }
+        Style style = styleService.getById(styleColor.getStyleId());
+
+        //配饰大类的不检查
+        if ("A05".equals(style.getProdCategory1st())){
+            return;
+        }
+
+        if (StringUtils.isEmpty(styleColor.getStyleDifficulty()) ||
+                StringUtils.isEmpty(styleColor.getFabricDifficulty()) ||
+                StringUtils.isEmpty(styleColor.getProcessDifficulty())){
+            throw new OtherException("款式难度、面料难度、工艺难度为必填字段，请前往ESCM风险评估填写！",19001);
+        }
+
     }
 
 // 自定义方法区 不替换的区域【other_end】
