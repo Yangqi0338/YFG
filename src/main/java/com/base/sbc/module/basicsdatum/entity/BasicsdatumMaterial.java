@@ -9,7 +9,6 @@ package com.base.sbc.module.basicsdatum.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -42,7 +41,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 面料测试结果
 	 */
 	@ApiModelProperty(value = "面料测试结果")
-	private YesOrNoEnum fabricTestFlag;
+	private String fabricTestFlag;
 
 	/**********************************
 	 * 实体存放的其他字段区 【other_end】
@@ -428,20 +427,36 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 */
 	private String attachmentName;
 	/**
-	 * 面料附件id
+	 * 大货外观报告
 	 */
-	@ApiModelProperty(value = "面料附件id")
-	private String fabricTestFileId;
-	/**
-	 * 面料附件地址
-	 */
-	@ApiModelProperty(value = "面料附件地址")
-	private String fabricTestFileUrl;
+	@ApiModelProperty(value = "大货外观报告")
+	private String prodAppearance;
+
 	/**
 	 * 面料测试说明
 	 */
 	@ApiModelProperty(value = "面料测试说明")
 	private String fabricTestContent;
+	/**
+	 * 开发样理化判定
+	 */
+	@ApiModelProperty(value = "开发样理化判定")
+	private String devDesignPhysicalJudge;
+	/**
+	 * 开发样理化结果
+	 */
+	@ApiModelProperty(value = "开发样理化结果")
+	private String devDesignPhysicalResult;
+	/**
+	 * 大货理化判定
+	 */
+	@ApiModelProperty(value = "大货理化判定")
+	private String prodPhysicalJudge;
+	/**
+	 * 大货样理化结果
+	 */
+	@ApiModelProperty(value = "大货样理化结果")
+	private String prodPhysicalResult;
 
 	/**********************************
 	 * 实体存放的其他字段区 不替换的区域 【other_start】
@@ -468,7 +483,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setMaterialCategoryName(materialCategoryName);
 		smpMaterialDto.setWidthGroup(widthGroup);
 		smpMaterialDto.setWidthGroupName(widthGroupName);
-		smpMaterialDto.setKilogramsAndMeters(kgMNum==null ? BigDecimal.valueOf(0) : kgMNum);
+		smpMaterialDto.setKilogramsAndMeters(kgMNum == null ? BigDecimal.valueOf(0) : kgMNum);
 		smpMaterialDto.setDeveloper(devName);
 		smpMaterialDto.setBuyer(purchaseName);
 		smpMaterialDto.setBuyerTeam(purchaseDeptName);
@@ -521,7 +536,8 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setRemarks(remarks);
 		try {
 			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
-		}catch (Exception ignored){}
+		} catch (Exception ignored) {
+		}
 
 		smpMaterialDto.setId(id);
 		smpMaterialDto.setCreator(getCreateName());
@@ -532,7 +548,6 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setSyncId(String.valueOf(idGen.nextId()));
 		smpMaterialDto.setActive("0".equals(status));
 		smpMaterialDto.setFabricTestFlag(fabricTestFlag);
-		smpMaterialDto.setFabricTestFileUrl(fabricTestFileUrl);
 		smpMaterialDto.setFabricTestContent(fabricTestContent);
 		return smpMaterialDto;
 	}

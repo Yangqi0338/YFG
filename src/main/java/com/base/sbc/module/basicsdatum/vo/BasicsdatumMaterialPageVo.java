@@ -1,10 +1,7 @@
 package com.base.sbc.module.basicsdatum.vo;
 
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -425,28 +422,12 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	 * 面料测试结果
 	 */
 	@ApiModelProperty(value = "面料测试结果")
-	private YesOrNoEnum fabricTestFlag;
+	private String fabricTestFlag;
 
 	/**
-	 * 面料附件id
+	 * 是否存在附件
 	 */
-	@ApiModelProperty(value = "面料附件id")
-	private String fabricTestFileId;
+	@ApiModelProperty(value = "是否存在附件")
+	private YesOrNoEnum hasFabricTestFile;
 
-	/**
-	 * 面料附件地址
-	 */
-	@ApiModelProperty(value = "面料附件地址")
-	private String fabricTestFileUrl;
-	/**
-	 * 面料测试说明
-	 */
-	@ApiModelProperty(value = "面料测试说明")
-	private String fabricTestContent;
-
-	public String getFabricTestFileUrl() {
-		if (StrUtil.isBlank(fabricTestFileUrl)) return fabricTestFileUrl;
-		MinioUtils minioUtils = SpringContextHolder.getBean("minioUtils");
-		return minioUtils.getObjectUrl(fabricTestFileUrl);
-	}
 }

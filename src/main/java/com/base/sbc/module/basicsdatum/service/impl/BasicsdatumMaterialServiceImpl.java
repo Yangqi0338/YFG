@@ -46,6 +46,7 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -105,6 +106,8 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
 import com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -139,8 +142,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,11 +157,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.common.base.BaseGlobal.STATUS_NORMAL;
+import static com.base.sbc.module.common.utils.AttachmentTypeConstant.MATERIAL_FITTING_REPORT;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -186,6 +196,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     private final FlowableService flowableService;
+    private final AttachmentService attachmentService;
     @Lazy
     private final PackBomService packBomService;
 
@@ -494,6 +505,23 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         //保存动态字段
         fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());
+
+        List<AttachmentVo> fabricTestFileList = dto.getFabricTestFileList();
+        if (CollUtil.isNotEmpty(fabricTestFileList)) {
+            List<Attachment> attachmentList = fabricTestFileList.stream().map(it -> {
+                it.setType(MATERIAL_FITTING_REPORT);
+                it.setForeignId(entity.getId());
+                Attachment attachment = BeanUtil.copyProperties(it, Attachment.class);
+                attachment.setStatus(STATUS_NORMAL);
+                return attachment;
+            }).collect(Collectors.toList());
+            // 删除之前的
+            QueryWrapper<Attachment> removeQw = new QueryWrapper<>();
+            removeQw.eq("foreign_id", entity.getId());
+            removeQw.eq("type", MATERIAL_FITTING_REPORT);
+            attachmentService.remove(removeQw);
+            attachmentService.saveOrUpdateBatch(attachmentList);
+        }
 
         return getBasicsdatumMaterial(entity.getId());
     }
@@ -862,6 +890,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
         copy.setFieldValList(fieldManagementVos);
+
+        copy.setFabricTestFileList(attachmentService.findByforeignId(copy.getId(), MATERIAL_FITTING_REPORT));
         return copy;
     }
 

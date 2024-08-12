@@ -1,17 +1,17 @@
 package com.base.sbc.module.basicsdatum.vo;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -370,5 +370,8 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 
 	@ApiModelProperty(value = "物料库动态字段")
 	List<FieldManagementVo> fieldValList;
+
+	@ApiModelProperty(value = "附件")
+	public List<AttachmentVo> fabricTestFileList;
 }
 
