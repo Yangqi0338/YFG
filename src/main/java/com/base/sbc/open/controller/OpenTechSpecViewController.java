@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioConfig;
@@ -89,7 +90,7 @@ public class OpenTechSpecViewController {
     }
 
     @GetMapping("pdfHtml")
-    public String html(String foreignId, String packType, String userId, String minioDomain, HttpServletResponse response) throws IOException {
+    public ApiResult html(String foreignId, String packType, String userId, String minioDomain, HttpServletResponse response) throws IOException {
         PackCommonSearchDto dto = new PackCommonSearchDto();
         dto.setForeignId(foreignId);
         dto.setPackType(packType);
@@ -98,10 +99,10 @@ public class OpenTechSpecViewController {
         PackInfoListVo detail = packInfoService.getDetail(foreignId, dto.getPackType());
 
         if(ObjectUtils.isNotNull(detail)) {
-            return   detail.getTechSpecFile().getUrl();
+            return   ApiResult.success(detail.getTechSpecFile().getUrl());
 //                response.sendRedirect(detail.getTechSpecFile().getUrl());
         }
-        return "";
+        return ApiResult.success();
 //        genTechSpecPdfFile.setPdfView(false);
 //        String html;
 //        try {
