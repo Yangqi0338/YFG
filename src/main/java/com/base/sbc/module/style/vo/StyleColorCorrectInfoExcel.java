@@ -87,6 +87,9 @@ public class StyleColorCorrectInfoExcel {
     @Excel(name = "设计下明细单", exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date designDetailDate;
 
+    @Excel(name = "设计回收正确样时间", exportFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date designCorrectRecoveryDate;
+
     //技术接收正确样日期
     @Excel(name = "技术接收正确样日期", exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date technologyCorrectDate;
