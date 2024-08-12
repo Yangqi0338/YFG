@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * 款式定价
@@ -319,6 +318,10 @@ public class StylePricingVO {
 
 
     private String calcItemVal;
+
+    private String calcItemVal1;
+
+    private String calcItemVal2;
 
     /**
      * 列头筛选数量
