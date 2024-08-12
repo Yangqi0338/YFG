@@ -15,5 +15,9 @@ import java.util.List;
 @Mapper
 public interface MaterialLabelMapper extends BaseMapper<MaterialLabel> {
 
-    List<MaterialChildren> linkageQuery(@Param("search") String search, @Param("materialCategoryIds") List<String> materialCategoryIds);
+    List<MaterialChildren> linkageQuery(@Param("search") String search,
+                                        @Param("materialCategoryIds") List<String> materialCategoryIds,
+                                        @Param("folderId")String folderId,
+                                        @Param("status")String status,
+                                        @Param("createId")String createId);
 }

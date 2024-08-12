@@ -54,7 +54,7 @@
                   ps.size_rhd_flag,
                   ps.size_rhd_date,
                   ps.size_rhd_user,
-
+                  ps.remark,
                   ps.tech_rhd_flag,
                   ps.tech_rhd_date,
                   ps.tech_rhd_user,

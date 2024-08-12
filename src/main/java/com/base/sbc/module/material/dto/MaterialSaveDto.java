@@ -37,4 +37,7 @@ public class MaterialSaveDto extends Material {
 
     @ApiModelProperty("是否管理人员：1为管理人员")
     private String  materialManagerStaff;
+
+    @ApiModelProperty("引用标志，ture:已引用，其他为未引用")
+    private Boolean citeFlag;
 }

@@ -1,7 +1,6 @@
 package com.base.sbc.config.constant;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,11 @@ public class BusinessProperties {
 
     public static String tablePrefix = "t_";
     public static Integer orderBookProductionInThreadLimit = 2;
+    public static String topCategory = "A01,A02,A03";
+    public static String bottomCategory = "A04";
 
+    public static Map<String, String> topCategoryStructure = MapUtil.ofEntries(MapUtil.entry("围度数据", "pattern"), MapUtil.entry("长度数据", "length"));
+    public static Map<String, String> bottomCategoryStructure = MapUtil.ofEntries(MapUtil.entry("围度数据", "pattern2"), MapUtil.entry("长度数据", "length2"));
 
     public void setTablePrefix(String tablePrefix) {
         BusinessProperties.tablePrefix = tablePrefix;
@@ -31,5 +34,29 @@ public class BusinessProperties {
     public void setOrderBookProductionInThreadLimit(Integer orderBookProductionInThreadLimit) {
         BusinessProperties.orderBookProductionInThreadLimit = orderBookProductionInThreadLimit;
     }
+
+    /* ----------------------------额外处理方法---------------------------- */
+    public static String getStructureCode(String category, String structureKey) {
+        if (topCategory.contains(category)) return topCategoryStructure.getOrDefault(structureKey, "");
+        if (bottomCategory.contains(category)) return bottomCategoryStructure.getOrDefault(structureKey, "");
+        return "";
+    }
+
+    public void setTopCategory(String topCategory) {
+        BusinessProperties.topCategory = topCategory;
+    }
+
+    public void setBottomCategory(String bottomCategory) {
+        BusinessProperties.bottomCategory = bottomCategory;
+    }
+
+    public void setTopCategoryStructure(Map<String, String> topCategoryStructure) {
+        BusinessProperties.topCategoryStructure = topCategoryStructure;
+    }
+
+    public void setBottomCategoryStructure(Map<String, String> bottomCategoryStructure) {
+        BusinessProperties.bottomCategoryStructure = bottomCategoryStructure;
+    }
+
 
 }

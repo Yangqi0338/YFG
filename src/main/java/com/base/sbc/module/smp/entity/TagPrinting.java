@@ -205,6 +205,11 @@ public class TagPrinting {
      */
     private String colorCodeTranslate;
 
+    /**
+     * 生产日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date produceDate;
 
     /**
      * 入库时间
@@ -240,6 +245,11 @@ public class TagPrinting {
      * 物料名称（多个使用,分割）
      */
     private String materialCodeNames;
+
+    /**
+     * 工艺说明PDF
+     */
+    private String techSpecFileUrl;
 
     /**
      * 尺码明细类
@@ -295,6 +305,15 @@ public class TagPrinting {
          * 合作方条形码
          */
         private String outsideBarcode;
+        /**
+         * 国际号型
+         */
+        private String extShape;
+
+        /**
+         * 国际尺码
+         */
+        private String extSize;
 
         @JsonIgnore
         public String getSystemSizeName(){

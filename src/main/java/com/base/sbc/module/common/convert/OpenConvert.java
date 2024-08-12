@@ -21,7 +21,7 @@ import org.mapstruct.factory.Mappers;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface OpenConvert {
     OpenConvert INSTANCE = Mappers.getMapper(OpenConvert.class);
 

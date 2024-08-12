@@ -13,6 +13,7 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -56,7 +57,6 @@ import com.base.sbc.module.formtype.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formtype.entity.FieldOptionConfig;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.entity.FormType;
-import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -77,7 +77,8 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.*;
@@ -115,7 +116,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -126,6 +126,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 /**
@@ -142,6 +143,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     protected static Logger logger = LoggerFactory.getLogger(StyleServiceImpl.class);
 
+    @Autowired
+    @Lazy
+    private PatternMakingService patternMakingService;
     @Autowired
     private FlowableService flowableService;
     @Autowired
@@ -235,9 +239,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private FormTypeService formTypeService;
 
     @Autowired
-    private FieldManagementMapper fieldManagementMapper;
-
-    @Autowired
     @Lazy
     private OrderBookDetailService orderBookDetailService;
 
@@ -248,9 +249,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
-    @Autowired
-    @Lazy
-    private PatternLibraryService patternLibraryService;
+
+    @Resource(name = "asyncExecutor")
+    private Executor asyncExecutor;
 
     /**
      * 表单字段类型名称
@@ -278,7 +279,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             style = saveNewStyle(dto);
         } else {
             style = getById(dto.getId());
-            String registeringId = style.getRegisteringId();
             String oldDesignNo = style.getDesignNo();
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
             resetDesignNo(dto, style);
@@ -390,6 +390,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
+
+         styleColorIssuedToScm(style, isPushScm);
+
+
+        return style;
+    }
+
+
+    private void styleColorIssuedToScm(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
@@ -410,7 +419,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //检查配色数据是否投产，投产了就报错
                 checkColorSize(publicStyleColorDto);
                 try {
-                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                    asyncExecutor.execute(() ->
+                          smpService.goods(styleColorIds.toArray(new String[]{}))
+                    );
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
                     throw new OtherException("同步SCM失败：" + e.getMessage());
@@ -431,8 +442,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //                throw new OtherException("同步SCM失败："+e.getMessage());
 //            }
         }
-
-        return style;
     }
 
 
@@ -770,6 +779,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         style.setCheckStartTime(new Date());
+        if (style.getActualPublicationDate() == null) {
+            style.setActualPublicationDate(new Date());
+        }
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         // 获取当前人所在的虚拟部门
@@ -2144,6 +2156,20 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         StyleVo detail = getDetail(id);
         if (detail == null) {
             return null;
+        }
+        // 查询样衣图片
+        List<PatternMaking> patternMakingList = patternMakingService.list(
+                new LambdaQueryWrapper<PatternMaking>()
+                        .select(PatternMaking::getSamplePic)
+                        .isNotNull(PatternMaking::getSamplePic)
+                        .ne(PatternMaking::getSamplePic, "")
+                        .eq(PatternMaking::getDelFlag, BaseGlobal.NO)
+                        .eq(PatternMaking::getStyleId, detail.getId())
+        );
+        if (ObjectUtil.isNotEmpty(patternMakingList)) {
+            minioUtils.setObjectUrlToList(patternMakingList, "samplePic");
+            List<String> samplePicList = patternMakingList.stream().map(PatternMaking::getSamplePic).collect(Collectors.toList());
+            detail.setSamplePics(CollUtil.join(samplePicList, ","));
         }
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));

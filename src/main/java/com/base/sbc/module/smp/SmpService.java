@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -89,7 +88,6 @@ import com.base.sbc.module.smp.impl.SaleProductIntoService;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
 import com.base.sbc.module.tasklist.dto.TaskListDTO;
-import com.base.sbc.module.tasklist.entity.TaskList;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
 import com.base.sbc.module.tasklist.enums.TaskListTaskStatusEnum;
@@ -512,9 +510,7 @@ public class SmpService {
 
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
-                    if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName())
-                            || "StylePursuit".equals(m.getFieldName()) || "StyleRegion".equals(m.getFieldName())
-                            || "StyleFashion".equals(m.getFieldName()) || "styleScene".equals(m.getFieldName()) || "distributionChannel".equals(m.getFieldName())) {
+                    if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName()) || "StylePursuit".equals(m.getFieldName()) || "StyleRegion".equals(m.getFieldName()) || "StyleFashion".equals(m.getFieldName()) || "styleScene".equals(m.getFieldName()) || "distributionChannel".equals(m.getFieldName())) {
                         GoodsDynamicFieldDto goodsDynamicFieldDto = BeanUtil.copyProperties(m, GoodsDynamicFieldDto.class);
                         goodsDynamicFieldDtos.add(goodsDynamicFieldDto);
                     }
@@ -610,7 +606,7 @@ public class SmpService {
             smpGoodsDto.setStyleCode(style.getDesignNo());
 
             // 工艺说明
-            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", packInfo.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
 
@@ -787,14 +783,7 @@ public class SmpService {
             //     return null;
             // }
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "商品主数据下发"),
-                    Pair.of("code", smpGoodsDto.getCode()),
-                    Pair.of("name", smpGoodsDto.getColorName()),
-                    Pair.of("businessId", smpGoodsDto.getId()),
-                    Pair.of("businessCode", smpGoodsDto.getTargetBusinessSystem())
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "商品主数据下发"), Pair.of("code", smpGoodsDto.getCode()), Pair.of("name", smpGoodsDto.getColorName()), Pair.of("businessId", smpGoodsDto.getId()), Pair.of("businessCode", smpGoodsDto.getTargetBusinessSystem()));
             if (httpResp.isSuccess()) {
                 i++;
                 styleColor.setScmSendFlag("1");
@@ -858,10 +847,7 @@ public class SmpService {
                 Set<String> goodsMsgSet = goodsMsgMap.keySet();
                 // 将一部分不需要下发的数据 存在任务列表详情中 状态时成功
                 List<String> styleNoList = styleColors.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
-                List<StyleColor> styleColorList = styleColorService.list(
-                        new LambdaQueryWrapper<StyleColor>()
-                                .in(StyleColor::getStyleNo, goodsMsgSet)
-                );
+                List<StyleColor> styleColorList = styleColorService.list(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleNo, goodsMsgSet));
                 for (StyleColor styleColor : styleColorList) {
                     if (!styleNoList.contains(styleColor.getStyleNo())) {
                         TaskListDetail taskListDetail = new TaskListDetail();
@@ -873,12 +859,10 @@ public class SmpService {
                     }
                 }
                 taskList.setTaskListDetailList(taskListDetailList);
-                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
-                        numberByKeyDay, taskListDetailList.size(), taskListDetailList.size() - (ids.length - i), ids.length - i);
+                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条", numberByKeyDay, taskListDetailList.size(), taskListDetailList.size() - (ids.length - i), ids.length - i);
                 taskList.setTaskContent(taskContent);
             } else {
-                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
-                        numberByKeyDay, ids.length, i, ids.length - i);
+                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条", numberByKeyDay, ids.length, i, ids.length - i);
                 taskList.setTaskContent(taskContent);
                 taskList.setTaskListDetailList(taskListDetailList);
             }
@@ -887,6 +871,11 @@ public class SmpService {
             taskListService.saveTaskList(taskList);
         }
         return i;
+    }
+
+    @Async
+    public void materialsAsync(String[] ids) {
+        materials(ids);
     }
 
     /**
@@ -1043,10 +1032,7 @@ public class SmpService {
             transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
 
             // 下发并记录推送日志
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "物料主数据下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "物料主数据下发"));
 
             // 修改状态为已下发
             basicsdatumMaterial.setDistribute("1");
@@ -1247,8 +1233,7 @@ public class SmpService {
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
             smpBomDto.setRfidFlag(styleColor.getRfidFlag());
-            String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
-                    .eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
+            String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>().eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
             RFIDProperties.categoryRfidMapping.forEach((categoryCode, RFIDType) -> {
                 if (categoryCode.equals(category3Code)) {
                     smpBomDto.setRfidType(RFIDType.ordinal() + "");
@@ -1261,10 +1246,7 @@ public class SmpService {
             }
 
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "bom下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "bom下发"));
 
             if (httpResp.isSuccess()) {
                 packBom.setScmSendFlag("1");
@@ -1330,10 +1312,7 @@ public class SmpService {
             if (issuedToExternalSmpSystemSwitch) {
                 SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
                 String jsonString = JsonStringUtils.toJSONString(smpColorDto);
-                HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", jsonString,
-                        Pair.of("moduleName", "smp"),
-                        Pair.of("functionName", "颜色主数据下发")
-                );
+                HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "颜色主数据下发"));
 
                 if (httpResp.isSuccess()) {
                     i++;
@@ -1364,10 +1343,7 @@ public class SmpService {
             CommonUtils.removeQuery(smpProcessSheetDto, "pdfUrl");
             smpProcessSheetDto.setId(id);
             String jsonString = JsonStringUtils.toJSONString(smpProcessSheetDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "工艺单下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "工艺单下发"));
             if (httpResp.isSuccess()) {
                 i++;
                 packInfoStatus.setTechScmSendFlag("1");
@@ -1472,10 +1448,7 @@ public class SmpService {
             sampleBean.setC8_ProductSample_ProofingDesigner(patternMaking.getPatternDesignerName());
             sampleBean.setC8_ProductSample_ProofingDesignerID(patternMaking.getPatternDesignerId());
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
-            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString,
-                    Pair.of("moduleName", "oa"),
-                    Pair.of("functionName", "样衣下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString, Pair.of("moduleName", "oa"), Pair.of("functionName", "样衣下发"));
 
             if (httpResp.isSuccess()) {
                 i++;
@@ -1501,10 +1474,7 @@ public class SmpService {
             fabricCompositionDto.setIngredient(basicsdatumIngredient.getIngredient());
             fabricCompositionDto.setStatus(basicsdatumIngredient.getStatus());
             String jsonString = JsonStringUtils.toJSONString(fabricCompositionDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", jsonString,
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "面料成分名称码表下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "面料成分名称码表下发"));
             if (!httpResp.isSuccess()) {
                 throw new OtherException(httpResp.getMessage());
             }
@@ -1521,10 +1491,7 @@ public class SmpService {
     public Boolean checkStyleSize(PlmStyleSizeParam param) {
         param.setCode(param.getStyleNo());
         String jsonString = JsonStringUtils.toJSONString(param);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "修改尺码的时候验证")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "修改尺码的时候验证"));
         return httpResp.isSuccess();
     }
 
@@ -1533,10 +1500,7 @@ public class SmpService {
      */
     public Boolean checkColorSize(PdmStyleCheckParam param) {
         String jsonString = JsonStringUtils.toJSONString(param);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "修改商品颜色的时候验证")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "修改商品颜色的时候验证"));
         return httpResp.isSuccess();
     }
 
@@ -1569,10 +1533,7 @@ public class SmpService {
             checkMaterial.setCheckSkuList(checkSkuList);
         }
         String jsonString = JsonStringUtils.toJSONString(checkMaterial);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "停用物料尺码和颜色的时候验证")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "停用物料尺码和颜色的时候验证"));
         if (!httpResp.isSuccess()) {
             throw new OtherException(httpResp.getMessage());
         }
@@ -1586,10 +1547,7 @@ public class SmpService {
      */
     public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto) {
         String jsonString = JsonStringUtils.toJSONString(updatePriceDto);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", jsonString,
-                Pair.of("moduleName", "smp"),
-                Pair.of("functionName", "修改吊牌价的时候验证")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "修改吊牌价的时候验证"));
         return httpResp.isSuccess();
     }
 
@@ -1733,10 +1691,7 @@ public class SmpService {
             SampleBean sampleBean = smpSampleDto.toSampleBean();
             sampleBean.setColorway(colorway);
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
-            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString,
-                    Pair.of("moduleName", "oa"),
-                    Pair.of("functionName", "样衣下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString, Pair.of("moduleName", "oa"), Pair.of("functionName", "样衣下发"));
             if (httpResp.isSuccess()) {
                 i++;
                 preProductionSampleTask.setScmSendFlag("1");
@@ -1758,10 +1713,7 @@ public class SmpService {
             tagCompositionDto.setComposition(hangTag.getIngredient());
             tagCompositionDto.setStyleNo(hangTag.getBulkStyleNo());
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition", jsonString,
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "下发吊牌成分")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌成分"));
             if (httpResp.isSuccess()) {
                 i++;
             }
@@ -1823,10 +1775,7 @@ public class SmpService {
 
             }
             String jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString,
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "下发尺寸和外辅工艺明细数据")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发尺寸和外辅工艺明细数据"));
             if (httpResp.isSuccess()) {
                 i++;
             }
@@ -1968,10 +1917,7 @@ public class SmpService {
         }
         String params = JSONArray.toJSONString(list);
 
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "下发吊牌和款式定价确认状态和时间数据")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌和款式定价确认状态和时间数据"));
 
         for (TagConfirmDateDto tagConfirmDateDto1 : list) {
             pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1));
@@ -1981,10 +1927,13 @@ public class SmpService {
     /**
      * 正确样下发
      */
+    @Async
     public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
         String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
         restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
                 Pair.of("moduleName", "scm"),
+                Pair.of("code", tagConfirmDateDto.getStyleNo()),
+                Pair.of("name", tagConfirmDateDto.getStyleNo()),
                 Pair.of("functionName", "下发吊牌和款式定价确认信息")
         );
     }
@@ -1994,10 +1943,7 @@ public class SmpService {
      */
     public void secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDtoList) {
         String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDtoList);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "下发吊牌和款式定价确认信息")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌和款式定价确认信息"));
         if (!httpResp.isSuccess()) {
             throw new OtherException("同步失败");
         }
@@ -2178,10 +2124,7 @@ public class SmpService {
             smpGoodsDto.setItemList(smpSizes);
 
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "商品主数据下发-MANGO")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "商品主数据下发-MANGO"));
             if (httpResp.isSuccess()) {
                 i++;
                 styleColor.setScmSendFlag("1");
@@ -2225,6 +2168,18 @@ public class SmpService {
         return saleProductIntoService.querySaleIntoPage(qw, total);
     }
 
+    public List<SalesData> queryMergeGoodsNoByGoodsNo(List<String> goodsNoList) {
+        return saleProductIntoService.queryMergeGoodsNoByGoodsNo(goodsNoList);
+    }
+
+    public List<SalesData> queryGoodsNoByMergeGoodsNo(List<String> mergeGoodsNoList) {
+        return saleProductIntoService.queryGoodsNoByMergeGoodsNo(mergeGoodsNoList);
+    }
+
+    public List<SalesData> querySalesNumAndProductionNumByGoodsNos(List<String> goodsNoList) {
+        return saleProductIntoService.querySalesNumAndProductionNumByGoodsNos(goodsNoList);
+    }
+
     /**
      * 查询相似款
      */
@@ -2248,10 +2203,7 @@ public class SmpService {
     public ApiResult<List<ScmProductionBudgetDto>> productionBudgetList(ScmProductionBudgetQueryDto productionBudgetQueryDto) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data", productionBudgetQueryDto);
-        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL.toString(), jsonObject.toJSONString(),
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "预算号查询")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL.toString(), jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "预算号查询"));
         ApiResult<List<ScmProductionBudgetDto>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(ScmProductionBudgetDto.class));
         result.setSuccess(httpResp.isSuccess());
         return result;
@@ -2263,12 +2215,7 @@ public class SmpService {
     public HttpResp saveFacPrdOrder(ScmProductionDto scmProductionDto) {
         JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(scmProductionDto));
         jsonObject.put("code", scmProductionDto.getOrderBookDetailId());
-        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(),
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "订货本一键投产"),
-                Pair.of("code", scmProductionDto.getOrderBookDetailId()),
-                Pair.of("name", scmProductionDto.getName())
-        );
+        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "订货本一键投产"), Pair.of("code", scmProductionDto.getOrderBookDetailId()), Pair.of("name", scmProductionDto.getName()));
     }
 
     /**
@@ -2278,12 +2225,7 @@ public class SmpService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNo", orderNo);
         jsonObject.put("loginName", loginName);
-        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(),
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "反审核投产单"),
-                Pair.of("code", orderNo),
-                Pair.of("name", loginName)
-        );
+        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "反审核投产单"), Pair.of("code", orderNo), Pair.of("name", loginName));
     }
 }
 

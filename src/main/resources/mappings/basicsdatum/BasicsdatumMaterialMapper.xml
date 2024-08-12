@@ -114,6 +114,7 @@
 			   bm.company_code,
 			   bm.id             AS material_id,
 			   bm.category1_code,
+			   bm.category1_name,
 			   bm.category2_code,
 			   bm.category3_code,
 			   bm.material_name,

@@ -7,9 +7,12 @@
 package com.base.sbc.module.customFile.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.customFile.entity.FileTree;
-/** 
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+/**
  * 类描述：自定义文件夹 dao类
  * @address com.base.sbc.module.customFile.dao.FileTreeDao
  * @author your name  
@@ -19,6 +22,7 @@ import com.base.sbc.module.customFile.entity.FileTree;
  */
 @Mapper
 public interface FileTreeMapper extends BaseMapper<FileTree> {
+    void updateHiberarchy(@Param("newId") String newId, @Param("oldId")String oldId);
 // 自定义方法区 不替换的区域【other_start】
 
 

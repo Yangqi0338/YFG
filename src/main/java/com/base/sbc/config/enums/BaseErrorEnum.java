@@ -107,7 +107,8 @@ public enum BaseErrorEnum {
 	ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS(10301, "ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS"),
 	/** 更新失败：数据不存在 */
 	ERR_UPDATE_DATA_NOT_FOUND(10302, "ERR_UPDATE_DATA_NOT_FOUND"),
-	
+    PART_UPDATE_SUCCESS(10303, "PART_UPDATE_SUCCESS"),
+
 	
 	
 /**********************************************104xx 表示删除的异常 ***************************************************/		

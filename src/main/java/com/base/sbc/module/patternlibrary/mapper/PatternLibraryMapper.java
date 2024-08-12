@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternlibrary.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
@@ -13,6 +14,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 版型库-主表 Mapper 接口
@@ -43,6 +45,16 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
      */
     List<PatternLibrary> listEverGreenCode(
             @Param(Constants.WRAPPER) QueryWrapper<PatternLibrary> queryWrapper
+    );
+
+    /**
+     * 使用记录总数
+     *
+     * @param queryWrapper 筛选条件
+     * @return 使用记录总数
+     */
+    List<Map<String, Object>> useCountMap(
+            @Param(Constants.WRAPPER) AbstractWrapper queryWrapper
     );
 
     /**

@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -70,7 +68,11 @@ public class AttachmentVo {
 
     public String getUrl() {
         MinioUtils minioUtils = SpringContextHolder.getBean("minioUtils");
-        return minioUtils.getObjectUrl(url);
+        return minioUtils.getObjectUrl(getSourceUrl());
+    }
+
+    public String getSourceUrl() {
+        return url;
     }
 
     /**

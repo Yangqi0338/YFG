@@ -15,6 +15,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
@@ -22,6 +23,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
+import com.aliyun.oss.ServiceException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -40,17 +42,33 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CodeGen;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.*;
-import com.base.sbc.module.basicsdatum.service.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibraryAgent;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryAgentService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumWashIconService;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
@@ -76,9 +94,21 @@ import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
+import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
+import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -102,14 +132,39 @@ import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.dto.*;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.dto.MangoHangTagExeclDto;
+import com.base.sbc.module.style.dto.MangoStyleColorExeclDto;
+import com.base.sbc.module.style.dto.MangoStyleColorExeclExportDto;
+import com.base.sbc.module.style.dto.PublicStyleColorDto;
+import com.base.sbc.module.style.dto.QueryBulkCargoDto;
+import com.base.sbc.module.style.dto.QueryStyleColorAgentDto;
+import com.base.sbc.module.style.dto.QueryStyleColorDto;
+import com.base.sbc.module.style.dto.RelevanceBomDto;
+import com.base.sbc.module.style.dto.StyleColorOverdueReasonDto;
+import com.base.sbc.module.style.dto.StyleColorsDto;
+import com.base.sbc.module.style.dto.StyleMainAccessoriesSaveDto;
+import com.base.sbc.module.style.dto.UpdateColorDto;
+import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.style.dto.UpdateTagPriceDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorAgent;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.service.*;
-import com.base.sbc.module.style.vo.*;
+import com.base.sbc.module.style.service.StyleColorAgentService;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
+import com.base.sbc.module.style.service.StylePicService;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.CompleteStyleVo;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
+import com.base.sbc.module.style.vo.StyleColorExcel;
+import com.base.sbc.module.style.vo.StyleColorListExcel;
+import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
+import com.base.sbc.module.style.vo.StylePicVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -142,7 +197,15 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -364,7 +427,47 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             stylePicUtils.setStyleColorPic2(sampleStyleColorList, "styleColorPic");
         }
 
+        // 查询产品季的名称
+        if (ObjectUtil.isNotEmpty(sampleStyleColorList)) {
+            List<String> planningSeasonIdList = sampleStyleColorList
+                    .stream().map(StyleColorVo::getPlanningSeasonId).distinct().collect(Collectors.toList());
+            List<PlanningSeason> planningSeasonList = planningSeasonService.listByIds(planningSeasonIdList);
+            Map<String, String> planningSeasonNameMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(planningSeasonList)) {
+                planningSeasonNameMap = planningSeasonList
+                        .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
+            }
+            for (StyleColorVo styleColorVo : sampleStyleColorList) {
+                styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
+            }
+        }
         return new PageInfo<>(sampleStyleColorList);
+    }
+
+    @Override
+    public void updateNoMeetFlag(List<String> styleColorIdList) {
+        if (ObjectUtils.isEmpty(styleColorIdList)) {
+            throw new OtherException("请选择修改数据！");
+        }
+        LambdaUpdateWrapper<StyleColor> styleColorWrapper = new LambdaUpdateWrapper<>();
+        styleColorWrapper.in(StyleColor::getId, styleColorIdList);
+        styleColorWrapper.set(StyleColor::getMeetFlag, BaseGlobal.NO);
+        if (!update(styleColorWrapper)) {
+            throw new OtherException("修改失败，请刷新后重试！");
+        }
+    }
+
+    @Override
+    public void updateYesMeetFlag(List<String> styleColorIdList) {
+        if (ObjectUtils.isEmpty(styleColorIdList)) {
+            throw new OtherException("请选择修改数据！");
+        }
+        LambdaUpdateWrapper<StyleColor> styleColorWrapper = new LambdaUpdateWrapper<>();
+        styleColorWrapper.in(StyleColor::getId, styleColorIdList);
+        styleColorWrapper.set(StyleColor::getMeetFlag, BaseGlobal.YES);
+        if (!update(styleColorWrapper)) {
+            throw new OtherException("修改失败，请刷新后重试！");
+        }
     }
 
     @Override
@@ -1568,6 +1671,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
+        if (Constants.ONE_STR.equals(sampleStyleColor.getIsDefective()) && !styleNo.equals(updateStyleNoBandDto.getStyleNo())){
+            throw new OtherException("报此款的大货款号不允许修改！");
+        }
         String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "检查大货款号,仅允许字母数字",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
         Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
@@ -1817,7 +1923,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         baseMapper.insert(copyStyleColor);
 
         /*吊牌复制*/
-        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo());
+        hangTagService.copyPack(styleColor.getStyleNo(), copyStyleColor.getStyleNo(),true);
         /*新建一个资料包*/
         PackInfo copyPackInfo = new PackInfo();
         BeanUtils.copyProperties(packInfo, copyPackInfo, "id");
@@ -1827,6 +1933,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyPackInfo.setName(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
         copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+        copyPackInfo.insertInit();
         packInfoService.save(copyPackInfo);
 
         /*复制资料包里面的数据*/
@@ -1860,12 +1967,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*复制出款式定价确定数据*/
         StylePricing stylePricing = new StylePricing();
         stylePricing.setControlConfirm(styleColorVo.getControlConfirm());
+        stylePricing.setControlConfirmTime(styleColorVo.getControlConfirmTime());
         stylePricing.setProductHangtagConfirm(styleColorVo.getProductHangtagConfirm());
+        stylePricing.setProductHangtagConfirmTime(styleColorVo.getProductHangtagConfirmTime());
         stylePricing.setControlHangtagConfirm(styleColorVo.getControlHangtagConfirm());
+        stylePricing.setControlHangtagConfirmTime(styleColorVo.getControlHangtagConfirmTime());
         stylePricing.setWagesConfirm(styleColorVo.getWagesConfirm());
+        stylePricing.setWagesConfirmTime(styleColorVo.getWagesConfirmTime());
         stylePricing.setControlPlanCost(styleColorVo.getControlPlanCost());
+        stylePricing.setControlConfirmTime(styleColorVo.getControlConfirmTime());
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
+        stylePricing.setPlanningRate(styleColorVo.getPlanningRate());
         stylePricingMapper.insert(stylePricing);
 
 
@@ -2615,7 +2728,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             TagPrinting tagPrinting = new TagPrinting();
             tagPrinting.setStyleCode(styleColorAgentVo1.getStyleNo());
             tagPrinting.setColorCode(styleColorAgentVo1.getOutsideColorCode());
-            tagPrinting.setColorDescription(styleColorAgentVo1.getOutsideColorName());
 
             List<TagPrinting.Size> sizes = new ArrayList<>();
             for (StyleColorAgentVo styleColorAgentVo : value) {
@@ -2624,6 +2736,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
                 size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
                 size.setSIZECODE(styleColorAgentVo.getInternalSize());
+                size.setExtShape(styleColorAgentVo.getExtShape());
+                size.setExtSize(styleColorAgentVo.getExtSize());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
@@ -2649,7 +2763,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             tagPrinting.setProductNameTranslate(styleColorAgentVo1.getProductNameTranslate());
             //颜色code翻译
             tagPrinting.setColorCodeTranslate(styleColorAgentVo1.getColorCodeTranslate());
-
+            //生产日期
+            tagPrinting.setProduceDate(styleColorAgentVo1.getProduceDate());
             tagPrintings.add(tagPrinting);
         }
 
@@ -3579,6 +3694,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         //List<BasicsdatumWashIcon> basicsdatumWashIconList = basicsdatumWashIconService.list(new QueryWrapper<BasicsdatumWashIcon>().eq("del_flag", "0").eq("status","0"));
         //创建吊牌信息数据
         List<HangTag> updateHangTagList = new ArrayList<>();
+        List<StyleColorAgent> updateAgentColorList = new ArrayList<>();
 
         Map<String, StyleColorAgentVo> styleHangTagMap = null;
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
@@ -3588,7 +3704,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (CollUtil.isNotEmpty(agentList)) {
             styleHangTagMap = agentList.stream().collect(Collectors.toMap(StyleColorAgentVo::getOutsideBarcode, m -> m, (k1, k2) -> k1));
         }
-
 
         HangTag updateHangTag = null;
 
@@ -3617,6 +3732,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String ingredient = mangoHangTagExeclDto.getIngredient();
             //颜色代码翻译
             String colorCodeTranslate = mangoHangTagExeclDto.getColorCodeTranslate();
+            //mango国际号型
+            String extShape = mangoHangTagExeclDto.getExtShape();
+            //mango国际尺码
+            String extSize = mangoHangTagExeclDto.getExtSize();
+            //生产日期
+            Date produceDate = mangoHangTagExeclDto.getProduceDate();
 
             //得到MANGO品牌大货款信息，并判断是否导入的大货款是否存在数据库
             if (!styleHangTagMap.containsKey(outsizeBarcode)) {
@@ -3713,7 +3834,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
                 //如果是已下发不允许导入吊牌信息，必须先解锁再导入
-                String enableStatus = styleColorAgentVo.getSendStatus();
+//                String enableStatus = styleColorAgentVo.getSendStatus();
 //                if ("1".equals(enableStatus)) {
 //                    errorInfo += "第" + (i + 1) + "行,【" + outsizeBarcode + "】请先解锁，然后再导入吊牌信息！\n";
 //                }
@@ -3725,8 +3846,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateHangTag.setProductNameTranslate(productNameTranslate);
             updateHangTag.setColorCodeTranslate(colorCodeTranslate);
             updateHangTag.setProducer(producer);
+            updateHangTag.setProduceDate(produceDate);
+
             //添加吊牌需要修改的信息
             updateHangTagList.add(updateHangTag);
+
+
+            StyleColorAgent styleColorAgent = new StyleColorAgent();
+            styleColorAgent.setId(styleColorAgentVo.getId());
+            styleColorAgent.setExtShape(extShape);
+            styleColorAgent.setExtSize(extSize);
+            updateAgentColorList.add(styleColorAgent);
+
 
         }
 
@@ -3736,6 +3867,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if (CollUtil.isNotEmpty(updateHangTagList)) {
             hangTagService.updateBatchById(updateHangTagList);
+        }
+        if (CollUtil.isNotEmpty(updateAgentColorList)) {
+            styleColorAgentService.updateBatchById(updateAgentColorList);
         }
 
         String msg = "";
@@ -4633,7 +4767,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         String fileName = String.valueOf(System.currentTimeMillis());
         MultipartFile mockMultipartFile = new MockMultipartFile(fileName,fileName + ".xlsx","multipart/form-data", inputStream);
-        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, "markingOrderUpload", numberByKeyDay);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.markingOrderUpload, numberByKeyDay);
 
         //总计导入 成功 失败多少 修改多少
         return ApiResult.success("总计导入" + readAll.size() +"条,成功"+goodsIds.size()+"条,失败"+(readAll.size() - goodsIds.size())+"条,修改"+updateSize+"条",attachmentVo);

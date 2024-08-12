@@ -29,7 +29,12 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -266,5 +271,12 @@ public class PatternLibraryController {
     public ApiResult<PatternLibraryTemplate> queryPatternTypeByStyleId(String styleId) {
         PatternLibraryTemplate patternLibraryTemplate = patternLibraryService.queryPatternTypeByStyleId(styleId);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryTemplate);
+    }
+
+    @ApiOperation(value = "款式设计获取版型库动态字段（长度、围度、廓形、涉及部件）")
+    @GetMapping("/queryPatternLibrarySomeInfo")
+    public ApiResult<PatternLibrary> queryPatternLibrarySomeInfo(String patternLibraryId) {
+        PatternLibrary patternLibrary = patternLibraryService.queryPatternLibrarySomeInfo(patternLibraryId);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibrary);
     }
 }

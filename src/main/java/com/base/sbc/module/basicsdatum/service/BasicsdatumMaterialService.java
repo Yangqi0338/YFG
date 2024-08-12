@@ -7,6 +7,8 @@
 package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
@@ -19,6 +21,8 @@ import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.github.pagehelper.PageInfo;
+
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -77,7 +81,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode);
 
 	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
-	void exportBasicsdatumNewMaterial(HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException;
+	void exportBasicsdatumNewMaterial( String token, HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException;
 
 	void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException;
 
@@ -207,5 +211,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	Integer materialRelyOnBom(String materialCode);
+
+	ApiResult importMaterial(List<Map<String, Object>> readAll) throws IOException;
 }
 

@@ -18,6 +18,8 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +48,18 @@ public interface StyleColorService extends BaseService<StyleColor> {
         * @return PageInfo<BasicsdatumComponentVo>
          */
         PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto);
+
+        /**
+         * 更改上会状态为未上会
+         * @param styleColorIdList 修改的款式配色的 ID 集合
+         */
+        void updateNoMeetFlag(List<String> styleColorIdList);
+
+        /**
+         * 更改上会状态为已上会
+         * @param styleColorIdList 修改的款式配色的 ID 集合
+         */
+        void updateYesMeetFlag(List<String> styleColorIdList);
 
         /**
          * 方法描述：大货款查询
