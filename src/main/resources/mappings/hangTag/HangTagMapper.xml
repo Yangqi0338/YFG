@@ -692,6 +692,20 @@
                     tssc.del_flag = 0
                     AND tssc.company_code = #{dto.companyCode}
                 </if>
+                <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
+                    AND
+                    (
+                    <foreach collection="dto.bulkStyleNos" item="item" index="index" separator="or">
+                        tssc.style_no like concat('%',#{item},'%')
+                    </foreach>
+                    )
+                </if>
+                <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                    and tsd.devt_type_name = #{dto.produceTypeName}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    AND tsd.planning_season_id = #{dto.planningSeasonId}
+                </if>
                 <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                     and pack_type = 'packBigGoods'
                 </if>
@@ -891,6 +905,20 @@
                 <if test="dto.selectType == null or dto.selectType == ''">
                     tssc.del_flag = 0
                     AND tssc.company_code = #{dto.companyCode}
+                </if>
+                <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
+                    AND
+                    (
+                    <foreach collection="dto.bulkStyleNos" item="item" index="index" separator="or">
+                        tssc.style_no like concat('%',#{item},'%')
+                    </foreach>
+                    )
+                </if>
+                <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                    and tsd.devt_type_name = #{dto.produceTypeName}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    AND tsd.planning_season_id = #{dto.planningSeasonId}
                 </if>
                 <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                     and pack_type = 'packBigGoods'
