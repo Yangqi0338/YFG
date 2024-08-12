@@ -222,7 +222,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
         }
         if (StrUtil.isBlank(groupStr)) {
-            qw.groupBy("p.id");
+            qw.groupBy("ssc.id");
         } else {
             qw.groupBy(groupStr);
         }
@@ -248,7 +248,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 for (ColumnDefine column : list) {
                     for (String columnCode : dto.getFieldQueryMap().keySet()) {
                         if (StrUtil.equals(column.getColumnCode(), columnCode)) {
-                            String sqlCode = column.getSqlCode();
+                             String sqlCode = column.getSqlCode();
                             if (StrUtil.isNotEmpty(sqlCode)) {
                                 String[] tablePre = sqlCode.split("\\.");
                                 columnMap.put(tablePre[0], columnCode);
@@ -270,6 +270,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 columnMap.put("sd", "planning_season_id");
             }
         }
+        qw.orderByDesc("ssc.create_date");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
