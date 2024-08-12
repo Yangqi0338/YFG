@@ -456,6 +456,42 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         return getBaseMapper().nsWorkList(qw);
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public NodeStatus replaceNode(String dataId, String node, String status, String startFlg, String endFlg) {
+        Date nowDate = new Date();
+
+        //  查询是否存在当前节点状态
+        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
+        nsQw.eq("data_id", dataId);
+        nsQw.eq("node", node);
+        nsQw.eq("status", status);
+        nsQw.orderByAsc("id");
+        List<NodeStatus> nsList = this.list(nsQw);
+        if (CollUtil.isNotEmpty(nsList)) {
+            //获取第一个id
+            String firstId = nsList.get(0).getId();
+            //删除已经存在的状态
+            QueryWrapper<NodeStatus> deQcIds = new QueryWrapper<>();
+            deQcIds.eq("data_id", dataId);
+            deQcIds.ge("id", firstId);
+            this.remove(deQcIds);
+        }
+        // 保存当前流程节点状态
+        NodeStatus nextNodeStatus = new NodeStatus();
+        nextNodeStatus.setNode(node);
+        nextNodeStatus.setStatus(status);
+        nextNodeStatus.setStartDate(nowDate);
+        nextNodeStatus.setDataId(dataId);
+        nextNodeStatus.setStartFlg(startFlg);
+        nextNodeStatus.setEndFlg(endFlg);
+        if (StrUtil.equals(endFlg, BaseGlobal.YES)) {
+            nextNodeStatus.setEndDate(nowDate);
+        }
+        save(nextNodeStatus);
+        return nextNodeStatus;
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

@@ -767,6 +767,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         uw.eq(PreProductionSampleTask::getId, dto.getId());
         //是否齐套
         uw.set(PreProductionSampleTask::getKitting, dto.getKitting());
+        uw.set(PreProductionSampleTask::getKittingReason, dto.getKittingReason());
         // 齐套状态发生改变,修改齐套时间
         if (!task.getKitting().equals(dto.getKitting())) {
             uw.set(PreProductionSampleTask::getKittingTime, new Date());
@@ -779,8 +780,10 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         //下发产前样
         smpService.antenatalSample( new String[]{dto.getId()});
 
+        nodeStatusService.replaceNode(dto.getId(),"产前样衣任务","车缝工分配时间",BaseGlobal.YES,BaseGlobal.YES);
+
         // 记录日志
-        this.saveOperaLog("分配车缝工", "产前样看板", dto, task);
+        this.saveOperaLog("车缝工分配时间", "产前样看板", dto, task);
         return true;
     }
 

@@ -15,9 +15,9 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：节点状态记录 service类
@@ -120,4 +120,7 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
 
 // 自定义方法区 不替换的区域【other_end】
     List<NodeStatus> nsWorkList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    @Transactional(rollbackFor = {Exception.class})
+    NodeStatus replaceNode(String dataId, String node, String status, String startFlg, String endFlg);
 }

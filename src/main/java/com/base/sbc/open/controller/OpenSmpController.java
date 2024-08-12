@@ -36,6 +36,8 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
@@ -128,6 +130,7 @@ public class OpenSmpController extends BaseController {
     private final PatternMakingMapper patternMakingMapper;
     private final UploadFileService uploadFileService;
     private final NodeStatusService nodeStatusService;
+    private final OperaLogService operaLogService;
 
 
     /**
@@ -472,71 +475,86 @@ public class OpenSmpController extends BaseController {
     @PostMapping("/productionSampleTask")
     @ApiOperation(value = "推送FOB产前样数据" , notes = "推送FOB产前样数据")
     public ApiResult productionSampleTask(@RequestBody List<PreProductionSampleTaskFob> fobs){
-        List<String> codes = fobs.stream().map(PreProductionSampleTaskFob::getCode).distinct().collect(Collectors.toList());
-
-        LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(StyleColor::getStyleNo, codes);
-        List<StyleColor> list = styleColorService.list(queryWrapper);
-        Map<String, StyleColor> styleColorMap = list.stream().collect(Collectors.toMap(StyleColor::getStyleNo, o -> o, (v1, v2) -> v1));
-
-        List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
-
         StringBuilder msg = new StringBuilder();
-        List<String> ids = new ArrayList<>();
-        for (PreProductionSampleTaskFob fob : fobs) {
-            //对面会给id过来，  根据对方的id进行新增或修改操作
-            
-            //大货款号 code
-            String code = fob.getCode();
-            if(!styleColorMap.containsKey(code)){
-                msg.append("大货款号:").append(code).append("没有找到;");
-                continue;
+        List<String> codes = new ArrayList<>();
+        try{
+            codes = fobs.stream().map(PreProductionSampleTaskFob::getCode).distinct().collect(Collectors.toList());
+
+            LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(StyleColor::getStyleNo, codes);
+            List<StyleColor> list = styleColorService.list(queryWrapper);
+            Map<String, StyleColor> styleColorMap = list.stream().collect(Collectors.toMap(StyleColor::getStyleNo, o -> o, (v1, v2) -> v1));
+
+            List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
+
+
+            List<String> ids = new ArrayList<>();
+            for (PreProductionSampleTaskFob fob : fobs) {
+                //对面会给id过来，  根据对方的id进行新增或修改操作
+
+                //大货款号 code
+                String code = fob.getCode();
+                if(!styleColorMap.containsKey(code)){
+                    msg.append("大货款号:").append(code).append("没有找到;");
+                    continue;
+                }
+                StyleColor styleColor = styleColorMap.get(code);
+                fob.setStyleId(styleColor.getId());
+                fob.setPlanningSeasonId(styleColor.getPlanningSeasonId());
+                fob.setNode("产前样衣任务FOB");
+
+                String sampleBarCode = fob.getSampleBarCode();
+                //样衣码 sampleBarCode
+                //供应商 patternRoom patternRoomId
+                //外发部发出时间 designDetailTime
+                //外发部绑定时间 techReceiveTime
+                //通过状态 status
+                //改版意见 tech_remarks
+                //确认时间 processDepartmentDate
+                saveList.add(fob);
+                ids.add(fob.getId());
             }
-            StyleColor styleColor = styleColorMap.get(code);
-            fob.setStyleId(styleColor.getId());
-            fob.setPlanningSeasonId(styleColor.getPlanningSeasonId());
-            fob.setNode("产前样衣任务FOB");
+            if(CollUtil.isNotEmpty(saveList)){
+                preProductionSampleTaskFobService.saveOrUpdateBatch(saveList);
 
-            String sampleBarCode = fob.getSampleBarCode();
-            //样衣码 sampleBarCode
-            //供应商 patternRoom patternRoomId
-            //外发部发出时间 designDetailTime
-            //外发部绑定时间 techReceiveTime
-            //通过状态 status
-            //改版意见 tech_remarks
-            //确认时间 processDepartmentDate
-            saveList.add(fob);
-            ids.add(fob.getId());
-        }
-        if(CollUtil.isNotEmpty(saveList)){
-            preProductionSampleTaskFobService.saveOrUpdateBatch(saveList);
+                List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listbyHeadId(ids);
+                List<String> dbIds = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).collect(Collectors.toList());
 
-            List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listbyHeadId(ids);
-            List<String> dbIds = patternMakingBarCodes.stream().map(PatternMakingBarCode::getHeadId).collect(Collectors.toList());
-
-            List<PatternMakingBarCode> saveBarCodeList = new ArrayList<>();
-            List<NodeStatus> nodeList = new ArrayList<>();
-            for (PreProductionSampleTaskFob preProductionSampleTaskFob : saveList) {
-                if(!dbIds.contains(preProductionSampleTaskFob.getId())){
-                    PatternMakingBarCode barCode = new PatternMakingBarCode();
-                    barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
-                    barCode.setStatus("10");
-                    barCode.setHeadId(preProductionSampleTaskFob.getId());
-                    //添加新的绑样时间
-                    NodeStatus nodeStatus = new NodeStatus();
-                    nodeStatus.setDataId(barCode.getHeadId());
-                    nodeStatus.setNode("FOB");
-                    nodeStatus.setStatus("绑样");
-                    nodeStatus.setStartDate(preProductionSampleTaskFob.getDesignDetailTime());
-                    nodeStatus.setEndDate(preProductionSampleTaskFob.getDesignDetailTime());
-                    saveBarCodeList.add(barCode);
-                    nodeList.add(nodeStatus);
+                List<PatternMakingBarCode> saveBarCodeList = new ArrayList<>();
+                List<NodeStatus> nodeList = new ArrayList<>();
+                for (PreProductionSampleTaskFob preProductionSampleTaskFob : saveList) {
+                    if(!dbIds.contains(preProductionSampleTaskFob.getId())){
+                        PatternMakingBarCode barCode = new PatternMakingBarCode();
+                        barCode.setBarCode(preProductionSampleTaskFob.getSampleBarCode());
+                        barCode.setStatus("10");
+                        barCode.setHeadId(preProductionSampleTaskFob.getId());
+                        //添加新的绑样时间
+                        NodeStatus nodeStatus = new NodeStatus();
+                        nodeStatus.setDataId(barCode.getHeadId());
+                        nodeStatus.setNode("FOB");
+                        nodeStatus.setStatus("绑样");
+                        nodeStatus.setStartDate(preProductionSampleTaskFob.getDesignDetailTime());
+                        nodeStatus.setEndDate(preProductionSampleTaskFob.getDesignDetailTime());
+                        saveBarCodeList.add(barCode);
+                        nodeList.add(nodeStatus);
+                    }
+                }
+                if(CollUtil.isNotEmpty(saveBarCodeList)){
+                    patternMakingBarCodeService.saveBatch(saveBarCodeList);
+                    nodeStatusService.saveBatch(nodeList);
                 }
             }
-            if(CollUtil.isNotEmpty(saveBarCodeList)){
-                patternMakingBarCodeService.saveBatch(saveBarCodeList);
-                nodeStatusService.saveBatch(nodeList);
-            }
+        }catch (Exception e){
+            logger.error(e.getMessage(),e);
+            return ApiResult.error(e.getMessage(),500);
+        }finally {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setType("推送FOB产前样数据");
+            operaLogEntity.setDocumentId(String.join(",", codes));
+            operaLogEntity.setName("推送FOB产前样数据");
+            operaLogEntity.setDocumentName(String.join(",", codes));
+            operaLogEntity.setContent(msg.toString());
+            operaLogService.save(operaLogEntity);
         }
 
         return ApiResult.success("保存成功;"+msg);
