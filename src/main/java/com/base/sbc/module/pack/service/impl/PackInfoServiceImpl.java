@@ -159,6 +159,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Resource
     private OperaLogService operaLogService;
     @Resource
+    @Lazy
     private PackBomVersionService packBomVersionService;
     @Resource
     private PackBomService packBomService;
