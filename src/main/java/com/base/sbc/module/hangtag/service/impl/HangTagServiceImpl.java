@@ -1038,9 +1038,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 										}
 									}
 								}
-								if (Objects.equals(prodCategory1stName, "配饰") && Objects.equals(devtTypeName, "CMT")) {
-									if (StrUtil.isBlank(e.getSpecialSpec())) {
-										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+								if (StrUtil.isNotBlank(e.getExecuteStandardCode())) {
+									if (Objects.equals(prodCategory1stName, "配饰") && Objects.equals(devtTypeName, "CMT")) {
+										if (StrUtil.isBlank(e.getSpecialSpec())) {
+											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+										}
 									}
 								}
 							}
