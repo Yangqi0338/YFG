@@ -2,9 +2,7 @@ package com.base.sbc.module.basicsdatum.vo;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
-import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -371,11 +369,5 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 
 	@ApiModelProperty(value = "物料库动态字段")
 	List<FieldManagementVo> fieldValList;
-
-	@ApiModelProperty(value = "附件")
-	public List<AttachmentVo> fabricTestFileList;
-
-	@ApiModelProperty(value = "面料成分")
-	public EscmMaterialCompnentInspectCompanyDto fabricComponentFile;
 }
 

@@ -514,6 +514,16 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 附件名称
 	 */
 	private String attachmentName;
+	/**
+	 * 质量等级
+	 */
+	@ApiModelProperty(value = "质量等级")
+	private String qualityLevel;
+	/**
+	 * 质量等级
+	 */
+	@ApiModelProperty(value = "质量等级名称")
+	private String qualityLevelName;
 
 	/**
 	 * 面料测试结果

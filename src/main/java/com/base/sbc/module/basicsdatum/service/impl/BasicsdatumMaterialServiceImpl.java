@@ -34,6 +34,7 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -170,6 +171,7 @@ import java.util.stream.Collectors;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.config.common.base.BaseGlobal.STATUS_NORMAL;
+import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.utils.AttachmentTypeConstant.MATERIAL_FITTING_REPORT;
 
 /**
@@ -420,6 +422,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return new PageInfo<>(list);
         }
         minioUtils.setObjectUrlToList(list, "imageUrl");
+
+        List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(list.stream().map(BasicsdatumMaterialPageVo::getId).collect(Collectors.joining(COMMA)), MATERIAL_FITTING_REPORT);
+        List<EscmMaterialCompnentInspectCompanyDto> InspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(
+                new BaseLambdaQueryWrapper<EscmMaterialCompnentInspectCompanyDto>()
+                        .notEmptyIn(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo, list.stream().map(BasicsdatumMaterialPageVo::getMaterialCode).collect(Collectors.toList()))
+                        .eq(EscmMaterialCompnentInspectCompanyDto::getValidityStatus, "正常")
+                        .groupBy(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo)
+                        .orderByDesc(EscmMaterialCompnentInspectCompanyDto::getArriveDate, EscmMaterialCompnentInspectCompanyDto::getCreateDate)
+        );
+        list.forEach(pageVo -> {
+            pageVo.setFabricTestFileList(attachmentVoList.stream().filter(it -> it.getForeignId().equals(pageVo.getId())).collect(Collectors.toList()));
+            pageVo.setFabricComponentFile(InspectCompanyDtoList.stream().filter(it -> it.getMaterialsNo().equals(pageVo.getMaterialCode())).findFirst().orElse(null));
+        });
+
         return new PageInfo<>(list);
     }
 
@@ -890,15 +906,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         List<FieldManagementVo> fieldManagementVos = queryCoefficient(BeanUtil.copyProperties(copy,BasicsdatumMaterialPageVo.class));
         copy.setFieldValList(fieldManagementVos);
-
-        copy.setFabricTestFileList(attachmentService.findByforeignId(copy.getId(), MATERIAL_FITTING_REPORT));
-        EscmMaterialCompnentInspectCompanyDto InspectCompanyDto = escmMaterialCompnentInspectCompanyService.findOne(
-                new LambdaQueryWrapper<EscmMaterialCompnentInspectCompanyDto>()
-                        .eq(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo, copy.getMaterialCode())
-                        .eq(EscmMaterialCompnentInspectCompanyDto::getValidityStatus, "正常")
-                        .orderByDesc(EscmMaterialCompnentInspectCompanyDto::getArriveDate, EscmMaterialCompnentInspectCompanyDto::getCreateDate)
-        );
-        copy.setFabricComponentFile(InspectCompanyDto);
         return copy;
     }
 
