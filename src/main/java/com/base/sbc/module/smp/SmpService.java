@@ -2436,7 +2436,7 @@ public class SmpService {
      */
     public ApiResult<List<Scm1SpareMaterialDTO>> spareList(String materialNo, Integer spareType) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("materialNo", materialNo);
+        jsonObject.put("materialNoList", Arrays.asList(materialNo.split(COMMA)));
         jsonObject.put("spareType", Collections.singletonList(spareType));
 
         HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
