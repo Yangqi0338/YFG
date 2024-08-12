@@ -37,11 +37,99 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 面料测试结果
-	 */
-	@ApiModelProperty(value = "面料测试结果")
-	private String fabricTestFlag;
+	/**********************************
+	 * 实体存放的其他字段区 不替换的区域 【other_start】
+	 ******************************************/
+	public SmpMaterialDto toSmpMaterialDto() {
+		IdGen idGen = new IdGen();
+		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
+		smpMaterialDto.setMaterialCode(materialCode);
+		smpMaterialDto.setCode(materialCode);
+		smpMaterialDto.setMaterialName(materialName);
+		smpMaterialDto.setMaterialUnit(purchaseUnitCode);
+		smpMaterialDto.setStockUnit(stockUnitCode);
+		smpMaterialDto.setMaterialSource(materialSourceName);
+		smpMaterialDto.setSecondLevelCategory(category2Code);
+		smpMaterialDto.setSecondLevelCategoryName(category2Name);
+		smpMaterialDto.setThirdLevelCategory(category3Code);
+		smpMaterialDto.setThirdLevelCategoryName(category3Name);
+		smpMaterialDto.setSeasonYear(year);
+		smpMaterialDto.setSeasonQuarter(seasonName);
+		smpMaterialDto.setSeasonQuarterId(season);
+		smpMaterialDto.setSeasonBrand(brandName);
+		smpMaterialDto.setSeasonBrandId(brand);
+		smpMaterialDto.setMaterialCategory(materialCategory);
+		smpMaterialDto.setMaterialCategoryName(materialCategoryName);
+		smpMaterialDto.setWidthGroup(widthGroup);
+		smpMaterialDto.setWidthGroupName(widthGroupName);
+		smpMaterialDto.setKilogramsAndMeters(kgMNum == null ? BigDecimal.valueOf(0) : kgMNum);
+		smpMaterialDto.setDeveloper(devName);
+		smpMaterialDto.setBuyer(purchaseName);
+		smpMaterialDto.setBuyerTeam(purchaseDeptName);
+		smpMaterialDto.setLongitudinalShrinkage(longitudeShrink);
+		smpMaterialDto.setWeftShrinkage(latitudeShrink);
+		smpMaterialDto.setWeight(gramWeight);
+		smpMaterialDto.setComposition(ingredient);
+		smpMaterialDto.setJIT(null);
+		smpMaterialDto.setProductTypeId(category1Code);
+		smpMaterialDto.setProductType(category1Name);
+		smpMaterialDto.setProcurementMode(procMode);
+		smpMaterialDto.setTolerance(null);
+		smpMaterialDto.setSupplierComposition(factoryComposition);
+		smpMaterialDto.setPickingMethod(pickingMethod);
+		smpMaterialDto.setSupplierColorNo(supplierColorNo);
+		smpMaterialDto.setSupplierColorSay(supplierColorSay);
+		smpMaterialDto.setIngredientSay(ingredientSay);
+		smpMaterialDto.setFabricSalePoint(fabricSalePoint);
+		smpMaterialDto.setEmbryonicCycle(embryonicCycle);
+		smpMaterialDto.setEmbryonicFreeCycle(embryonicFreeCycle);
+		smpMaterialDto.setReplenishmentProductionCycle(replenishmentProductionCycle);
+		smpMaterialDto.setSpecification(specification);
+		smpMaterialDto.setDensity(density);
+		smpMaterialDto.setIsProtection(isProtection);
+		smpMaterialDto.setTranslate(translate);
+		smpMaterialDto.setWeaveType(weaveType);
+		smpMaterialDto.setWeaveTypeName(weaveTypeName);
+		smpMaterialDto.setEmbryoType(embryoType);
+		smpMaterialDto.setEmbryoTypeName(embryoTypeName);
+		smpMaterialDto.setFabricPropertyType(fabricPropertyType);
+		smpMaterialDto.setFabricPropertyTypeName(fabricPropertyTypeName);
+		smpMaterialDto.setAuxiliaryMaterial(auxiliaryMaterial);
+		smpMaterialDto.setCheckBillCode(checkBillCode);
+		smpMaterialDto.setCheckCompany(checkCompany);
+		smpMaterialDto.setCheckCompanyName(checkCompanyName);
+		smpMaterialDto.setCheckResult(checkResult);
+		smpMaterialDto.setCheckDate(checkDate);
+		smpMaterialDto.setCheckValidDate(checkValidDate);
+		smpMaterialDto.setCheckItems(checkItems);
+		smpMaterialDto.setCheckOrderUserId(checkOrderUserId);
+		smpMaterialDto.setCheckOrderUserName(checkOrderUserName);
+		smpMaterialDto.setCheckFileUrl(checkFileUrl);
+		smpMaterialDto.setFabricDifficultyScore(fabricDifficultyScore);
+		smpMaterialDto.setFabricDifficultyScoreName(fabricDifficultyScoreName);
+		smpMaterialDto.setFabricEvaluation(fabricEvaluation);
+		smpMaterialDto.setRiskDescription(riskDescription);
+		smpMaterialDto.setTotalInventory(totalInventory);
+		smpMaterialDto.setInventoryAvailability(inventoryAvailability);
+		smpMaterialDto.setFabricDifficultyName(fabricDifficultyName);
+		smpMaterialDto.setRemarks(remarks);
+		try {
+			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
+		} catch (Exception ignored) {
+		}
+
+		smpMaterialDto.setId(id);
+		smpMaterialDto.setCreator(getCreateName());
+		smpMaterialDto.setCreateTime(getCreateDate());
+		smpMaterialDto.setModifiedPerson(getUpdateName());
+		smpMaterialDto.setModifiedTime(getUpdateDate());
+		smpMaterialDto.setPlmId(null);
+		smpMaterialDto.setSyncId(String.valueOf(idGen.nextId()));
+		smpMaterialDto.setActive("0".equals(status));
+		smpMaterialDto.setFabricTestFlag(fabricTestFlag);
+		smpMaterialDto.setFabricTestContent(fabricTestContent);
+		return smpMaterialDto;
+	}
 
 	/**********************************
 	 * 实体存放的其他字段区 【other_end】
@@ -426,17 +514,24 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 附件名称
 	 */
 	private String attachmentName;
+
 	/**
-	 * 大货外观报告
+	 * 面料测试结果
 	 */
-	@ApiModelProperty(value = "大货外观报告")
-	private String prodAppearance;
+	@ApiModelProperty(value = "面料测试结果")
+	private String fabricTestFlag;
 
 	/**
 	 * 面料测试说明
 	 */
 	@ApiModelProperty(value = "面料测试说明")
 	private String fabricTestContent;
+
+	/**
+	 * 大货外观报告
+	 */
+	@ApiModelProperty(value = "大货外观报告")
+	private String prodAppearance;
 	/**
 	 * 开发样理化判定
 	 */
@@ -457,100 +552,6 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "大货样理化结果")
 	private String prodPhysicalResult;
-
-	/**********************************
-	 * 实体存放的其他字段区 不替换的区域 【other_start】
-	 ******************************************/
-	public SmpMaterialDto toSmpMaterialDto() {
-		IdGen idGen = new IdGen();
-		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
-		smpMaterialDto.setMaterialCode(materialCode);
-		smpMaterialDto.setCode(materialCode);
-		smpMaterialDto.setMaterialName(materialName);
-		smpMaterialDto.setMaterialUnit(purchaseUnitCode);
-		smpMaterialDto.setStockUnit(stockUnitCode);
-		smpMaterialDto.setMaterialSource(materialSourceName);
-		smpMaterialDto.setSecondLevelCategory(category2Code);
-		smpMaterialDto.setSecondLevelCategoryName(category2Name);
-		smpMaterialDto.setThirdLevelCategory(category3Code);
-		smpMaterialDto.setThirdLevelCategoryName(category3Name);
-		smpMaterialDto.setSeasonYear(year);
-		smpMaterialDto.setSeasonQuarter(seasonName);
-		smpMaterialDto.setSeasonQuarterId(season);
-		smpMaterialDto.setSeasonBrand(brandName);
-		smpMaterialDto.setSeasonBrandId(brand);
-		smpMaterialDto.setMaterialCategory(materialCategory);
-		smpMaterialDto.setMaterialCategoryName(materialCategoryName);
-		smpMaterialDto.setWidthGroup(widthGroup);
-		smpMaterialDto.setWidthGroupName(widthGroupName);
-		smpMaterialDto.setKilogramsAndMeters(kgMNum == null ? BigDecimal.valueOf(0) : kgMNum);
-		smpMaterialDto.setDeveloper(devName);
-		smpMaterialDto.setBuyer(purchaseName);
-		smpMaterialDto.setBuyerTeam(purchaseDeptName);
-		smpMaterialDto.setLongitudinalShrinkage(longitudeShrink);
-		smpMaterialDto.setWeftShrinkage(latitudeShrink);
-		smpMaterialDto.setWeight(gramWeight);
-		smpMaterialDto.setComposition(ingredient);
-		smpMaterialDto.setJIT(null);
-		smpMaterialDto.setProductTypeId(category1Code);
-		smpMaterialDto.setProductType(category1Name);
-		smpMaterialDto.setProcurementMode(procMode);
-		smpMaterialDto.setTolerance(null);
-		smpMaterialDto.setSupplierComposition(factoryComposition);
-		smpMaterialDto.setPickingMethod(pickingMethod);
-		smpMaterialDto.setSupplierColorNo(supplierColorNo);
-		smpMaterialDto.setSupplierColorSay(supplierColorSay);
-		smpMaterialDto.setIngredientSay(ingredientSay);
-		smpMaterialDto.setFabricSalePoint(fabricSalePoint);
-		smpMaterialDto.setEmbryonicCycle(embryonicCycle);
-		smpMaterialDto.setEmbryonicFreeCycle(embryonicFreeCycle);
-		smpMaterialDto.setReplenishmentProductionCycle(replenishmentProductionCycle);
-		smpMaterialDto.setSpecification(specification);
-		smpMaterialDto.setDensity(density);
-		smpMaterialDto.setIsProtection(isProtection);
-		smpMaterialDto.setTranslate(translate);
-		smpMaterialDto.setWeaveType(weaveType);
-		smpMaterialDto.setWeaveTypeName(weaveTypeName);
-		smpMaterialDto.setEmbryoType(embryoType);
-		smpMaterialDto.setEmbryoTypeName(embryoTypeName);
-		smpMaterialDto.setFabricPropertyType(fabricPropertyType);
-		smpMaterialDto.setFabricPropertyTypeName(fabricPropertyTypeName);
-		smpMaterialDto.setAuxiliaryMaterial(auxiliaryMaterial);
-		smpMaterialDto.setCheckBillCode(checkBillCode);
-		smpMaterialDto.setCheckCompany(checkCompany);
-		smpMaterialDto.setCheckCompanyName(checkCompanyName);
-		smpMaterialDto.setCheckResult(checkResult);
-		smpMaterialDto.setCheckDate(checkDate);
-		smpMaterialDto.setCheckValidDate(checkValidDate);
-		smpMaterialDto.setCheckItems(checkItems);
-		smpMaterialDto.setCheckOrderUserId(checkOrderUserId);
-		smpMaterialDto.setCheckOrderUserName(checkOrderUserName);
-		smpMaterialDto.setCheckFileUrl(checkFileUrl);
-		smpMaterialDto.setFabricDifficultyScore(fabricDifficultyScore);
-		smpMaterialDto.setFabricDifficultyScoreName(fabricDifficultyScoreName);
-		smpMaterialDto.setFabricEvaluation(fabricEvaluation);
-		smpMaterialDto.setRiskDescription(riskDescription);
-		smpMaterialDto.setTotalInventory(totalInventory);
-		smpMaterialDto.setInventoryAvailability(inventoryAvailability);
-		smpMaterialDto.setFabricDifficultyName(fabricDifficultyName);
-		smpMaterialDto.setRemarks(remarks);
-		try {
-			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
-		} catch (Exception ignored) {
-		}
-
-		smpMaterialDto.setId(id);
-		smpMaterialDto.setCreator(getCreateName());
-		smpMaterialDto.setCreateTime(getCreateDate());
-		smpMaterialDto.setModifiedPerson(getUpdateName());
-		smpMaterialDto.setModifiedTime(getUpdateDate());
-		smpMaterialDto.setPlmId(null);
-		smpMaterialDto.setSyncId(String.valueOf(idGen.nextId()));
-		smpMaterialDto.setActive("0".equals(status));
-		smpMaterialDto.setFabricTestFlag(fabricTestFlag);
-		smpMaterialDto.setFabricTestContent(fabricTestContent);
-		return smpMaterialDto;
-	}
 
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
