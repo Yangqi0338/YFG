@@ -1486,7 +1486,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (ObjectUtil.isNotEmpty(basicsdatumBomTemplate) && ObjectUtil.isNotEmpty(version)) {
             Map<String, String> map = new HashMap<>();
             map.put("引用BOM模板", "->模板名称：" + basicsdatumBomTemplate.getName());
-            this.saveOperaLog("引用BOM模板", version.getForeignId(), "packBigGoods", "物料清单", style.getDesignNo(), style.getDesignNo(), map);
+            this.saveOperaLog("引用BOM模板", version.getForeignId(), version.getPackType(), "物料清单", style.getDesignNo(), style.getDesignNo(), map);
         }
         return true;
     }
