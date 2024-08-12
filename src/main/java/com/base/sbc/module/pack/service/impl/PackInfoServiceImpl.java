@@ -79,6 +79,8 @@ import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
@@ -248,6 +250,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Resource
     private FieldValService fieldValService;
+    @Lazy
+    @Autowired
+    private PreProductionSampleTaskService preProductionSampleTaskService;
 
     @Autowired
     @Lazy
@@ -1807,6 +1812,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         updateWrapper.set(PackInfo::getOrderDept, packInfo.getOrderDept());
         updateWrapper.set(PackInfo::getOrderDeptId, packInfo.getOrderDeptId());
         update(updateWrapper);
+
+        //同步到所有已经创建了产前样的数据
+        LambdaUpdateWrapper<PreProductionSampleTask> uw = new LambdaUpdateWrapper<>();
+        uw.eq(PreProductionSampleTask::getPackInfoId,packInfo.getId());
+        uw.set(PreProductionSampleTask::getOrderDept, packInfo.getOrderDept());
+        uw.set(PreProductionSampleTask::getOrderDeptId, packInfo.getOrderDeptId());
+        uw.set(PreProductionSampleTask::getUpdateId, getUserId());
+        uw.set(PreProductionSampleTask::getUpdateName, getUserName());
+        uw.set(PreProductionSampleTask::getUpdateDate, new Date());
+        preProductionSampleTaskService.update(uw);
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -111,6 +111,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Autowired
     private StyleService styleService;
 
+    @Lazy
     @Autowired
     private PackInfoService packInfoService;
     @Autowired
