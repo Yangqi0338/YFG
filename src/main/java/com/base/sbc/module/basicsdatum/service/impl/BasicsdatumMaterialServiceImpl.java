@@ -892,6 +892,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         copy.setFieldValList(fieldManagementVos);
 
         copy.setFabricTestFileList(attachmentService.findByforeignId(copy.getId(), MATERIAL_FITTING_REPORT));
+        EscmMaterialCompnentInspectCompanyDto InspectCompanyDto = escmMaterialCompnentInspectCompanyService.findOne(
+                new LambdaQueryWrapper<EscmMaterialCompnentInspectCompanyDto>()
+                        .eq(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo, copy.getMaterialCode())
+                        .eq(EscmMaterialCompnentInspectCompanyDto::getValidityStatus, "正常")
+                        .orderByDesc(EscmMaterialCompnentInspectCompanyDto::getArriveDate, EscmMaterialCompnentInspectCompanyDto::getCreateDate)
+        );
+        copy.setFabricComponentFile(InspectCompanyDto);
         return copy;
     }
 
