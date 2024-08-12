@@ -311,10 +311,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
+
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
-		if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd.") ) {
+		if ((StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd."))
+				|| !StringUtils.isEmpty(hangTagDTO.getProduceTypeName())
+				|| !StringUtils.isEmpty(hangTagDTO.getPlanningSeasonId())) {
 			columnMap.put("tsd", "tsd");
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryListByLine(hangTagDTO, qw);
