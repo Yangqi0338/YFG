@@ -6,10 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.vo;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingType;
 import com.base.sbc.module.common.vo.SelectOptionsChildrenVo;
+import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -37,6 +41,21 @@ public class WorkloadRatingConfigVO extends WorkloadRatingConfig {
 
     public String getTypeText() {
         return Opt.ofNullable(this.getType()).map(WorkloadRatingType::getText).orElse("");
+    }
+
+    private List<WorkloadRatingTitleFieldDTO> titleFieldDTOList;
+
+    @JsonIgnore
+    public List<WorkloadRatingTitleFieldDTO> getTitleFieldDTOList(){
+        if (CollUtil.isEmpty(titleFieldDTOList)) {
+            titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
+        }
+        return titleFieldDTOList;
+    }
+
+    @JsonIgnore
+    public List<WorkloadRatingTitleFieldDTO> findConfigTitleFieldList(){
+        return CollUtil.removeWithAddIf(getTitleFieldDTOList(), (it) -> StrUtil.isNotBlank(it.getConfigId()));
     }
 
     @JsonIgnore

@@ -14,6 +14,7 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -109,14 +110,15 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
 
                         for (WorkloadRatingConfigVO result : sameKeyList) {
                             List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = CollUtil.newArrayList(baseTitleFieldDTOList);
+                            WorkloadRatingCalculateType calculateType = result.getCalculateType();
                             if (itemNameShow) {
-                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("itemName", result.getItemName(), 0));
+                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("itemName", result.getItemName(), 0, null, calculateType));
                             }
-                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score", result.getCalculateType().getText(), maxValue + 1, result.getId()));
+                            titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score", result.getItemName(), maxValue + 1, result.getId(), calculateType).decorateMain());
                             List<WorkloadRatingConfig> brandNotShowList = notShowList.stream().filter(it -> it.getBrand().equals(result.getBrand())).collect(Collectors.toList());
                             for (int i = 1; i <= brandNotShowList.size(); i++) {
                                 WorkloadRatingConfig notShowConfig = brandNotShowList.get(i - 1);
-                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getId()));
+                                titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getId(), notShowConfig.getCalculateType()));
                             }
                             result.setTitleField(JSONUtil.toJsonStr(titleFieldDTOList));
                         }
