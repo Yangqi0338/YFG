@@ -27,7 +27,7 @@
         a.file_id = f.id
         and a.del_flag = '0'
         and f.del_flag = '0'
-        ${ ew.customSqlSegment}
+        ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
     </select>
     <select id="findByQw" resultType="com.base.sbc.module.common.vo.AttachmentVo">
         select a.id,
