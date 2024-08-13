@@ -754,6 +754,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public boolean exists(String id) {
+        if (StrUtil.isBlank(id)) return false;
         return this.count(new QueryWrapper<T>().eq("id",id)) > 0;
     }
 
@@ -764,6 +765,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public T findOne(String id) {
+        if (StrUtil.isBlank(id)) return null;
         return findOne(new QueryWrapper<T>().eq("id", id));
     }
 

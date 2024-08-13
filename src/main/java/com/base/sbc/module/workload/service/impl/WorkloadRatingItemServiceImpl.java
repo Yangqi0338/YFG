@@ -82,7 +82,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         resultList.forEach(result -> {
             List<WorkloadRatingItem> list = extendList.stream().filter(it -> it.getItemValue().equals(result.getItemValue())).collect(Collectors.toList());
             result.setItemList(list);
-            result.setTitleFieldList(JSONUtil.toList(config.getTitleField(), WorkloadRatingTitleFieldDTO.class));
+            result.setTitleFieldList(config.getTitleFieldDTOList());
         });
         return CopyUtil.copy(page.toPageInfo(), resultList);
     }
@@ -142,7 +142,6 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
         qo.setConfigId(configIdList.get(0));
         WorkloadRatingConfigVO config = findConfig(qo);
-        String titleField = config.getTitleField();
 
         // 获取全部配置
         List<String> brandList = CollUtil.newArrayList(config.getBrand());
@@ -158,17 +157,11 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         configQO.reset2QueryList();
         List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
 
-        List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
-        List<WorkloadRatingTitleFieldDTO> configTitleFieldList = CollUtil.removeWithAddIf(titleFieldDTOList, (it) -> StrUtil.isNotBlank(it.getConfigId()));
-//        List<String> allConfigIdList = configTitleFieldList.stream().map(WorkloadRatingTitleFieldDTO::getConfigId).collect(Collectors.toList());
-
-//        List<WorkloadRatingItem> otherWorkloadRatingItemList = this.list(new LambdaQueryWrapper<WorkloadRatingItem>()
-//                .notIn(WorkloadRatingItem::getConfigId, allConfigIdList)
-//                .eq(WorkloadRatingItem::getType, config.getType())
-//                .eq(WorkloadRatingItem::getBrand, config.getBrand())
-//        );
+        List<WorkloadRatingTitleFieldDTO> configTitleFieldList = config.findConfigTitleFieldList();
+        List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = config.getTitleFieldDTOList();
 
         workloadRatingItemList.forEach(saveDTO -> {
+            WorkloadRatingItem originEntity = this.findOne(saveDTO.getId());
             // 检查能否更新
             String itemValue = CommonUtils.removeSuffix(saveDTO.getItemValue(), "/");
             saveDTO.setItemValue(itemValue);
@@ -211,11 +204,15 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                     dto.setCalculateType(configVO.getCalculateType());
                     dto.setScore(new BigDecimal(dto.getExtend().getOrDefault(configTitle.getCode(), dto.getScore()).toString()));
 
-                    this.defaultValue(new WorkloadRatingItem());
-                    WorkloadRatingItem entity = this.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
-                            .eq(WorkloadRatingItem::getConfigId, dto.getConfigId())
-                            .eq(WorkloadRatingItem::getItemValue, dto.getItemValue())
-                    );
+                    WorkloadRatingItem entity = new WorkloadRatingItem();
+                    if (originEntity !=null ) {
+                        dto.setId(null);
+                        this.defaultValue(new WorkloadRatingItem());
+                        entity = this.findOne(new LambdaQueryWrapper<WorkloadRatingItem>()
+                                .eq(WorkloadRatingItem::getConfigId, dto.getConfigId())
+                                .eq(WorkloadRatingItem::getItemValue, originEntity.getItemValue())
+                        );
+                    }
 
                     // 修改detail
 //                StrJoiner detailItemValue = StrJoiner.of("#").append(dto.getConfigName()).append(entity.getItemValue());
