@@ -191,7 +191,6 @@ public class MoreLanguageStatusController extends BaseController {
     @ApiOperation(value = "根据款号获取状态", notes = "根据款号获取状态")
     @GetMapping("/findPrintRecordByStyleNo")
     public ApiResult<StyleCountryStatusDto> findPrintRecordByStyleNo(@Valid HangTagMoreLanguageDTO languageDTO) {
-        languageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(styleCountryStatusService.findPrintRecordByStyleNo(languageDTO));
     }
 }
