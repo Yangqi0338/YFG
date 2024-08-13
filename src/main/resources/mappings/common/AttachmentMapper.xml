@@ -12,14 +12,15 @@
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <select id="findByFId" resultType="com.base.sbc.module.common.vo.AttachmentVo">
         select a.id,
-        f.id as file_id,
+        f.id as fileId,
         f.url,
         f.name,
         f.type,
         f.size,
         a.create_name,
-        a.type as attachment_type,
+        a.type as attachmentType,
         a.remarks,
+        a.foreign_id as foreignId,
         a.create_date
         from t_attachment a,
         t_upload_file f
