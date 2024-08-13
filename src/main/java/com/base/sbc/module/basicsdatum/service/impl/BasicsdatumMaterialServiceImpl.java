@@ -485,7 +485,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
          CommonUtils.removeQuery(dto, "imageUrl");
         CommonUtils.removeQuerySplit(dto, ",", "attachment");
         BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
-        if (StrUtil.isEmptyIfStr(entity.getId())) {
+        String id = entity.getId();
+        if (StrUtil.isEmptyIfStr(id)) {
             entity.setStatus("0");
             String categoryCode = entity.getCategoryId();
             // 获取并放入最大code(且需要满足自动生成物料编码的开关为空或者未启动)
@@ -506,6 +507,22 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             entity.setMaterialCodeName(entity.getMaterialCode());
         }
 
+        List<AttachmentVo> fabricTestFileList = dto.getFabricTestFileList();
+        boolean fabricTestFileNotEmpty = CollUtil.isNotEmpty(fabricTestFileList);
+        entity.setHasFabricTestFile(YesOrNoEnum.NO);
+        if (StrUtil.isNotBlank(id)) {
+            // 删除之前的
+            LambdaQueryWrapper<Attachment> removeQw = new LambdaQueryWrapper<Attachment>()
+                    .eq(Attachment::getForeignId, id)
+                    .eq(Attachment::getType, MATERIAL_FITTING_REPORT);
+            List<String> attachmentIdList = attachmentService.listOneField(removeQw, Attachment::getId);
+            boolean attachmentNotEmpty = CollUtil.isNotEmpty(attachmentIdList);
+            if (fabricTestFileNotEmpty && attachmentNotEmpty) {
+                attachmentService.removeByIds(attachmentIdList);
+            }
+            entity.setHasFabricTestFile(YesOrNoEnum.findByValue(attachmentNotEmpty || fabricTestFileNotEmpty));
+        }
+
         // 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
         // if ("fabric".equals(entity.getMaterialType())) {
         // this.saveFabricWidth(entity.getMaterialCode(),
@@ -521,28 +538,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
 
         //保存动态字段
-        fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());
+        fieldValService.save(id, FieldValDataGroupConstant.MATERIAL, dto.getFieldValList());
 
-        List<AttachmentVo> fabricTestFileList = dto.getFabricTestFileList();
-        if (CollUtil.isNotEmpty(fabricTestFileList)) {
+        if (fabricTestFileNotEmpty) {
             List<Attachment> attachmentList = fabricTestFileList.stream().map(it -> {
                 it.setType(MATERIAL_FITTING_REPORT);
-                it.setForeignId(entity.getId());
+                it.setForeignId(id);
                 Attachment attachment = BeanUtil.copyProperties(it, Attachment.class);
                 attachment.setStatus(STATUS_NORMAL);
                 return attachment;
             }).collect(Collectors.toList());
-            // 删除之前的
-            QueryWrapper<Attachment> removeQw = new QueryWrapper<>();
-            removeQw.eq("foreign_id", entity.getId());
-            removeQw.eq("type", MATERIAL_FITTING_REPORT);
-            attachmentService.remove(removeQw);
+
             attachmentService.saveOrUpdateBatch(attachmentList);
-            entity.setHasFabricTestFile(YesOrNoEnum.YES);
-            this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
         }
 
-        return getBasicsdatumMaterial(entity.getId());
+        return getBasicsdatumMaterial(id);
     }
 
 
