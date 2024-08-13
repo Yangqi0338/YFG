@@ -384,7 +384,7 @@ public class SmpOpenMaterialDto {
         /**
          * 订货周期（天）
          */
-        private BigDecimal LeadTime;
+        private String LeadTime;
 
         /**
          * 起订量
@@ -394,7 +394,7 @@ public class SmpOpenMaterialDto {
         /**
          * 生产周期
          */
-        private BigDecimal C8_SupplierItemRev_MLeadTime;
+        private String C8_SupplierItemRev_MLeadTime;
         /**
          * 采购报价
          */
