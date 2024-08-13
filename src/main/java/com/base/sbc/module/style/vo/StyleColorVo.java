@@ -525,4 +525,15 @@ public class StyleColorVo extends EditPermissionReturnVo {
     @ApiModelProperty(value = "企划倍率"  )
     private BigDecimal planningRate;
 
+    @ApiModelProperty("款式难度 ")
+    private String styleDifficulty;
+
+
+    @ApiModelProperty("面料难度 ")
+    private String fabricDifficulty;
+
+
+    @ApiModelProperty("工艺难度 ")
+    private String processDifficulty;
+
 }
