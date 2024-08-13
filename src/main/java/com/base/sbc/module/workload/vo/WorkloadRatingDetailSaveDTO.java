@@ -92,6 +92,6 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
 
     @JsonIgnore
     public String getValue() {
-        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag().getValueStr()).toString();
+        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag()).toString();
     }
 }
