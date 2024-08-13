@@ -459,6 +459,7 @@ public class OpenSmpController extends BaseController {
             BeanUtil.copyProperties(tempSupplierDto, supplier);
             supplierService.updateById(supplier);
         }
+
         return selectSuccess(tempSupplierDto);
     }
 }
