@@ -540,7 +540,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //检查配色数据是否投产，投产了就报错
                 checkColorSize(publicStyleColorDto);
                 try {
-                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                    asyncExecutor.execute(() ->
+                        smpService.goods(styleColorIds.toArray(new String[]{}))
+                    );
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
                     throw new OtherException("同步SCM失败：" + e.getMessage());
