@@ -9,6 +9,7 @@ package com.base.sbc.module.basicsdatum.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -562,6 +563,11 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "大货样理化结果")
 	private String prodPhysicalResult;
+	/**
+	 * 大货样理化结果
+	 */
+	@ApiModelProperty(value = "大货样理化结果")
+	private YesOrNoEnum hasFabricTestFile;
 
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】

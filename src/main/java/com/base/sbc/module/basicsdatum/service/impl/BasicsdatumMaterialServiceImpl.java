@@ -41,6 +41,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -537,6 +538,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             removeQw.eq("type", MATERIAL_FITTING_REPORT);
             attachmentService.remove(removeQw);
             attachmentService.saveOrUpdateBatch(attachmentList);
+            entity.setHasFabricTestFile(YesOrNoEnum.YES);
+            this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
         }
 
         return getBasicsdatumMaterial(entity.getId());
