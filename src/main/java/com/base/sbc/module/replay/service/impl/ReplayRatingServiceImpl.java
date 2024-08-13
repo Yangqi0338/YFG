@@ -420,9 +420,11 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             // 版型id
             styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
             // 获取所有销售记录
-            styleDTO.setProductionSaleDTO(new ProductionSaleDTO().decorateTotal(
-                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList()))
-            );
+            ProductionSaleDTO saleDTO = new ProductionSaleDTO().decorateTotal(
+                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList()));
+            saleDTO.setProductionUnit(BigDecimal.ONE);
+            saleDTO.setSaleUnit(BigDecimal.ONE);
+            styleDTO.setProductionSaleDTO(saleDTO);
         });
     }
 
