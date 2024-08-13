@@ -58,6 +58,18 @@ public class TempSupplierDto {
     private String cellphone;
 
     /**
+     * 一级分类编码
+     */
+    @ApiModelProperty(value = "一级分类编码")
+    private String firstClass;
+
+    /**
+     * 一级分类名称
+     */
+    @ApiModelProperty(value = "一级分类名称")
+    private String firstClassName;
+
+    /**
      * 二级分类编码
      */
     @ApiModelProperty(value = "二级分类编码")
