@@ -9,7 +9,6 @@ package com.base.sbc.module.column.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.EnumUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -103,6 +102,8 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
                 columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
+                columnDefine.setIsEdit(columnDefine.getIsEdit());
+                columnDefine.setIsRequired(columnDefine.getIsRequired());
             } else {
                 columnDefine.setId(null);
             }
