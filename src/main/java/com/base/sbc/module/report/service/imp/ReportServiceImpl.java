@@ -467,9 +467,9 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<PatternMakingReportVo> patternMaking(PatternMakingQueryDto dto) {
         BaseQueryWrapper<PatternMakingQueryDto> qw = new BaseQueryWrapper<>();
-        qw.notEmptyLike("ts.designer", dto.getDesigner());
-        qw.notEmptyLike("ts.prod_category_name", dto.getProdCategoryName());
-        qw.notEmptyEq("ts.devt_type_name", dto.getDevtTypeName());
+        qw.notEmptyEq("ts.designer_id", dto.getDesigner());
+        qw.notEmptyLike("ts.prod_category", dto.getProdCategoryName());
+        qw.notEmptyEq("ts.devt_type", dto.getDevtTypeName());
         qw.notEmptyEq("ts.planning_season_id",dto.getPlanningSeasonId());
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.patternMakingReport.getK());
