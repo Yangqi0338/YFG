@@ -546,10 +546,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 it.setForeignId(id);
                 Attachment attachment = BeanUtil.copyProperties(it, Attachment.class);
                 attachment.setStatus(STATUS_NORMAL);
+                attachment.setId(null);
                 return attachment;
             }).collect(Collectors.toList());
 
-            attachmentService.saveOrUpdateBatch(attachmentList);
+            attachmentService.saveBatch(attachmentList);
         }
 
         return getBasicsdatumMaterial(id);

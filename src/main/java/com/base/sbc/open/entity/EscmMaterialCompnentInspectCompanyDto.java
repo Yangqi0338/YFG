@@ -1,5 +1,6 @@
 package com.base.sbc.open.entity;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -135,5 +136,11 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
     public String getUrl() {
         MinioUtils minioUtils = SpringContextHolder.getBean("minioUtils");
         return minioUtils.getObjectUrl(fileUrl);
+    }
+
+    public String getName() {
+//        if (StrUtil.isBlank(fileUrl)) return "";
+//        return fileUrl.substring(fileUrl.lastIndexOf("/"), fileUrl.length() + 1);
+        return materialsNo + "-" + DateUtil.format(getCreateDate(), "yyyyMMDD HHmmss");
     }
 }
