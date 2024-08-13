@@ -8,11 +8,11 @@ package com.base.sbc.module.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
-import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
+import cn.hutool.core.text.StrJoiner;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.text.StrJoiner;
@@ -83,6 +83,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -162,14 +163,15 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     public AttachmentVo uploadToMinio(MultipartFile file, UploadFileType type, String code) {
         try {
             String md5Hex = DigestUtils.md5DigestAsHex(file.getInputStream());
-            String objectName = "";
-            String extName = FileUtil.extName(file.getOriginalFilename());
+            String objectName;
+            String filename = file.getOriginalFilename();
+            String extName = FileUtil.extName(filename);
             if (StrUtil.isBlank(extName)) {
                 throw new OtherException("文件无后缀名");
             }
             if (type != null) {
                 List<String> accessSuffix = type.getAccessSuffix();
-                String suffix = FileUtil.extName(file.getOriginalFilename()).toLowerCase();
+                String suffix = FileUtil.extName(filename).toLowerCase();
                 if (CollUtil.isNotEmpty(accessSuffix)) {
                     if (accessSuffix.stream().noneMatch(it -> it.toLowerCase().equals(suffix))) {
                         throw new OtherException(" 文件格式只支持:" + String.join(COMMA, accessSuffix));
@@ -260,14 +262,6 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case Account:
                         objectName = "Account/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    case replayRating:
-                    case replayRatingFile:
-                        objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
-                                .append(type)
-                                .append(StrUtil.split(code, COMMA))
-                                .append(System.currentTimeMillis())
-                                .toString();
-                        break;
                     case markingOrderUpload:
                         objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
                         break;
@@ -303,8 +297,15 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         String yyyyMMddHHmmssSSS = DateUtil.format(new Date(), "yyyyMMddHHmmssSSS");
                         objectName = "Sample/" + code + "/" + yyyyMMddHHmmssSSS + "." + extName;
                         break;
+                    case replayRating:
+                    case replayRatingFile:
+                    case fittingReport:
                     default:
-                        objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
+                                .append(type)
+                                .append(StrUtil.split(code, COMMA))
+                                .append(String.format("%s-%s.%s", FileUtil.mainName(filename), LocalDateTimeUtil.format(LocalDateTime.now(), "yyyyMMddHHmmss"), extName))
+                                .toString();
                 }
             } else {
                 objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
@@ -315,7 +316,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             UploadFile newFile = new UploadFile();
             newFile.setMd5(md5Hex);
             newFile.setUrl(url);
-            newFile.setName(file.getOriginalFilename());
+            newFile.setName(filename);
             newFile.setType(contentType);
             newFile.setStorage("minio");
             newFile.setStatus(BaseGlobal.STATUS_NORMAL);

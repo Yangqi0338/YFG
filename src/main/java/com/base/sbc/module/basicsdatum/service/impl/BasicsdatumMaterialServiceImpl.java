@@ -34,27 +34,82 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CodeGen;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.IngredientUtils;
+import com.base.sbc.config.utils.ProducerNumUtil;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.constant.MaterialConstant;
-import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPageAndStyleDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.entity.Specification;
+import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
-import com.base.sbc.module.basicsdatum.service.*;
-import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
+import com.base.sbc.module.basicsdatum.service.SpecificationGroupService;
+import com.base.sbc.module.basicsdatum.service.SpecificationService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialStyleExcel;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialUpdateDto;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialUpdateVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
+import com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -104,11 +159,21 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.common.base.BaseGlobal.STATUS_NORMAL;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.utils.AttachmentTypeConstant.MATERIAL_FITTING_REPORT;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -134,6 +199,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     private final FlowableService flowableService;
+    private final AttachmentService attachmentService;
     @Lazy
     private final PackBomService packBomService;
 
@@ -319,7 +385,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
 
 
-
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
@@ -358,6 +423,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             return new PageInfo<>(list);
         }
         minioUtils.setObjectUrlToList(list, "imageUrl");
+
+        List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(list.stream().map(BasicsdatumMaterialPageVo::getId).collect(Collectors.joining(COMMA)), MATERIAL_FITTING_REPORT);
+        List<EscmMaterialCompnentInspectCompanyDto> InspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(
+                new BaseLambdaQueryWrapper<EscmMaterialCompnentInspectCompanyDto>()
+                        .notEmptyIn(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo, list.stream().map(BasicsdatumMaterialPageVo::getMaterialCode).collect(Collectors.toList()))
+                        .eq(EscmMaterialCompnentInspectCompanyDto::getValidityStatus, "正常")
+                        .groupBy(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo)
+                        .orderByDesc(EscmMaterialCompnentInspectCompanyDto::getArriveDate, EscmMaterialCompnentInspectCompanyDto::getCreateDate)
+        );
+        list.forEach(pageVo -> {
+            pageVo.setFabricTestFileList(attachmentVoList.stream().filter(it -> it.getForeignId().equals(pageVo.getId())).collect(Collectors.toList()));
+            pageVo.setFabricComponentFile(InspectCompanyDtoList.stream().filter(it -> it.getMaterialsNo().equals(pageVo.getMaterialCode())).findFirst().orElse(null));
+        });
+
         return new PageInfo<>(list);
     }
 
@@ -443,6 +522,25 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         //保存动态字段
         fieldValService.save(entity.getId(),FieldValDataGroupConstant.MATERIAL,dto.getFieldValList());
+
+        List<AttachmentVo> fabricTestFileList = dto.getFabricTestFileList();
+        if (CollUtil.isNotEmpty(fabricTestFileList)) {
+            List<Attachment> attachmentList = fabricTestFileList.stream().map(it -> {
+                it.setType(MATERIAL_FITTING_REPORT);
+                it.setForeignId(entity.getId());
+                Attachment attachment = BeanUtil.copyProperties(it, Attachment.class);
+                attachment.setStatus(STATUS_NORMAL);
+                return attachment;
+            }).collect(Collectors.toList());
+            // 删除之前的
+            QueryWrapper<Attachment> removeQw = new QueryWrapper<>();
+            removeQw.eq("foreign_id", entity.getId());
+            removeQw.eq("type", MATERIAL_FITTING_REPORT);
+            attachmentService.remove(removeQw);
+            attachmentService.saveOrUpdateBatch(attachmentList);
+            entity.setHasFabricTestFile(YesOrNoEnum.YES);
+            this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
+        }
 
         return getBasicsdatumMaterial(entity.getId());
     }

@@ -20,6 +20,7 @@ public class ConvertContext {
     public static ReplayConvert REPLAY_CV = ReplayConvert.INSTANCE;
     public static BIConvert BI_CV = BIConvert.INSTANCE;
     public static WorkloadRatingConvert WORKLOAD_CV = WorkloadRatingConvert.INSTANCE;
+    public static PackConvert PACK_CV = PackConvert.INSTANCE;
 
     @Autowired(required = false)
     public void setHangTagCv(HangTagConvert hangTagCv) {
@@ -59,5 +60,10 @@ public class ConvertContext {
     @Autowired(required = false)
     public void setWorkloadCv(WorkloadRatingConvert workloadCv) {
         WORKLOAD_CV = workloadCv;
+    }
+
+    @Autowired(required = false)
+    public void setPackCv(PackConvert packCv) {
+        PACK_CV = packCv;
     }
 }
