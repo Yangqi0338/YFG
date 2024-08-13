@@ -171,11 +171,14 @@
             SELECT
             ${ew.sqlSelect}
             from t_style_color ssc
-            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
-                left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
-            </if>
+            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and
+            p.style_no !='')
             <if test="dto.getColumnMap().containsKey('ps')">
-                LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
+		SELECT
+			count(0)
+		FROM
+		t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
                 LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
@@ -276,7 +279,11 @@
             sp.control_hangtag_confirm_time
             from t_style_color ssc
             left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
-            LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+            LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
+            SELECT
+            count(0)
+            FROM
+            t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
             LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
             left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
             left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
@@ -330,11 +337,13 @@
             SELECT
             ${ew.sqlSelect}
             from t_style_color ssc
-            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
-                left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
-            </if>
+            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
             <if test="dto.getColumnMap().containsKey('ps')">
-                LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
+		SELECT
+			count(0)
+		FROM
+		t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
                 LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
@@ -396,11 +405,13 @@
             select
             ssc.id
             from t_style_color ssc
-            <if test="dto.getColumnMap().containsKey('ssc') and !dto.getColumnMap().containsKey('ht')">
-                left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
-            </if>
+            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
             <if test="dto.getColumnMap().containsKey('ps')">
-                LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
+                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
+		SELECT
+			count(0)
+		FROM
+		t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
                 LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )

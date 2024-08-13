@@ -222,7 +222,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
         }
         if (StrUtil.isBlank(groupStr)) {
-            qw.groupBy("ssc.id");
+            // qw.groupBy("p.id");
         } else {
             qw.groupBy(groupStr);
         }
