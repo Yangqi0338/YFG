@@ -606,7 +606,7 @@ public class OpenSmpController extends BaseController {
     @ApiOperation(value = "接收SCM传输过来的供应商", notes = "接收SCM传输过来的供应商")
     public ApiResult receiveScmSupplier(@RequestBody TempSupplierDto tempSupplierDto) {
         String supplierCode = tempSupplierDto.getSupplierCode();
-        if (StrUtil.isNotEmpty(supplierCode)) {
+        if (StrUtil.isEmpty(supplierCode)) {
             throw new OtherException("临时供应商编号不能为空！");
         }
         BasicsdatumSupplier basicsdatumSupplier = BeanUtil.copyProperties(tempSupplierDto, BasicsdatumSupplier.class);
