@@ -405,6 +405,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
             QueryWrapper<StyleColor> colorQueryWrapper = new QueryWrapper<>();
             colorQueryWrapper.eq("style_id", style.getId());
+            //如果是款式打标下单阶段保存，只下发该大货款
+            if (StrUtil.isNotEmpty(dto.getMarkingType())) {
+                colorQueryWrapper.eq("id", dto.getStyleColorId());
+            }
             colorQueryWrapper.eq("status","0");
             colorQueryWrapper.eq("del_flag","0");
             colorQueryWrapper.eq("scm_send_flag","1");
@@ -1184,7 +1188,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      */
     @Override
     public Map<String, List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto) {
-        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         // 修改时
         if (StrUtil.isNotBlank(dto.getForeignId()) && !CommonUtils.isInitId(dto.getForeignId())) {
             Style style = getById(dto.getForeignId());

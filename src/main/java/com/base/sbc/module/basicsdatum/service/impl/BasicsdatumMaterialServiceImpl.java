@@ -89,8 +89,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -347,7 +345,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     if(fvMap.containsKey(pageVo.getId())){
                         Map<String, String> stringStringMap = fvMap.get(pageVo.getId());
                         pageVo.setNewCategory2(stringStringMap.get("new_category2"));
-                        pageVo.setNewCategory2(stringStringMap.get("new_category3"));
+                        pageVo.setNewCategory3(stringStringMap.get("new_category3"));
                         pageVo.setStructureCategory2(stringStringMap.get("structure_category2"));
                         pageVo.setStructureCategory3(stringStringMap.get("structure_category3"));
                         pageVo.setFabricValue(stringStringMap.get("fabric_value"));

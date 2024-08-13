@@ -38,7 +38,9 @@
                ts.designer_id,
                ts.designer,
                ts.design_no          designNo,
-               ts.technician_name
+               ts.technician_name,
+               ts.pattern_design_id,
+               ts.pattern_design_name
         FROM t_style_color tsc
                  INNER JOIN t_style ts ON ts.id = tsc.style_id
                  left join t_style_color_correct_info tcci on tcci.style_color_id = tsc.id and tcci.del_flag = '0'
