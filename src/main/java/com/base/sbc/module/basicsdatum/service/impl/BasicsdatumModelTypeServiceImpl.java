@@ -99,7 +99,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.notEmptyLike("dimension_type", queryDto.getDimensionType());
         queryWrapper.between("create_date",queryDto.getCreateDate());
         queryWrapper.notEmptyEq("create_name", queryDto.getCreateName());
-        queryWrapper.likeList("brand",StringUtils.convertList(queryDto.getBrand()));
+        queryWrapper.likeListOrNull("brand",StringUtils.convertList(queryDto.getBrand()));
         /*查询基础资料-号型类型数据*/
         Page<BasicsdatumModelTypeVo> objects = PageHelper.startPage(queryDto);
         getBaseMapper().selectList(queryWrapper);
