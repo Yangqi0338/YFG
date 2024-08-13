@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Filter;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ArrayUtil;
@@ -413,23 +412,23 @@ public class CommonUtils {
     // 封装Hutool的StrJoiner
     public static <T> String saftyStrJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
         if (CollUtil.isEmpty(list)) return "";
-        return saftyStrJoin(delimiter, list.stream().map(func).map(Object::toString).toArray(String[]::new)).toString();
+        return saftyStrJoin(delimiter, list.stream().map(func).map(Object::toString).toArray(Object[]::new)).toString();
     }
 
     public static <T> String strJoin(CharSequence delimiter, List<T> list, Function<T, Object> func) {
         if (CollUtil.isEmpty(list)) return "";
-        return strJoin(delimiter, list.stream().map(func).map(StrUtil::utf8Str).toArray(String[]::new)).toString();
+        return strJoin(delimiter, list.stream().map(func).map(StrUtil::utf8Str).toArray(Object[]::new)).toString();
     }
 
-    public static StrJoiner strJoin(CharSequence delimiter, CharSequence... str) {
+    public static StrJoiner strJoin(CharSequence delimiter, Object... str) {
         return strJoin(delimiter, StrJoiner.NullMode.IGNORE, str);
     }
 
-    public static StrJoiner saftyStrJoin(CharSequence delimiter, CharSequence... str) {
-        return strJoin(delimiter).append(Arrays.stream(str).map(it -> Opt.ofBlankAble(it).orElse(" ")).collect(Collectors.toList()));
+    public static StrJoiner saftyStrJoin(CharSequence delimiter, Object... str) {
+        return strJoin(delimiter).append(Arrays.stream(str).map(it -> ObjectUtil.isNotEmpty(it) ? it : " ").collect(Collectors.toList()));
     }
 
-    public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode, CharSequence... str) {
+    public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode, Object... str) {
         return StrJoiner.of(delimiter).setNullMode(nullMode).append(str);
     }
 
