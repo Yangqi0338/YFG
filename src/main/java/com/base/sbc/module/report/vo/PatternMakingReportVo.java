@@ -41,7 +41,7 @@ public class PatternMakingReportVo {
 
     public BigDecimal getIndex3() {
         if(BigDecimalUtil.notEqualZero(index1) && BigDecimalUtil.notEqualZero(index2)){
-            return index1.divide(index2, 2, RoundingMode.DOWN).multiply(BigDecimal.TEN.multiply(BigDecimal.TEN));
+            return index2.divide(index1, 2, RoundingMode.DOWN).multiply(BigDecimal.TEN.multiply(BigDecimal.TEN));
         }
         return BigDecimal.ZERO;
     }
