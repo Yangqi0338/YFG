@@ -99,7 +99,7 @@ public class OpenTechSpecViewController {
         PackInfoListVo detail = packInfoService.getDetail(foreignId, dto.getPackType());
 
         if(ObjectUtils.isNotNull(detail)) {
-            return   ApiResult.success(detail.getTechSpecFile().getUrl());
+            return   ApiResult.success("", detail.getTechSpecFile().getUrl());
 //                response.sendRedirect(detail.getTechSpecFile().getUrl());
         }
         return ApiResult.success();
