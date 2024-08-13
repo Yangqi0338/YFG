@@ -226,7 +226,6 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
 //                                .like(WorkloadRatingDetail::getItemValue, detailItemValue.append(YesOrNoEnum.YES.getValueStr()).toString()))
 //                ));
 
-                    dto.setId(null);
                     WORKLOAD_CV.copy(entity, dto);
                     return entity;
                 });
