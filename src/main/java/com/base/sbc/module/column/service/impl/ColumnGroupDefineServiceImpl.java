@@ -13,7 +13,6 @@ import com.base.sbc.module.column.dto.ColumnGroupDefineDto;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.entity.ColumnGroupDefine;
 import com.base.sbc.module.column.entity.ColumnGroupDefineItem;
-import com.base.sbc.module.column.entity.ColumnUserDefineItem;
 import com.base.sbc.module.column.mapper.ColumnGroupDefineMapper;
 import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.column.service.ColumnGroupDefineItemService;
