@@ -391,14 +391,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //        }
 
 
-         styleColorIssuedToScm(style, isPushScm);
-
-
-        return style;
-    }
-
-
-    private void styleColorIssuedToScm(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
@@ -423,9 +415,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //检查配色数据是否投产，投产了就报错
                 checkColorSize(publicStyleColorDto);
                 try {
-                    asyncExecutor.execute(() ->
-                          smpService.goods(styleColorIds.toArray(new String[]{}))
-                    );
+                    smpService.goods(styleColorIds.toArray(new String[]{}));
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
                     throw new OtherException("同步SCM失败：" + e.getMessage());
@@ -446,7 +436,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //                throw new OtherException("同步SCM失败："+e.getMessage());
 //            }
         }
+
+        return style;
     }
+
 
 
     /**
