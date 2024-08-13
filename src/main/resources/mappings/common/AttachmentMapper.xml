@@ -28,16 +28,6 @@
         and a.del_flag = '0'
         and f.del_flag = '0'
         ${ ew.customSqlSegment}
-
-        and a.foreign_id = #{foreignId}
-
-        <if test="type!=null and type!=''">
-            and a.type = #{type}
-        </if>
-        <if test="typeLikeStart!=null and typeLikeStart!=''">
-            and a.type like CONCAT(#{typeLikeStart},'%')
-        </if>
-        order by a.sort,a.id
     </select>
     <select id="findByQw" resultType="com.base.sbc.module.common.vo.AttachmentVo">
         select a.id,
