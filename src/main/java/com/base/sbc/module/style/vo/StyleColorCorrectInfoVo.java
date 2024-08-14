@@ -496,6 +496,10 @@ public class StyleColorCorrectInfoVo {
     @ApiModelProperty(value = "辅仓接收日期-明细单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date auxiliaryDate;
+    /** 设计回收正确样时间 */
+    @ApiModelProperty(value = "设计回收正确样时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designCorrectRecoveryDate;
 
     private String styleColorId;
 
