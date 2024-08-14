@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -40,6 +41,8 @@ public class ProductionSaleDTO extends ReplayRatingProductionSaleDTO {
             this.setProductionCount(list.stream().mapToInt(ProductionSaleDTO::getProductionCount).sum());
             this.setStorageCount(list.stream().mapToInt(ProductionSaleDTO::getStorageCount).sum());
         }
+        this.setProductionUnit(BigDecimal.ONE);
+        this.setSaleUnit(BigDecimal.ONE);
         return this;
     }
 
