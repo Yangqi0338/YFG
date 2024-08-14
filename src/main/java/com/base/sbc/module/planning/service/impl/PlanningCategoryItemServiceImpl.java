@@ -70,6 +70,7 @@ import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.mapper.StyleMapper;
@@ -933,13 +934,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
-    public Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId) {
+    public Map<String, Long> totalBandSkcByPlanningSeason(YearSeasonBandVo vo) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
-        qw.eq("planning_season_id", planningSeasonId);
+        qw.eq("planning_season_id", vo.getPlanningSeasonId());
         qw.isNotNull("band_name");
         qw.ne("band_name", "");
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType(), "", new String[]{"brand"}, true);
         Map<String, Long> result = new HashMap<>(16);
         List<CountVo> list = getBaseMapper().totalBandSkcByPlanningSeason(qw);
         if (CollUtil.isNotEmpty(list)) {

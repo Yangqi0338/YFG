@@ -63,4 +63,7 @@ public class YearSeasonBandVo {
 
     @ApiModelProperty(value = "补充其他的信息")
     private Object supplementInfo;
+
+    @ApiModelProperty(value = "业务对象编码(用于数据权限)")
+    private String businessType;
 }
