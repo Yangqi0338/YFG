@@ -363,7 +363,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //                                .orderByDesc(PackBom::getId)
 //                        );
 //                        for (PackBom packBom : packBomList) {
-                orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(), YesOrNoEnum.NO).getValueStr());
+                if (!"cmt".equals(orderBookDetailVo.getDevtType().getCode())){
+                    orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(), YesOrNoEnum.NO).getValueStr());
+                }
 //                        }
 //                    }
 //                }
