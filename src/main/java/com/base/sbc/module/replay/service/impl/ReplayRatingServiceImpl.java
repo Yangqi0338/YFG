@@ -311,6 +311,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     totalStyleVO.decorateTotal(productionSaleList);
                 }
                 // 最后将汇总实体类转成map
+                totalStyleVO.setProductionSaleRate(totalStyleVO.getProductionSaleRate());
                 totalMap.putAll(BeanUtil.beanToMap(totalStyleVO));
                 break;
             case PATTERN:
