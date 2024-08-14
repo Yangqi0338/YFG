@@ -301,9 +301,15 @@ public class TagPrinting {
          */
         private String outsideBarcode;
 
+        /**
+         * 显示尺码标识(1显示，0隐藏)
+         */
+        @JsonIgnore
+        private String showSizeStatus;
+
         @JsonIgnore
         public String getSystemSizeName(){
-            return this.SIZENAME + "(" + this.SIZECODE + ")";
+            return this.SIZENAME + ("0".equals(showSizeStatus) ? "" : "(" + this.SIZECODE + ")");
         }
     }
 
