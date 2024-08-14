@@ -131,6 +131,7 @@ import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.dto.TagCompositionDto;
 import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.smp.entity.CheckMaterial;
+import com.base.sbc.module.smp.entity.SalesData;
 import com.base.sbc.module.smp.entity.SmpColor;
 import com.base.sbc.module.smp.entity.SmpModuleSize;
 import com.base.sbc.module.smp.entity.SmpQuot;
