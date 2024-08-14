@@ -84,7 +84,7 @@ public class FabricSummary extends BaseDataEntity<String> {
     private BigDecimal supplierQuotationPrice;
     /** 生产周期 */
     @ApiModelProperty(value = "生产周期-期货"  )
-    private BigDecimal productionDay;
+    private String productionDay;
     /** 供应商色号 */
 //    @ApiModelProperty(value = "供应商色号"  )
 //    private String supplierColorNo;
