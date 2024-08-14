@@ -23,6 +23,8 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface FileTreeMapper extends BaseMapper<FileTree> {
     void updateHiberarchy(@Param("newId") String newId, @Param("oldId")String oldId);
+
+    Long getConditionSql(@Param("conditionSql") String conditionSql);
 // 自定义方法区 不替换的区域【other_start】
 
 

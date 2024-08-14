@@ -188,6 +188,17 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
         return true;
     }
 
+    @Override
+    public boolean getConditionSql(String conditionSql) {
+        try {
+            Long count = getBaseMapper().getConditionSql(conditionSql);
+            return null != count;
+        }catch (Exception e){
+            return false;
+        }
+
+    }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class )
@@ -322,5 +333,5 @@ public class FileTreeServiceImpl extends BaseServiceImpl<FileTreeMapper, FileTre
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
-}
+
+    }

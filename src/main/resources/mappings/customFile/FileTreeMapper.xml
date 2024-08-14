@@ -16,7 +16,10 @@
 
     </update>
 
-
+    <select id="getConditionSql" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM (${conditionSql}) t
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
