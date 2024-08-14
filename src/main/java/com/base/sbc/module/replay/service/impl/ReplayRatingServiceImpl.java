@@ -16,6 +16,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.constant.BusinessProperties;
@@ -108,10 +109,12 @@ import com.base.sbc.module.replay.vo.ReplayRatingStyleVO;
 import com.base.sbc.module.replay.vo.ReplayRatingVO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearQO;
 import com.base.sbc.module.replay.vo.ReplayRatingYearVO;
+import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.FactoryMissionRateQO;
 import com.base.sbc.module.smp.dto.GoodsSluggishSalesDTO;
 import com.base.sbc.module.smp.dto.GoodsSluggishSalesQO;
 import com.base.sbc.module.smp.dto.SaleFacQO;
+import com.base.sbc.module.smp.dto.Scm1SpareMaterialDTO;
 import com.base.sbc.module.smp.entity.FactoryMissionRate;
 import com.base.sbc.module.smp.entity.GoodsSluggishSales;
 import com.base.sbc.module.smp.entity.SaleFac;
@@ -130,6 +133,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -239,6 +243,9 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
     @Autowired
     private StockSizeMapper stockSizeMapper;
+    @Qualifier("smpService")
+    @Autowired
+    private SmpService smpService;
 
     private static @NotNull BaseQueryWrapper<ReplayRating> buildQueryWrapper(ReplayRatingQO dto) {
         BaseQueryWrapper<ReplayRating> qw = new BaseQueryWrapper<>();
@@ -304,6 +311,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     totalStyleVO.decorateTotal(productionSaleList);
                 }
                 // 最后将汇总实体类转成map
+                totalStyleVO.setProductionSaleRate(totalStyleVO.getProductionSaleRate());
                 totalMap.putAll(BeanUtil.beanToMap(totalStyleVO));
                 break;
             case PATTERN:
@@ -337,7 +345,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 //                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
                 }
                 // 装饰列表
-                decorateFabricList(baseMapper.queryFabricList(queryWrapper, qo), qo);
+                List<ReplayRatingFabricVO> fabricList = baseMapper.queryFabricList(queryWrapper, qo);
+                decorateFabricList(fabricList, qo);
                 // 会从queryFabricList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
                 ReplayRatingFabricTotalVO totalFabricVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingFabricTotalVO.class);
                 // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
@@ -351,8 +360,22 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                             .select(SaleFac::getNum)
                     );
                     totalFabricVO.setProduction(CommonUtils.sumBigDecimal(saleFacList, SaleFac::getNum));
-                    // TODO
-                    totalFabricVO.setRemainingMaterial(new BigDecimal(Integer.MAX_VALUE));
+                }
+                // 是否仅统计当前页
+                if (!ReplayRatingProperties.totalCurrentPage) {
+                    totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList, ReplayRatingFabricVO::getRemainingMaterial));
+                }else {
+                    String materialCode = totalFabricVO.getMaterialCode();
+                    if (StrUtil.isNotBlank(materialCode)) {
+                        List<String> materialCodeList = CollUtil.removeWithAddIf(Arrays.asList(materialCode.split(COMMA)),
+                                (subMaterialCode) -> fabricList.stream().anyMatch(it -> subMaterialCode.equals(it.getMaterialCode())));
+                        BigDecimal sum = BigDecimal.valueOf(materialCodeList.stream().mapToInt(it -> {
+                            ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(it, 2);
+                            if (!result.getSuccess()) return 0;
+                            return result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum();
+                        }).sum());
+                        totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList,ReplayRatingFabricVO::getRemainingMaterial).add(sum));
+                    }
                 }
                 totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
                 break;
@@ -398,9 +421,11 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             // 版型id
             styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
             // 获取所有销售记录
-            styleDTO.setProductionSaleDTO(new ProductionSaleDTO().decorateTotal(
-                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList()))
-            );
+            ProductionSaleDTO saleDTO = new ProductionSaleDTO().decorateTotal(
+                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList()));
+            saleDTO.setProductionUnit(BigDecimal.ONE);
+            saleDTO.setSaleUnit(BigDecimal.ONE);
+            styleDTO.setProductionSaleDTO(saleDTO);
         });
     }
 
@@ -507,14 +532,18 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         decorateList(fabricVOList, qo);
 
         /* ----------------------------面料自主研发 + 剩余备料---------------------------- */
-        AtomicInteger remainingMaterial = new AtomicInteger(100);
         AtomicInteger fabricOwnDevelopFlagAtomic = new AtomicInteger();
         fabricVOList.forEach(fabric -> {
             int increment = fabricOwnDevelopFlagAtomic.getAndIncrement();
             // 是否交替 TODO
             fabric.setFabricOwnDevelopFlag(YesOrNoEnum.findByValue(increment < 2 ? increment : (increment / 2) % 2));
             // TODO
-            fabric.setRemainingMaterial(BigDecimal.valueOf(remainingMaterial.getAndIncrement()));
+            ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(fabric.getMaterialCode(), 2);
+            BigDecimal remainingMaterial = BigDecimal.ZERO;
+            if (result.getSuccess() && CollUtil.isNotEmpty(result.getData())) {
+                remainingMaterial = BigDecimal.valueOf(result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum());
+            }
+            fabric.setRemainingMaterial(remainingMaterial);
         });
 
         /* ----------------------------大货款维度投产量 + 使用米数---------------------------- */

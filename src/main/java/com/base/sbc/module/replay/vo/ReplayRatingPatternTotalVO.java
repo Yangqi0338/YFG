@@ -7,6 +7,7 @@
 package com.base.sbc.module.replay.vo;
 
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class ReplayRatingPatternTotalVO {
 
     /** 大货款号 */
     @ApiModelProperty(value = "大货款号")
+    @JsonIgnore
     private String bulkStyleNo;
 
     /** 当季销售件数 */
