@@ -1424,6 +1424,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}
 
 							}
+							size1.setShowSizeStatus(basicsdatumSize.getHangTagShowSizeStatus());
 							size.add(size1);
 						}
 
