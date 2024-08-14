@@ -21,9 +21,9 @@ public class SmpQuot {
     /** 材料颜色名称 */
     private String supplierColorName;
     /** 订货周期（天）*/
-    private BigDecimal orderGoodsDay;
+    private String orderGoodsDay;
     /** 生产周期（天） */
-    private BigDecimal productionDay;
+    private String productionDay;
     /** 起订量 */
     private Integer moqInitial;
     /** 采购报价 */
