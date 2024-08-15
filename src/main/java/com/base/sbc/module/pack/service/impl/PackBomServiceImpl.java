@@ -50,10 +50,7 @@ import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -220,6 +217,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Autowired
     private BasicsdatumMaterialColorService materialColorService;
+
+    @Autowired
+    @Lazy
+    private BasicsdatumBomTemplateService basicsdatumBomTemplateService;
 
     private final ReentrantLock saveLock = new ReentrantLock();
 
@@ -1401,6 +1402,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
         }
         saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
+        BasicsdatumBomTemplate basicsdatumBomTemplate = basicsdatumBomTemplateService.getById(bomTemplateSaveDto.getBomTemplateId());
+        PackBomVersion version = packBomVersionService.checkVersion(bomTemplateSaveDto.getBomVersionId());
+        if (ObjectUtil.isNotEmpty(basicsdatumBomTemplate) && ObjectUtil.isNotEmpty(version)) {
+            Map<String, String> map = new HashMap<>();
+            map.put("引用BOM模板", "->模板名称：" + basicsdatumBomTemplate.getName());
+            this.saveOperaLog("引用BOM模板", version.getForeignId(), version.getPackType(), "物料清单", style.getDesignNo(), style.getDesignNo(), map);
+        }
         return true;
     }
 
