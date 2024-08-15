@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.smp.entity.SalesData;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.context.annotation.Primary;
 
 import java.util.List;
 import java.util.Map;
 
 @Mapper
 @DS("starRocks")
+@Primary
 public interface SaleProductIntoMapper extends BaseMapper {
 
      List<Map<String, Object>> querySaleIntoPage1(@Param("ew") QueryWrapper<?> queryWrapper, @Param("channel") String channel, @Param("total") Integer total);
