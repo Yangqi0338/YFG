@@ -1098,7 +1098,7 @@ public class SmpService {
             // 封装下发的接口
             List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(smpMaterialDto.getId(), MATERIAL_FITTING_REPORT);
             if (CollUtil.isNotEmpty(attachmentVoList)) {
-                smpMaterialDto.setFabricTestFileUrl(attachmentVoList.stream().map(AttachmentVo::getUrl).collect(Collectors.toList()));
+                smpMaterialDto.setFabricTestFileUrl(attachmentVoList.stream().map(AttachmentVo::getSourceUrl).collect(Collectors.toList()));
             }
 
             String jsonString = JsonStringUtils.toJSONString(smpMaterialDto);
