@@ -128,8 +128,19 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean delByIds(List<String> ids) {
+        if (CollUtil.isEmpty(ids)) return true;
+        List<WorkloadRatingItem> list = this.listByIds(ids);
+        WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
+        qo.setConfigId(list.get(0).getConfigId());
+        WorkloadRatingConfigVO config = findConfig(qo);
+        List<String> configList = config.findConfigTitleFieldList().stream().map(WorkloadRatingTitleFieldDTO::getConfigId).collect(Collectors.toList());
         // 查detail
-        return this.removeByIds(ids);
+        return this.remove(new LambdaQueryWrapper<WorkloadRatingItem>()
+                .eq(WorkloadRatingItem::getType, config.getType())
+                .eq(WorkloadRatingItem::getBrand, config.getBrand())
+                .in(WorkloadRatingItem::getConfigId, configList)
+                .in(WorkloadRatingItem::getItemValue, list.stream().map(WorkloadRatingItem::getItemValue).collect(Collectors.toList()))
+        );
     }
 
     @Override
