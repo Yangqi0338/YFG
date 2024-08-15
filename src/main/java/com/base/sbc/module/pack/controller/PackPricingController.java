@@ -208,8 +208,8 @@ public class PackPricingController {
     }
 
     @ApiOperation(value = "获取核价信息路由参数")
-    @GetMapping("/getPricingRoute")
-    public boolean getPricingRoute(Integer pageSize) {
+    @GetMapping("/updatePricingJson")
+    public boolean updatePricingJson(Integer pageSize) {
         packPricingService.updatePricingJson(1, pageSize);
         return true;
     }
