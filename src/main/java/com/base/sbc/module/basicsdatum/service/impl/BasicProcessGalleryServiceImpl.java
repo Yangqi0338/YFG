@@ -51,8 +51,8 @@ public class BasicProcessGalleryServiceImpl extends BaseServiceImpl<BasicProcess
     @Override
     public QueryWrapper<BasicProcessGallery> buildQueryWrapper(BasicProcessGalleryDto basicProcessGalleryDto) {
         BaseQueryWrapper<BasicProcessGallery> queryWrapper =new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("code", basicProcessGalleryDto.getCode());
-        queryWrapper.notEmptyEq("name", basicProcessGalleryDto.getName());
+        queryWrapper.notEmptyLike("code", basicProcessGalleryDto.getCode());
+        queryWrapper.notEmptyLike("name", basicProcessGalleryDto.getName());
         queryWrapper.notEmptyEq("type_name", basicProcessGalleryDto.getTypeName());
         queryWrapper.notEmptyEq("type_code", basicProcessGalleryDto.getTypeCode());
         queryWrapper.notEmptyLike("remarks", basicProcessGalleryDto.getRemarks());
