@@ -4741,6 +4741,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*获取配色数据*/
         queryWrapper.eq("ts.del_flag", "0");
+        queryWrapper.eq("tpi.del_flag", "0");
         queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
         queryWrapper.orderByDesc("ts.create_date");
         //查询款式配色
