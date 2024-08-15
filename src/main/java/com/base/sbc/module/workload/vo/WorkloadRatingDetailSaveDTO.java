@@ -9,6 +9,7 @@ package com.base.sbc.module.workload.vo;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -75,10 +76,10 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
-    public WorkloadRatingDetailSaveDTO decorateConfig(WorkloadRatingConfig config) {
-        this.setConfigId(config.getId());
-        this.setConfigName(config.getItemName());
-        this.setCalculateType(config.getCalculateType());
+    public WorkloadRatingDetailSaveDTO decorateConfig(WorkloadRatingTitleFieldDTO workloadRatingTitleFieldDTO) {
+        this.setConfigId(workloadRatingTitleFieldDTO.getConfigId());
+        this.setConfigName(workloadRatingTitleFieldDTO.getConfigName());
+        this.setCalculateType(workloadRatingTitleFieldDTO.getCalculateType());
         return this;
     }
 
@@ -92,6 +93,6 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
 
     @JsonIgnore
     public String getValue() {
-        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag().getValueStr()).toString();
+        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag()).toString();
     }
 }

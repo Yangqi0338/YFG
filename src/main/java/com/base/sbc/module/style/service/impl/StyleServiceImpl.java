@@ -515,12 +515,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
 
+
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
             //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
             QueryWrapper<StyleColor> colorQueryWrapper = new QueryWrapper<>();
             colorQueryWrapper.eq("style_id", style.getId());
+            //如果是款式打标下单阶段保存，只下发该大货款
+            if (StrUtil.isNotEmpty(dto.getMarkingType())) {
+                colorQueryWrapper.eq("id", dto.getStyleColorId());
+            }
             colorQueryWrapper.eq("status","0");
             colorQueryWrapper.eq("del_flag","0");
             colorQueryWrapper.eq("scm_send_flag","1");
@@ -535,7 +540,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //检查配色数据是否投产，投产了就报错
                 checkColorSize(publicStyleColorDto);
                 try {
-                    smpService.goods(styleColorIds.toArray(new String[]{}));
+                    asyncExecutor.execute(() ->
+                        smpService.goods(styleColorIds.toArray(new String[]{}))
+                    );
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
                     throw new OtherException("同步SCM失败：" + e.getMessage());
@@ -559,6 +566,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         return style;
     }
+
 
 
     /**
@@ -895,6 +903,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         style.setCheckStartTime(new Date());
+        if (style.getActualPublicationDate() == null) {
+            style.setActualPublicationDate(new Date());
+        }
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         // 获取当前人所在的虚拟部门

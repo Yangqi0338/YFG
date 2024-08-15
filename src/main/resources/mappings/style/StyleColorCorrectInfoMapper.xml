@@ -21,6 +21,7 @@
                tcci.update_date,
                tcci.update_id,
                tcci.update_name,
+               tcci.design_correct_recovery_date,
                tsc.*,
                ts.style_pic,
                ts.brand,

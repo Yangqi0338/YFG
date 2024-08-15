@@ -21,6 +21,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -64,6 +65,7 @@ import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.dto.DesignStyleOverdueReasonDto;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.dto.OrderBookDto;
+import com.base.sbc.open.dto.*;
 import com.base.sbc.open.entity.*;
 import com.base.sbc.open.service.BasicsdatumGarmentInspectionService;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -132,6 +134,7 @@ public class OpenSmpController extends BaseController {
     private final NodeStatusService nodeStatusService;
     private final OperaLogService operaLogService;
 
+    private final BasicsdatumSupplierService supplierService;
 
     /**
      * bp供应商
@@ -597,4 +600,28 @@ public class OpenSmpController extends BaseController {
         return ApiResult.success("查询成功", styleVo);
     }
 
+
+
+    @PostMapping("/receiveScmSupplier")
+    @ApiOperation(value = "接收SCM传输过来的供应商", notes = "接收SCM传输过来的供应商")
+    public ApiResult receiveScmSupplier(@RequestBody TempSupplierDto tempSupplierDto) {
+        String supplierCode = tempSupplierDto.getSupplierCode();
+        if (StrUtil.isEmpty(supplierCode)) {
+            throw new OtherException("临时供应商编号不能为空！");
+        }
+        BasicsdatumSupplier basicsdatumSupplier = BeanUtil.copyProperties(tempSupplierDto, BasicsdatumSupplier.class);
+
+        QueryWrapper<BasicsdatumSupplier> basicsdatumSupplierQueryWrapper = new QueryWrapper<>();
+        basicsdatumSupplierQueryWrapper.eq("supplier_code",supplierCode);
+        BasicsdatumSupplier supplier = supplierService.getOne(basicsdatumSupplierQueryWrapper);
+        if (supplier == null) {
+            supplierService.save(basicsdatumSupplier);
+        }else{
+            //将数据copy已存在实体
+            BeanUtil.copyProperties(tempSupplierDto, supplier);
+            supplierService.updateById(supplier);
+        }
+
+        return selectSuccess(tempSupplierDto);
+    }
 }

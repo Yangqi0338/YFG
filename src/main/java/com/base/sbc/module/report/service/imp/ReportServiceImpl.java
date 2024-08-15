@@ -463,4 +463,17 @@ public class ReportServiceImpl implements ReportService {
         List<SeasonPlanPercentageVo> list = seasonPlanPercentage(dto).getList();
         ExcelUtils.exportExcelByTableCode(list, "季节企划完成率报表", response, dto);
     }
+
+    @Override
+    public List<PatternMakingReportVo> patternMaking(PatternMakingQueryDto dto) {
+        BaseQueryWrapper<PatternMakingQueryDto> qw = new BaseQueryWrapper<>();
+        qw.notEmptyEq("ts.designer_id", dto.getDesigner());
+        qw.notEmptyLike("ts.prod_category", dto.getProdCategoryName());
+        qw.notEmptyEq("ts.devt_type", dto.getDevtTypeName());
+        qw.notEmptyEq("ts.planning_season_id",dto.getPlanningSeasonId());
+        QueryGenerator.initQueryWrapperByMap(qw, dto);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.patternMakingReport.getK());
+        List<PatternMakingReportVo> list = reportMapper.patternMaking(qw);
+        return list;
+    }
 }

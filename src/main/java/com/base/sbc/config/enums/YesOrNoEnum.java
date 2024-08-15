@@ -55,4 +55,9 @@ public enum YesOrNoEnum {
     public static YesOrNoEnum findByValue(boolean value) {
         return value ? YesOrNoEnum.YES : YesOrNoEnum.NO;
     }
+
+    @Override
+    public String toString() {
+        return getValueStr();
+    }
 }

@@ -111,7 +111,7 @@ public class WorkLogVoExcel {
      * 工作分数
      */
     @ApiModelProperty(value = "工作分数")
-    @Excel(name = "工作分数",numFormat = "#.#",type = 10,width=15)
+    @Excel(name = "工作分数",numFormat = "#.##",type = 10,width=15)
     private BigDecimal score;
 
 }

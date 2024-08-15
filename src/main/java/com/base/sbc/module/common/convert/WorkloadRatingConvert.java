@@ -1,5 +1,6 @@
 package com.base.sbc.module.common.convert;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.common.vo.SelectOptionsChildrenVo;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
@@ -10,6 +11,7 @@ import com.base.sbc.module.workload.vo.WorkloadRatingConfigQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -48,9 +50,15 @@ public interface WorkloadRatingConvert {
     List<WorkloadRatingDetailDTO> copy2DetailDTO(List<WorkloadRatingDetail> source);
 
     List<WorkloadRatingItemVO> copy2ItemVO(List<WorkloadRatingItem> source);
+    WorkloadRatingItemVO copy2ItemVO(WorkloadRatingItem source);
     WorkloadRatingDetail copy2Entity(WorkloadRatingDetailDTO source);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void copy(@MappingTarget WorkloadRatingDetail target, WorkloadRatingDetailDTO source);
+
+    @Condition
+    default boolean isNotEmpty(String value) {
+        return StrUtil.isNotEmpty(value);
+    }
 
 }
