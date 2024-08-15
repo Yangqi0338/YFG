@@ -1177,7 +1177,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      */
     @Override
     public Map<String, List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto) {
-        dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         // 修改时
         if (StrUtil.isNotBlank(dto.getForeignId()) && !CommonUtils.isInitId(dto.getForeignId())) {
             Style style = getById(dto.getForeignId());
