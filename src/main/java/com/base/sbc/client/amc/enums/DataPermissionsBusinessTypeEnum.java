@@ -69,6 +69,7 @@ public enum DataPermissionsBusinessTypeEnum {
     stylePackBomMaterialReport("stylePackBomMaterialReport", "BOM清单查询报表"),
     seasonPlanPercentage("seasonPlanPercentage", "季节企划完成率"),
     styleAnalyseStyle("styleAnalyseStyle", "大货分析报表"),
+    patternMakingReport("patternMakingReport","下稿计划报表"),
 
     work_log("work_log","工作小账"),
     PATTERN_LIBRARY("t_pattern_library","版型库"),
