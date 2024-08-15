@@ -63,13 +63,13 @@ public class PreTaskAssignmentDto {
      * 车缝工名称
      */
     @ApiModelProperty(value = "车缝工名称")
-    @NotBlank(message = "车缝工不能为空")
+    //@NotBlank(message = "车缝工不能为空")
     private String stitcher;
     /**
      * 车缝工id
      */
     @ApiModelProperty(value = "车缝工id")
-    @NotBlank(message = "车缝工不能为空")
+    //@NotBlank(message = "车缝工不能为空")
     private String stitcherId;
 
     private String sampleBarCode;
