@@ -32,67 +32,6 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
 @Component
 public class RequestInterceptor implements HandlerInterceptor {
 
-
-    Logger log = LoggerFactory.getLogger(getClass());
-
-    private final HttpLogService httpLogService;
-
-
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3) throws Exception {
-        //HttpLog httpLog = companyUserInfo.get().getHttpLog();
-        //httpLog.setStatusCode(response.getStatus());
-        //
-        //JSONObject jsonObject =new JSONObject();
-        //for (String headerName : response.getHeaderNames()) {
-        //    String header = response.getHeader(headerName);
-        //    jsonObject.put(headerName,header);
-        //}
-
-        //BodyHttpServletRequestWrapper servletRequestWrapper =new BodyHttpServletRequestWrapper(request);
-        ////获取所有请求头
-        //JSONObject reqHeaders = new JSONObject();
-        //Enumeration<String> headerNames = servletRequestWrapper.getHeaderNames();
-        //while (headerNames.hasMoreElements()) {
-        //    String headerName = headerNames.nextElement();
-        //    String header = servletRequestWrapper.getHeader(headerName);
-        //    reqHeaders.put(headerName, header);
-        //}
-        //
-        //
-        ////获取请求体
-        //String reqBody = null;
-        ////获取请求体
-        //if (servletRequestWrapper.getHeader("content-type") != null && !servletRequestWrapper.getHeader("content-type").contains("multipart/form-data")) {
-        //
-        //    byte[] requestData = servletRequestWrapper.getRequestData();
-        //    reqBody =new String(requestData,servletRequestWrapper.getCharacterEncoding());
-        //}
-        ////
-        ////获取所有请求参数
-        //String parameter = JSON.toJSONString(servletRequestWrapper.getParameterMap());
-        //
-        //
-        //httpLog.setReqBody(reqBody);
-        //httpLog.setMethod(servletRequestWrapper.getMethod());
-        //httpLog.setUrl(servletRequestWrapper.getRequestURI());
-        //httpLog.setType(2);
-        //httpLog.setReqHeaders(reqHeaders.toJSONString());
-        //httpLog.setReqQuery(parameter);
-        //httpLog.setIp(servletRequestWrapper.getRemoteAddr());
-        //String address = Ip2regionAnalysis.getStringAddressByIp(servletRequestWrapper.getRemoteAddr());
-        //httpLog.setAddress(address);
-        //httpLog.setRespHeaders(jsonObject.toJSONString());
-        //httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
-        //httpLogService.save(httpLog);
-        //返回数据之前删除线程缓存
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object arg2, ModelAndView arg3) {
-    }
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws IOException {
         UserCompany userCompany = companyUserInfo.get();
@@ -106,13 +45,13 @@ public class RequestInterceptor implements HandlerInterceptor {
 
         HttpLog httpLog = new HttpLog();
         httpLog.setStartTime(new Date());
-        httpLog.setType(2);
+//        httpLog.setType(2);
         httpLog.setReqContentType(request.getContentType());
                 //multipart/form-data
-        httpLog.setUserCode(userCompany.getUserCode());
+//        httpLog.setUserCode(userCompany.getUserCode());
         httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
         httpLog.setThreadId(Thread.currentThread().getId() + "");
-        httpLog.setUserCode(userCompany.getUserCode());
+//        httpLog.setUserCode(userCompany.getUserCode());
 
         //获取swagger注解value值
         if(arg2 instanceof HandlerMethod) {
@@ -124,7 +63,7 @@ public class RequestInterceptor implements HandlerInterceptor {
             }
         }
 
-        companyUserInfo.get().setHttpLog(httpLog);
+        companyUserInfo.get().setHttpLogId();
         return true;
     }
 

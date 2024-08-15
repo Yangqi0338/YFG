@@ -95,8 +95,4 @@ public class UserUtils {
 	public UserCompany getUserCompany(){
 		return companyUserInfo.get();
 	}
-
-	public String getDeptName(){
-		return this.getUserCompany().getDeptName();
-	}
 }

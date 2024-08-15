@@ -718,9 +718,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 sampleTypeCount.put(dict.getValue(), qty);
             }
             sampleTypeCount.put("总数", total);
-            String deptName = Optional.ofNullable(user.getDeptList()).map(item -> {
-                return item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA));
-            }).orElse("");
+            String deptName = user.getDeptName();
             patternDesignVo.setDeptName(deptName);
             patternDesignVo.setSampleTypeCount(sampleTypeCount);
             patternDesignVoList.add(patternDesignVo);
@@ -2103,7 +2101,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 sampleTypeCount.put("进行中", 0L);
                 sampleTypeCount.put("已完成", 0L);
             }
-            String deptName = Optional.ofNullable(user.getDeptList()).map(item -> item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA))).orElse("");
+            String deptName = user.getDeptName();
             patternDesignVo.setDeptName(deptName);
             patternDesignVo.setSampleTypeCount(sampleTypeCount);
             result.add(patternDesignVo);
