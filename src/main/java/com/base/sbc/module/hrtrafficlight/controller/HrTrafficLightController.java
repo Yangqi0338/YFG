@@ -54,14 +54,14 @@ public class HrTrafficLightController {
     /**
      * 人事红绿灯导入
      * @param file 文件
-     * @param type 类型
+     * @param trafficLightVersionType 类型
      */
     @ApiOperation(value = "人事红绿灯详情查询")
     @GetMapping("/importExcel")
     public ApiResult<String> importExcel(@RequestParam("file") MultipartFile file,
                                          @RequestParam("hrTrafficLightId") String hrTrafficLightId,
-                                         @RequestParam("type") Integer type) {
-        hrTrafficLightService.importExcel(file,hrTrafficLightId, type);
+                                         @RequestParam("trafficLightVersionType") Integer trafficLightVersionType) {
+        hrTrafficLightService.importExcel(file,hrTrafficLightId, trafficLightVersionType);
         return ApiResult.success();
     }
 

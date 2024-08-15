@@ -102,15 +102,15 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
      * 人事红绿灯导入
      *
      * @param file 文件
-     * @param type 类型息
+     * @param trafficLightVersionType 类型息
      */
     @Override
-    public void importExcel(MultipartFile file, String hrTrafficLightId, Integer type) {
+    public void importExcel(MultipartFile file, String hrTrafficLightId, Integer trafficLightVersionType) {
         if (ObjectUtil.isEmpty(file)) {
             throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
         }
         List<Integer> twoHeadType = CollUtil.newArrayList(3, 12, 13, 14);
-        if (ObjectUtil.isNotEmpty(type)) {
+        if (ObjectUtil.isNotEmpty(trafficLightVersionType)) {
             // 根据类型导入
             // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
             HrTrafficLightListener hrTrafficLightListener = new HrTrafficLightListener();
@@ -124,7 +124,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
             if (ObjectUtil.isEmpty(cachedDataList)) {
                 throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
             }
-            if (twoHeadType.contains(type)) {
+            if (twoHeadType.contains(trafficLightVersionType)) {
                 // 双层表头
                 if (cachedDataList.size() < 3) {
                     throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
@@ -140,7 +140,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 }
                 HrTrafficLightVersion hrTrafficLightVersion = new HrTrafficLightVersion();
                 hrTrafficLightVersion.setHrTrafficLightId(hrTrafficLightId);
-                hrTrafficLightVersion.setType(type);
+                hrTrafficLightVersion.setType(trafficLightVersionType);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
                 hrTrafficLightVersion.setVersion("RSHLD" + simpleDateFormat.format(new Date()));
                 hrTrafficLightVersion.setHrTrafficLightId(hrTrafficLightId);
@@ -161,13 +161,12 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                         hrTrafficLightData.setHrTrafficLightVersionId(hrTrafficLightVersion.getId());
                         hrTrafficLightData.setRowIdx(i);
                         hrTrafficLightData.setColumnNameOne(headMap.get(idx));
-                        hrTrafficLightData.setColumnNameTwo(hrTrafficLightVersion.getId());
-                        hrTrafficLightData.setColumnNameTwo(dataMap.get(idx));
+                        hrTrafficLightData.setColumnValue(dataMap.get(idx));
                         hrTrafficLightDataList.add(hrTrafficLightData);
                     }
                 }
+                hrTrafficLightDataService.saveBatch(hrTrafficLightDataList);
             }
-
         } else {
             // 导入所有类型
 

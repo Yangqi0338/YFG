@@ -40,8 +40,8 @@ public interface IHrTrafficLightService extends IService<HrTrafficLight> {
      * 人事红绿灯导入
      *
      * @param file 文件
-     * @param type 类型
+     * @param trafficLightVersionType 类型
      */
-    void importExcel(MultipartFile file, String hrTrafficLightId, Integer type);
+    void importExcel(MultipartFile file, String hrTrafficLightId, Integer trafficLightVersionType);
 
 }
