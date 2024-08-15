@@ -268,7 +268,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
 
-        if ("车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+        if (false && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
             Map<String, Style> styleMap = styleService.listByIds(
                     list.stream().map(PreProductionSampleTaskVo::getStyleId).collect(Collectors.toList())
             ).stream().collect(CommonUtils.toMap(Style::getId));
@@ -622,7 +622,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
     @Override
     public boolean sampleMakingScore(PreProductionSampleTaskDto dto) {
-        if (dto.getSampleMakingScore() == null || StrUtil.isBlank(dto.getWorkloadRatingId()))
+//        if (dto.getSampleMakingScore() == null || StrUtil.isBlank(dto.getWorkloadRatingId()))
+        if (dto.getSampleMakingScore() == null)
             throw new OtherException("样衣工作量评分必传参数异常");
 
         String id = dto.getId();
@@ -632,14 +633,14 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         updateBean.setSecondProcessing(dto.getSecondProcessing());
         updateBean.setWorkloadRatingId(dto.getWorkloadRatingId());
 
-        WorkloadRatingDetailQO qo = new WorkloadRatingDetailQO();
-        qo.reset2QueryFirst();
-        qo.setIds(Collections.singletonList(dto.getWorkloadRatingId()));
-        WorkloadRatingDetailDTO detailDTO = workloadRatingDetailService.queryList(qo).stream().findFirst().orElseThrow(() -> new OtherException("未找到对应的评分详情"));
-
-        updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
-        updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
-        updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
+//        WorkloadRatingDetailQO qo = new WorkloadRatingDetailQO();
+//        qo.reset2QueryFirst();
+//        qo.setIds(Collections.singletonList(dto.getWorkloadRatingId()));
+//        WorkloadRatingDetailDTO detailDTO = workloadRatingDetailService.queryList(qo).stream().findFirst().orElseThrow(() -> new OtherException("未找到对应的评分详情"));
+//
+//        updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
+//        updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
+//        updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
 
         return update(updateBean, new LambdaUpdateWrapper<PreProductionSampleTask>().eq(PreProductionSampleTask::getId, id));
     }

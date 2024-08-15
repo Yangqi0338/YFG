@@ -188,8 +188,11 @@ public class PreProductionSampleController extends BaseController{
 
     @ApiOperation(value = "样衣制作评分", notes = "")
     @PostMapping("/task/sampleMakingScore")
-    public boolean sampleMakingScore(@Validated @RequestBody PreProductionSampleTaskDto dto) {
-        return preProductionSampleTaskService.sampleMakingScore(dto);
+    public boolean sampleMakingScore(@Validated @RequestBody ScoreDto dto) {
+        PreProductionSampleTaskDto taskDto = new PreProductionSampleTaskDto();
+        taskDto.setId(dto.getId());
+        taskDto.setSampleMakingScore(dto.getScore());
+        return preProductionSampleTaskService.sampleMakingScore(taskDto);
     }
 
     @ApiOperation(value = "样衣工的质量打分", notes = "")
