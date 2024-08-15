@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @Api(tags = "报表中心")
@@ -121,6 +122,12 @@ public class ReportController {
     @GetMapping("/seasonPlanPercentageExport")
     public void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException {
         reportService.seasonPlanPercentageExport(response, dto);
+    }
+
+    @ApiOperation(value = "下稿计划")
+    @GetMapping("/patternMaking")
+    public List<PatternMakingReportVo> patternMaking(PatternMakingQueryDto dto) {
+        return reportService.patternMaking(dto);
     }
 
 }
