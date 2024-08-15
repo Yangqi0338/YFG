@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -207,5 +205,12 @@ public class PackPricingController {
     @ApiOperation(value = "删除核价物料")
     public boolean pricingBomDel(@RequestBody IdsDto ids){
         return packPricingBomService.pricingBomDel(ids);
+    }
+
+    @ApiOperation(value = "获取核价信息路由参数")
+    @GetMapping("/getPricingRoute")
+    public boolean getPricingRoute(Integer pageSize) {
+        packPricingService.updatePricingJson(1, pageSize);
+        return true;
     }
 }

@@ -106,6 +106,9 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      */
     boolean calculatePricingJson(String foreignId, String packType,Map<String,Object> map);
 
+
+    void updatePricingJson(Integer pageNum, Integer pageSize);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

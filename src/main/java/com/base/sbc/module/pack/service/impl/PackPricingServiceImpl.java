@@ -8,7 +8,6 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -17,15 +16,15 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.annotation.DistributedLock;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.annotation.DistributedLock;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.module.basicsdatum.dto.SupplierDetailPriceDto;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
@@ -36,9 +35,6 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackBomColorVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
@@ -47,13 +43,16 @@ import com.base.sbc.module.pricing.entity.PricingTemplateItem;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
-import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.pricing.vo.PricingTemplateVO;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.nfunk.jep.JEP;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -76,6 +75,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-10 13:35:16
  */
 @Service
+@Slf4j
 public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPricingMapper, PackPricing> implements PackPricingService {
 
 
@@ -579,6 +579,48 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         }
     }
 
+    /**
+     * 跟新核价json
+     *
+     * @param pageNum
+     * @param pageSize 每次处理条数
+     */
+    @Override
+    public void updatePricingJson(Integer pageNum, Integer pageSize) {
+        if (pageNum == null) {
+            pageNum = 1;
+        }
+        if (pageSize == null) {
+            pageSize = 100;
+        }
+        // 查询符合条件的核价数据
+        LambdaQueryWrapper<PackPricing> qw = new LambdaQueryWrapper<>();
+        qw.select(PackPricing::getForeignId, PackPricing::getPackType);
+        qw.eq(PackPricing::getDelFlag, BaseGlobal.NO);
+        qw.isNotNull(PackPricing::getPricingTemplateId);
+        qw.orderByAsc(PackPricing::getId);
+        Page<PackPricing> objects = PageHelper.startPage(pageNum, pageSize);
+        List<PackPricing> list = list(qw);
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        PageInfo<PackPricing> pageInfo = objects.toPageInfo();
+        for (int i = 0; i < list.size(); i++) {
+            PackPricing packPricing = list.get(i);
+            int finalI = i + 1;
+            try {
+                log.info("处理{}/{}:[{}]-[{}]", finalI, pageInfo.getTotal(), packPricing.getForeignId(), packPricing.getPackType());
+                calculatePricingJson(packPricing.getForeignId(), packPricing.getPackType());
+            } catch (Exception e) {
+                log.error(StrUtil.format("处理失败{}:{}", packPricing.getForeignId(), e.getMessage()));
+                e.printStackTrace();
+            }
+        }
+        if (pageInfo.isHasNextPage()) {
+            // 递归调用知道处理完成
+            updatePricingJson(pageNum + 1, pageSize);
+        }
+    }
 
     @Override
     String getModeName() {
