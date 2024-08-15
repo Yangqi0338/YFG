@@ -270,6 +270,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 columnMap.put("sd", "planning_season_id");
             }
         }
+        qw.orderByDesc("p.create_date");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
