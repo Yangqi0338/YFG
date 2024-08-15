@@ -104,7 +104,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         }
         queryWrapper.notEmptyEq("ts.planning_season_id", page.getPlanningSeasonId());
         queryWrapper.notEmptyEq("ts.prod_category", page.getProdCategory());
-        queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
+        queryWrapper.notEmptyEq("tsc.devt_type", page.getDevtTypeName());
         if(StrUtil.isNotBlank(page.getDesigner())){
             queryWrapper.likeList("ts.designer", StringUtils.convertList(page.getDesigner()));
         }

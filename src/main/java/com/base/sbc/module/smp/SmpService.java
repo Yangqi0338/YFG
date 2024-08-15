@@ -650,9 +650,9 @@ public class SmpService {
                 smpGoodsDto.setGarmentWash(oldFvMap.get("GarmentWash"));
             }
 
-            // 生产类型
-            smpGoodsDto.setProductionType(style.getDevtType());
-            smpGoodsDto.setProductionTypeName(style.getDevtTypeName());
+            //生产类型
+            smpGoodsDto.setProductionType(styleColor.getDevtType().getCode());
+            smpGoodsDto.setProductionTypeName(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 

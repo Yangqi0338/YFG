@@ -16,11 +16,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ProductionType {
-    CMT("CMT"),
-    FOB("FOB"),
-    WPO("外购"),
+    CMT("CMT","CMT"),
+    FOB("FOB","FOB"),
+    WPO("WPO","外购"),
     SALE("999","代销"),
-    SCK("市场"),
+    SCK("SCK","市场"),
     ;
 
     /** 编码 */
