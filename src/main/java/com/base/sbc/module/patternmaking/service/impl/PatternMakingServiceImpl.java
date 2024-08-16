@@ -36,6 +36,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
@@ -385,7 +386,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean sampleDesignSend(StyleSendDto dto) {
+    public ApiResult sampleDesignSend(StyleSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
@@ -472,9 +473,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         operaLogEntity.setName("打板指令");
         operaLogEntity.setParentId(patternMaking.getStyleId());
         this.saveLog(operaLogEntity);
+        Map<String,String> messageObjects = getSampleDesignSendMessageObjects(style,patternMaking);
         // 修改单据
-        return true;
+        return ApiResult.successMessage(true, messageObjects);
     }
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -2722,5 +2725,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     // 自定义方法区 不替换的区域【other_end】
+
+    private Map<String, String> getSampleDesignSendMessageObjects(Style style, PatternMaking patternMaking) {
+        Map<String,String> messageObjects = Maps.newHashMap();
+        messageObjects.put("brand_name",style.getBandName());
+        messageObjects.put("brand",style.getBrand());
+        messageObjects.put("prod_category_name",style.getProdCategoryName());
+        messageObjects.put("prod_category",style.getProdCategory());
+        messageObjects.put("design_no",style.getDesignNo());
+        messageObjects.put("pattern_designer_name",patternMaking.getPatternDesignerName());
+        messageObjects.put("pattern_designer_id",patternMaking.getPatternDesignerId());
+        messageObjects.put("pattern_technician_name",patternMaking.getPatternTechnicianName());
+        messageObjects.put("pattern_technician_id",patternMaking.getPatternTechnicianId());
+        messageObjects.put("sample_type",patternMaking.getSampleType());
+        return messageObjects;
+    }
 }
 

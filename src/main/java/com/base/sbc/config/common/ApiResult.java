@@ -35,6 +35,8 @@ public class ApiResult<T>  implements Serializable{
 	/** 返回其他参数(导入数据重复或在数据中未查询到提醒对象，如不为空，则提醒) */
 	private Map<String, Object> attributes;
 
+	private Map<String, String> messageObjects;
+
 
 	public Map<String, Object> setAttribute(String key, Object value) {
 		if (attributes == null) {
@@ -159,6 +161,21 @@ public class ApiResult<T>  implements Serializable{
 		result.setMessage(msg);
 		result.setData(data);
 		result.setAttributes(attributes);
+		return result;
+	}
+
+	/**
+	 * 请求成功
+	 * @param data 提示信息
+	 * @param messageObjects 附加键值
+	 * @return
+	 */
+	public static <T> ApiResult<T> successMessage(T data, Map<String, String> messageObjects) {
+		ApiResult<T> result = new ApiResult<>();
+		result.setSuccess(Boolean.TRUE);
+		result.setStatus(ApiResult.SUCCESS);
+		result.setData(data);
+		result.setMessageObjects(messageObjects);
 		return result;
 	}
 }
