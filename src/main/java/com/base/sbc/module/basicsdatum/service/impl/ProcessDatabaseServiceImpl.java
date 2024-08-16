@@ -7,13 +7,13 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -237,18 +237,11 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 /*模板部件*/
                 List<FormworkComponentExcelDto> list = BeanUtil.copyToList(dataList, FormworkComponentExcelDto.class);
                 minioUtils.setObjectUrlToList(list, "picture");
-
-                ExecutorService executor = ExecutorBuilder.create()
-                        .setCorePoolSize(8)
-                        .setMaxPoolSize(10)
-                        .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
-                        .build();
-
                 try {
                     /*导出图片*/
                     CountDownLatch countDownLatch = new CountDownLatch(list.size());
                     for (FormworkComponentExcelDto dto : list) {
-                        executor.submit(() -> {
+                        ExecutorContext.imageExecutor.submit(() -> {
                             try {
                                 final String picture = dto.getPicture();
                                 dto.setPicture1(HttpUtil.downloadBytes(picture));
@@ -266,8 +259,6 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                     ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx",exportParams , response);
                 } catch (Exception e) {
                     throw new OtherException(e.getMessage());
-                } finally {
-                    executor.shutdown();
                 }
                 break;
             }

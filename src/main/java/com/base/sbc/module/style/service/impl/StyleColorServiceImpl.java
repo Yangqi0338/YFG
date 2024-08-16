@@ -13,7 +13,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -36,6 +35,7 @@ import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.CustomStylePicUpload;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -539,15 +539,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 .collect(Collectors.toList());
         String packType = PackUtils.PACK_TYPE_BIG_GOODS;
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .build();
-
         try {
             CountDownLatch countDownLatch = new CountDownLatch(styleList.size());
             for (CompleteStyleVo styleVO : styleList) {
-                executor.submit(() -> {
+                ExecutorContext.imageExecutor.submit(() -> {
                     PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
                     packCommonSearchDto.setPackType(packType);
 
@@ -638,8 +633,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
         stylePicUtils.setStylePic(styleList, "sampleDesignPic");
     }
@@ -2268,12 +2261,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColorVo> styleColorVoList = pageInfo.getList();
         List<StyleColorListExcel> list = BeanUtil.copyToList(styleColorVoList, StyleColorListExcel.class);
 
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
-                .build();
-
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
@@ -2284,7 +2271,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorListExcel styleColorListExcel : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             final String stylePic = styleColorListExcel.getStylePic();
                             final String styleColorPic = styleColorListExcel.getStyleColorPic();
@@ -2304,8 +2291,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             ExcelUtils.exportExcel(list, StyleColorListExcel.class, "款式列表.xlsx", new ExportParams("款式列表", "款式列表", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 
@@ -2324,12 +2309,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColorVo> styleColorVoList = pageInfo.getList();
         List<StyleColorExcel> list = BeanUtil.copyToList(styleColorVoList, StyleColorExcel.class);
 
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
-                .build();
-
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
@@ -2340,7 +2319,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorExcel styleColorExcel : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             final String stylePic = styleColorExcel.getStylePic();
                             final String styleColorPic = styleColorExcel.getStyleColorPic();
@@ -2360,8 +2339,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             ExcelUtils.exportExcel(list, StyleColorExcel.class, "款式配色.xlsx", new ExportParams("款式配色", "款式配色", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 
@@ -2584,18 +2561,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             dataList.add(dataMap);
         }
 
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(styleColorVoList.size()))
-                .build();
-
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
                 CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
                 for (Map<String, Object> styleColorVo : dataList) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             if(styleColorVo.get("stylePic") != null){
                                 final String stylePic = styleColorVo.get("stylePic").toString();
@@ -2641,8 +2612,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             ExcelUtils.defaultExport(dataList, type+".xlsx", response,new ExportParams(type, type, ExcelType.HSSF),entityList);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 
@@ -2897,12 +2866,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         List<MangoStyleColorExeclExportDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclExportDto.class);
 
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
-                .build();
-
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
@@ -2912,7 +2875,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (MangoStyleColorExeclExportDto mangoStyleColorExeclDto : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             final String styleColorPic = mangoStyleColorExeclDto.getStyleColorPic();
                             mangoStyleColorExeclDto.setStyleColorPic1(HttpUtil.downloadBytes(styleColorPic));
@@ -2930,8 +2893,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             ExcelUtils.exportExcel(list, MangoStyleColorExeclExportDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 

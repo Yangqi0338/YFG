@@ -1,6 +1,8 @@
 package com.base.sbc.config.async;
 
 
+import com.alibaba.ttl.TtlCallable;
+import com.alibaba.ttl.TtlRunnable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
@@ -80,24 +82,24 @@ public class AsyncConfig extends AsyncConfigurerSupport {
     public class ContextAwarePoolExecutor extends ThreadPoolTaskExecutor {
         @Override
         public <T> Future<T> submit(Callable<T> task) {
-            return super.submit(new ContextAwareCallable<>(task, RequestContextHolder.currentRequestAttributes()));
+            return super.submit(TtlCallable.get(new ContextAwareCallable<>(task, RequestContextHolder.currentRequestAttributes())));
         }
 
         @Override
         public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
-            return super.submitListenable(new ContextAwareCallable<>(task, RequestContextHolder.currentRequestAttributes()));
+            return super.submitListenable(TtlCallable.get(new ContextAwareCallable<>(task, RequestContextHolder.currentRequestAttributes())));
         }
 
         @Override
         public void execute(Runnable thread) {
-            super.execute(new ContextAwareRunnable(thread, RequestContextHolder.currentRequestAttributes()));
+            super.execute(TtlRunnable.get(new ContextAwareRunnable(thread, RequestContextHolder.currentRequestAttributes())));
         }
     }
 
 
     @Override
     @Bean("asyncExecutor")
-    public Executor getAsyncExecutor() {
+    public ThreadPoolTaskExecutor getAsyncExecutor() {
         return new ContextAwarePoolExecutor();
     }
 

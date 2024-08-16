@@ -12,12 +12,12 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -349,12 +349,6 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         List<StyleColorCorrectInfoVo> infoVoList = findList(dto).getList();
         List<StyleColorCorrectInfoExcel> list = BeanUtil.copyToList(infoVoList, StyleColorCorrectInfoExcel.class);
 
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
-                .build();
-
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
@@ -364,7 +358,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
                 stylePicUtils.setStylePic(list, "stylePic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorCorrectInfoExcel excel : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             final String stylePic = excel.getStylePic();
                             excel.setStylePic1(HttpUtil.downloadBytes(stylePic));
@@ -382,8 +376,6 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             ExcelUtils.exportExcel(list, StyleColorCorrectInfoExcel.class, "正确样跟踪.xlsx", new ExportParams("正确样跟踪", "正确样跟踪", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 }

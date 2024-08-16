@@ -1,5 +1,6 @@
 package com.base.sbc.config.async;
 
+import com.alibaba.ttl.threadpool.TtlExecutors;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -17,7 +18,6 @@ public class SchedulingConfig implements SchedulingConfigurer {
         taskScheduler.setPoolSize(5);
         taskScheduler.setThreadNamePrefix("pdmTaskScheduler");
         taskScheduler.initialize();
-        taskRegistrar.setTaskScheduler(taskScheduler);
-
+        taskRegistrar.setScheduler(TtlExecutors.getTtlScheduledExecutorService(taskScheduler.getScheduledExecutor()));
     }
 }

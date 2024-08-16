@@ -12,7 +12,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -33,6 +32,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -177,7 +177,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -1055,11 +1054,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         List<FabricSummaryInfoExcel>  list = BeanUtil.copyToList(infoList, FabricSummaryInfoExcel.class);
         list.add(list.get(2));
         list.add(list.get(2));
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(CollUtil.isEmpty(list) ? 0 :list.size()))
-                .build();
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*导出图片*/
@@ -1068,7 +1062,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 }
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (FabricSummaryInfoExcel fabricSummaryInfoExcel : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             final String stylePic = fabricSummaryInfoExcel.getStylePic();
                             final String imageUrl = fabricSummaryInfoExcel.getImageUrl();
@@ -1087,10 +1081,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             ExcelUtils.exportExcel(list, FabricSummaryInfoExcel.class, "面料详单.xlsx", new ExportParams("面料详单", "面料详单", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
-
     }
 
     @Override

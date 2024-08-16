@@ -163,15 +163,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
     @Override
     public  List<StandardColumnDto> queryCountryTitle(MoreLanguageQueryDto moreLanguageQueryDto) {
-//        ForkJoinPool workPool = new ForkJoinPool(2, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
-
-        // 查询根标准列
-//        ForkJoinTask<List<StandardColumnDto>> rootStandardColumnFuture = workPool.submit(() -> {
-//            StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
-//            queryDto.setTypeList(StandardColumnType.findRootList());
-//            return standardColumnService.listQuery(queryDto);
-//        }).fork();
-
         // 设置国家
         CountryQueryDto countryQueryDto = BeanUtil.copyProperties(moreLanguageQueryDto, CountryQueryDto.class);
         List<CountryLanguageDto> countryLanguageList = new ArrayList<>(countryLanguageService.listQuery(countryQueryDto));
@@ -206,7 +197,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     @Transactional(rollbackFor = Exception.class)
     public void exportExcel(MoreLanguageExcelQueryDto excelQueryDto) {
         CopyOnWriteArrayList<EasyPoiMapExportParam> exportParams = new CopyOnWriteArrayList<>();
-        ExcelExportService excelExportService = new ExcelExportService();
 
         // 封装数据查询的QueryDTO
         MoreLanguageQueryDto languageQueryDto = BeanUtil.copyProperties(excelQueryDto,MoreLanguageQueryDto.class);
@@ -226,19 +216,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         String code = baseCountryLanguage.getCode();
 
         // 提取拥有的类型(有可能新增时没有选择洗唛?)
-        // 多线程导出(和redis有冲突TODO)
-//        AtomicInteger threadNum = new AtomicInteger();
-//        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8, 8,
-//                0L, TimeUnit.MILLISECONDS,
-//                new ArrayBlockingQueue<>(16), r -> {
-//                    Thread thread = new Thread(r,"多语言导出-"+threadNum.incrementAndGet());
-//                    thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
-//                        if(e != null){
-//                            throw new OtherException(e.getMessage());
-//                        }
-//                    });
-//                    return thread;
-//                });
         List<CountryLanguageType> typeList = countryLanguageDtoList.stream().map(typeFunc).distinct().collect(Collectors.toList());
         // 标识哪一个sheet的哪一行需要做空值判断
         Map<String, List<Integer>> sheetBlankCellNumMap = new HashMap<>();
@@ -254,7 +231,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             List<StandardColumnDto> standardColumnDtoList = this.queryCountryTitle(languageQueryDto);
 
             for (StandardColumnDto standardColumnDto : standardColumnDtoList) {
-//                threadPoolExecutor.execute(()-> {
                     String standardColumnCode = standardColumnDto.getCode();
                     String tableTitleJson = standardColumnDto.getTableTitleJson();
                     if (StrUtil.isBlank(tableTitleJson)) {
@@ -326,12 +302,8 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     // 设置数据
                     exportParam.setData(mapList);
                     exportParams.add(exportParam);
-//                });
             }
         });
-
-//        threadPoolExecutor.shutdown();
-//        threadPoolExecutor.awaitTermination(30,TimeUnit.MINUTES);
 
         /* ----------------------------处理导出以及样式调整---------------------------- */
 
