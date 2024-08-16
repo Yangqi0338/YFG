@@ -511,8 +511,8 @@ public class CommonUtils {
         return () -> dto;
     }
 
-    public static <T> List<T> filterNotEmpty(List<T> list, Function<T, ?> func) {
-        return CollUtil.filter(list, notEmptyFunc(func));
+    public static <T> Collection<T> filterNotEmpty(List<T> list, Function<T, ?> func) {
+        return CollUtil.filterNew(list, notEmptyFunc(func));
     }
 
     public static <T> Collector<T, ?, Map<Boolean, List<T>>> groupNotBlank(Function<T, ?> classifier) {
