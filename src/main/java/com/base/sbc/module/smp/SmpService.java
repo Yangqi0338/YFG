@@ -979,7 +979,8 @@ public class SmpService {
                     }
                 }
                 smpGoodsDto.setHangTagIngredientList(smpHangTagIngredientDTOList);
-
+                smpGoodsDto.setExecuteStandard(hangTag.getExecuteStandard());
+                smpGoodsDto.setWarmTips(hangTag.getWarmTips());
             }
             // endregion
 
