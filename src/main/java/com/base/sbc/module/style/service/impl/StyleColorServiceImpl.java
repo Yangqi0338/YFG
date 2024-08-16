@@ -4247,6 +4247,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(StyleColorAgent::getOutsideBarcode,styleColorAgentVo.getOutsideBarcode());
             updateWrapper.set(StyleColorAgent::getUpdateId, getUserId());
+            updateWrapper.set(StyleColorAgent::getExtShape, styleColorAgentVo.getExtShape());
+            updateWrapper.set(StyleColorAgent::getExtSize, styleColorAgentVo.getExtSize());
             updateWrapper.set(StyleColorAgent::getUpdateName, getUserName());
             updateWrapper.set(StyleColorAgent::getUpdateDate, new Date());
             updateWrapper.eq(StyleColorAgent::getId,id);
@@ -4280,6 +4282,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             LambdaUpdateWrapper<HangTag> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(HangTag::getPackagingForm,styleColorAgentVo.getPackagingForm());
             updateWrapper.set(HangTag::getPackagingFormCode,styleColorAgentVo.getPackagingFormCode());
+            updateWrapper.set(HangTag::getProduceDate,styleColorAgentVo.getProduceDate());
             updateWrapper.set(HangTag::getUpdateId, getUserId());
             updateWrapper.set(HangTag::getUpdateName, getUserName());
             updateWrapper.set(HangTag::getUpdateDate, new Date());
