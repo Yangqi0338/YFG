@@ -471,6 +471,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         List<VirtualDept> data = virtualDeptByUserId.getData();
         String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
         task.setCreateDeptId(ids);
+        task.setNode("产前样衣任务");
         task.setStatus("任务待下发");
         task.setOrderDept(packInfo.getOrderDept());
         task.setOrderDeptId(packInfo.getOrderDeptId());
