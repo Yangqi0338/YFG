@@ -286,5 +286,8 @@ public class PackPricingBom extends BaseDataEntity<String> {
     /** 计控是否确定成本(0未确定 1已确定) */
     @ApiModelProperty(value = "计控是否确定成本(0未确定 1已确定)"  )
     private String controlCostFlag;
+    /** 参与核价状态(0-未勾选 1-已勾选) */
+    @ApiModelProperty(value = "参与核价状态(0-未勾选 1-已勾选)"  )
+    private String checkFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

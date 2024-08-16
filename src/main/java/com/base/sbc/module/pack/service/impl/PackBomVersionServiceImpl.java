@@ -45,12 +45,7 @@ import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
-import com.base.sbc.module.pack.service.PackBomColorService;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
@@ -130,7 +125,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     private StyleService styleService;
 
     @Resource
-    private  PackPricingBomService packPricingBomService;
+    private PackPricingBomService packPricingBomService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {

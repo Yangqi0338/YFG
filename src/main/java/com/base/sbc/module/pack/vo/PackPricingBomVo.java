@@ -267,5 +267,8 @@ public class PackPricingBomVo extends BaseDataEntity<String> {
     /** 物料清单id */
     @ApiModelProperty(value = "物料清单id"  )
     private String packBomId;
+    /** 参与核价状态(0-未勾选 1-已勾选) */
+    @ApiModelProperty(value = "参与核价状态(0-未勾选 1-已勾选)"  )
+    private String checkFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

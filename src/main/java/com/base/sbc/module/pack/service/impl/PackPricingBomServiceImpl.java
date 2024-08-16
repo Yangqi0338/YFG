@@ -35,6 +35,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-物料清单 service类
@@ -81,7 +82,11 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
         BaseQueryWrapper<PackPricingBom> queryWrapper = new BaseQueryWrapper<>();
         PackUtils.commonQw(queryWrapper, dto);
 
-        List<PackPricingBom> bomList = list(queryWrapper);
+        List<PackPricingBom> oldBomList = list(queryWrapper);
+        if (CollUtil.isEmpty(oldBomList)) {
+            return result;
+        }
+        List<PackPricingBom> bomList = oldBomList.stream().filter(item -> item.getCheckFlag().equals("1")).collect(Collectors.toList());
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }

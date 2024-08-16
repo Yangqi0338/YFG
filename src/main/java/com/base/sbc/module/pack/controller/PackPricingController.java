@@ -6,11 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.PackPricingBom;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
@@ -81,8 +84,29 @@ public class PackPricingController {
     @ApiOperation(value = "保存")
     @PostMapping()
     @DuplicationCheck
-    public PackPricingVo    savePackPricing(@Valid @RequestBody PackPricingDto dto) {
+    public PackPricingVo savePackPricing(@Valid @RequestBody PackPricingDto dto) {
         return packPricingService.saveByDto(dto);
+    }
+
+    @ApiOperation(value = "保存参与核价状态")
+    @PostMapping("updatePackPricingBom")
+    public ApiResult<String> savePackPricing(String packPricingBomId) {
+        PackPricingBom packPricingBom = packPricingBomService.getById(packPricingBomId);
+        if (ObjectUtil.isEmpty(packPricingBom)) {
+            throw new OtherException("数据不存在，请刷新后重试！");
+        }
+        String checkFlag = packPricingBom.getCheckFlag();
+        if (ObjectUtil.isEmpty(checkFlag) || "0".equals(checkFlag)) {
+            packPricingBom.setCheckFlag("1");
+        } else {
+            packPricingBom.setCheckFlag("0");
+        }
+        boolean updateStatus = packPricingBomService.updateById(packPricingBom);
+        if (updateStatus) {
+            return ApiResult.success("操作成功");
+        } else {
+            return ApiResult.error("操作失败", 400);
+        }
     }
 
     @ApiOperation(value = "物料费用-分页查询")
