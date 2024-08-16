@@ -216,6 +216,8 @@ public class QueryStyleColorCorrectDto extends Page {
 
     @ApiModelProperty(value = "小类")
     private String prodCategory3ndName;
+    @ApiModelProperty(value = "版师ID")
+    private String patternDesignId;
 
     private String seasonName;
 

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service;
 
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.entity.UploadFile;
@@ -37,7 +38,7 @@ public interface UploadFileService extends BaseService<UploadFile> {
      * @param file
      * @return
      */
-    AttachmentVo uploadToMinio(MultipartFile file,String type,String code);
+    AttachmentVo uploadToMinio(MultipartFile file, UploadFileType type, String code);
 
     /**
      * 上传到minio
@@ -135,6 +136,14 @@ public interface UploadFileService extends BaseService<UploadFile> {
      * @return
      */
     MultipartFile downloadImage(String key,String fileName) throws IOException;
+
+    /**
+     * 通过id获取预览地址
+     *
+     * @param id
+     * @return
+     */
+    String getReviewUrlById(String id);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

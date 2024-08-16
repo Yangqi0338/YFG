@@ -21,7 +21,7 @@
         p.design_no as designNo,
         p.style_no as bulkStyleNo,
         sd.product_cost as targetCost,
-        sd.devt_type_name as productionType,
+        ssc.devt_type_name as productionType,
         sd.style_pic as sampleDesignPic,
         sd.style_name as styleName,
 
@@ -102,6 +102,7 @@
             </if>
             and p.style_no is not null
             and p.style_no !=''
+            and COALESCE(ps.pack_type, '') != 'packBigGoodsPre'
         </where>
     </select>
 <!--    <select id="getStylePricingList_COUNT" resultType="com.base.sbc.module.pricing.vo.StylePricingVO">-->
@@ -242,7 +243,7 @@
             p.design_no as designNo,
             p.style_no as bulkStyleNo,
             sd.product_cost as targetCost,
-            sd.devt_type_name as productionType,
+            ssc.devt_type_name as productionType,
             sd.style_pic as sampleDesignPic,
             sd.style_name as styleName,
 
@@ -270,7 +271,11 @@
             ps.bom_status as bomStage,
             ht.down_content as downContent,
             ht.print_or_not as tagPrintFlag,
-            tpp.calc_item_val as calcItemVal
+            tpp.calc_item_val as calcItemVal,
+            sp.control_confirm_time,
+            sp.wages_confirm_time,
+            sp.product_hangtag_confirm_time,
+            sp.control_hangtag_confirm_time
             from t_pack_info p
             LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0' and ps.pack_type = 'packBigGoods')
             left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')

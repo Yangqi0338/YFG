@@ -4,6 +4,7 @@ import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.Constants;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.FilesUtils;
@@ -58,7 +59,7 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
-    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, String type, String code, String compress) {
+    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, UploadFileType type, String code, String compress) {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
         CommonUtils.isImage(file.getOriginalFilename(), true);
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(Constants.ONE_STR.equals(compress) ? ImageUtils.compressImage(file,uploadImgMix,uploadImgCompress) : file, type, code);
@@ -109,7 +110,7 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file, String type, String code) throws Throwable {
+    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file, UploadFileType type, String code) throws Throwable {
         if (file == null || file.getSize() == 0) {
             throw new OtherException("上传文件为空");
         }

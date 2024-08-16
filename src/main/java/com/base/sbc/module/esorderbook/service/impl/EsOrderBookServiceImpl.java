@@ -6,9 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -38,30 +46,17 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletResponse;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：ES订货本 service类
@@ -87,6 +82,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     private UploadFileService uploadFileService;
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto) {
@@ -113,7 +110,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         qw.orderByAsc("(SUBSTRING_INDEX(item.group_name,\"-\",-1))");
         qw.orderByAsc("item.sort_index");
 
-
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.esOrderBook.getK(), "ts.");
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
         if(CollUtil.isEmpty(list)){
             return new PageInfo<>(list);
@@ -142,7 +139,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                     esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
                     esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
-                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(4)));
                 }
             }
         }

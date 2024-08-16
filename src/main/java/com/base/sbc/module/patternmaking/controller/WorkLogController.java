@@ -69,12 +69,12 @@ public class WorkLogController {
         lock.lock();
         try {
             vo = workLogService.saveByDto(workLog);
-        } finally {
+        }catch (Exception e){
+            throw e;
+        }finally {
             lock.unlock();
-            return vo;
         }
-
-
+        return vo;
     }
 
     @ApiOperation(value = "修改")

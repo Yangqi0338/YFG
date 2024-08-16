@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.ProcessDatabaseType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -35,17 +36,17 @@ public class ProcessDatabase extends BaseDataEntity<String> {
      * */
     @ApiModelProperty(value = "工艺类型名称")
     private String processTypeName;
-        /*
-         * 部件
-         * */
-        @ApiModelProperty(value = "部件")
-        private String component;
+    /*
+     * 部件
+     * */
+    @ApiModelProperty(value = "部件")
+    private String component;
 
-        /*
-        * 部件名称
-        * */
-        @ApiModelProperty(value = "部件名称")
-        private String componentName;
+    /*
+     * 部件名称
+     * */
+    @ApiModelProperty(value = "部件名称")
+    private String componentName;
 
     /**
      * 大类
@@ -81,7 +82,7 @@ public class ProcessDatabase extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态")
     private String status;
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
-    private String type;
+    private ProcessDatabaseType type;
     /** 工价 */
     @ApiModelProperty(value = "工价"  )
     private BigDecimal price;

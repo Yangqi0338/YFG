@@ -3,18 +3,16 @@ package com.base.sbc.module.patternlibrary.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplateDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryTemplateMapper;
-import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateItemService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +25,7 @@ import java.util.List;
  * @create 2024-03-22
  */
 @Service
-public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibraryTemplateMapper, PatternLibraryTemplate> implements PatternLibraryTemplateService {
+public class PatternLibraryTemplateServiceImpl extends BaseServiceImpl<PatternLibraryTemplateMapper, PatternLibraryTemplate> implements PatternLibraryTemplateService {
 
     @Override
     public PageInfo<PatternLibraryTemplate> listPages(PatternLibraryTemplatePageDTO patternLibraryTemplatePageDTO) {

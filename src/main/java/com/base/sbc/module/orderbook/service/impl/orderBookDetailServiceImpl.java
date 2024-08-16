@@ -37,8 +37,6 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.*;
-import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -69,7 +67,6 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
@@ -138,7 +135,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.Executor;
@@ -327,7 +323,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY)
                 .eq(FieldVal::getFieldName, "MaterialQuality")
         );
-        Map<String, String> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
+        Map<String, YesOrNoEnum> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
                 .in(PackBom::getBomVersionId, orderBookDetailVos.stream().map(OrderBookDetailVo::getBomVersionId).filter(Objects::nonNull).collect(Collectors.toList()))
                 .eq(PackBom::getMainFlag, YesOrNoEnum.YES)
                 .orderByAsc(PackBom::getBomVersionId).orderByDesc(PackBom::getId),
@@ -367,7 +363,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //                                .orderByDesc(PackBom::getId)
 //                        );
 //                        for (PackBom packBom : packBomList) {
-                            orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(),""));
+                orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(), YesOrNoEnum.NO).getValueStr());
 //                        }
 //                    }
 //                }
@@ -596,7 +592,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 );
                 if (packBom != null ) {
                     if (StrUtil.isNotBlank(dto.getFabricState())) {
-                        packBom.setStatus(dto.getFabricState());
+                        packBom.setStatus(YesOrNoEnum.findByValue(dto.getFabricState()));
                         packBomService.updateById(packBom);
                     }
 
@@ -1375,6 +1371,25 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("tsc.style_no",styleNo);
         return baseMapper.getByStyleNoTotalProductionList(queryWrapper);
+    }
+
+    @Override
+    public Map<String, Integer> patternSuccessCountMap(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("ts.id", dto.getStyleId());
+        queryWrapper.notEmptyIn("ts.registering_no", dto.getRegisteringNo());
+        queryWrapper.notEmptyIn("ts.registering_id", dto.getRegisteringId());
+        queryWrapper.eq("tobd.order_status", OrderBookDetailOrderStatusEnum.ORDER);
+        if (StrUtil.isBlank(dto.getGroupBy())) {
+            dto.setGroupBy("ts.id");
+        }
+
+        List<Map<String, Object>> countMapList = baseMapper.patternSuccessCountMap(queryWrapper, dto);
+        HashMap<String, Integer> result = new HashMap<>();
+        countMapList.forEach(map -> {
+            result.put(map.get("mapKey").toString(), Integer.valueOf(map.get("count").toString()));
+        });
+        return result;
     }
 
     /**

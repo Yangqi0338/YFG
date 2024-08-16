@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
@@ -210,5 +211,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	Integer materialRelyOnBom(String materialCode);
+
+	ApiResult importMaterial(List<Map<String, Object>> readAll) throws IOException;
 }
 

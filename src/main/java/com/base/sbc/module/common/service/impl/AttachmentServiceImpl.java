@@ -30,6 +30,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,8 @@ import java.util.stream.Collectors;
 public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Attachment> implements AttachmentService {
 
 
+
+    @Lazy
     @Autowired
     private UploadFileService uploadFileService;
     @Autowired
@@ -261,7 +264,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
             return true;
         }
         if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
-            delByForeignIdType(targetForeignId, targetPackType);
+            delByForeignIdType(targetForeignId, targetPackType + StrUtil.DASHED+specType);
         }
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);

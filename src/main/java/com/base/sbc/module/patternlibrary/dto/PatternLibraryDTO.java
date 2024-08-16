@@ -78,6 +78,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String styleNos;
 
     /**
+     * 下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）
+     */
+    @ApiModelProperty("下单大货款（多选逗号分隔，默认带出设计款下面的所有已投产的大货款）")
+    private String placeOrderStyleNos;
+
+    /**
      * 大类 code
      */
     @ApiModelProperty("大类 code")
@@ -178,6 +184,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
      */
     @ApiModelProperty("面料名称")
     private String materialName;
+
+    /**
+     * 保存时的图片 ID（用作选择图片的时候保留选择的那个图片 id，因为选择的图片要重新上传可能导致回显的时候找不到上次选择的图片）
+     */
+    @ApiModelProperty("保存时的图片 ID")
+    private String oldPicId;
 
     /**
      * 图片 ID

@@ -30,7 +30,7 @@ import java.util.List;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface HangTagConvert {
     HangTagConvert INSTANCE = Mappers.getMapper(HangTagConvert.class);
 
@@ -65,7 +65,9 @@ public interface HangTagConvert {
     MoreLanguageHangTagVO copy2MoreLanguage(HangTagVO source);
     HangTag copy2Entity(HangTagListVO source);
     List<HangTag> copyList2Entity(List<HangTagListVO> source);
+    List<HangTagListVO> copyList2ListVO(List<HangTag> source);
     List<MoreLanguageHangTagVO> copyList2MoreLanguage(List<HangTagVO> source);
+    List<MoreLanguageHangTagVO> copyList2MoreLanguageList(List<HangTagListVO> source);
     MoreLanguageTagPrinting copy2MoreLanguage(TagPrinting source);
     MoreLanguageTagPrinting.Size copy2MoreLanguage(TagPrinting.Size source);
     List<MoreLanguageTagPrinting.Size> copyList2MoreLanguageSize(List<TagPrinting.Size> source);

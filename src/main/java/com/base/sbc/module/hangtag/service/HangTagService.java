@@ -6,8 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.hangtag.dto.*;
+import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.dto.InspectCompanyDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -128,6 +133,8 @@ public interface HangTagService extends BaseService<HangTag> {
      * @return
      */
     List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto);
+
+    ApiResult oneUpdateStatus(List<String> ids);
 
 // 自定义方法区 不替换的区域【other_end】
 

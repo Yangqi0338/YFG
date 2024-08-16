@@ -223,6 +223,13 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     boolean updatePackInfoStatusField(PackInfoStatusVo dto);
 
+    /**
+     * 修改资料包信息
+     * @param packInfo
+     * @return
+     */
+    boolean updatePackInfo(PackInfoDto packInfo);
+
     AttachmentVo saveVideoFile(String foreignId, String packType, String fileId);
 
     /**
@@ -258,6 +265,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     Boolean updateBomName(String infoCode, String styleNo);
 
     PageInfo<FabricSummaryInfoVo> selectFabricSummaryStyle(FabricSummaryV2Dto dto);
+
+    String getByIdBrandName(String foreignId);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -27,13 +27,16 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.JacksonExtendHandler;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.vo.ExcelTableCodeVO;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,15 +48,29 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -561,6 +578,13 @@ public class ExcelUtils {
         return excelEntity;
     }
 
+    public static void exportExcelByTableCode(List<?> list, String name, QueryFieldDto queryFieldDto) throws IOException {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (attributes == null) return;
+        exportExcelByTableCode(list, name, attributes.getResponse(), queryFieldDto);
+    }
+
     public static void exportExcelByTableCode(List<?> list, String name, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
 //        exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
         if (list.size() < 10000){
@@ -664,14 +688,25 @@ public class ExcelUtils {
         }
 
         //这里就是要转成JSONObject类型，不要保留原对象类型
-//        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
         JSONArray jsonArray = new JSONArray(list);
+
+        ObjectMapper objectMapper = JacksonExtendHandler.getObjectMapper();
+        JSONArray jacksonArray;
+        try {
+            jacksonArray = JSONArray.parseArray(objectMapper.writeValueAsString(list));
+        } catch (Exception ignored) {
+            jacksonArray = new JSONArray();
+        }
         for (int i = 0; i < jsonArray.size(); i++) {
             //其他一些补充的数据
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             Object o = jsonObject.get("replenish");
             if (o != null){
                 jsonObject.putAll((JSONObject) o);
+            }
+            JSONObject jacksonObject = jacksonArray.getJSONObject(i);
+            if (jacksonObject != null) {
+                jacksonObject.forEach(jsonObject::putIfAbsent);
             }
         }
         //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
@@ -743,6 +778,27 @@ public class ExcelUtils {
                 throw new OtherException(e.getMessage());
             } finally {
                 executor.shutdown();
+            }
+        }
+        if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), (YesOrNoEnum.YES.getValue() + 1) + "")) {
+            try {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
+                        String imgColumn = entry.getKey();
+                        String key = imgColumn + "1";
+                        jsonObject.put(key, jsonObject.getString(imgColumn));
+                        excelParams.stream().filter(it -> key.equals(it.getKey())).findFirst().ifPresent(excelExportEntity -> {
+                            excelExportEntity.setExportImageType(1);
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                throw new OtherException(e.getMessage());
             }
         }
         defaultExport(jsonArray, fileName, response, exportParams, excelParams);

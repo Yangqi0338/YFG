@@ -28,7 +28,6 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
@@ -42,15 +41,19 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author 卞康
@@ -577,6 +580,39 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogService.save(operaLogEntity);
     }
 
+    /**
+     * 保存操作日志
+     *
+     * @param type 操作类型  新增 修改 删除
+     * @param name 模块名称
+     */
+    @Override
+    public void saveOperaLog(String type,String parentId,String path, String name, String documentName, String documentCode, Map<String, String> data) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        JSONArray jsonArray = new JSONArray();
+
+        for (Map.Entry<String, String> listEntry : data.entrySet()) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", listEntry.getKey());
+            if (listEntry.getValue() != null) {
+                String[] split = listEntry.getValue().split("->");
+                jsonObject.put("oldStr", split.length > 0 ? split[0] : "");
+                jsonObject.put("newStr", split.length > 1 ? split[1] : "");
+                jsonArray.add(jsonObject);
+            }
+
+        }
+
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogEntity.setName(name);
+        operaLogEntity.setDocumentName(documentName);
+        operaLogEntity.setDocumentCode(documentCode);
+        operaLogEntity.setType(type);
+        operaLogEntity.setParentId(parentId);
+        operaLogEntity.setPath(path);
+        operaLogService.save(operaLogEntity);
+    }
+
 
     /**
      * 保存操作日志
@@ -723,12 +759,17 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public T findOne(QueryWrapper<T> wrapper) {
-        return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
+        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst(), null);
+    }
+
+    @Override
+    public T findOne(String id) {
+        return findOne(new QueryWrapper<T>().eq("id", id));
     }
 
     @Override
     public T findOne(LambdaQueryWrapper<T> wrapper) {
-        return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
+        return decorateResult(this.list(wrapper.last("limit 1")).stream().findFirst(), null);
     }
 
     @Override
@@ -751,6 +792,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return listOneField(new LambdaQueryWrapper<T>().in(T::getId, ids), function);
     }
 
+    @Override
+    public <V> Map<String, V> mapByIds2OneField(List<String> ids, SFunction<T, V> valueFunc) {
+        return this.list(new QueryWrapper<T>().select("id").in("id", ids).lambda().select(valueFunc)).stream().filter(Objects::nonNull).collect(CommonUtils.toMap(T::getId, valueFunc));
+    }
 
     /**
      * 根据字段名称获取对象的值，包括父类的字段
@@ -787,7 +832,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         // 先清掉PageHelper,以免报错
         // https://blog.csdn.net/qq_42696265/article/details/131944397
         SqlUtil.clearLocalPage();
-        return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
+        return decorateResult(this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function), null);
     }
 
     @Override
