@@ -17,7 +17,7 @@ public class UpdatePricingJsonTest {
 
     @Test
     public void updatePricingJson() {
-        packPricingService.updatePricingJson(1, 10);
+        packPricingService.updatePricingJson("2023", "MM", 1, 10);
     }
 
 }

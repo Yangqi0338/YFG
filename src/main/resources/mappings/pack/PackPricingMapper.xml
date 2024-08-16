@@ -11,6 +11,12 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
+    <select id="getPricingPackId" resultType="java.lang.String">
+        select pi.id
+        from t_pack_info pi
+                 left join t_style s on (s.id = pi.style_id)
+            ${ ew.customSqlSegment}
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

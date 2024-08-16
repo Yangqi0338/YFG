@@ -378,6 +378,21 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 //    @Async
     public boolean calculatePricingJson(String foreignId, String packType,Map<String,Object> fieldsMap) {
         PackPricing packPricing = get(foreignId, packType);
+        // 如果没则创建一个核价信息
+        if (packPricing == null) {
+            LambdaQueryWrapper<PackInfo> packQw = new LambdaQueryWrapper<>();
+            packQw.select(PackInfo::getStyleId, PackInfo::getId);
+            packQw.eq(PackInfo::getId, foreignId);
+            packQw.last("limit 1");
+            PackInfo pi = packInfoService.getOne(packQw);
+            if (pi == null) {
+                throw new OtherException("找不到资料包信息");
+            }
+            packPricing = createPackPricing(pi.getStyleId(), pi.getId());
+        }
+        if (ObjectUtil.isEmpty(packPricing)) {
+            throw new OtherException("没有核价信息");
+        }
         if (StrUtil.isEmpty(packPricing.getPricingTemplateId())) {
             throw new OtherException("请选择一个模板");
         }
@@ -582,11 +597,13 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     /**
      * 跟新核价json
      *
+     * @param year 年份名称
+     * @param brand 品牌名称
      * @param pageNum
      * @param pageSize 每次处理条数
      */
     @Override
-    public void updatePricingJson(Integer pageNum, Integer pageSize) {
+    public void updatePricingJson(String year, String brand, Integer pageNum, Integer pageSize) {
         if (pageNum == null) {
             pageNum = 1;
         }
@@ -594,31 +611,34 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             pageSize = 100;
         }
         // 查询符合条件的核价数据
-        LambdaQueryWrapper<PackPricing> qw = new LambdaQueryWrapper<>();
-        qw.select(PackPricing::getForeignId, PackPricing::getPackType);
-        qw.eq(PackPricing::getDelFlag, BaseGlobal.NO);
-        qw.isNotNull(PackPricing::getPricingTemplateId);
-        qw.orderByAsc(PackPricing::getId);
-        Page<PackPricing> objects = PageHelper.startPage(pageNum, pageSize);
-        List<PackPricing> list = list(qw);
-        if (CollUtil.isEmpty(list)) {
+        BaseQueryWrapper qw = new BaseQueryWrapper<>();
+        qw.eq("pi.del_flag", BaseGlobal.NO);
+        qw.notEmptyEq("s.year_name", year);
+        qw.notEmptyEq("s.brand_name", brand);
+        qw.isNotNullStr("pi.devt_type");
+        Page<String> objects = PageHelper.startPage(pageNum, pageSize, "pi.id asc");
+        List<String> packIds = baseMapper.getPricingPackId(qw);
+
+        if (CollUtil.isEmpty(packIds)) {
             return;
         }
-        PageInfo<PackPricing> pageInfo = objects.toPageInfo();
-        for (int i = 0; i < list.size(); i++) {
-            PackPricing packPricing = list.get(i);
+        PageInfo<String> pageInfo = objects.toPageInfo();
+        for (int i = 0; i < packIds.size(); i++) {
+            String packId = packIds.get(i);
             int finalI = i + 1;
             try {
-                log.info("处理{}/{}:[{}]-[{}]", finalI, pageInfo.getTotal(), packPricing.getForeignId(), packPricing.getPackType());
-                calculatePricingJson(packPricing.getForeignId(), packPricing.getPackType());
+                log.info("处理{}/{}:[{}]-[{}]", finalI, pageInfo.getTotal(), PackUtils.PACK_TYPE_DESIGN, packId);
+                calculatePricingJson(packId, PackUtils.PACK_TYPE_DESIGN);
+                log.info("处理{}/{}:[{}]-[{}]", finalI, pageInfo.getTotal(), PackUtils.PACK_TYPE_BIG_GOODS, packId);
+                calculatePricingJson(packId, PackUtils.PACK_TYPE_BIG_GOODS);
             } catch (Exception e) {
-                log.error(StrUtil.format("处理失败{}:{}", packPricing.getForeignId(), e.getMessage()));
+                log.error(StrUtil.format("处理失败{}:{}", packId, e.getMessage()));
                 e.printStackTrace();
             }
         }
         if (pageInfo.isHasNextPage()) {
-            // 递归调用知道处理完成
-            updatePricingJson(pageNum + 1, pageSize);
+            // 递归调用直到处理完成
+            updatePricingJson(year, brand, pageNum + 1, pageSize);
         }
     }
 

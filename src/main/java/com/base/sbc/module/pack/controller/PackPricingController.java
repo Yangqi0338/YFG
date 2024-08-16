@@ -207,10 +207,18 @@ public class PackPricingController {
         return packPricingBomService.pricingBomDel(ids);
     }
 
-    @ApiOperation(value = "获取核价信息路由参数")
+    /**
+     * 更新核价json
+     *
+     * @param year     年份名称
+     * @param brand    品牌名称
+     * @param pageSize 每次处理条数
+     * @return
+     */
+    @ApiOperation(value = "更新核价json")
     @GetMapping("/updatePricingJson")
-    public boolean updatePricingJson(Integer pageSize) {
-        packPricingService.updatePricingJson(1, pageSize);
+    public boolean updatePricingJson(String year, String brand, Integer pageSize) {
+        packPricingService.updatePricingJson(year, brand, 1, pageSize);
         return true;
     }
 }

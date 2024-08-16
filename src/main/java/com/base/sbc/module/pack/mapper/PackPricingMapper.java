@@ -6,9 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.pack.entity.PackPricing;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：资料包-核价信息 dao类
@@ -23,6 +28,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PackPricingMapper extends BaseMapper<PackPricing> {
 // 自定义方法区 不替换的区域【other_start】
 
+    List<String> getPricingPackId(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }
