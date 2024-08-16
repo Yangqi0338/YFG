@@ -151,6 +151,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1806,15 +1807,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
 
         // 获取评分
-        List<SampleBoardExcel> ratingExcelList = CommonUtils.filterNotEmpty(excelList, SampleBoardExcel::getWorkloadRatingId);
+        Collection<SampleBoardExcel> ratingExcelList = CommonUtils.filterNotEmpty(excelList, SampleBoardExcel::getWorkloadRatingId);
         List<String> workloadRatingIdList = ratingExcelList.stream().map(SampleBoardExcel::getWorkloadRatingId).collect(Collectors.toList());
         if (CollUtil.isNotEmpty(workloadRatingIdList)) {
             List<WorkloadRatingDetail> list = workloadRatingDetailService.listByIds(workloadRatingIdList);
             ratingExcelList.forEach(excel -> {
                 list.stream().filter(it -> it.getId().equals(excel.getWorkloadRatingId())).findFirst().ifPresent(detail -> {
                     excel.setAppend(new BigDecimal(detail.getExtend().getOrDefault("append", BigDecimal.ZERO).toString()));
-                    excel.setBase(new BigDecimal(detail.getExtend().getOrDefault("append", "0").toString()));
-                    excel.setRate(new BigDecimal(detail.getExtend().getOrDefault("append", "0").toString()));
+                    excel.setBase(new BigDecimal(detail.getExtend().getOrDefault("base", "0").toString()));
+                    excel.setRate(new BigDecimal(detail.getExtend().getOrDefault("rate", "0").toString()));
                     excel.setRatingFabricName(detail.getFabricName());
                     excel.setRatingOtherName(detail.getOtherName());
                 });
