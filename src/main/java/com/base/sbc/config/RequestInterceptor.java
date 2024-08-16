@@ -1,6 +1,8 @@
 package com.base.sbc.config;
 
+import cn.hutool.core.lang.Opt;
 import com.alibaba.fastjson2.JSON;
+import com.base.sbc.config.common.Ip2regionAnalysis;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.httplog.entity.HttpLog;
 import com.base.sbc.module.httplog.service.HttpLogService;
@@ -8,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Date;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
@@ -32,6 +36,8 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
 @Component
 public class RequestInterceptor implements HandlerInterceptor {
 
+    private final HttpLogService httpLogService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws IOException {
         UserCompany userCompany = companyUserInfo.get();
@@ -46,11 +52,13 @@ public class RequestInterceptor implements HandlerInterceptor {
         HttpLog httpLog = new HttpLog();
         httpLog.setStartTime(new Date());
 //        httpLog.setType(2);
-        httpLog.setReqContentType(request.getContentType());
-                //multipart/form-data
+        String contentType = request.getContentType();
+        httpLog.setReqContentType(contentType);
+//        multipart/form-data
 //        httpLog.setUserCode(userCompany.getUserCode());
         httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
         httpLog.setThreadId(Thread.currentThread().getId() + "");
+        userCompany.setMainThreadId(httpLog.getThreadId());
 //        httpLog.setUserCode(userCompany.getUserCode());
 
         //获取swagger注解value值
@@ -62,8 +70,8 @@ public class RequestInterceptor implements HandlerInterceptor {
                 httpLog.setReqName(value);
             }
         }
-
-        companyUserInfo.get().setHttpLogId();
+        httpLogService.save(httpLog);
+        userCompany.setHttpLogId(httpLog.getId());
         return true;
     }
 

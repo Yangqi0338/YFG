@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -35,7 +36,7 @@ public class MoreLanguageTableContext {
     private static List<MoreLanguageTableStrategy> tableStrategyList;
     private static MoreLanguageTableTitleHandler tableTitleHandlerChain = new MoreLanguageEndTableTitle() ;
 
-    private static final ThreadLocal<Map<String, String>> paramMap = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, String>> paramMap = new TransmittableThreadLocal<>();
 
     public MoreLanguageTableContext(List<MoreLanguageTableStrategy> tableStrategyList, List<MoreLanguageTableTitleHandler> tableTitleHandlerList) {
         MoreLanguageTableContext.tableStrategyList = tableStrategyList;

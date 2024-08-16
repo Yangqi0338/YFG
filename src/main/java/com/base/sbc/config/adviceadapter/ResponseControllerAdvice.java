@@ -119,7 +119,6 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         HttpLog httpLog = new HttpLog();
         httpLog.setId(httpLogId);
         try {
-
             URI uri = request.getURI();
 
             httpLog.setMethod(Opt.ofNullable(request.getMethod()).map(HttpMethod::toString).orElse(""));

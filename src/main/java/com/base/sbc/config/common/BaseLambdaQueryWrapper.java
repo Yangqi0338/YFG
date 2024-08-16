@@ -6,6 +6,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
 
     // 设置ThreadLocal,存储表对应的别名支持关联查询
-    private InheritableThreadLocal<ConcurrentHashMap<Class<?>, Pair<BaseLambdaQueryWrapper<?>, String>>> joinAliasMap = new InheritableThreadLocal<>();
+    private InheritableThreadLocal<ConcurrentHashMap<Class<?>, Pair<BaseLambdaQueryWrapper<?>, String>>> joinAliasMap = new TransmittableThreadLocal<>();
     private BaseLambdaQueryWrapper<?> mainQueryWrapper = null;
 
     public void setMainQueryWrapper(BaseLambdaQueryWrapper<?> mainQueryWrapper) {
@@ -69,6 +70,11 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
     public BaseLambdaQueryWrapper<T> notEmptyLike(SFunction<T, String> column, String val) {
         this.like(!StringUtils.isEmpty(val), column, val);
         return this;
+    }
+
+    public <R> BaseLambdaQueryWrapper<T> between(SFunction<T, R> column, String dates) {
+        if (StrUtil.isBlank(dates)) return this;
+        return between(column, StrUtil.splitToArray(dates, CharUtil.COMMA));
     }
 
     public <R> BaseLambdaQueryWrapper<T> between(SFunction<T, R> column, String[] dates) {

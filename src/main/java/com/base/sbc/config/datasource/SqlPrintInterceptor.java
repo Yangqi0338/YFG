@@ -3,6 +3,7 @@ package com.base.sbc.config.datasource;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SqlProperties;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
@@ -44,6 +45,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * MyBatis 将mybatis要执行的sql拦截打印出来
@@ -111,8 +114,9 @@ public class SqlPrintInterceptor implements Interceptor {
 
         long end = System.currentTimeMillis();
         long timing = end - start;
+        UserCompany userCompany = companyUserInfo.get();
         if (logger.isInfoEnabled()) {
-            logger.info(String.format("\n执行sql耗时:%s ms  方法ID: %s  线程ID: %s\nSQL语句:%s", timing, statementId, sql1));
+            logger.info(String.format("\n执行sql耗时:%s ms  方法ID: %s  线程ID: %s\nSQL语句:%s", timing, statementId, userCompany.getMainThreadId(), sql1));
         }
         //记录sql信息
         // 节省位置 不记录 改成 上面打印日志是显示线程id,然后通过日志定位

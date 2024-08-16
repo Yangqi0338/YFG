@@ -57,7 +57,7 @@ public class UserCompany extends BaseDataEntity<String> {
 
     private String httpLogId;
     private String mainThreadId;
-    private List<String> threadIdList;
+//    private List<String> threadIdList;
 
 //    private List<Job> jobList;
 //    private List<CompanyPost> postList;
