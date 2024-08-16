@@ -15,6 +15,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.EscapeUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
@@ -365,7 +366,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         //qc.eq("tbm.company_code", this.getCompanyCode());
-        qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
+        qc.notEmptyLike("tbm.material_code_name", EscapeUtil.escape(dto.getMaterialCodeName()));
         //增加多物料编号查询
         if (StrUtil.isNotEmpty(dto.getMaterialCodesHead())) {
             if (dto.getMaterialCodesHead().contains(",")) {
