@@ -2,6 +2,7 @@ package com.base.sbc.module.hrtrafficlight.enums;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.exception.OtherException;
+import lombok.Getter;
 
 /**
  * 人事红绿灯版本类型枚举
@@ -9,6 +10,7 @@ import com.base.sbc.config.exception.OtherException;
  * @author XHTE
  * @create 2024-08-15
  */
+@Getter
 public enum HrTrafficLightVersionTypeEnum {
     BM(1, "部门"),
 
@@ -40,6 +42,17 @@ public enum HrTrafficLightVersionTypeEnum {
             for (HrTrafficLightVersionTypeEnum item : HrTrafficLightVersionTypeEnum.values()) {
                 if (item.code.equals(code)) {
                     return item.code;
+                }
+            }
+        }
+        throw new OtherException("Excel 类型不存在");
+    }
+
+    public static String getValueByCode(Integer code) {
+        if (ObjectUtil.isNotEmpty(code)) {
+            for (HrTrafficLightVersionTypeEnum item : HrTrafficLightVersionTypeEnum.values()) {
+                if (item.code.equals(code)) {
+                    return item.value;
                 }
             }
         }

@@ -3,18 +3,19 @@ package com.base.sbc.module.hrtrafficlight.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 
 /**
- * 人事红绿灯列表查询入参
+ * 人事红绿灯版本列表查询入参
  *
  * @author XHTE
  * @create 2024-08-15
  */
 @Data
-@ApiModel(value = "人事红绿灯列表查询入参", description = "人事红绿灯列表查询入参")
-public class HrTrafficLightsDetailDTO implements Serializable {
+@ApiModel(value = "人事红绿灯版本列表查询入参", description = "人事红绿灯版本列表查询入参")
+public class ListHrTrafficLightVersionsDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,7 +23,7 @@ public class HrTrafficLightsDetailDTO implements Serializable {
      * 人事红绿灯主表 ID
      */
     @ApiModelProperty("人事红绿灯主表 ID")
-    private String hrTrafficLightVersionId;
+    private String hrTrafficLightId;
 
     /**
      * 类型

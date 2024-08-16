@@ -38,8 +38,8 @@ public class HrTrafficLightVersion extends BaseDataEntity<String> implements Ser
      * 5-个人详情-TOP款次数
      * 6-个人详情-明细单准确率
      * 7-个人详情-面料详单准确率
-     * 8个人详情-面辅料齐套率
-     * 9个人详情-样衣参考率
+     * 8-个人详情-面辅料齐套率
+     * 9-个人详情-样衣参考率
      * 10-个人详情-下店市调完成率
      * 11-个人详情-产销率 SA款
      * 12-月均出稿数（cmt+fob）

@@ -2,6 +2,7 @@ package com.base.sbc.module.hrtrafficlight.entity;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -54,5 +55,20 @@ public class HrTrafficLightData extends BaseDataEntity<String> implements Serial
      */
     @ApiModelProperty("行号")
     private Integer rowIdx;
+    /**
+     * 颜色
+     */
+    @ApiModelProperty("颜色")
+    private String color;
+    /**
+     * 品牌名称
+     */
+    @ApiModelProperty("品牌名称")
+    private String brandName;
+    /**
+     * 品牌编码
+     */
+    @ApiModelProperty("品牌编码")
+    private String brandCode;
 
 }

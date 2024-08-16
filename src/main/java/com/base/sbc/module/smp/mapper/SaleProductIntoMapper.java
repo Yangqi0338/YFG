@@ -13,7 +13,6 @@ import java.util.Map;
 
 @Mapper
 @DS("starRocks")
-@Primary
 public interface SaleProductIntoMapper extends BaseMapper {
 
      List<Map<String, Object>> querySaleIntoPage1(@Param("ew") QueryWrapper<?> queryWrapper, @Param("channel") String channel, @Param("total") Integer total);

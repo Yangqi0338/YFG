@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 人事红绿灯详情返回值
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 @Data
 @ApiModel(value = "人事红绿灯详情返回值", description = "人事红绿灯详情返回值")
-public class HrTrafficLightsDetailVO implements Serializable {
+public class ListHrTrafficLightVersionsVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,11 +24,11 @@ public class HrTrafficLightsDetailVO implements Serializable {
      * 表头列表
      */
     @ApiModelProperty("表头列表")
-    private List<Map<String, Object>> headList;
+    private List<HrTrafficLightData> headList;
 
     /**
      * 数据列表
      */
     @ApiModelProperty("数据列表")
-    private List<Map<String, String>> dataList;
+    private List<HrTrafficLightData> dataList;
 }
