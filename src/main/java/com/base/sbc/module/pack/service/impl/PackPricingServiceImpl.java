@@ -36,6 +36,7 @@ import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
@@ -566,9 +567,29 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
                 result.put(a.getKey(), a.getValue().setScale(3, RoundingMode.HALF_UP));
             }
         }
+        setCostDefaultVal(result, "物料费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "外协加工费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "包装费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "检测费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "毛衫加工费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "车缝加工费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "二次加工费", BigDecimal.ZERO);
+        setCostDefaultVal(result, "其他费用", BigDecimal.ZERO);
+        setCostDefaultVal(result, "加工费", BigDecimal.ZERO);
         return result;
     }
-
+    /**
+     * 设置费用项的默认值
+     *
+     * @param map
+     * @param key
+     * @param defaultVal
+     */
+    private void setCostDefaultVal(Map map, String key, BigDecimal defaultVal) {
+        if (map.get(key) == null) {
+            map.put(key, defaultVal);
+        }
+    }
     /**
      * 计算价格
      * @param formula
@@ -614,25 +635,24 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
         qw.eq("pi.del_flag", BaseGlobal.NO);
         qw.notEmptyEq("s.year_name", year);
+//        qw.eq("pi.id","770821899738415112");
         qw.notEmptyEq("s.brand_name", brand);
         qw.isNotNullStr("pi.devt_type");
-        Page<String> objects = PageHelper.startPage(pageNum, pageSize, "pi.id asc");
-        List<String> packIds = baseMapper.getPricingPackId(qw);
+        Page<PackInfoListVo> objects = PageHelper.startPage(pageNum, pageSize, "pi.id asc");
+        List<PackInfoListVo> packIds = baseMapper.getPricingPackId(qw);
 
         if (CollUtil.isEmpty(packIds)) {
             return;
         }
-        PageInfo<String> pageInfo = objects.toPageInfo();
+        PageInfo<PackInfoListVo> pageInfo = objects.toPageInfo();
         for (int i = 0; i < packIds.size(); i++) {
-            String packId = packIds.get(i);
+            PackInfoListVo ps = packIds.get(i);
             int finalI = i + 1;
             try {
-                log.info("处理{}/{}:[{}]-[{}]", finalI, pageInfo.getTotal(), PackUtils.PACK_TYPE_DESIGN, packId);
-                calculatePricingJson(packId, PackUtils.PACK_TYPE_DESIGN);
-                log.info("处理{}/{}:[{}]-[{}]", finalI, pageInfo.getTotal(), PackUtils.PACK_TYPE_BIG_GOODS, packId);
-                calculatePricingJson(packId, PackUtils.PACK_TYPE_BIG_GOODS);
+                log.info("处理{}/{}:[{}]-[{}]-[{}]", finalI, pageInfo.getTotal(), ps.getDesignNo(),ps.getPackType(), ps.getForeignId());
+                calculatePricingJson(ps.getForeignId(), ps.getPackType());
             } catch (Exception e) {
-                log.error(StrUtil.format("处理失败{}:{}", packId, e.getMessage()));
+                log.error(StrUtil.format("处理失败[{}]-[{}]-[{}]", ps.getDesignNo(),ps.getPackType(), ps.getForeignId(), e.getMessage()));
                 e.printStackTrace();
             }
         }
