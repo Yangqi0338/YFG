@@ -91,27 +91,5 @@ public class StyleColorCorrectInfo extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计回收正确样时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designCorrectRecoveryDate;
-
-
-    /** 下主面料单 */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "下主面料单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date sendMainFabricDate;
-    /** 下配料1 */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "下配料1"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date sendBatchingDate1;
-    /** 下配料2 */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "下配料2"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date sendBatchingDate2;
-    /** 下里布单 */
-    @TableField(exist = false)
-    @ApiModelProperty(value = "下里布单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date sendSingleDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
