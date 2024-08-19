@@ -37,8 +37,22 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
-import com.base.sbc.module.basicsdatum.entity.*;
-import com.base.sbc.module.basicsdatum.service.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumIngredient;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumIngredientService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
@@ -68,8 +82,23 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
-import com.base.sbc.module.pack.entity.*;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackTechSpec;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.PackSizeService;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
+import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -82,11 +111,44 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.smp.dto.*;
-import com.base.sbc.module.smp.entity.*;
+import com.base.sbc.module.smp.dto.BomSizeAndProcessDto;
+import com.base.sbc.module.smp.dto.FabricCompositionDto;
+import com.base.sbc.module.smp.dto.HttpResp;
+import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
+import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
+import com.base.sbc.module.smp.dto.SaleProductIntoDto;
+import com.base.sbc.module.smp.dto.SampleBean;
+import com.base.sbc.module.smp.dto.Scm1SpareMaterialDTO;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetQueryDto;
+import com.base.sbc.module.smp.dto.ScmProductionDto;
+import com.base.sbc.module.smp.dto.SmpBomDto;
+import com.base.sbc.module.smp.dto.SmpColorDto;
+import com.base.sbc.module.smp.dto.SmpGoodsDto;
+import com.base.sbc.module.smp.dto.SmpMaterialDto;
+import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
+import com.base.sbc.module.smp.dto.SmpSampleDto;
+import com.base.sbc.module.smp.dto.TagCompositionDto;
+import com.base.sbc.module.smp.dto.TagConfirmDateDto;
+import com.base.sbc.module.smp.entity.CheckMaterial;
+import com.base.sbc.module.smp.entity.SalesData;
+import com.base.sbc.module.smp.entity.SmpColor;
+import com.base.sbc.module.smp.entity.SmpModuleSize;
+import com.base.sbc.module.smp.entity.SmpQuot;
+import com.base.sbc.module.smp.entity.SmpSize;
+import com.base.sbc.module.smp.entity.SmpSizeQty;
 import com.base.sbc.module.smp.impl.SaleProductIntoService;
-import com.base.sbc.module.style.entity.*;
-import com.base.sbc.module.style.service.*;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleColorAgent;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.entity.StyleSpecFabric;
+import com.base.sbc.module.style.service.StyleColorAgentService;
+import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.service.StyleSpecFabricService;
 import com.base.sbc.module.tasklist.dto.TaskListDTO;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
@@ -111,7 +173,14 @@ import org.springframework.transaction.TransactionStatus;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -581,9 +650,9 @@ public class SmpService {
                 smpGoodsDto.setGarmentWash(oldFvMap.get("GarmentWash"));
             }
 
-            // 生产类型
-            smpGoodsDto.setProductionType(style.getDevtType());
-            smpGoodsDto.setProductionTypeName(style.getDevtTypeName());
+            //生产类型
+            smpGoodsDto.setProductionType(styleColor.getDevtType().getCode());
+            smpGoodsDto.setProductionTypeName(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
@@ -2226,6 +2295,25 @@ public class SmpService {
         jsonObject.put("orderNo", orderNo);
         jsonObject.put("loginName", loginName);
         return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "反审核投产单"), Pair.of("code", orderNo), Pair.of("name", loginName));
+    }
+
+    /**
+     * 剩余备料
+     */
+    public ApiResult<List<Scm1SpareMaterialDTO>> spareList(String materialNo, Integer spareType) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("materialNoList", Arrays.asList(materialNo.split(COMMA)));
+        jsonObject.put("spareType", Collections.singletonList(spareType));
+
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
+                Pair.of("moduleName", "scm1"),
+                Pair.of("functionName", "剩余备料"),
+                Pair.of("code", materialNo)
+        );
+
+        ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
+        result.setSuccess(httpResp.isSuccess());
+        return result;
     }
 }
 

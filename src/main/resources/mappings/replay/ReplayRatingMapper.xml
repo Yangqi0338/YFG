@@ -246,15 +246,17 @@
 
     <select id="queryFabricList_COUNT" resultType="java.util.Map">
         select count(0) as count,
-        <if test="qo.needSpecialTotalSum == true">
-            group_concat(temp.bulkStyleNo) AS bulkStyleNo,
-        </if>
         sum(temp.bulkUnitUse) AS bulkUnitUse
+        <if test="qo.needSpecialTotalSum == true">
+            , group_concat(temp.bulkStyleNo) AS bulkStyleNo
+            , group_concat(temp.materialCode) AS materialCode
+        </if>
         from (
         select SQL_BIG_RESULT
             sum(tpb.bulk_unit_use) AS bulkUnitUse
             <if test="qo.needSpecialTotalSum == true">
                 , group_concat(tpi.style_no) AS bulkStyleNo
+                , group_concat(tpb.material_code) AS materialCode
             </if>
         from t_pack_bom tpb
         <if test="qo.needSpecialTotalSum == true">

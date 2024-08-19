@@ -18,6 +18,7 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.ChartBarVo;
@@ -206,7 +207,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     void updateBySampleDesignChange(Style style);
 
-    Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId);
+    Map<String, Long> totalBandSkcByPlanningSeason(YearSeasonBandVo vo);
 
     void updateByChannelChange(PlanningChannel planningChannel);
 

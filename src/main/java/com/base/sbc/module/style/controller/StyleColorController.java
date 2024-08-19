@@ -40,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.xml.transform.Result;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -451,6 +450,12 @@ public class StyleColorController {
         List<Map<String, Object>> readAll = reader.readAll();
 
         return styleColorService.importMarkingOrder(readAll);
+    }
+
+    @ApiOperation(value = "物料清单引用查询使用")
+    @GetMapping("/materialListQuote")
+    public PageInfo<StyleColorVo> materialListQuote(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
+        return styleColorService.materialListQuote(user, querySampleStyleColorDto);
     }
 
 }

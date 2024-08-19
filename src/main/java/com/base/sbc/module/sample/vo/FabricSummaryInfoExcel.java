@@ -53,7 +53,7 @@ public class FabricSummaryInfoExcel extends FabricSummaryInfoVo{
 
     @ApiModelProperty(value = "生产周期-期货"  )
     @Excel(name = "期货")
-    private BigDecimal productionDay;
+    private String productionDay;
 
     @ApiModelProperty(value = "含税价格"  )
     @Excel(name = "含税价格")

@@ -21,6 +21,7 @@
                tcci.update_date,
                tcci.update_id,
                tcci.update_name,
+               tcci.design_correct_recovery_date,
                tsc.*,
                ts.style_pic,
                ts.brand,
@@ -33,12 +34,14 @@
                ts.prod_category_name,
                ts.task_level,
                ts.task_level_name,
-               ts.devt_type      as  devtType,
-               ts.devt_type_name as  devtTypeName,
+               tsc.devt_type      as  devtType,
+               tsc.devt_type_name as  devtTypeName,
                ts.designer_id,
                ts.designer,
                ts.design_no          designNo,
-               ts.technician_name
+               ts.technician_name,
+               ts.pattern_design_id,
+               ts.pattern_design_name
         FROM t_style_color tsc
                  INNER JOIN t_style ts ON ts.id = tsc.style_id
                  left join t_style_color_correct_info tcci on tcci.style_color_id = tsc.id and tcci.del_flag = '0'

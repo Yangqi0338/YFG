@@ -57,7 +57,6 @@ import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
@@ -168,6 +167,7 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.DESIGN_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.FINISH;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.PART_TRANSLATE_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TECH_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
@@ -271,6 +271,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private CcmFeignService ccmFeignService;
 	@Autowired
 	private AttachmentService attachmentService;
+	@Autowired
+	private UserUtils userUtils;
 
 	@Override
 	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
@@ -308,10 +310,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
+
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
-		if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd.") ) {
+		if ((StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd."))
+				|| !StringUtils.isEmpty(hangTagDTO.getProduceTypeName())
+				|| !StringUtils.isEmpty(hangTagDTO.getPlanningSeasonId())) {
 			columnMap.put("tsd", "tsd");
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryListByLine(hangTagDTO, qw);
@@ -973,7 +978,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTags.forEach(e -> {
 			if (HangTagStatusEnum.NOT_COMMIT != updateStatus) {
 				try {
-					if (FINISH == e.getStatus()) {
+					// 如果完成,但是是翻译批量反审
+					if (FINISH == e.getStatus() &&
+							(hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.MULTI_CHECK
+									||
+							!Arrays.asList(TRANSLATE_CHECK, PART_TRANSLATE_CHECK).contains(updateStatus))
+					) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
@@ -1038,9 +1048,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 										}
 									}
 								}
-								if (Objects.equals(prodCategory1stName, "配饰") && Objects.equals(devtTypeName, "CMT")) {
-									if (StrUtil.isBlank(e.getSpecialSpec())) {
-										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+								if (StrUtil.isNotBlank(e.getExecuteStandardCode())) {
+									if (Objects.equals(prodCategory1stName, "配饰")) {
+										if (StrUtil.isBlank(e.getSpecialSpec())) {
+											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+										}
 									}
 								}
 							}
@@ -1068,7 +1080,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (TRANSLATE_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
+							((HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus)
+									&& (hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.CHECK || FINISH != updateStatus)
+							)) {
 						throw new OtherException("存在待翻译确认数据，请先翻译确认");
 					}
 					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
@@ -1228,7 +1242,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 													.filter(item ->
 															item.getUnusableFlag().equals("0") &&
 																	(ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
-																			|| item.getMaterialCodeName().contains("备扣袋"))
+																			|| (ObjectUtil.isNotEmpty(item.getMaterialCodeName()) && item.getMaterialCodeName().contains("备扣袋")))
 													)
 													.map(PackBom::getMaterialCodeName)
 													.collect(Collectors.toList()),
@@ -1410,6 +1424,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}
 
 							}
+							size1.setShowSizeStatus(basicsdatumSize.getHangTagShowSizeStatus());
 							size.add(size1);
 						}
 
@@ -1520,7 +1535,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取所有的吊牌
 		List<MoreLanguageHangTagVO> hangTagVOList = HANG_TAG_CV.copyList2MoreLanguage(hangTagMapper.getDetailsByBulkStyleNo(
-				bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType()
+				bulkStyleNoList, userUtils.getCompanyCode(), hangTagMoreLanguageDTO.getSelectType()
 		));
 
 		// 获取吊牌成分

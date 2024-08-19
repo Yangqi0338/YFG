@@ -391,20 +391,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //        }
 
 
-         styleColorIssuedToScm(style, isPushScm);
-
-
-        return style;
-    }
-
-
-    private void styleColorIssuedToScm(Style style, boolean isPushScm) {
         if(isPushScm){
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
             //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
             QueryWrapper<StyleColor> colorQueryWrapper = new QueryWrapper<>();
             colorQueryWrapper.eq("style_id", style.getId());
+            //如果是款式打标下单阶段保存，只下发该大货款
+            if (StrUtil.isNotEmpty(dto.getMarkingType())) {
+                colorQueryWrapper.eq("id", dto.getStyleColorId());
+            }
             colorQueryWrapper.eq("status","0");
             colorQueryWrapper.eq("del_flag","0");
             colorQueryWrapper.eq("scm_send_flag","1");
@@ -420,7 +416,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 checkColorSize(publicStyleColorDto);
                 try {
                     asyncExecutor.execute(() ->
-                          smpService.goods(styleColorIds.toArray(new String[]{}))
+                        smpService.goods(styleColorIds.toArray(new String[]{}))
                     );
                 } catch (Exception e) {
                     log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
@@ -442,7 +438,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //                throw new OtherException("同步SCM失败："+e.getMessage());
 //            }
         }
+
+        return style;
     }
+
 
 
     /**

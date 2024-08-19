@@ -83,7 +83,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")
-    public PageInfo<HangTagListVO> queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
+    public PageInfo<HangTagListVO>  queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
         return hangTagService.queryPageInfo(hangTagSearchDTO, super.getUserCompany());
     }
 
@@ -113,7 +113,6 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
     public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
-        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO));
     }
 
