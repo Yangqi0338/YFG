@@ -413,6 +413,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
         packCommonSearchDto.setPackType(packType);
         packCommonSearchDto.setForeignId(foreignId);
+        packCommonSearchDto.setCheckType("1");
         /*原有数据库的数据*/
        if(StrUtil.isNotBlank(packPricing.getCalcItemVal())){
            resultMap.putAll(JSONObject.parseObject(packPricing.getCalcItemVal(), Map.class));

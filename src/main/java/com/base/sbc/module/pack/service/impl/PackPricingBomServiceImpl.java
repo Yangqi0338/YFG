@@ -82,14 +82,18 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
         BaseQueryWrapper<PackPricingBom> queryWrapper = new BaseQueryWrapper<>();
         PackUtils.commonQw(queryWrapper, dto);
 
-        List<PackPricingBom> oldBomList = list(queryWrapper);
-        if (CollUtil.isEmpty(oldBomList)) {
-            return result;
-        }
-        List<PackPricingBom> bomList = oldBomList.stream().filter(item -> item.getCheckFlag().equals("1")).collect(Collectors.toList());
+        List<PackPricingBom> bomList = list(queryWrapper);
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }
+
+        if (dto.getCheckType().equals("1")) {
+            bomList = bomList.stream().filter(item -> item.getCheckFlag().equals("1")).collect(Collectors.toList());
+            if (CollUtil.isEmpty(bomList)) {
+                return result;
+            }
+        }
+
         /*设计还是大货*/
         Boolean loss = "packDesign".equals(dto.getPackType());
         //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
