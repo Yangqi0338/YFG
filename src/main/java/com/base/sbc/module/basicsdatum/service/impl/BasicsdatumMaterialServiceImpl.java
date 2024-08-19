@@ -15,9 +15,11 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.EscapeUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.sql.SqlUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.alibaba.fastjson.JSONObject;
@@ -299,7 +301,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         //qc.eq("tbm.company_code", this.getCompanyCode());
-        qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
+        qc.notEmptyLike("tbm.material_code_name", StrUtil.replace(dto.getMaterialCodeName(), "_","\\_"));
         //增加多物料编号查询
         if (StrUtil.isNotEmpty(dto.getMaterialCodesHead())) {
             if (dto.getMaterialCodesHead().contains(",")) {
