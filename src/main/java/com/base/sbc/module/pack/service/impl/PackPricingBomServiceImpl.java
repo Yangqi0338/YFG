@@ -87,8 +87,8 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
             return result;
         }
 
-        if (dto.getCheckType().equals("1")) {
-            bomList = bomList.stream().filter(item -> item.getCheckFlag().equals("1")).collect(Collectors.toList());
+        if ("1".equals(dto.getCheckType())) {
+            bomList = bomList.stream().filter(item -> "1".equals(item.getCheckFlag())).collect(Collectors.toList());
             if (CollUtil.isEmpty(bomList)) {
                 return result;
             }
