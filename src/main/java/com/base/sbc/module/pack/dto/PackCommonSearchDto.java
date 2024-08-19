@@ -39,4 +39,10 @@ public class PackCommonSearchDto {
 
     @ApiModelProperty(value = "版本id")
     private String bomVersionId;
+
+    /**
+     * 是否勾选 0-否 1-是 是就代表按照勾选的来计算，否或者空就是不按照勾选的 计算所有的
+     */
+    @ApiModelProperty(value = "是否勾选 0-否 1-是 是就代表按照勾选的来计算，否或者空就是不按照勾选的 计算所有的")
+    private String checkType;
 }

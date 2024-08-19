@@ -35,6 +35,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-物料清单 service类
@@ -85,6 +86,14 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }
+
+        if (dto.getCheckType().equals("1")) {
+            bomList = bomList.stream().filter(item -> item.getCheckFlag().equals("1")).collect(Collectors.toList());
+            if (CollUtil.isEmpty(bomList)) {
+                return result;
+            }
+        }
+
         /*设计还是大货*/
         Boolean loss = "packDesign".equals(dto.getPackType());
         //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)

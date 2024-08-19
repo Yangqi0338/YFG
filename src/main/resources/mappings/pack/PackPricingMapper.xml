@@ -11,6 +11,14 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
+    <select id="getPricingPackId" resultType="com.base.sbc.module.pack.vo.PackInfoListVo">
+        select pis.foreign_id,pis.pack_type,s.design_no
+        from t_pack_info pi
+                 join t_style s on (s.id = pi.style_id)
+                 join t_pack_info_status pis on (pi.id = pis.foreign_id)
+            ${ ew.customSqlSegment}
+
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
