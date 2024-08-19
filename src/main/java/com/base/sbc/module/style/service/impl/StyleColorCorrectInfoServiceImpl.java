@@ -238,6 +238,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             oldDto = findById(styleColorCorrectInfo.getId());
         }else{
             styleColorCorrectInfo.insertInit();
+            styleColorCorrectInfo.setId(styleColorCorrectInfo.getStyleColorId());
         }
 
         //修改产前样看板的工艺确认时间 和款式配色的时间
