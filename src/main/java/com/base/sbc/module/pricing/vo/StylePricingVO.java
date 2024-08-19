@@ -319,6 +319,10 @@ public class StylePricingVO {
 
     private String calcItemVal;
 
+    private String calcItemVal1;
+
+    private String calcItemVal2;
+
     /**
      * 列头筛选数量
      */

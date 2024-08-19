@@ -24,7 +24,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;

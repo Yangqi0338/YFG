@@ -50,6 +50,8 @@
         ht.down_content as downContent,
         ht.print_or_not as tagPrintFlag,
         tpp.calc_item_val as calcItemVal,
+        tpp1.calc_item_val as calcItemVal1,
+        tpp2.calc_item_val as calcItemVal2,
         sd.prod_category1st,
         sd.prod_category1st_name,
         sd.prod_category,
@@ -64,6 +66,8 @@
         left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
         left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
         left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
+        left join t_pack_pricing as tpp1 on (tpp1.foreign_id = p.id and tpp1.del_flag = '0' and tpp1.pack_type = 'packDesign')
+        left join t_pack_pricing as tpp2 on (tpp2.foreign_id = p.id and tpp2.del_flag = '0' and tpp2.pack_type = 'packBigGoods')
         left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
         <!--        left join t_style_order_book_color ssobc on (ssobc.style_no = p.style_no and ssobc.del_flag = '0')-->
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
