@@ -72,8 +72,6 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     private String createId;
     @ApiModelProperty(value = "编码")
     private String code;
-    @ApiModelProperty(value = "名称")
-    private String name;
 
     /**
      * 工艺接收时间
