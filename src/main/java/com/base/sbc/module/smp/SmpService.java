@@ -26,6 +26,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BusinessProperties;
 import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
@@ -1335,25 +1336,26 @@ public class SmpService {
             BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
             queryDto1.setMaterialCode(packBom.getMaterialCode());
             PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
-            if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
-                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
-            } else {
-                long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
-                if (count == 0) {
-                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
-                }
-            }
-
-
-            /*判断供应商报价是否停用
-             * 1.报次款无需校验供应商停用
-             * 2.停用状态下的BOM物料无需要校验供应商停用
-             */
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
             styleColor = styleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
+            if (BusinessProperties.needCheckByDefective(styleColor.getStyleNo(), "distributeSmp/bom")) {
+                if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
+                } else {
+                    long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
+                    if (count == 0) {
+                        throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
+                    }
+                }
+            }
+
+            /*判断供应商报价是否停用
+             * 1.报次款无需校验供应商停用
+             * 2.停用状态下的BOM物料无需要校验供应商停用
+             */
             String category2Code = "";
             if (materialMap.containsKey(packBom.getMaterialCode())) {
                 BasicsdatumMaterial basicsdatumMaterial = materialMap.get(packBom.getMaterialCode());

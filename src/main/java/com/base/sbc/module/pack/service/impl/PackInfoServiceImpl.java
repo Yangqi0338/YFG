@@ -1462,7 +1462,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.in("scm_send_flag", StringUtils.convertList("1,3"));
         List<PackBom> packBomList = packBomService.list(qw);
         if (CollUtil.isNotEmpty(packBomList)) {
-            throw new OtherException("物料清单存在已下发数据无法取消");
+            throw new OtherException("物料清单中存在已下发的物料，则不允许换绑");
         }
 
         QueryWrapper queryWrapper = new QueryWrapper();
