@@ -277,4 +277,10 @@ public interface AmcService {
     @GetMapping("/amc/api/token/user/getByMenuUrlUser")
     List<UserCompany> getByMenuUrlUser(@RequestParam("url") String url);
 
+    /**
+     * 根据类型查询所有用户和部门关系
+     */
+    @GetMapping("/amc/api/token/companyDept/getAllUserDeptByType")
+    String getAllUserDeptByType(@RequestParam("userType") String userType);
+
 }

@@ -366,6 +366,7 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
 
     private String orderDeptId;
 
+
     private String kittingReason;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

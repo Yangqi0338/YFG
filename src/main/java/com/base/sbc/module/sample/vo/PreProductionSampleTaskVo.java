@@ -156,4 +156,8 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private String sampleBarCodeQrCode;
     private String sampleStyleId;
 
+    private String orderUser;
+
+    private String orderUserId;
+
 }

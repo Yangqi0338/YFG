@@ -26,6 +26,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
@@ -291,6 +292,21 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         if (isColumnHeard) {
             return objects.toPageInfo();
         }
+
+        //过滤出部门不为空，且是 下单员待分配 状态的
+        if(StrUtil.isNotBlank(dto.getStatus()) && "下单员待分配".equals(dto.getStatus()) && CollUtil.isNotEmpty(objects.toPageInfo().getList())){
+            //查询下单员
+            Map<String, UserCompany> allUserDeptByType = amcFeignService.getAllUserDeptByType("9");
+            for (PreProductionSampleTaskVo preProductionSampleTaskVo : objects.toPageInfo().getList()) {
+                if(StrUtil.isNotBlank(preProductionSampleTaskVo.getOrderDeptId()) && allUserDeptByType.containsKey(preProductionSampleTaskVo.getOrderDeptId())){
+                    UserCompany user = allUserDeptByType.get(preProductionSampleTaskVo.getOrderDeptId());
+
+                    preProductionSampleTaskVo.setOrderUser(user.getName());
+                    preProductionSampleTaskVo.setOrderUserId(user.getUserId());
+                }
+            }
+        }
+
         // 设置图
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");

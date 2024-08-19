@@ -461,4 +461,18 @@ public class AmcFeignService {
         return userAvatarMap;
     }
 
+    public Map<String,UserCompany> getAllUserDeptByType(String userType) {
+        String responseStr = amcService.getAllUserDeptByType(userType);
+        JSONObject jsonObject = JSON.parseObject(responseStr);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            JSONObject data = jsonObject.getJSONObject(BaseConstant.DATA);
+            Map<String,UserCompany> userList = new HashMap<>();
+            for (String key : data.keySet()) {
+                userList.put(key, data.getObject(key, UserCompany.class));
+            }
+            return userList;
+        }
+        return new HashMap<>();
+    }
+
 }
