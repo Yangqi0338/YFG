@@ -476,4 +476,10 @@ public class ReportServiceImpl implements ReportService {
         List<PatternMakingReportVo> list = reportMapper.patternMaking(qw);
         return list;
     }
+
+    @Override
+    public void patternMakingExport(HttpServletResponse response, PatternMakingQueryDto dto) throws IOException {
+        List<PatternMakingReportVo> list = patternMaking(dto);
+        ExcelUtils.exportExcelByTableCode(list, "下稿报表", response, dto);
+    }
 }
