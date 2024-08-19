@@ -90,6 +90,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     public String getVirtualDeptIds() {
         List<String> virtualDeptIds = userUtils.getUserCompany().getVirtualDeptIds();
+        if (CollUtil.isEmpty(virtualDeptIds)) throw new OtherException("!当前操作人没有虚拟部门!");
         if (virtualDeptIds.size() > 1) throw new OtherException("!当前操作人非法存在于两个及以上的虚拟部门!");
         return virtualDeptIds.get(0);
     }
