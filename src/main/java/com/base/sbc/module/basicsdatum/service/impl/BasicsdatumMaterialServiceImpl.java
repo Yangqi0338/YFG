@@ -485,8 +485,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
          CommonUtils.removeQuery(dto, "imageUrl");
         CommonUtils.removeQuerySplit(dto, ",", "attachment");
         BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
-        String id = entity.getId();
-        if (StrUtil.isEmptyIfStr(id)) {
+        if (StrUtil.isEmptyIfStr(entity.getId())) {
             entity.setStatus("0");
             String categoryCode = entity.getCategoryId();
             // 获取并放入最大code(且需要满足自动生成物料编码的开关为空或者未启动)
@@ -510,10 +509,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         List<AttachmentVo> fabricTestFileList = dto.getFabricTestFileList();
         boolean fabricTestFileNotEmpty = CollUtil.isNotEmpty(fabricTestFileList);
         entity.setHasFabricTestFile(YesOrNoEnum.NO);
-        if (StrUtil.isNotBlank(id)) {
+        if (StrUtil.isNotBlank(entity.getId())) {
             // 删除之前的
             LambdaQueryWrapper<Attachment> removeQw = new LambdaQueryWrapper<Attachment>()
-                    .eq(Attachment::getForeignId, id)
+                    .eq(Attachment::getForeignId, entity.getId())
                     .eq(Attachment::getType, MATERIAL_FITTING_REPORT);
             List<String> attachmentIdList = attachmentService.listOneField(removeQw, Attachment::getId);
             boolean attachmentNotEmpty = CollUtil.isNotEmpty(attachmentIdList);
@@ -536,7 +535,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }*/
         // 保存主信息
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
-
+        String id = entity.getId();
         //保存动态字段
         fieldValService.save(id, FieldValDataGroupConstant.MATERIAL, dto.getFieldValList());
 
