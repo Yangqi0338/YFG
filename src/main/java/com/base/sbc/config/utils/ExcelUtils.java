@@ -750,16 +750,18 @@ public class ExcelUtils {
                                 String type = entry.getValue();
 
                                 byte[] bytes;
-                                if(picMap.containsKey(imgColumn)){
+                                if (picMap.containsKey(imgColumn)) {
                                     bytes = picMap.get(imgColumn);
-                                }else{
+                                } else {
                                     String imgUrl;
-                                    if(StrUtil.isEmpty(type) || "stylePic".equals(type)){
+                                    if (StrUtil.isEmpty(type) || "stylePic".equals(type)) {
                                         //stylePic
                                         imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
-                                    }else {
+                                    } else if ("minio".equals(type)) {
                                         //minio
                                         imgUrl = minioUtils.getObjectUrl(jsonObject.getString(imgColumn));
+                                    } else {
+                                        imgUrl = imgColumn;
                                     }
                                     bytes = HttpUtil.downloadBytes(imgUrl);
                                 }
