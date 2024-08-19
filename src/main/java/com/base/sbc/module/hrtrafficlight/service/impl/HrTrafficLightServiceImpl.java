@@ -10,9 +10,12 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.entity.User;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
@@ -66,6 +69,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
     private IHrTrafficLightDataService hrTrafficLightDataService;
     private CcmFeignService ccmFeignService;
     private AmcService amcService;
+    private DataPermissionsService dataPermissionsService;
 
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
@@ -121,6 +125,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         LambdaQueryWrapper<HrTrafficLightVersion> hrTrafficLightVersionQueryWrapper = new LambdaQueryWrapper<>();
         hrTrafficLightVersionQueryWrapper.eq(HrTrafficLightVersion::getHrTrafficLightId, listHrTrafficLightVersionsDTO.getHrTrafficLightId());
         hrTrafficLightVersionQueryWrapper.eq(HrTrafficLightVersion::getType, listHrTrafficLightVersionsDTO.getType());
+        hrTrafficLightVersionQueryWrapper.orderByDesc(HrTrafficLightVersion::getCreateDate);
         return hrTrafficLightVersionService.list(hrTrafficLightVersionQueryWrapper);
     }
 
@@ -133,16 +138,19 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         // 双层表头的类型
         List<Integer> twoHeadType = CollUtil.newArrayList(3, 12, 13, 14);
         HrTrafficLightsDetailVO hrTrafficLightsDetailVO = new HrTrafficLightsDetailVO();
-        LambdaQueryWrapper<HrTrafficLightData> hrTrafficLightDataQueryWrapper = new LambdaQueryWrapper<>();
-        hrTrafficLightDataQueryWrapper.eq(HrTrafficLightData::getHrTrafficLightVersionId, hrTrafficLightDetailDTO.getHrTrafficLightVersionId());
+        QueryWrapper<HrTrafficLightData> hrTrafficLightDataQueryWrapper = new QueryWrapper<>();
+        hrTrafficLightDataQueryWrapper.eq("hr_traffic_light_version_id", hrTrafficLightDetailDTO.getHrTrafficLightVersionId());
         hrTrafficLightDataQueryWrapper.like(
                 ObjectUtil.isNotEmpty(hrTrafficLightDetailDTO.getSearch()),
-                HrTrafficLightData::getColumnValue,
+                "column_value",
                 hrTrafficLightDetailDTO.getSearch());
         hrTrafficLightDataQueryWrapper.eq(
                 ObjectUtil.isNotEmpty(hrTrafficLightDetailDTO.getUsername()),
-                HrTrafficLightData::getUsername,
+                "username",
                 hrTrafficLightDetailDTO.getUsername());
+
+        dataPermissionsService.getDataPermissionsForQw(hrTrafficLightDataQueryWrapper, DataPermissionsBusinessTypeEnum.hrTrafficLight.getK());
+
         // 查询数据
         List<HrTrafficLightData> dataList = hrTrafficLightDataService.list(hrTrafficLightDataQueryWrapper);
         // 格式化数据集合
@@ -175,12 +183,14 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         hrTrafficLightsDetailVO.setDataList(dataMapList);
 
         // 查询表头
-        hrTrafficLightDataQueryWrapper.groupBy(HrTrafficLightData::getColumnNameOne, HrTrafficLightData::getColumnNameTwo);
-        hrTrafficLightDataQueryWrapper.select(
+        LambdaQueryWrapper<HrTrafficLightData> hrTrafficLightDataLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        hrTrafficLightDataLambdaQueryWrapper.eq(HrTrafficLightData::getHrTrafficLightVersionId, hrTrafficLightDetailDTO.getHrTrafficLightVersionId());
+        hrTrafficLightDataLambdaQueryWrapper.groupBy(HrTrafficLightData::getColumnNameOne, HrTrafficLightData::getColumnNameTwo);
+        hrTrafficLightDataLambdaQueryWrapper.select(
                 HrTrafficLightData::getId,
                 HrTrafficLightData::getColumnNameOne,
                 HrTrafficLightData::getColumnNameTwo);
-        List<HrTrafficLightData> headList = hrTrafficLightDataService.list(hrTrafficLightDataQueryWrapper);
+        List<HrTrafficLightData> headList = hrTrafficLightDataService.list(hrTrafficLightDataLambdaQueryWrapper);
         // 格式化表头集合
         List<Map<String, Object>> headMapList = new ArrayList<>(headList.size());
         if (ObjectUtil.isNotEmpty(headList)) {
@@ -224,21 +234,25 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         if (ObjectUtil.isNotEmpty(trafficLightVersionType)) {
             // 根据类型导入
             // 读取一个 sheet
+            long time = new Date().getTime();
             SpringUtil.getBean(IHrTrafficLightService.class).readExcel(
                     file,
                     hrTrafficLightId,
                     trafficLightVersionType,
                     HrTrafficLightVersionTypeEnum.getValueByCode(trafficLightVersionType),
+                    time,
                     twoHeadType);
         } else {
             // 导入所有类型
             // 读取所有类型的 sheet
+            long time = new Date().getTime();
             for (HrTrafficLightVersionTypeEnum value : HrTrafficLightVersionTypeEnum.values()) {
                 SpringUtil.getBean(IHrTrafficLightService.class).readExcel(
                         file,
                         hrTrafficLightId,
                         trafficLightVersionType,
                         value.getValue(),
+                        time++,
                         twoHeadType);
             }
         }
@@ -250,6 +264,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                           String hrTrafficLightId,
                           Integer trafficLightVersionType,
                           String sheetNoName,
+                          Long time,
                           List<Integer> twoHeadType) {
         // 初始化表格数据
         List<Map<Integer, Map<String, String>>> cachedDataList = new ArrayList<>();

@@ -67,5 +67,6 @@ public interface IHrTrafficLightService extends IService<HrTrafficLight> {
                    String hrTrafficLightId,
                    Integer trafficLightVersionType,
                    String sheetNoName,
+                   Long time,
                    List<Integer> twoHeadType);
 }
