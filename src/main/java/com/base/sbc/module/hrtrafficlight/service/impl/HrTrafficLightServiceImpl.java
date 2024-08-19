@@ -10,6 +10,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hrtrafficlight.dto.AddOrUpdateHrTrafficLightDTO;
@@ -32,6 +33,7 @@ import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
     private IHrTrafficLightVersionService hrTrafficLightVersionService;
     private IHrTrafficLightDataService hrTrafficLightDataService;
+    private CcmFeignService ccmFeignService;
 
     /**
      * 新增/更新人事红绿灯
@@ -262,15 +265,15 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                     Map<String, String> map = new HashMap<>();
                     if (ObjectUtil.isNotEmpty(cellValue)) {
                         CellStyle cellStyle = cell.getCellStyle();
-                        Font font = workbook.getFontAt(cellStyle.getFontIndexAsInt());
-                        XSSFColor color = workbook.getStylesSource().getFontAt(font.getColor()).getXSSFColor();
-                        String colorRgb = ObjectUtil.isNotEmpty(color) ? color.getARGBHex() : "";
+                        XSSFFont fontAt = workbook.getFontAt(cellStyle.getFontIndexAsInt());
+                        XSSFColor xssfColor = fontAt.getXSSFColor();
+                        String colorRgb = ObjectUtil.isNotEmpty(xssfColor) ? xssfColor.getARGBHex().substring(2, 8) : "";
                         map.put("value", cellValue);
                         map.put("color", colorRgb);
                         dataMap.put(cell.getColumnIndex(), JSONUtil.toJsonStr(map));
                     } else {
-                        map.put("value", "");
-                        map.put("color", "");
+                        map.put("value", null);
+                        map.put("color", null);
                         dataMap.put(cell.getColumnIndex(), JSONUtil.toJsonStr(map));
                     }
                 }
@@ -299,8 +302,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
             throw new OtherException("数据不存在，请刷新后重新导入");
         }
 
-        // 对数据进行校验
-
         // 先生成版本
         HrTrafficLightVersion hrTrafficLightVersion = new HrTrafficLightVersion();
         hrTrafficLightVersion.setHrTrafficLightId(hrTrafficLightId);
@@ -315,6 +316,13 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
             throw new OtherException("网络波动，读取异常，请重新导入");
         }
 
+        // 对数据进行校验
+        // 判断工号是否存在
+        // 判断品牌是否存在
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
+        Map<String, String> brandMap = dictInfoToMap.get("C8_Brand");
+        Collection<String> brandValueList = brandMap.values();
+
         // 再生成人事红红绿灯数据
         List<HrTrafficLightData> hrTrafficLightDataList = new ArrayList<>(cachedDataList.size() - 1);
         Map<Integer, String> oneHeadMap = cachedDataList.get(0);
@@ -322,6 +330,27 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         Set<Integer> idxSet = oneHeadMap.keySet();
         for (int i = (twoHeadType.contains(trafficLightVersionType) ? 2 : 1); i < cachedDataList.size(); i++) {
             Map<Integer, String> dataMap = cachedDataList.get(i);
+            Integer brandIdx = null;
+            if (twoHeadType.contains(trafficLightVersionType)) {
+                for (Map.Entry<Integer, String> item : twoHeadMap.entrySet()) {
+                    JSONObject dataJson = JSONUtil.parseObj(item);
+                    String data = dataJson.getStr("value");
+                    if (data.equals("品牌")) {
+                        brandIdx = item.getKey();
+                    }
+                }
+            } else {
+                for (Map.Entry<Integer, String> item : oneHeadMap.entrySet()) {
+                    JSONObject dataJson = JSONUtil.parseObj(item);
+                    String data = dataJson.getStr("value");
+                    if (data.equals("品牌")) {
+                        brandIdx = item.getKey();
+                    }
+                }
+            }
+            if (ObjectUtil.isEmpty(brandIdx)) {
+                throw new OtherException(sheetNoName + "品牌不能为空");
+            }
             String oneHeadTemp = "";
             for (Integer idx : idxSet) {
                 HrTrafficLightData hrTrafficLightData = new HrTrafficLightData();
@@ -345,6 +374,12 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 }
                 hrTrafficLightData.setColumnValue(data);
                 hrTrafficLightData.setColor(color);
+                String brandName = dataMap.get(brandIdx);
+                if (!brandValueList.contains(brandName)) {
+                    hrTrafficLightData.setBrandName(brandName);
+                } else {
+                    throw new OtherException("【" + brandName + "】品牌不存在");
+                }
                 hrTrafficLightDataList.add(hrTrafficLightData);
             }
         }
@@ -355,8 +390,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         switch (cell.getCellType()) {
             case FORMULA:
                 // 评估公式并获取结果
-                CellValue cellValue = evaluator.evaluate(cell);
-                return formatter.formatCellValue(cell, evaluator);
+                // CellValue cellValue = evaluator.evaluate(cell);
+                // return formatter.formatCellValue(cell, evaluator);
             default:
                 // 使用 DataFormatter 格式化非公式单元格内容
                 return formatter.formatCellValue(cell);
