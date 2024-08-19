@@ -16,6 +16,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.hrtrafficlight.dto.AddOrUpdateHrTrafficLightDTO;
 import com.base.sbc.module.hrtrafficlight.dto.HrTrafficLightDetailDTO;
 import com.base.sbc.module.hrtrafficlight.dto.ListHrTrafficLightVersionsDTO;
@@ -37,6 +38,7 @@ import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -65,16 +67,29 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
     private CcmFeignService ccmFeignService;
     private AmcService amcService;
 
-    /**
-     * 新增/更新人事红绿灯
-     *
-     * @param addOrUpdateHrTrafficLightDTO 新增/更新数据
-     */
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void addOrUpdateHrTrafficLight(AddOrUpdateHrTrafficLightDTO addOrUpdateHrTrafficLightDTO) {
         HrTrafficLight hrTrafficLight = BeanUtil.copyProperties(addOrUpdateHrTrafficLightDTO, HrTrafficLight.class);
+        String id = hrTrafficLight.getId();
+        if (ObjectUtil.isNotEmpty(id) && "1".equals(addOrUpdateHrTrafficLightDTO.getDelFlag())) {
+            // 删除主表
+            removeById(id);
+            // 删除版本表
+            LambdaQueryWrapper<HrTrafficLightVersion> hrTrafficLightVersionQueryWrapper = new LambdaQueryWrapper<>();
+            hrTrafficLightVersionQueryWrapper.eq(HrTrafficLightVersion::getHrTrafficLightId, id);
+            List<HrTrafficLightVersion> hrTrafficLightVersionList = hrTrafficLightVersionService.list(hrTrafficLightVersionQueryWrapper);
+            if (ObjectUtil.isNotEmpty(hrTrafficLightVersionList)) {
+                List<String> versionIdList = hrTrafficLightVersionList.stream().map(HrTrafficLightVersion::getId).collect(Collectors.toList());
+                hrTrafficLightVersionService.removeBatchByIds(versionIdList);
+
+                // 删除数据表
+                LambdaQueryWrapper<HrTrafficLightData> hrTrafficLightDataQueryWrapper = new LambdaQueryWrapper<>();
+                hrTrafficLightDataQueryWrapper.in(HrTrafficLightData::getHrTrafficLightVersionId, versionIdList);
+                hrTrafficLightDataService.remove(hrTrafficLightDataQueryWrapper);
+            }
+        }
         try {
             saveOrUpdate(hrTrafficLight);
         } catch (DuplicateKeyException e) {
@@ -82,12 +97,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         }
     }
 
-    /**
-     * 人事红绿灯列表查询
-     *
-     * @param listHrTrafficLightsDTO 查询条件
-     * @return 人事红绿灯列表
-     */
     @Override
     public List<ListHrTrafficLightsVO> listHrTrafficLights(ListHrTrafficLightsDTO listHrTrafficLightsDTO) {
         LambdaQueryWrapper<HrTrafficLight> hrTrafficLightQueryWrapper = new LambdaQueryWrapper<>();
@@ -99,16 +108,14 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 ObjectUtil.isNotEmpty(listHrTrafficLightsDTO.getHrYearCode()),
                 HrTrafficLight::getHrYearCode,
                 listHrTrafficLightsDTO.getHrYearCode());
+        hrTrafficLightQueryWrapper.eq(
+                ObjectUtil.isNotEmpty(listHrTrafficLightsDTO.getDisableFlag()),
+                HrTrafficLight::getDisableFlag,
+                listHrTrafficLightsDTO.getDisableFlag());
         List<HrTrafficLight> hrTrafficLightList = list(hrTrafficLightQueryWrapper);
         return BeanUtil.copyToList(hrTrafficLightList, ListHrTrafficLightsVO.class);
     }
 
-    /**
-     * 人事红绿灯版本列表查询
-     *
-     * @param listHrTrafficLightVersionsDTO 查询条件
-     * @return 人事红绿灯版本列表
-     */
     @Override
     public List<HrTrafficLightVersion> listHrTrafficLightVersions(ListHrTrafficLightVersionsDTO listHrTrafficLightVersionsDTO) {
         LambdaQueryWrapper<HrTrafficLightVersion> hrTrafficLightVersionQueryWrapper = new LambdaQueryWrapper<>();
@@ -117,12 +124,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         return hrTrafficLightVersionService.list(hrTrafficLightVersionQueryWrapper);
     }
 
-    /**
-     * 人事红绿灯详情查询
-     *
-     * @param hrTrafficLightDetailDTO 查询条件
-     * @return 人事红绿灯详情
-     */
     @Override
     public HrTrafficLightsDetailVO getHrTrafficLightDetail(HrTrafficLightDetailDTO hrTrafficLightDetailDTO) {
         HrTrafficLightVersion hrTrafficLightVersion = hrTrafficLightVersionService.getById(hrTrafficLightDetailDTO.getHrTrafficLightVersionId());
@@ -134,26 +135,38 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         HrTrafficLightsDetailVO hrTrafficLightsDetailVO = new HrTrafficLightsDetailVO();
         LambdaQueryWrapper<HrTrafficLightData> hrTrafficLightDataQueryWrapper = new LambdaQueryWrapper<>();
         hrTrafficLightDataQueryWrapper.eq(HrTrafficLightData::getHrTrafficLightVersionId, hrTrafficLightDetailDTO.getHrTrafficLightVersionId());
+        hrTrafficLightDataQueryWrapper.like(
+                ObjectUtil.isNotEmpty(hrTrafficLightDetailDTO.getSearch()),
+                HrTrafficLightData::getColumnValue,
+                hrTrafficLightDetailDTO.getSearch());
+        hrTrafficLightDataQueryWrapper.eq(
+                ObjectUtil.isNotEmpty(hrTrafficLightDetailDTO.getUsername()),
+                HrTrafficLightData::getUsername,
+                hrTrafficLightDetailDTO.getUsername());
         // 查询数据
         List<HrTrafficLightData> dataList = hrTrafficLightDataService.list(hrTrafficLightDataQueryWrapper);
         // 格式化数据集合
-        List<Map<String, String>> dataMapList = new ArrayList<>(dataList.size());
+        List<Map<String, Map<String, String>>> dataMapList = new ArrayList<>(dataList.size());
         if (ObjectUtil.isNotEmpty(dataList)) {
             Map<Integer, List<HrTrafficLightData>> map = dataList
                     .stream().collect(Collectors.groupingBy(HrTrafficLightData::getRowIdx, LinkedHashMap::new, Collectors.toList()));
             for (List<HrTrafficLightData> value : map.values()) {
-                Map<String, String> dataMap = new LinkedHashMap<>();
+                Map<String, Map<String, String>> dataMap = new LinkedHashMap<>();
                 for (HrTrafficLightData hrTrafficLightData : value) {
                     String columnNameOne = hrTrafficLightData.getColumnNameOne();
                     String columnNameTwo = hrTrafficLightData.getColumnNameTwo();
                     String columnValue = hrTrafficLightData.getColumnValue();
+                    String color = hrTrafficLightData.getColor();
+                    Map<String, String> dataItemMap = new LinkedHashMap<>();
+                    dataItemMap.put("value", ObjectUtil.isNotEmpty(columnValue) ? columnValue : "");
+                    dataItemMap.put("color", ObjectUtil.isNotEmpty(color) ? color : "");
                     if (twoHeadType.contains(hrTrafficLightVersion.getType())) {
                         // 二级表头
                         dataMap.put(columnNameOne + "-"
-                                + columnNameTwo, ObjectUtil.isNotEmpty(columnValue) ? columnValue : "");
+                                + columnNameTwo, dataItemMap);
                     } else {
                         // 一级表头
-                        dataMap.put(columnNameOne, ObjectUtil.isNotEmpty(columnValue) ? columnValue : "");
+                        dataMap.put(columnNameOne, dataItemMap);
                     }
                 }
                 dataMapList.add(dataMap);
@@ -199,12 +212,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         return hrTrafficLightsDetailVO;
     }
 
-    /**
-     * 人事红绿灯导入
-     *
-     * @param file                    文件
-     * @param trafficLightVersionType 类型息
-     */
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -237,15 +244,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         }
     }
 
-    /**
-     * 生成人事红绿灯数据
-     *
-     * @param hrTrafficLightId        人事红绿灯主表 ID
-     * @param trafficLightVersionType 人事红绿灯版本类型
-     * @param file                    Excel 文件
-     * @param twoHeadType             双层表头集合
-     * @param sheetNoName             Excel sheetNo名称
-     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void readExcel(MultipartFile file,
@@ -254,31 +252,33 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                           String sheetNoName,
                           List<Integer> twoHeadType) {
         // 初始化表格数据
-        List<Map<Integer, String>> cachedDataList = new ArrayList<>();
+        List<Map<Integer, Map<String, String>>> cachedDataList = new ArrayList<>();
         try {
+            // 开始读取 Excel 数据
             InputStream inputStream = file.getInputStream();
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             Sheet sheet = workbook.getSheet(sheetNoName); // 获取第一个工作表
             DataFormatter formatter = new DataFormatter(); // 创建 DataFormatter
-            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator(); // 创建 FormulaEvaluator
+            FormulaEvaluator evaluator = new XSSFFormulaEvaluator(workbook); // 创建 FormulaEvaluator
 
             for (Row row : sheet) {
-                Map<Integer, String> dataMap = new LinkedHashMap<>();
+                Map<Integer, Map<String, String>> dataMap = new LinkedHashMap<>();
                 for (Cell cell : row) {
                     String cellValue = getCellFormattedValue(cell, formatter, evaluator);
-                    Map<String, String> map = new HashMap<>();
+                    Map<String, String> map = new LinkedHashMap<>();
+                    // 如果当前字体 有颜色 则保存颜色信息
                     if (ObjectUtil.isNotEmpty(cellValue)) {
                         CellStyle cellStyle = cell.getCellStyle();
                         XSSFFont fontAt = workbook.getFontAt(cellStyle.getFontIndexAsInt());
                         XSSFColor xssfColor = fontAt.getXSSFColor();
-                        String colorRgb = ObjectUtil.isNotEmpty(xssfColor) ? xssfColor.getARGBHex().substring(2, 8) : "";
+                        String colorRgb = ObjectUtil.isNotEmpty(xssfColor) ? ("#" + xssfColor.getARGBHex().substring(2, 8)) : null;
                         map.put("value", cellValue);
                         map.put("color", colorRgb);
-                        dataMap.put(cell.getColumnIndex(), JSONUtil.toJsonStr(map));
+                        dataMap.put(cell.getColumnIndex(), map);
                     } else {
                         map.put("value", null);
                         map.put("color", null);
-                        dataMap.put(cell.getColumnIndex(), JSONUtil.toJsonStr(map));
+                        dataMap.put(cell.getColumnIndex(), map);
                     }
                 }
                 cachedDataList.add(dataMap);
@@ -292,16 +292,18 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         }
         boolean contains = twoHeadType.contains(trafficLightVersionType);
         if (contains) {
-            // 双层表头
+            // 双层表头 双层表头的 行数必须大于等于 3 否则视为空
             if (cachedDataList.size() < 3) {
                 throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
             }
         } else {
-            // 单层表头
+            // 单层表头 单层表头的 行数必须大于等于 2 否则视为空
             if (cachedDataList.size() < 2) {
                 throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
             }
         }
+
+        // 获取人事红绿灯主表数据
         HrTrafficLight hrTrafficLight = getById(hrTrafficLightId);
         if (ObjectUtil.isEmpty(hrTrafficLight)) {
             throw new OtherException("数据不存在，请刷新后重新导入");
@@ -321,57 +323,82 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
             throw new OtherException("网络波动，读取异常，请重新导入");
         }
 
-        // 对数据进行校验
-        // 判断工号是否存在
+        // 获取所有工号信息
         List<User> users = amcService.allUsers();
         List<String> usernameList = users.stream().map(User::getUsername).collect(Collectors.toList());
-        // 判断品牌是否存在
+        // 获取所有品牌信息
         Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
         Map<String, String> brandMap = dictInfoToMap.get("C8_Brand");
         Collection<String> brandValueList = brandMap.values();
 
         // 再生成人事红红绿灯数据
         List<HrTrafficLightData> hrTrafficLightDataList = new ArrayList<>(cachedDataList.size() - 1);
-        Map<Integer, String> oneHeadMap = cachedDataList.get(0);
-        Map<Integer, String> twoHeadMap = cachedDataList.get(1);
+        // 拿到一级表头
+        Map<Integer, Map<String, String>> oneHeadMap = cachedDataList.get(0);
+        // 拿到二级表头 不一定是表头 如果当前是双层表头 那么 这个就是二级表头 如果不是 那么就是数据 不用管
+        Map<Integer, Map<String, String>> twoHeadMap = cachedDataList.get(1);
+        // 根据一级表头拿列的索引
         Set<Integer> idxSet = oneHeadMap.keySet();
+        // 初始化品牌的索引列位置
         Integer brandIdx = null;
+        // 初始化工号的索引列位置
         Integer usernameIdx = null;
-        for (Map.Entry<Integer, String> item : contains ? twoHeadMap.entrySet() : oneHeadMap.entrySet()) {
-            JSONObject dataJson = JSONUtil.parseObj(item);
-            String data = dataJson.getStr("value");
+
+        // 拿到表头
+        List<Map<String, String>> headList = CollUtil.newArrayList(contains ? twoHeadMap.values() : oneHeadMap.values());
+
+        for (int head = 0; head < headList.size(); head++) {
+            Map<String, String> headMap = headList.get(head);
+            String data = headMap.get("value");
             if (data.equals("品牌")) {
-                brandIdx = item.getKey();
+                brandIdx = head;
             }
             if (data.equals("工号")) {
-                usernameIdx = item.getKey();
+                usernameIdx = head;
             }
         }
+
         if (ObjectUtil.isEmpty(brandIdx)) {
-            throw new OtherException(sheetNoName + "品牌不能为空");
+            throw new OtherException(sheetNoName + "sheet页品牌不能为空");
         }
         if (ObjectUtil.isEmpty(usernameIdx)) {
-            throw new OtherException(sheetNoName + "工号不能为空");
+            throw new OtherException(sheetNoName + "sheet页工号不能为空");
         }
         for (int i = (contains ? 2 : 1); i < cachedDataList.size(); i++) {
-            Map<Integer, String> dataMap = cachedDataList.get(i);
+            Map<Integer, Map<String, String>> dataMap = cachedDataList.get(i);
 
-            String username = dataMap.get(usernameIdx);
+            // 获取工号
+            Map<String, String> usernameDataMap = dataMap.get(usernameIdx);
+            String username = usernameDataMap.get("value");
+            if (ObjectUtil.isEmpty(username)) {
+                throw new OtherException(sheetNoName + "sheet页工号不能为空");
+            }
             if (!usernameList.contains(username)) {
-                throw new OtherException(sheetNoName + "【" + username + "】" + "工号不存在");
+                throw new OtherException(sheetNoName + "sheet页【" + username + "】" + "工号不存在");
+            }
+
+            // 获取品牌
+            Map<String, String> brandDataMap = dataMap.get(brandIdx);
+            String brandName = brandDataMap.get("value");
+            if (ObjectUtil.isEmpty(brandName)) {
+                throw new OtherException(sheetNoName + "sheet页品牌不能为空");
+            }
+            if (!brandValueList.contains(brandName)) {
+                throw new OtherException(sheetNoName + "sheet页【" + brandName + "】品牌不存在");
             }
             String oneHeadTemp = "";
             for (Integer idx : idxSet) {
+                // 生成认识红绿灯数据集合
                 HrTrafficLightData hrTrafficLightData = new HrTrafficLightData();
                 hrTrafficLightData.setHrTrafficLightVersionId(hrTrafficLightVersion.getId());
                 hrTrafficLightData.setRowIdx(i);
-                JSONObject oneHeadJson = JSONUtil.parseObj(oneHeadMap.get(idx));
-                String oneHead = oneHeadJson.getStr("value");
-                JSONObject twoHeadJson = JSONUtil.parseObj(twoHeadMap.get(idx));
-                String twoHead = twoHeadJson.getStr("value");
-                JSONObject dataJson = JSONUtil.parseObj(dataMap.get(idx));
-                String data = dataJson.getStr("value");
-                String color = dataJson.getStr("color");
+                Map<String, String> inOneHeadMap = oneHeadMap.get(idx);
+                String oneHead = inOneHeadMap.get("value");
+                Map<String, String> inTwoHeadMap = twoHeadMap.get(idx);
+                String twoHead = inTwoHeadMap.get("value");
+                Map<String, String> inDataMap = dataMap.get(idx);
+                String value = inDataMap.get("value");
+                String color = inDataMap.get("color");
                 if (StrUtil.isBlank(oneHead)) {
                     oneHead = oneHeadTemp;
                 } else {
@@ -381,17 +408,10 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 if (contains) {
                     hrTrafficLightData.setColumnNameTwo(twoHead);
                 }
-                hrTrafficLightData.setColumnValue(data);
+                hrTrafficLightData.setColumnValue(value);
                 hrTrafficLightData.setColor(color);
-                String brandName = dataMap.get(brandIdx);
-                if (ObjectUtil.isEmpty(brandName)) {
-                    throw new OtherException(sheetNoName + "表品牌不能为空");
-                }
-                if (!brandValueList.contains(brandName)) {
-                    hrTrafficLightData.setBrandName(brandName);
-                } else {
-                    throw new OtherException(sheetNoName + "表【" + brandName + "】品牌不存在");
-                }
+                hrTrafficLightData.setBrandName(brandName);
+                hrTrafficLightData.setUsername(username);
                 hrTrafficLightDataList.add(hrTrafficLightData);
             }
         }
@@ -402,8 +422,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         switch (cell.getCellType()) {
             case FORMULA:
                 // 评估公式并获取结果
-                // CellValue cellValue = evaluator.evaluate(cell);
-                // return formatter.formatCellValue(cell, evaluator);
+                CellValue cellValue = evaluator.evaluate(cell);
+                return cellValue.formatAsString();
             default:
                 // 使用 DataFormatter 格式化非公式单元格内容
                 return formatter.formatCellValue(cell);

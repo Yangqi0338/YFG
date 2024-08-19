@@ -280,10 +280,10 @@ public interface AmcService {
     @GetMapping("/amc/api/token/user/getByMenuUrlUser")
     List<UserCompany> getByMenuUrlUser(@RequestParam("url") String url);
 
-  /**
+    /**
      * 查询用户列表
      */
     @GetMapping("/amc/api/token/manageGroupUser/allUsers")
-        List<User> allUsers();
+    List<User> allUsers();
 
 }

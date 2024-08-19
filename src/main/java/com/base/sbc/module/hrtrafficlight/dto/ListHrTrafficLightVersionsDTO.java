@@ -58,5 +58,4 @@ public class ListHrTrafficLightVersionsDTO implements Serializable {
             "13-月均下单数SKC（cmt+fob）" +
             "14-月均下单数SKU（cmt+fob）")
     private Integer type;
-
 }

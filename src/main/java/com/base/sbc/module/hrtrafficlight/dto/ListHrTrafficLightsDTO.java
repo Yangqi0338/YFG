@@ -35,4 +35,10 @@ public class ListHrTrafficLightsDTO implements Serializable {
     @ApiModelProperty("人事红绿灯年份名称（字典）")
     private String hrYearCode;
 
+    /**
+     * 禁用状态（0-否 1-是 默认 0）
+     */
+    @ApiModelProperty("禁用状态（0-否 1-是 默认 0）")
+    private Integer disableFlag;
+
 }

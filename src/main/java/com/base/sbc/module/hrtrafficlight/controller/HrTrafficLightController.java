@@ -34,9 +34,9 @@ public class HrTrafficLightController {
     private IHrTrafficLightService hrTrafficLightService;
 
     /**
-     * 新增/更新人事红绿灯
+     * 新增/更新/删除人事红绿灯
      *
-     * @param addOrUpdateHrTrafficLightDTO 新增/更新数据
+     * @param addOrUpdateHrTrafficLightDTO 新增/更新/删除数据
      */
     @ApiOperation(value = "新增/更新人事红绿灯")
     @GetMapping("/addOrUpdateHrTrafficLight")

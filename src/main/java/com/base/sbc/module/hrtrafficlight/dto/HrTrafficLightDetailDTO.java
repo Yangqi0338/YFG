@@ -24,4 +24,16 @@ public class HrTrafficLightDetailDTO implements Serializable {
     @ApiModelProperty("人事红绿灯版本 ID")
     private String hrTrafficLightVersionId;
 
+    /**
+     * 字段搜索
+     */
+    @ApiModelProperty("字段搜索")
+    private String search;
+
+    /**
+     * 工号
+     */
+    @ApiModelProperty("工号")
+    private String username;
+
 }

@@ -66,9 +66,9 @@ public class HrTrafficLightData extends BaseDataEntity<String> implements Serial
     @ApiModelProperty("品牌名称")
     private String brandName;
     /**
-     * 品牌编码
+     * 工号
      */
-    @ApiModelProperty("品牌编码")
-    private String brandCode;
+    @ApiModelProperty("工号")
+    private String username;
 
 }

@@ -49,9 +49,21 @@ public class AddOrUpdateHrTrafficLightDTO implements Serializable {
     private String hrYearCode;
 
     /**
+     * 禁用状态（0-否 1-是 默认 0）
+     */
+    @ApiModelProperty("禁用状态（0-否 1-是 默认 0）")
+    private Integer disableFlag;
+
+    /**
      * 排序（正序）
      */
     @ApiModelProperty("排序（正序）")
     private Integer sort;
+
+    /**
+     * 删除状态（0-否 1-是 默认 0）
+     */
+    @ApiModelProperty("删除状态（0-否 1-是 默认 0）")
+    private String delFlag;
 
 }

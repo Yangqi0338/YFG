@@ -25,9 +25,9 @@ import java.util.Map;
 public interface IHrTrafficLightService extends IService<HrTrafficLight> {
 
     /**
-     * 新增/更新人事红绿灯
+     * 新增/更新/删除人事红绿灯
      *
-     * @param addOrUpdateHrTrafficLightDTO 新增/更新数据
+     * @param addOrUpdateHrTrafficLightDTO 新增/更新/删除数据
      */
     void addOrUpdateHrTrafficLight(AddOrUpdateHrTrafficLightDTO addOrUpdateHrTrafficLightDTO);
 

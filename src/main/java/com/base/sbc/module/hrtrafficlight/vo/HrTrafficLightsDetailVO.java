@@ -31,5 +31,5 @@ public class HrTrafficLightsDetailVO implements Serializable {
      * 数据列表
      */
     @ApiModelProperty("数据列表")
-    private List<Map<String, String>> dataList;
+    private List<Map<String, Map<String, String>>> dataList;
 }
