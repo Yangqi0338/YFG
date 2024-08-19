@@ -10,6 +10,9 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.amc.entity.User;
+import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
@@ -60,6 +63,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
     private IHrTrafficLightVersionService hrTrafficLightVersionService;
     private IHrTrafficLightDataService hrTrafficLightDataService;
     private CcmFeignService ccmFeignService;
+    private AmcService amcService;
 
     /**
      * 新增/更新人事红绿灯
@@ -286,7 +290,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         if (ObjectUtil.isEmpty(cachedDataList)) {
             throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
         }
-        if (twoHeadType.contains(trafficLightVersionType)) {
+        boolean contains = twoHeadType.contains(trafficLightVersionType);
+        if (contains) {
             // 双层表头
             if (cachedDataList.size() < 3) {
                 throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
@@ -318,6 +323,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
         // 对数据进行校验
         // 判断工号是否存在
+        List<User> users = amcService.allUsers();
+        List<String> usernameList = users.stream().map(User::getUsername).collect(Collectors.toList());
         // 判断品牌是否存在
         Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
         Map<String, String> brandMap = dictInfoToMap.get("C8_Brand");
@@ -328,28 +335,30 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         Map<Integer, String> oneHeadMap = cachedDataList.get(0);
         Map<Integer, String> twoHeadMap = cachedDataList.get(1);
         Set<Integer> idxSet = oneHeadMap.keySet();
-        for (int i = (twoHeadType.contains(trafficLightVersionType) ? 2 : 1); i < cachedDataList.size(); i++) {
-            Map<Integer, String> dataMap = cachedDataList.get(i);
-            Integer brandIdx = null;
-            if (twoHeadType.contains(trafficLightVersionType)) {
-                for (Map.Entry<Integer, String> item : twoHeadMap.entrySet()) {
-                    JSONObject dataJson = JSONUtil.parseObj(item);
-                    String data = dataJson.getStr("value");
-                    if (data.equals("品牌")) {
-                        brandIdx = item.getKey();
-                    }
-                }
-            } else {
-                for (Map.Entry<Integer, String> item : oneHeadMap.entrySet()) {
-                    JSONObject dataJson = JSONUtil.parseObj(item);
-                    String data = dataJson.getStr("value");
-                    if (data.equals("品牌")) {
-                        brandIdx = item.getKey();
-                    }
-                }
+        Integer brandIdx = null;
+        Integer usernameIdx = null;
+        for (Map.Entry<Integer, String> item : contains ? twoHeadMap.entrySet() : oneHeadMap.entrySet()) {
+            JSONObject dataJson = JSONUtil.parseObj(item);
+            String data = dataJson.getStr("value");
+            if (data.equals("品牌")) {
+                brandIdx = item.getKey();
             }
-            if (ObjectUtil.isEmpty(brandIdx)) {
-                throw new OtherException(sheetNoName + "品牌不能为空");
+            if (data.equals("工号")) {
+                usernameIdx = item.getKey();
+            }
+        }
+        if (ObjectUtil.isEmpty(brandIdx)) {
+            throw new OtherException(sheetNoName + "品牌不能为空");
+        }
+        if (ObjectUtil.isEmpty(usernameIdx)) {
+            throw new OtherException(sheetNoName + "工号不能为空");
+        }
+        for (int i = (contains ? 2 : 1); i < cachedDataList.size(); i++) {
+            Map<Integer, String> dataMap = cachedDataList.get(i);
+
+            String username = dataMap.get(usernameIdx);
+            if (!usernameList.contains(username)) {
+                throw new OtherException(sheetNoName + "【" + username + "】" + "工号不存在");
             }
             String oneHeadTemp = "";
             for (Integer idx : idxSet) {
@@ -369,16 +378,19 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                     oneHeadTemp = oneHead;
                 }
                 hrTrafficLightData.setColumnNameOne(oneHead);
-                if (twoHeadType.contains(trafficLightVersionType)) {
+                if (contains) {
                     hrTrafficLightData.setColumnNameTwo(twoHead);
                 }
                 hrTrafficLightData.setColumnValue(data);
                 hrTrafficLightData.setColor(color);
                 String brandName = dataMap.get(brandIdx);
+                if (ObjectUtil.isEmpty(brandName)) {
+                    throw new OtherException(sheetNoName + "表品牌不能为空");
+                }
                 if (!brandValueList.contains(brandName)) {
                     hrTrafficLightData.setBrandName(brandName);
                 } else {
-                    throw new OtherException("【" + brandName + "】品牌不存在");
+                    throw new OtherException(sheetNoName + "表【" + brandName + "】品牌不存在");
                 }
                 hrTrafficLightDataList.add(hrTrafficLightData);
             }
