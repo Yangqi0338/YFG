@@ -709,6 +709,8 @@ public class ExcelUtils {
                 jacksonObject.forEach(jsonObject::putIfAbsent);
             }
         }
+        jsonArray = JSONArray.parseArray(JSONObject.toJSONString(jsonArray));
+
         //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
         if (!mapColumns.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
