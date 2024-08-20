@@ -2062,13 +2062,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*取消关联*/
         styleColorList.forEach(s -> {
             /*验证是否下发*/
-            if (!s.getScmSendFlag().equals(BaseGlobal.NO)) {
-                throw new OtherException("数据存在已下发");
-            }
+//            if (!s.getScmSendFlag().equals(BaseGlobal.NO)) {
+//                throw new OtherException("数据存在已下发");
+//            }
             s.setBom("");
         });
         /*取消关联*/
         packInfoList.forEach(p -> {
+            QueryWrapper qw = new QueryWrapper();
+            qw.eq("foreign_id", p.getId());
+            qw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+            qw.in("scm_send_flag", StringUtils.convertList("1,3"));
+            if (packBomService.exists(qw)) {
+                throw new OtherException("物料清单存在已下发数据无法取消");
+            }
             p.setStyleNo("");
             p.setColorCode("");
             p.setColor("");
