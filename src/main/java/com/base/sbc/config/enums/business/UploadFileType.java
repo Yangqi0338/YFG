@@ -40,6 +40,7 @@ public enum UploadFileType {
     planningProjectPlank("planningProjectPlank"),
     materialUpload("materialUpload"),
     Account(""),
+    messageTemptableUpload("messageTemptableUpload"),
 
     ;
     /** 编码 */

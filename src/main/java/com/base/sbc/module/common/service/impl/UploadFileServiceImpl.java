@@ -307,6 +307,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case materialUpload:
                         objectName = "ErrorMsg/material/" + code + "." + extName;
                         break;
+                    case messageTemptableUpload:
+                        objectName = "Message/template/" + System.currentTimeMillis() + "." + extName;
+                        break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                 }
