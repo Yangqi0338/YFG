@@ -787,6 +787,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         //是否齐套
         uw.set(PreProductionSampleTask::getKitting, dto.getKitting());
         uw.set(PreProductionSampleTask::getKittingReason, dto.getKittingReason());
+        uw.set(PreProductionSampleTask::getKittingReasonName, dto.getKittingReasonName());
         // 齐套状态发生改变,修改齐套时间
         if (!task.getKitting().equals(dto.getKitting())) {
             uw.set(PreProductionSampleTask::getKittingTime, new Date());
