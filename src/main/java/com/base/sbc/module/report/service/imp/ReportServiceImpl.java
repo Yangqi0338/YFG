@@ -186,7 +186,7 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
-        qw.orderByDesc("tsc.create_date");
+        qw.orderByDesc("tsc.create_date,tsc.style_no");
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleSizeReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
