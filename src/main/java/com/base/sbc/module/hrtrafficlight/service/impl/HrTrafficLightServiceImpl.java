@@ -251,7 +251,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 SpringUtil.getBean(IHrTrafficLightService.class).readExcel(
                         file,
                         hrTrafficLightId,
-                        trafficLightVersionType,
+                        value.getCode(),
                         value.getValue(),
                         time++,
                         twoHeadType);
@@ -274,6 +274,9 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
             InputStream inputStream = file.getInputStream();
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             Sheet sheet = workbook.getSheet(sheetNoName); // 获取第一个工作表
+            if (ObjectUtil.isEmpty(sheet)) {
+                return;
+            }
             DataFormatter formatter = new DataFormatter(); // 创建 DataFormatter
             FormulaEvaluator evaluator = new XSSFFormulaEvaluator(workbook); // 创建 FormulaEvaluator
 
@@ -305,6 +308,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 cachedDataList.add(dataMap);
             }
         } catch (IOException e) {
+            log.error("人事红绿灯导入出错", e);
             throw new OtherException(e.getMessage());
         }
         // 没有拿到数据也返回异常
@@ -371,10 +375,10 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         for (int head = 0; head < headList.size(); head++) {
             Map<String, String> headMap = headList.get(head);
             String data = headMap.get("value");
-            if (data.equals("品牌")) {
+            if ("品牌".equals(data)) {
                 brandIdx = head;
             }
-            if (data.equals("工号")) {
+            if ("工号".equals(data)) {
                 usernameIdx = head;
             }
         }

@@ -90,7 +90,7 @@ public class HrTrafficLightController {
     @PostMapping("/importExcel")
     public ApiResult<String> importExcel(@RequestParam("file") MultipartFile file,
                                          @RequestParam("hrTrafficLightId") String hrTrafficLightId,
-                                         @RequestParam("trafficLightVersionType") Integer trafficLightVersionType) {
+                                         @RequestParam(value = "trafficLightVersionType", required = false) Integer trafficLightVersionType) {
         hrTrafficLightService.importExcel(file,hrTrafficLightId, trafficLightVersionType);
         return ApiResult.success("导入成功");
     }
