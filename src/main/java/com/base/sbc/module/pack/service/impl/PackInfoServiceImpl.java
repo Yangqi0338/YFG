@@ -1471,9 +1471,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
         /*验证是否下发*/
         if (color != null) {
-            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
-                throw new OtherException("数据存在已下发");
-            }
+//            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
+//                throw new OtherException("数据存在已下发");
+//            }
             color.setBom("");
             styleColorMapper.updateById(color);
         }
