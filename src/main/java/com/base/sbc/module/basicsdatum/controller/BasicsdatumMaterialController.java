@@ -204,7 +204,7 @@ public class BasicsdatumMaterialController extends BaseController {
             @RequestParam(value = "status", required = false) String status) {
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>()
                 .select("id,material_name,material_code").eq("company_code", baseController.getUserCompany())
-                .like(StringUtils.isNotBlank(search), "material_code_name", search)
+                .like(StringUtils.isNotBlank(search), "material_code_name", StrUtil.replace(search, "_","\\_"))
                 .eq(StringUtils.isNotBlank(status), "status", status)
                 .eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK())
                 .eq("confirm_status", "2")
