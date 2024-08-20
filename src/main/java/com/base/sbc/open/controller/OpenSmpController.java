@@ -22,6 +22,7 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -76,6 +77,7 @@ import com.base.sbc.open.vo.OrderBookDetailDataVo;
 import com.base.sbc.open.vo.OrderBookNameVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -133,6 +135,8 @@ public class OpenSmpController extends BaseController {
     private final UploadFileService uploadFileService;
     private final NodeStatusService nodeStatusService;
     private final OperaLogService operaLogService;
+    @Autowired
+    private StylePicUtils stylePicUtils;
 
     private final BasicsdatumSupplierService supplierService;
 
@@ -512,7 +516,7 @@ public class OpenSmpController extends BaseController {
                 //外发部发出时间 designDetailTime
                 //外发部绑定时间 techReceiveTime
                 //通过状态 status
-                //改版意见 tech_remarks
+                //改版意见 techRemarks
                 //确认时间 processDepartmentDate
                 saveList.add(fob);
                 ids.add(fob.getId());
@@ -596,6 +600,9 @@ public class OpenSmpController extends BaseController {
 
         styleVo.setPatternMaking(patternMakingListVo);
         styleVo.setFiledMap(filedMap);
+
+        String styleNoImgUrl = stylePicUtils.getStyleUrl(styleVo.getStylePic());
+        styleVo.setStylePic(styleNoImgUrl);
 
         return ApiResult.success("查询成功", styleVo);
     }
