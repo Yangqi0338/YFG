@@ -248,8 +248,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         StyleColor old = styleColorService.getById(styleColorId);
 
         LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate())
-                .eq(StyleColor::getId, styleColorId);
+        updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate());
+        updateWrapper.set(StyleColor::getSendMainFabricDate, styleColorCorrectInfo.getSendMainFabricDate());
+        updateWrapper.set(StyleColor::getSendBatchingDate1, styleColorCorrectInfo.getSendBatchingDate1());
+        updateWrapper.set(StyleColor::getSendBatchingDate2, styleColorCorrectInfo.getSendBatchingDate2());
+        updateWrapper.set(StyleColor::getSendSingleDate, styleColorCorrectInfo.getSendSingleDate());
+        updateWrapper.eq(StyleColor::getId, styleColorId);
         styleColorService.update(updateWrapper);
 
         StyleColor styleColor1 = styleColorService.getById(styleColorId);
