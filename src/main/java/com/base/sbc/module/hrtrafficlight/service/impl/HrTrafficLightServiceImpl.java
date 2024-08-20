@@ -93,6 +93,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 hrTrafficLightDataQueryWrapper.in(HrTrafficLightData::getHrTrafficLightVersionId, versionIdList);
                 hrTrafficLightDataService.remove(hrTrafficLightDataQueryWrapper);
             }
+            return;
         }
         try {
             saveOrUpdate(hrTrafficLight);
@@ -286,7 +287,12 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                         CellStyle cellStyle = cell.getCellStyle();
                         XSSFFont fontAt = workbook.getFontAt(cellStyle.getFontIndexAsInt());
                         XSSFColor xssfColor = fontAt.getXSSFColor();
-                        String colorRgb = ObjectUtil.isNotEmpty(xssfColor) ? ("#" + xssfColor.getARGBHex().substring(2, 8)) : null;
+                        String colorRgb = null;
+                        // 过滤黑颜色
+                        if (ObjectUtil.isNotEmpty(xssfColor)) {
+                            colorRgb = "#" + xssfColor.getARGBHex().substring(2, 8);
+                            colorRgb = "#000000".equals(colorRgb) ? null : colorRgb;
+                        }
                         map.put("value", cellValue);
                         map.put("color", colorRgb);
                         dataMap.put(cell.getColumnIndex(), map);
@@ -426,6 +432,11 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 hrTrafficLightData.setColumnValue(value);
                 hrTrafficLightData.setColor(color);
                 hrTrafficLightData.setBrandName(brandName);
+                for (Map.Entry<String, String> item : brandMap.entrySet()) {
+                    if (brandName.equals(item.getValue())) {
+                        hrTrafficLightData.setBrandCode(item.getKey());
+                    }
+                }
                 hrTrafficLightData.setUsername(username);
                 hrTrafficLightDataList.add(hrTrafficLightData);
             }

@@ -87,7 +87,7 @@ public class HrTrafficLightController {
      * @param trafficLightVersionType 类型
      */
     @ApiOperation(value = "人事红绿灯导入")
-    @GetMapping("/importExcel")
+    @PostMapping("/importExcel")
     public ApiResult<String> importExcel(@RequestParam("file") MultipartFile file,
                                          @RequestParam("hrTrafficLightId") String hrTrafficLightId,
                                          @RequestParam("trafficLightVersionType") Integer trafficLightVersionType) {
