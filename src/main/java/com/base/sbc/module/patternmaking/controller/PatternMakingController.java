@@ -577,4 +577,13 @@ public class PatternMakingController {
     public ApiResult<String> copyUrl(String id, Integer hours) {
         return patternMakingService.copyUrl(id, hours);
     }
+    @ApiOperation(value = "样衣看板-设计收到时间编辑")
+    @PostMapping("/updateDesignReceiptDate")
+    public boolean editDesignReceiptDate(@RequestBody PatternMakingDesignReceiptDto dto) {
+        patternMakingService.updateDesignReceiptDate(dto);
+        return true;
+    }
+
+
+
 }

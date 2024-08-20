@@ -456,6 +456,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean sampleDesignSendFOB(StyleSendDto dto);
 
+    /**
+     * 修改设计收到时间
+     * @param dto
+     */
+    void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

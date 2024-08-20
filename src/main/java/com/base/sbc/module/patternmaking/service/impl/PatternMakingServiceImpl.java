@@ -428,6 +428,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
 
+    @Override
+    public void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getReferSample, dto.getDesignReceiptDate());
+        this.update(updateWrapper);
+    }
+
 
     private PatternMakingScoreVo sampleBoardScore(BaseQueryWrapper<SampleBoardVo> qw ) {
         return getBaseMapper().sampleBoardScore(qw);
