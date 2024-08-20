@@ -14,22 +14,7 @@ import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
-import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
-import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
-import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
-import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
-import com.base.sbc.module.patternmaking.dto.SetKittingDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
-import com.base.sbc.module.patternmaking.dto.SetSortDto;
-import com.base.sbc.module.patternmaking.dto.StyleSendDto;
-import com.base.sbc.module.patternmaking.dto.SuspendDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.NodeListVo;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
@@ -455,6 +440,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     ApiResult<String> copyUrl(String id, Integer hours);
 
     boolean sampleDesignSendFOB(StyleSendDto dto);
+
+    /**
+     * 修改设计收到时间
+     * @param dto
+     */
+    void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

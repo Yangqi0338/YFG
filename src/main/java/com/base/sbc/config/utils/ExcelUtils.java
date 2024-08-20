@@ -761,7 +761,7 @@ public class ExcelUtils {
                                         //minio
                                         imgUrl = minioUtils.getObjectUrl(jsonObject.getString(imgColumn));
                                     } else {
-                                        imgUrl = imgColumn;
+                                        imgUrl = jsonObject.getString(imgColumn);
                                     }
                                     bytes = HttpUtil.downloadBytes(imgUrl);
                                 }

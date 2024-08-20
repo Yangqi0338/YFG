@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -66,7 +67,7 @@ public class PackBomSizeServiceImpl extends AbstractPackBaseServiceImpl<PackBomS
                 packBomSizeVo.setSort(collect.get(packBomSizeVo.getSizeId()));
             }
         }
-        packBomSizeVos.sort(Comparator.comparing(PackBomSizeVo::getSort));
+        packBomSizeVos.sort(Comparator.comparing(o-> StrUtil.isNotBlank(o.getSort())?o.getSort():""));
         return packBomSizeVos;
     }
 

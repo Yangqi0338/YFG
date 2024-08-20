@@ -28,22 +28,7 @@ import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
-import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
-import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
-import com.base.sbc.module.patternmaking.dto.ScoreDto;
-import com.base.sbc.module.patternmaking.dto.SetKittingDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
-import com.base.sbc.module.patternmaking.dto.SetSortDto;
-import com.base.sbc.module.patternmaking.dto.StyleSendDto;
-import com.base.sbc.module.patternmaking.dto.SuspendDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -577,4 +562,13 @@ public class PatternMakingController {
     public ApiResult<String> copyUrl(String id, Integer hours) {
         return patternMakingService.copyUrl(id, hours);
     }
+    @ApiOperation(value = "样衣看板-设计收到时间编辑")
+    @PostMapping("/updateDesignReceiptDate")
+    public boolean editDesignReceiptDate(@RequestBody PatternMakingDesignReceiptDto dto) {
+        patternMakingService.updateDesignReceiptDate(dto);
+        return true;
+    }
+
+
+
 }

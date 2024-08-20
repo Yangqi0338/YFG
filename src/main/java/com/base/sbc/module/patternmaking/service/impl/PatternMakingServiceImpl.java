@@ -78,24 +78,7 @@ import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
-import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
-import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
-import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
-import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
-import com.base.sbc.module.patternmaking.dto.ScoreConfigSearchDto;
-import com.base.sbc.module.patternmaking.dto.SetKittingDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
-import com.base.sbc.module.patternmaking.dto.SetSortDto;
-import com.base.sbc.module.patternmaking.dto.StyleSendDto;
-import com.base.sbc.module.patternmaking.dto.SuspendDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
@@ -426,6 +409,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.set(PatternMaking::getReferSample, dto.getStatus());
         this.update(updateWrapper);
         return true;
+    }
+
+    @Override
+    public void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getReferSample, dto.getDesignReceiptDate());
+        this.update(updateWrapper);
     }
 
 
