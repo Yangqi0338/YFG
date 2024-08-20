@@ -20,6 +20,7 @@ import java.util.Arrays;
 public enum ReplayRatingType {
     /**/
     STYLE("单款复盘"),
+    STYLE_REVERSE("单款复盘-逆向查询"),
     PATTERN("版型复盘"),
     FABRIC("面料复盘"),
     COLOR("颜色复盘"),
