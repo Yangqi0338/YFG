@@ -12,7 +12,9 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -485,6 +487,10 @@ public class OpenSmpController extends BaseController {
         StringBuilder msg = new StringBuilder();
         List<String> codes = new ArrayList<>();
         try{
+            List<String> foreignIds = fobs.stream().map(PreProductionSampleTaskFob::getId).distinct().collect(Collectors.toList());
+            List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.listByField("foreign_id", foreignIds);
+            Map<String, String> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getForeignId() + o.getStyleId(), BaseEntity::getId,(v1,v2)->v1));
+
             codes = fobs.stream().map(PreProductionSampleTaskFob::getCode).distinct().collect(Collectors.toList());
 
             LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
@@ -518,6 +524,12 @@ public class OpenSmpController extends BaseController {
                 //通过状态 status
                 //改版意见 techRemarks
                 //确认时间 processDepartmentDate
+                if(dbMap.containsKey(fob.getId()+fob.getStyleId())){
+                    fob.setId(dbMap.get(fob.getId()+fob.getStyleId()));
+                }else{
+                    fob.setForeignId(fob.getId());
+                    fob.setId(IdGen.getId().toString());
+                }
                 saveList.add(fob);
                 ids.add(fob.getId());
             }
