@@ -52,7 +52,7 @@ public class PatternMakingReportVo {
 
     public BigDecimal getIndex9() {
         if(BigDecimalUtil.notEqualZero(index1) && BigDecimalUtil.notEqualZero(index8)){
-            return (index1.subtract(index9)).divide(index9, 2, RoundingMode.DOWN).multiply(BigDecimal.TEN.multiply(BigDecimal.TEN));
+            return (index1.subtract(index8)).divide(index8, 2, RoundingMode.DOWN).multiply(BigDecimal.TEN.multiply(BigDecimal.TEN));
         }
         return BigDecimal.ZERO;
     }
