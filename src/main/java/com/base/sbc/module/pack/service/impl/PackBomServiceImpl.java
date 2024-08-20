@@ -582,7 +582,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         long l1 = System.currentTimeMillis();
         Page<String> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper<Object> qw = new QueryWrapper();
-        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", bomFabricDto.getMaterialCodeName());
+        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", StrUtil.replace(bomFabricDto.getMaterialCodeName(), "_","\\_"));
         qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "pb.supplier_material_code", bomFabricDto.getMaterialCodeName());
         baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
         long l2 = System.currentTimeMillis();
