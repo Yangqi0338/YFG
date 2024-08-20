@@ -228,7 +228,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
-        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl", "sampleVideoUrl");
+        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl");
         if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
             // 根据款查询对应套版款的可否改版信息并设置
             Style styleInfo = styleService.getById(styleId);
@@ -1184,7 +1184,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置状态
         nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");
         //填充url
-        uploadFileService.setObjectUrlToObject(vo,"samplePicUrl", "sampleVideoUrl");
+        uploadFileService.setObjectUrlToObject(vo,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl");
         // 根据款查询对应套版款的版型库文件信息
         Style styleInfo = styleService.getById(vo.getStyleId());
         if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {
