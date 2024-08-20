@@ -272,6 +272,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         CommonUtils.removeQuerySplit(dto, ",", "patternPartsPic");
         CommonUtils.removeQuery(dto, "stylePic");
 
+        //region 款式设计单位必填校验
+        String styleUnitCode = dto.getStyleUnitCode();
+        String styleUnit = dto.getStyleUnit();
+        if (StrUtil.isEmpty(styleUnitCode) || StrUtil.isEmpty(styleUnit)) {
+            throw new OtherException("styleUnitCode：" + styleUnitCode + "，styleUnit：" + styleUnit + "款式单位编码或名称不能为空！");
+        }
+        //endregion
+
         //是否同步SCM
         boolean isPushScm = false;
 
