@@ -586,7 +586,7 @@ public class OpenSmpController extends BaseController {
         qw.eq("m.id", id);
         qw.eq("m.del_flag", BaseGlobal.NO);
         List<PatternMakingListVo> patternMakingListVos = patternMakingMapper.findBySampleDesignId(qw);
-        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl", "sampleVideoUrl");
+        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl");
         PatternMakingListVo patternMakingListVo = patternMakingListVos.get(0);
         //设计款id
         String styleId = patternMakingListVo.getStyleId();
