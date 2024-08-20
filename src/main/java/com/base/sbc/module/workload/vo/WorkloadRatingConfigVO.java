@@ -53,9 +53,14 @@ public class WorkloadRatingConfigVO extends WorkloadRatingConfig {
         return titleFieldDTOList;
     }
 
+    private List<WorkloadRatingTitleFieldDTO> configTitleFieldList;
+
     @JsonIgnore
     public List<WorkloadRatingTitleFieldDTO> findConfigTitleFieldList(){
-        return CollUtil.removeWithAddIf(getTitleFieldDTOList(), (it) -> StrUtil.isNotBlank(it.getConfigId()));
+        if (CollUtil.isEmpty(configTitleFieldList)) {
+            configTitleFieldList = CollUtil.removeWithAddIf(getTitleFieldDTOList(), (it) -> StrUtil.isNotBlank(it.getConfigId()));
+        }
+        return configTitleFieldList;
     }
 
     @JsonIgnore

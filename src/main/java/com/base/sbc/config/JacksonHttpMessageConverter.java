@@ -228,9 +228,7 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
                         }
                     }
                 }
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
+            }catch (Exception ignored) {}
             return null;
         }
     }
