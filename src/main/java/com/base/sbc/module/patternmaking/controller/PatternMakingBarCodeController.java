@@ -106,6 +106,6 @@ public class PatternMakingBarCodeController {
     @ApiOperation(value = "分页查询")
     @GetMapping("/auditList")
     public ApiResult<PageInfo<PatternMakingBarCodeVo>> auditList(PatternMakingBarCodeQueryDto dto) {
-        return ApiResult.success("查询成功", patternMakingBarCodeService.findPage(dto));
+        return ApiResult.success("查询成功", patternMakingBarCodeService.auditList(dto));
     }
 }

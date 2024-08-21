@@ -21,12 +21,17 @@ import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingBarCodeMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo;
+import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskFobService;
+import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,12 +53,17 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     private final MinioUtils minioUtils;
     private final NodeStatusService nodeStatusServiceImpl;
     private final StylePicUtils stylePicUtils;
+    private final PreProductionSampleTaskFobService preProductionSampleTaskFobService;
+    @Lazy
+    @Resource
+    private SmpService smpService;
 
-    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl, StylePicUtils stylePicUtils) {
+    public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl, StylePicUtils stylePicUtils, PreProductionSampleTaskFobService preProductionSampleTaskFobService) {
         super();
         this.minioUtils = minioUtils;
         this.nodeStatusServiceImpl = nodeStatusServiceImpl;
         this.stylePicUtils = stylePicUtils;
+        this.preProductionSampleTaskFobService = preProductionSampleTaskFobService;
     }
 
     @Override
@@ -185,6 +195,18 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         nodeStatus.setStartDate(patternMakingBarCode.getUpdateDate());
         nodeStatus.setEndDate(patternMakingBarCode.getUpdateDate());
         nodeStatusServiceImpl.save(nodeStatus);
+
+
+        //推送外部系统
+        try {
+            List<String> list = Arrays.asList("11", "12");
+            if(list.contains(patternMakingBarCode.getStatus())){
+                PreProductionSampleTaskFob taskFob = preProductionSampleTaskFobService.getById(patternMakingBarCode.getHeadId());
+                smpService.pushPreProduction(patternMakingBarCode,taskFob);
+            }
+        }catch (Exception e){
+            log.error("产前样确认推送外部系统失败："+e.getMessage(),e);
+        }
     }
 
     @Override
@@ -222,6 +244,26 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
             o.setOriginalSuggestionImg4(o.getSuggestionImg4());
         });
         minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
+        stylePicUtils.setStylePic(list, "stylePic");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<PatternMakingBarCodeVo> auditList(PatternMakingBarCodeQueryDto dto) {
+        BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
+        qw.notEmptyIn("tpmbc.status", dto.getStatusList());
+        qw.orderByDesc("tpmbc.create_date");
+
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,dto);
+        Page<Object> objects = PageHelper.startPage(dto);
+        List<PatternMakingBarCodeVo> list;
+        if("sampleAuditBoard".equals(dto.getTableCode())){
+            list = baseMapper.findSAuditPage(qw);
+        }else{
+            list = baseMapper.findPAuditPage(qw);
+        }
+
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);

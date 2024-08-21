@@ -84,4 +84,59 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
     </select>
 
+    <select id="findSAuditPage" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            count(tpmbc.id) as makingCount,
+            ts.design_no,
+            ts.year_name,
+            ts.season_name,
+            ts.brand_name,
+            ts.style_pic,
+            ts.band_name,
+            ts.style_origin_name,
+            ts.prod_category_name,
+            ts.prod_category2nd_name,
+            ts.prod_category3rd_name
+        </if>
+        FROM t_pattern_making_bar_code tpmbc
+        LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
+        LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
+        where tpmbc.del_flag = '0'
+        ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        group by ts.design_no
+    </select>
+
+    <select id="findPAuditPage" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            count(tpmbc.id) as makingCount,
+            ts.design_no,
+            ts.year_name,
+            ts.season_name,
+            ts.brand_name,
+            tsc.style_no,
+            tsc.color_name,
+            tsc.style_color_pic,
+            ts.style_pic,
+            ts.prod_category_name,
+            ts.prod_category2nd_name,
+            ts.prod_category3rd_name
+        </if>
+        FROM t_pattern_making_bar_code tpmbc
+        LEFT JOIN t_pre_production_sample_task_fob fob on tpmbc.head_id = fob.id and fob.del_flag = '0'
+        LEFT JOIN t_style_color tsc on fob.style_id = tsc.id and tsc.del_flag = '0'
+        LEFT JOIN t_style ts on tsc.style_id = ts.id and ts.del_flag = '0'
+        where tpmbc.del_flag = '0'
+        ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        group by tsc.style_no
+    </select>
+
+
 </mapper>

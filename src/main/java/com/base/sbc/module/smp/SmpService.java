@@ -77,7 +77,9 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.patternmaking.dto.ReceiveDesignDTO;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -85,6 +87,7 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
@@ -2458,6 +2461,52 @@ public class SmpService {
         ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
         result.setSuccess(httpResp.isSuccess());
         return result;
+    }
+
+    /**
+     * 推送产前样数据 外部系统
+     *
+     * @param patternMakingBarCode
+     * @param taskFob
+     */
+    public void pushPreProduction(PatternMakingBarCode patternMakingBarCode, PreProductionSampleTaskFob taskFob) {
+        ReceiveDesignDTO dto = new ReceiveDesignDTO();
+        dto.setProductNumber(taskFob.getOrderNo());
+        dto.setItemNumber(taskFob.getCode());
+        dto.setVersionName(taskFob.getOrderNoBatch());
+        dto.setDesignResult(patternMakingBarCode.getStatus());
+        dto.setDesignSuggestion(patternMakingBarCode.getSuggestion());
+        List<Map<String,String>> picMapList = new ArrayList<>();
+        Map<String,String> picMap = new HashMap<>();
+        picMap.put("name","");
+        picMap.put("url",patternMakingBarCode.getSuggestionImg());
+        picMapList.add(picMap);
+        picMap = new HashMap<>();
+        picMap.put("name","");
+        picMap.put("url",patternMakingBarCode.getSuggestionImg1());
+        picMapList.add(picMap);
+        picMap = new HashMap<>();
+        picMap.put("name","");
+        picMap.put("url",patternMakingBarCode.getSuggestionImg2());
+        picMapList.add(picMap);
+        picMap = new HashMap<>();
+        picMap.put("name","");
+        picMap.put("url",patternMakingBarCode.getSuggestionImg3());
+        picMapList.add(picMap);
+        picMap = new HashMap<>();
+        picMap.put("name","");
+        picMap.put("url",patternMakingBarCode.getSuggestionImg4());
+        picMapList.add(picMap);
+
+        dto.setDesignPic(JSONObject.toJSONString(picMapList));
+        Map<String,String> vedioMap = new HashMap<>();
+        vedioMap.put("name","");
+        vedioMap.put("url",patternMakingBarCode.getSuggestionVideo());
+        dto.setDesignAv(JSONObject.toJSONString(vedioMap));
+
+        restTemplateService.spmPost(SCM_URL + "/beforeProductMaterialCard/beforeProduct/receiveDesign", JSONObject.toJSONString(dto),
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","设计部确认"));
     }
 }
 
