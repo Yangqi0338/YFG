@@ -31,7 +31,7 @@
             ts.prod_category2nd_name,
             tsc.style_no,
             tsc.style_color_pic,
-            concat(tsc.color_name,tsc.color_specification) as colorName,
+            tsc.color_specification as colorName,
             ts.design_no,
             concat(ts.year, ts.season_name, ts.brand_name) planningSeason,
             -- tsp.woolenYarnProcessingFee,
