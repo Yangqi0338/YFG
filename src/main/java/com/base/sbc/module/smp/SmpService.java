@@ -1284,7 +1284,6 @@ public class SmpService {
             // bomMaterials.add(bomMaterial);
             // smpBomDto.setBomMaterials(bomMaterials);
 
-
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()).eq("bom_version_id", packBom.getBomVersionId()))) {
                 packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
@@ -1296,9 +1295,12 @@ public class SmpService {
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
                     sizeQtyList.add(smpSizeQty);
                 }
-                // 校验物料规格 是否存在于t_basicsdatum_material_width表中
-                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
-                    throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                //如果是报次款，不校验门幅
+                if("0".equals(styleColor.getIsDefective())){
+                    // 校验物料规格 是否存在于t_basicsdatum_material_width表中
+                    if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
+                        throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                    }
                 }
             }
             if (sizeQtyList.isEmpty()) {
