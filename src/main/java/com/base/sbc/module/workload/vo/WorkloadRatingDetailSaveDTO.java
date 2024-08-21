@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.vo;
 
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.utils.CommonUtils;
@@ -21,6 +23,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 类描述：工作量评分选项配置QueryDto 实体类
@@ -84,15 +88,15 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     }
 
     public WorkloadRatingDetailSaveDTO decorateItem(WorkloadRatingItem item) {
-        this.setItemId(item.getId());
-        this.setItemValue(item.getItemValue());
-        this.setItemName(item.getItemName());
-        this.setScore(item.getScore());
+        this.setItemId(CommonUtils.saftyStrJoin(COMMA, this.getItemId(),item.getId()).toString());
+        this.setItemValue(CommonUtils.saftyStrJoin(COMMA, this.getItemValue(),item.getItemValue()).toString());
+        this.setItemName(CommonUtils.saftyStrJoin(COMMA, this.getItemName(),item.getItemName()).toString());
+        this.setScore(this.getScore().add(item.getScore()));
         return this;
     }
 
     @JsonIgnore
     public String getValue() {
-        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), this.getEnableFlag()).toString();
+        return CommonUtils.saftyStrJoin("#", this.getConfigName(), this.getItemValue(), Opt.ofNullable(this.getEnableFlag()).orElse(YesOrNoEnum.YES)).toString();
     }
 }

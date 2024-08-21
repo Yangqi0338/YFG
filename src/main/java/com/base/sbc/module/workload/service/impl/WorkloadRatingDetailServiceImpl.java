@@ -165,6 +165,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
         configQO.setBrand(StrUtil.join(COMMA, list.stream().map(styleFunc).map(Style::getBrand).collect(Collectors.toList())));
         List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
 
+        // 根据是否有样衣工工作量来分组
         list.stream().collect(CommonUtils.groupNotBlank(workloadRatingIdFunc)).forEach((isExists, existsOrNotList) -> {
             List<WorkloadRatingDetailDTO> workloadRatingDetailList = new ArrayList<>();
             List<WorkloadRatingItemVO> workloadRatingItemList = new ArrayList<>();
@@ -180,15 +181,16 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     List<WorkloadRatingItemVO> itemList = workloadRatingItemService.queryPageInfo(qo).getList();
                     workloadRatingItemList.addAll(itemList);
                     List<String> itemValueList = StrUtil.split(ratingDetail.getOriginItemValue(), "-");
-                    List<String> itemIdList = StrUtil.split(ratingDetail.getOriginItemId(), COMMA);
-                    for (int i = 0, itemIdListSize = itemIdList.size(); i < itemIdListSize; i++) {
-                        String itemValue = itemValueList.get(i);
-                        String itemId = itemIdList.get(i);
-                        List<String> keyList = StrUtil.split(itemValue, "#");
-                        itemList.stream().filter(it -> it.getId().equals(itemId)).findFirst().ifPresent(item -> {
-                            item.setEnableFlag(YesOrNoEnum.findByValue(CollUtil.get(keyList, 2)));
+                    itemValueList.forEach(itemValue-> {
+                        List<String> keyList = StrUtil.split(ratingDetail.getOriginItemValue(), "#");
+                        itemList.stream().filter(it-> it.getConfigName().equals(keyList.get(0))).forEach(it-> {
+                            YesOrNoEnum enableFlag = YesOrNoEnum.YES;
+                            if (keyList.size() >= 2) {
+                                enableFlag = YesOrNoEnum.findByValue(keyList.get(2));
+                            }
+                            it.setEnableFlag(enableFlag);
                         });
-                    }
+                    });
                 });
                 workloadRatingDetailList.addAll(ratingDetailDTOS);
             } else {
@@ -229,17 +231,18 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     return configVO.findConfigTitleFieldList().stream().map(configTitleField-> {
                         WorkloadRatingDetailSaveDTO detailSaveDTO = new WorkloadRatingDetailSaveDTO().decorateConfig(configTitleField);
                         String detailConfigId = detailSaveDTO.getConfigId();
-                        if (itemValueOpt.isPresent()) {
-                            List<WorkloadRatingItemVO> configFieldItemList;
+                        if (configVO.getCalculateType() != WorkloadRatingCalculateType.BASE || itemValueOpt.isPresent()) {
+                            List<WorkloadRatingItemVO> configFieldItemList = configItemList.stream()
+                                    .filter(it -> !itemValueOpt.isPresent() || it.getItemValue().equals(itemValueOpt.get()))
+                                    .collect(Collectors.toList());
+                            // 对条对格
                             if (!configVO.getId().equals(detailConfigId)) {
-                                configFieldItemList = configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get()))
-                                        .flatMap(it-> it.getItemList().stream()).map(WORKLOAD_CV::copy2ItemVO)
-                                        .filter(it-> it.getConfigId().equals(detailConfigId))
+                                configFieldItemList = configFieldItemList.stream()
+                                        .flatMap(it -> it.getItemList().stream()).map(WORKLOAD_CV::copy2ItemVO)
+                                        .filter(it -> it.getConfigId().equals(detailConfigId))
                                         .collect(Collectors.toList());
-                            }else {
-                                configFieldItemList = configItemList.stream().filter(it -> it.getItemValue().equals(itemValueOpt.get())).collect(Collectors.toList());
                             }
-                            configFieldItemList.stream().findFirst().ifPresent(it -> {
+                            configFieldItemList.forEach(it -> {
                                 detailSaveDTO.decorateItem(it);
                                 detailSaveDTO.setEnableFlag(it.getEnableFlag());
                             });

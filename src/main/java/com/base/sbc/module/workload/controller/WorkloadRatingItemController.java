@@ -6,11 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.controller;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.fabric.dto.DelDTO;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.dto.WorkloadRatingItemDTO;
+import com.base.sbc.module.workload.listener.WorkloadRatingItemImportListener;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.service.WorkloadRatingItemService;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
@@ -25,8 +28,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -49,6 +55,9 @@ public class WorkloadRatingItemController extends BaseController {
     @Autowired
     private WorkloadRatingDetailService workloadRatingDetailService;
 
+    @Autowired
+    private WorkloadRatingItemImportListener importListener;
+
     @ApiOperation(value = "分页查询")
     @GetMapping("queryPageInfo")
     public ApiResult<PageInfo<WorkloadRatingItemVO>> queryPageInfo(@Validated WorkloadRatingItemQO qo) {
@@ -66,6 +75,26 @@ public class WorkloadRatingItemController extends BaseController {
     public ApiResult<List<WorkloadRatingItemDTO>> save(@Validated @RequestBody List<WorkloadRatingItemDTO> workloadRatingItemList) {
         workloadRatingItemService.save(workloadRatingItemList);
         return updateSuccess(workloadRatingItemList);
+    }
+
+    @ApiOperation(value = "保存")
+    @PostMapping("importExcel")
+    public ApiResult<String> importExcel(@RequestParam("file") MultipartFile file, WorkloadRatingItemQO excelQueryDto) throws IOException {
+        importListener.setExcelQueryDto(excelQueryDto);
+        try {
+            EasyExcel.read(file.getInputStream(), importListener).doReadAllSync();
+            String warnMsg = importListener.dataVerifyHandler();
+            ApiResult<String> result = selectSuccess(String.format("导入成功. %s", warnMsg));
+            if (StrUtil.isNotBlank(warnMsg)) {
+                result.setMessage(String.format("%s, 请问错误是否需要导出?", warnMsg));
+            }else {
+                result.setStatus(200);
+            }
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResult.error(String.format("导入失败, 请你根据导入规则进行导入\n%s", e.getMessage()), 0);
+        }
     }
 
     @ApiOperation(value = "计算新的总和")
