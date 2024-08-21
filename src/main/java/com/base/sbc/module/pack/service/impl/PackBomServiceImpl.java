@@ -1055,14 +1055,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         PackBomVersionDto packBomVersionDto = BeanUtil.copyProperties(bomVersion, PackBomVersionDto.class);
         packBomVersionDto.setId(null);
         PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(packBomVersionDto);
-
+        packBomVersionService.enable(packBomVersionVo);
         IdGen idGen = new IdGen();
         for (PackBom packBom : list) {
             packBom.setId(idGen.nextIdStr());
             packBom.setBomVersionId(packBomVersionVo.getId());
         }
         saveBatch(list);
-        return packBomVersionDto.getId();
+        return packBomVersionVo.getId();
     }
 
     /**
