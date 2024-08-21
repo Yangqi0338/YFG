@@ -142,8 +142,8 @@ public class StyleColorController {
     @ApiOperation(value = "新增修改款式配色-款式配色")
     @PostMapping("/addRevampSampleStyleColor")
     @DuplicationCheck
-    public Boolean addRevampSampleStyleColor(@Valid @RequestBody AddRevampStyleColorDto addRevampStyleColorDto) {
-        return styleColorService.addRevampSampleStyleColor(addRevampStyleColorDto);
+    public Boolean addRevampSampleStyleColor(Principal user,@Valid @RequestBody AddRevampStyleColorDto addRevampStyleColorDto) {
+        return styleColorService.addRevampSampleStyleColor(user,addRevampStyleColorDto);
     }
 
     @ApiOperation(value = "删除款式配色-款式配色")

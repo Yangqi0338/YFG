@@ -1167,7 +1167,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean addRevampSampleStyleColor(AddRevampStyleColorDto addRevampStyleColorDto) {
+    public Boolean addRevampSampleStyleColor(Principal user,AddRevampStyleColorDto addRevampStyleColorDto) {
         StyleColor styleColor = new StyleColor();
         if (StringUtils.isEmpty(addRevampStyleColorDto.getId())) {
             /*新增*/
@@ -1185,6 +1185,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 throw new OtherException("无颜色");
             }
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
+            String oldStyleNo = styleColor.getStyleNo();
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
             /*颜色修改*/
@@ -1336,6 +1337,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 /*重新下发配色*/
                 dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
             }
+
+            //款号修改了
+            if (!oldStyleNo.equals(styleColor1.getStyleNo()) && StringUtils.isNotBlank(styleColor.getStyleColorPic())){
+                UpdateStyleNoBandDto updateStyleNoBandDto = new UpdateStyleNoBandDto();
+                updateStyleNoBandDto.setId(styleColor1.getId());
+                updateStyleNoBandDto.setStyleNo(styleColor1.getStyleNo());
+                Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, old, styleColor1);
+                if (!result) {
+                    throw new OtherException("图片上传失败！");
+                }
+            }
+
         }
         return true;
     }
