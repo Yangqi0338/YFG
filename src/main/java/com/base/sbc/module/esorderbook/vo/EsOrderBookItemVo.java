@@ -110,4 +110,6 @@ public class EsOrderBookItemVo {
      * 物料费
      */
     private BigDecimal materialPrice;
+
+    private String calcItemVal;
 }
