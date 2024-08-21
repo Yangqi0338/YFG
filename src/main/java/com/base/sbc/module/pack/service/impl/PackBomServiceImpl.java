@@ -1035,6 +1035,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return update(uw);
     }
 
+    @Override
+    public String updateVersion(PackBomPageSearchDto dto) {
+        PackBomVersion bomVersion = packBomVersionService.getById(dto.getBomVersionId());
+
+        return null;
+    }
+
     /**
      * 物料bom是否还在使用
      * @param materialCode
