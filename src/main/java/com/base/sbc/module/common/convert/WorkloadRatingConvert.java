@@ -50,6 +50,7 @@ public interface WorkloadRatingConvert {
     List<WorkloadRatingDetailDTO> copy2DetailDTO(List<WorkloadRatingDetail> source);
 
     List<WorkloadRatingItemVO> copy2ItemVO(List<WorkloadRatingItem> source);
+    WorkloadRatingItem copy2Entity(WorkloadRatingItemDTO source);
     WorkloadRatingItemVO copy2ItemVO(WorkloadRatingItem source);
     WorkloadRatingDetail copy2Entity(WorkloadRatingDetailDTO source);
 
