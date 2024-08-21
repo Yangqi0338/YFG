@@ -27,6 +27,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,18 +97,17 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     }
 
     @Override
-    public PatternMakingBarCodeVo getByBarCode(String barCode) {
+    public List<PatternMakingBarCodeVo> getByBarCode(String barCode) {
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
         qw.eq("tpmbc.bar_code", barCode);
         List<PatternMakingBarCodeVo> list = baseMapper.findPage(qw);
         if (CollUtil.isNotEmpty(list)) {
             stylePicUtils.setStylePic(list, "stylePic");
             stylePicUtils.setStyleColorPic2(list, "styleColorPic");
-            PatternMakingBarCodeVo patternMakingBarCodeVo = list.get(0);
             minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
-            return patternMakingBarCodeVo;
+            return list;
         }
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

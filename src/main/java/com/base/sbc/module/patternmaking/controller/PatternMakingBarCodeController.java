@@ -57,8 +57,15 @@ public class PatternMakingBarCodeController {
     @ApiOperation(value = "明细-通过barCode查询")
     @GetMapping("/get")
     public ApiResult getById(@RequestParam("barCode") String barCode) {
-        PatternMakingBarCodeVo byBarCode = patternMakingBarCodeService.getByBarCode(barCode);
-        return ApiResult.success("查询成功", byBarCode);
+        List<PatternMakingBarCodeVo> byBarCodes = patternMakingBarCodeService.getByBarCode(barCode);
+        return ApiResult.success("查询成功", byBarCodes.isEmpty()?null:byBarCodes.get(0));
+    }
+
+    @ApiOperation(value = "明细-通过barCode查询")
+    @GetMapping("/getPreProduction")
+    public ApiResult getPreProduction(@RequestParam("barCode") String barCode) {
+        List<PatternMakingBarCodeVo> byBarCodes = patternMakingBarCodeService.getByBarCode(barCode);
+        return ApiResult.success("查询成功", byBarCodes);
     }
 
     @ApiOperation(value = "解绑-通过barCode查询")
@@ -95,4 +102,10 @@ public class PatternMakingBarCodeController {
         return ApiResult.success("查询成功", patternMakingBarCodeService.pageAudit(dto));
     }
 
+
+    @ApiOperation(value = "分页查询")
+    @GetMapping("/auditList")
+    public ApiResult<PageInfo<PatternMakingBarCodeVo>> auditList(PatternMakingBarCodeQueryDto dto) {
+        return ApiResult.success("查询成功", patternMakingBarCodeService.findPage(dto));
+    }
 }

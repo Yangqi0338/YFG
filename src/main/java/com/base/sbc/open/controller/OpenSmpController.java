@@ -12,7 +12,9 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -485,7 +487,19 @@ public class OpenSmpController extends BaseController {
         StringBuilder msg = new StringBuilder();
         List<String> codes = new ArrayList<>();
         try{
-            codes = fobs.stream().map(PreProductionSampleTaskFob::getCode).distinct().collect(Collectors.toList());
+            List<String> orderNoList = new ArrayList<>();
+            List<String> orderNoBatchList = new ArrayList<>();
+            for (PreProductionSampleTaskFob fob : fobs) {
+                codes.add(fob.getCode());
+                orderNoList.add(fob.getOrderNo());
+                orderNoBatchList.add(fob.getOrderNoBatch());
+            }
+            LambdaQueryWrapper<PreProductionSampleTaskFob> qw = new LambdaQueryWrapper<>();
+            qw.in(PreProductionSampleTaskFob::getOrderNo, orderNoList);
+            qw.in(PreProductionSampleTaskFob::getOrderNoBatch, orderNoBatchList);
+            List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.list(qw);
+            Map<String, String> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNo(), BaseEntity::getId,(v1,v2)->v1));
+
 
             LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.in(StyleColor::getStyleNo, codes);
@@ -518,6 +532,11 @@ public class OpenSmpController extends BaseController {
                 //通过状态 status
                 //改版意见 techRemarks
                 //确认时间 processDepartmentDate
+                if(dbMap.containsKey(fob.getOrderNo()+fob.getOrderNo())){
+                    fob.setId(dbMap.get(fob.getOrderNo()+fob.getOrderNo()));
+                }else{
+                    fob.setId(IdGen.getId().toString());
+                }
                 saveList.add(fob);
                 ids.add(fob.getId());
             }
@@ -550,6 +569,120 @@ public class OpenSmpController extends BaseController {
                     patternMakingBarCodeService.saveBatch(saveBarCodeList);
                     nodeStatusService.saveBatch(nodeList);
                 }
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage(),e);
+            return ApiResult.error(e.getMessage(),500);
+        }finally {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setType("推送FOB产前样数据");
+            operaLogEntity.setDocumentId(String.join(",", codes));
+            operaLogEntity.setName("推送FOB产前样数据");
+            operaLogEntity.setDocumentName(String.join(",", codes));
+            operaLogEntity.setContent(msg.toString());
+            operaLogService.save(operaLogEntity);
+        }
+
+        return ApiResult.success("保存成功;"+msg);
+    }
+
+    @PostMapping("/productionSampleTaskBind")
+    @ApiOperation(value = "推送FOB产前样绑码信息" , notes = "推送FOB产前样绑码信息")
+    public ApiResult productionSampleTaskBind(@RequestBody List<PreProductionSampleTaskFob> fobs){
+        StringBuilder msg = new StringBuilder();
+        List<String> codes = new ArrayList<>();
+        try {
+            List<String> orderNoList = new ArrayList<>();
+            List<String> orderNoBatchList = new ArrayList<>();
+            for (PreProductionSampleTaskFob fob : fobs) {
+                codes.add(fob.getCode());
+                orderNoList.add(fob.getOrderNo());
+                orderNoBatchList.add(fob.getOrderNoBatch());
+            }
+            LambdaQueryWrapper<PreProductionSampleTaskFob> qw = new LambdaQueryWrapper<>();
+            qw.in(PreProductionSampleTaskFob::getOrderNo, orderNoList);
+            List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.list(qw);
+            Map<String, PreProductionSampleTaskFob> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNo(), o->o, (v1, v2) -> v1));
+
+            //查询barcode表
+            List<String> ids = foreignId.stream().map(BaseEntity::getId).collect(Collectors.toList());
+            List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listByIds(ids);
+            Map<String, PatternMakingBarCode> barCodeMap = patternMakingBarCodes.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+
+            List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
+            List<PatternMakingBarCode> barCodeList = new ArrayList<>();
+
+            for (PreProductionSampleTaskFob fob : fobs) {
+                if(!dbMap.containsKey(fob.getOrderNo()+fob.getOrderNoBatch())){
+                    msg.append("工单号+版次:").append(fob.getOrderNo()).append(fob.getOrderNoBatch()).append("没有找到;");
+                    continue;
+                }
+                PreProductionSampleTaskFob preProductionSampleTaskFob = dbMap.get(fob.getOrderNo() + fob.getOrderNoBatch());
+                preProductionSampleTaskFob.setSampleBarCode(fob.getSampleBarCode());
+                saveList.add(preProductionSampleTaskFob);
+
+                if(barCodeMap.containsKey(preProductionSampleTaskFob.getId())){
+                    PatternMakingBarCode barCode = barCodeMap.get(preProductionSampleTaskFob.getId());
+                    barCode.setBarCode(fob.getSampleBarCode());
+                    barCodeList.add(barCode);
+                }
+            }
+            if(CollUtil.isNotEmpty(saveList)){
+                preProductionSampleTaskFobService.updateBatchById(saveList);
+            }
+            if(CollUtil.isNotEmpty(barCodeList)){
+                patternMakingBarCodeService.updateBatchById(barCodeList);
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage(),e);
+            return ApiResult.error(e.getMessage(),500);
+        }finally {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setType("推送FOB产前样数据");
+            operaLogEntity.setDocumentId(String.join(",", codes));
+            operaLogEntity.setName("推送FOB产前样数据");
+            operaLogEntity.setDocumentName(String.join(",", codes));
+            operaLogEntity.setContent(msg.toString());
+            operaLogService.save(operaLogEntity);
+        }
+
+        return ApiResult.success("保存成功;"+msg);
+    }
+
+    @PostMapping("/productionSampleTaskAudit")
+    @ApiOperation(value = "推送FOB产前样审样信息" , notes = "推送FOB产前样审样信息")
+    public ApiResult productionSampleTaskAudit(@RequestBody List<PreProductionSampleTaskFob> fobs){
+        StringBuilder msg = new StringBuilder();
+        List<String> codes = new ArrayList<>();
+        try {
+            List<String> orderNoList = new ArrayList<>();
+            List<String> orderNoBatchList = new ArrayList<>();
+            for (PreProductionSampleTaskFob fob : fobs) {
+                codes.add(fob.getCode());
+                orderNoList.add(fob.getOrderNo());
+                orderNoBatchList.add(fob.getOrderNoBatch());
+            }
+            LambdaQueryWrapper<PreProductionSampleTaskFob> qw = new LambdaQueryWrapper<>();
+            qw.in(PreProductionSampleTaskFob::getOrderNo, orderNoList);
+            List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.list(qw);
+            Map<String, PreProductionSampleTaskFob> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNo(), o->o, (v1, v2) -> v1));
+
+            List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
+
+            for (PreProductionSampleTaskFob fob : fobs) {
+                if(!dbMap.containsKey(fob.getOrderNo()+fob.getOrderNoBatch())){
+                    msg.append("工单号+版次:").append(fob.getOrderNo()).append(fob.getOrderNoBatch()).append("没有找到;");
+                    continue;
+                }
+                PreProductionSampleTaskFob preProductionSampleTaskFob = dbMap.get(fob.getOrderNo() + fob.getOrderNoBatch());
+                preProductionSampleTaskFob.setStatus(fob.getStatus());
+                preProductionSampleTaskFob.setDesignDetailTime(fob.getDesignDetailTime());
+                preProductionSampleTaskFob.setSampleFile(fob.getSampleFile());
+                preProductionSampleTaskFob.setTechRemarks(fob.getTechRemarks());
+                saveList.add(preProductionSampleTaskFob);
+            }
+            if(CollUtil.isNotEmpty(saveList)){
+                preProductionSampleTaskFobService.updateBatchById(saveList);
             }
         }catch (Exception e){
             logger.error(e.getMessage(),e);
