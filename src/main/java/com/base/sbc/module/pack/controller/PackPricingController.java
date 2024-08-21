@@ -103,6 +103,8 @@ public class PackPricingController {
         }
         boolean updateStatus = packPricingBomService.updateById(packPricingBom);
         if (updateStatus) {
+            // 重新计算核价
+            packPricingService.calculatePricingJson(packPricingBom.getForeignId(), packPricingBom.getPackType());
             return ApiResult.success("操作成功");
         } else {
             return ApiResult.error("操作失败", 400);
