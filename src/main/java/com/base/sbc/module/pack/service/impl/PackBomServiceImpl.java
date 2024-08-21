@@ -1043,7 +1043,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             throw new OtherException("没有此版本号");
         }
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
-        qw.lambda().eq(PackBom::getBomVersionId,bomVersion.getVersion());
+        qw.lambda().eq(PackBom::getBomVersionId,bomVersion.getId());
         qw.lambda().eq(PackBom::getPackType,dto.getPackType());
         qw.lambda().eq(PackBom::getForeignId,dto.getForeignId());
 
