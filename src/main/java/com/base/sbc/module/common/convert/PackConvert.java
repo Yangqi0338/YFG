@@ -17,7 +17,7 @@ import org.mapstruct.factory.Mappers;
  * @CopyRight @ 广州尚捷科技有限公司
  * @since 2024/1/9
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PackConvert {
     PackConvert INSTANCE = Mappers.getMapper(PackConvert.class);
 
