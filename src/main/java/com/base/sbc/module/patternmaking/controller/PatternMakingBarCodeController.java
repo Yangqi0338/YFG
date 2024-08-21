@@ -58,6 +58,13 @@ public class PatternMakingBarCodeController {
     @GetMapping("/get")
     public ApiResult getById(@RequestParam("barCode") String barCode) {
         List<PatternMakingBarCodeVo> byBarCodes = patternMakingBarCodeService.getByBarCode(barCode);
+        return ApiResult.success("查询成功", byBarCodes.isEmpty()?null:byBarCodes.get(0));
+    }
+
+    @ApiOperation(value = "明细-通过barCode查询")
+    @GetMapping("/getPreProduction")
+    public ApiResult getPreProduction(@RequestParam("barCode") String barCode) {
+        List<PatternMakingBarCodeVo> byBarCodes = patternMakingBarCodeService.getByBarCode(barCode);
         return ApiResult.success("查询成功", byBarCodes);
     }
 
