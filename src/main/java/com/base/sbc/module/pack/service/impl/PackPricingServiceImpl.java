@@ -203,6 +203,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
         packCommonSearchDto.setPackType(packType);
         packCommonSearchDto.setForeignId(packInfoId);
+        packCommonSearchDto.setCheckType("1");
         /*获取全部成本*/
         Map<String, BigDecimal> otherStatistics = calculateCosts(packCommonSearchDto);
         PackPricingVo detail = getDetail(packCommonSearchDto);
