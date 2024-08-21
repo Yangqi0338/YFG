@@ -272,4 +272,6 @@ public interface PackBomService extends PackBaseService<PackBom> {
     void fabricSummaryExcelExport(HttpServletResponse response, FabricSummaryV2Dto dto);
 
     boolean designAffirm(PackBomVo dto);
+
+    String updateVersion(PackBomPageSearchDto dto);
 }

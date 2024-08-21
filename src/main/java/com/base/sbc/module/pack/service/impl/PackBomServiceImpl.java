@@ -1037,6 +1037,36 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return update(uw);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String updateVersion(PackBomPageSearchDto dto) {
+        PackBomVersion bomVersion = packBomVersionService.getById(dto.getBomVersionId());
+        if (null == bomVersion){
+            throw new OtherException("没有此版本号");
+        }
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        qw.lambda().eq(PackBom::getBomVersionId,bomVersion.getId());
+        qw.lambda().eq(PackBom::getPackType,dto.getPackType());
+        qw.lambda().eq(PackBom::getForeignId,dto.getForeignId());
+
+        List<PackBom> list = list(qw);
+        if (CollUtil.isEmpty(list)){
+            throw new OtherException("物料清单无数据，不需要更新版本");
+        }
+        bomVersion.setId(null);
+        PackBomVersionDto packBomVersionDto = BeanUtil.copyProperties(bomVersion, PackBomVersionDto.class);
+        packBomVersionDto.setId(null);
+        PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(packBomVersionDto);
+        packBomVersionService.enable(packBomVersionVo);
+        IdGen idGen = new IdGen();
+        for (PackBom packBom : list) {
+            packBom.setId(idGen.nextIdStr());
+            packBom.setBomVersionId(packBomVersionVo.getId());
+        }
+        saveBatch(list);
+        return packBomVersionVo.getId();
+    }
+
     /**
      * 物料bom是否还在使用
      * @param materialCode

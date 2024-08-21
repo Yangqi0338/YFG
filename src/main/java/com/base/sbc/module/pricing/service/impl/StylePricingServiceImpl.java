@@ -255,7 +255,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if(columnMap.containsKey("tpp")){
             columnMap.put("ps","");
         }
-        qw.orderByDesc("ssc.create_date");
+        qw.orderByDesc("p.create_date");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingByLine(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
