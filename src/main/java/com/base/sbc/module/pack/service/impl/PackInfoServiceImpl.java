@@ -1831,13 +1831,23 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     private void checkESCM(StyleColor styleColor) {
+        Style style = styleService.getById(styleColor.getStyleId());
+        String value = ccmFeignService.queryCompanySettingData("NDKK_BRAND");
+
+        if (StringUtils.isEmpty(value)){
+            return;
+        }
+        if (!value.contains(style.getBrand())){
+            return;
+        }
+
         if (!"cmt".equalsIgnoreCase(styleColor.getDevtType().name())){
             return;
         }
         if ("1".equals(styleColor.getIsDefective())){
             return;
         }
-        Style style = styleService.getById(styleColor.getStyleId());
+
 
         //配饰大类的不检查
         if ("A05".equals(style.getProdCategory1st())){
