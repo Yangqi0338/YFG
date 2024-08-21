@@ -415,7 +415,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto) {
         LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(PatternMaking::getId, dto.getId());
-        updateWrapper.set(PatternMaking::getReferSample, dto.getDesignReceiptDate());
+        updateWrapper.set(PatternMaking::getReceiveSampleDate, dto.getDesignReceiptDate());
         this.update(updateWrapper);
     }
 
