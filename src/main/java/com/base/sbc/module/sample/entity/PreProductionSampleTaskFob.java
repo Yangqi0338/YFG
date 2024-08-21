@@ -126,9 +126,6 @@ public class PreProductionSampleTaskFob extends BaseDataEntity<String> {
     /** 样衣卡附件 */
     @ApiModelProperty(value = "样衣卡附件"  )
     private String sampleFile;
-    /** 外部id */
-    @ApiModelProperty(value = "外部id"  )
-    private String foreignId;
 
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
