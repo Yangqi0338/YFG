@@ -3,6 +3,7 @@ package com.base.sbc.config.constant;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.exception.OtherException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +49,7 @@ public class BusinessProperties {
     public static String getStructureCode(String category, String structureKey) {
         if (topCategory.contains(category)) return topCategoryStructure.getOrDefault(structureKey, "");
         if (bottomCategory.contains(category)) return bottomCategoryStructure.getOrDefault(structureKey, "");
-        return "";
+        throw new OtherException("仅允许处理上下装");
     }
 
     public void setTopCategory(String topCategory) {

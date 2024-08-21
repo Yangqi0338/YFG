@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
  *
@@ -41,6 +43,30 @@ public class ReplayRatingStyleVO extends ReplayRatingVO {
      */
     @ApiModelProperty(value = "跳转版型id")
     private String gotoPatternId;
+
+    /**
+     * 版型评分
+     */
+    @ApiModelProperty(value = "版型评分")
+    private BigDecimal patternLevel;
+
+    /**
+     * 面料评分
+     */
+    @ApiModelProperty(value = "面料评分")
+    private BigDecimal fabricLevel;
+
+    /**
+     * 颜色评分
+     */
+    @ApiModelProperty(value = "颜色评分")
+    private BigDecimal colorLevel;
+
+    /**
+     * 款式评分
+     */
+    @ApiModelProperty(value = "款式评分")
+    private BigDecimal dimensionLevel;
 
     /** 生产销售 */
     @ApiModelProperty(value = "生产销售")
