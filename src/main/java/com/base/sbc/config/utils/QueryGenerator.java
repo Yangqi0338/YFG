@@ -45,6 +45,7 @@ public class QueryGenerator {
         }
         String columnHeard = dto.getColumnHeard();
         Map<String, String> fieldQueryMap = dto.getFieldQueryMap();
+        Map<String, String> fieldOrderMap = dto.getFieldOrderMap();
         boolean isColumnHeard = false;
 
         ColumnDefineService columnDefineService = SpringContextHolder.getBean(ColumnDefineService.class);
@@ -141,6 +142,10 @@ public class QueryGenerator {
                         qw.in(sqlCode, collect);
                     }
                 }
+            }
+            String fieldOrder = MapUtil.getStr(fieldOrderMap, columnCode);
+            if (StrUtil.isNotBlank(fieldOrder)) {
+                MapUtil.renameKey(fieldOrderMap, columnCode, sqlCode);
             }
             //记得排序
             if (StrUtil.isNotEmpty(dto.getOrderBy()) && dto.getOrderBy().equals(columnCode)) {
