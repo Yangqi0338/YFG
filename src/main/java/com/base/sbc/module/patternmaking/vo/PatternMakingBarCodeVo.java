@@ -121,4 +121,12 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     private Integer groupCount;
 
     private String code;
+
+    private Integer makingCount;
+
+    private String bandName;
+    private String styleOriginName;
+    private String prodCategoryName;
+    private String prodCategory2ndName;
+    private String prodCategory3rdName;
 }
