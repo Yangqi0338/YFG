@@ -330,7 +330,7 @@ public class PackBomController extends BaseController{
 
     @ApiOperation(value = "保存新版本")
     @PostMapping("/updateVersion")
-    public ApiResult updateVersion(@Valid PackBomPageSearchDto dto) {
+    public ApiResult updateVersion(@RequestBody @Valid PackBomPageSearchDto dto) {
         String version = packBomService.updateVersion(dto);
         return ApiResult.success("更新成功",version);
     }
