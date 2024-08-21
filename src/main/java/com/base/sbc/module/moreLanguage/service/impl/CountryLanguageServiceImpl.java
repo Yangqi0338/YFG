@@ -43,6 +43,7 @@ import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -81,6 +82,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     private StandardColumnCountryRelationService relationService;
 
     @Autowired
+    @Lazy
     private StandardColumnService standardColumnService;
 
     @Autowired
