@@ -259,8 +259,10 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         Page<Object> objects = PageHelper.startPage(dto);
         List<PatternMakingBarCodeVo> list;
         if("sampleAuditBoard".equals(dto.getTableCode())){
+            qw.groupBy("ts.design_no");
             list = baseMapper.findSAuditPage(qw);
         }else{
+            qw.groupBy("tsc.style_no");
             list = baseMapper.findPAuditPage(qw);
         }
 
