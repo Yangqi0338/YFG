@@ -19,6 +19,7 @@ import com.base.sbc.module.purchase.mapper.MaterialStockMapper;
 import com.base.sbc.module.purchase.service.MaterialStockLogService;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
     @Autowired
     private MaterialStockService materialStockService;
 
+    @Lazy
     @Autowired
     private BasicsdatumMaterialService basicsdatumMaterialService;
 
