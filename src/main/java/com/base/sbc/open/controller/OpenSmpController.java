@@ -452,6 +452,7 @@ public class OpenSmpController extends BaseController {
         basicsdatumSupplierQueryWrapper.eq("supplier_code",supplierCode);
         BasicsdatumSupplier supplier = supplierService.getOne(basicsdatumSupplierQueryWrapper);
         if (supplier == null) {
+            basicsdatumSupplier.setDelFlag("1");
             supplierService.save(basicsdatumSupplier);
         }else{
             //将数据copy已存在实体
