@@ -12,28 +12,23 @@
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <select id="findByFId" resultType="com.base.sbc.module.common.vo.AttachmentVo">
         select a.id,
-        f.id as file_id,
+        f.id as fileId,
         f.url,
         f.name,
         f.type,
         f.size,
         a.create_name,
-        a.type as attachment_type,
+        a.type as attachmentType,
         a.remarks,
+        a.foreign_id as foreignId,
         a.create_date
         from t_attachment a,
         t_upload_file f
-        where a.file_id = f.id
-        and a.foreign_id = #{foreignId}
+        where
+        a.file_id = f.id
         and a.del_flag = '0'
         and f.del_flag = '0'
-        <if test="type!=null and type!=''">
-            and a.type = #{type}
-        </if>
-        <if test="typeLikeStart!=null and typeLikeStart!=''">
-            and a.type like CONCAT(#{typeLikeStart},'%')
-        </if>
-        order by a.sort,a.id
+        ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
     </select>
     <select id="findByQw" resultType="com.base.sbc.module.common.vo.AttachmentVo">
         select a.id,

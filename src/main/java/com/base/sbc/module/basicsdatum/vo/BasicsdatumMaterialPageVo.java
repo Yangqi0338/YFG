@@ -1,7 +1,10 @@
 package com.base.sbc.module.basicsdatum.vo;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -416,4 +419,55 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 
 	@ApiModelProperty(value = "物料库动态字段")
 	List<FieldManagementVo> fieldValList;
+
+	/**
+	 * 面料测试结果
+	 */
+	@ApiModelProperty(value = "面料测试结果")
+	private String fabricTestFlag;
+
+	/**
+	 * 面料测试说明
+	 */
+	@ApiModelProperty(value = "面料测试说明")
+	private String fabricTestContent;
+
+	/**
+	 * 大货外观报告
+	 */
+	@ApiModelProperty(value = "大货外观报告")
+	private String prodAppearance;
+	/**
+	 * 开发样理化判定
+	 */
+	@ApiModelProperty(value = "开发样理化判定")
+	private String devDesignPhysicalJudge;
+	/**
+	 * 开发样理化结果
+	 */
+	@ApiModelProperty(value = "开发样理化结果")
+	private String devDesignPhysicalResult;
+	/**
+	 * 大货理化判定
+	 */
+	@ApiModelProperty(value = "大货理化判定")
+	private String prodPhysicalJudge;
+	/**
+	 * 大货样理化结果
+	 */
+	@ApiModelProperty(value = "大货样理化结果")
+	private String prodPhysicalResult;
+
+	@ApiModelProperty(value = "附件")
+	public List<AttachmentVo> fabricTestFileList;
+
+	@ApiModelProperty(value = "面料成分")
+	public EscmMaterialCompnentInspectCompanyDto fabricComponentFile;
+
+	/**
+	 * 是否存在附件
+	 */
+	@ApiModelProperty(value = "是否存在附件")
+	private YesOrNoEnum hasFabricTestFile;
+
 }

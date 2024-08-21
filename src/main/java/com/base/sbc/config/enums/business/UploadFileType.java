@@ -1,5 +1,6 @@
 package com.base.sbc.config.enums.business;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
@@ -40,15 +41,18 @@ public enum UploadFileType {
     planningProjectPlank("planningProjectPlank"),
     materialUpload("materialUpload"),
     Account(""),
+    fittingReport("物料面料试穿报告", Arrays.asList("RAR", "ZIP", "DOC", "DOCX", "PDF", "JPG"), materialOther),
 
     ;
     /** 编码 */
     @EnumValue
-    private final String code;
+    private String code;
     /** 文本 */
     private final String text;
     /** 可以通过的后缀 */
     private List<String> accessSuffix = null;
+    /** 父路径 */
+    private UploadFileType parent;
 
 
     UploadFileType(String text) {
@@ -61,8 +65,29 @@ public enum UploadFileType {
         this.accessSuffix = accessSuffix;
     }
 
+    UploadFileType(String code, String text, List<String> accessSuffix) {
+        this(text);
+        this.code = code;
+        this.accessSuffix = accessSuffix;
+    }
+
+    UploadFileType(String text, List<String> accessSuffix, UploadFileType parent) {
+        this(text);
+        this.accessSuffix = accessSuffix;
+        this.parent = parent;
+    }
+
     public static UploadFileType findByCode(String code) {
         return Arrays.stream(UploadFileType.values()).filter(it -> it.getCode().equals(code)).findFirst().orElse(null);
+    }
+
+    private String getAllCode(UploadFileType uploadFileType) {
+        String realCode = uploadFileType.getCode();
+        realCode = StrUtil.upperFirst(realCode);
+        if (uploadFileType.parent != null) {
+            realCode = getAllCode(uploadFileType.parent) + "/" + realCode;
+        }
+        return realCode;
     }
 
     @JsonValue
@@ -72,6 +97,6 @@ public enum UploadFileType {
 
     @Override
     public String toString() {
-        return code;
+        return getAllCode(this);
     }
 }

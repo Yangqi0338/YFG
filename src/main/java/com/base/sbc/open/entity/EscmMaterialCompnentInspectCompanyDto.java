@@ -1,9 +1,11 @@
 package com.base.sbc.open.entity;
 
-import com.alibaba.excel.annotation.format.DateTimeFormat;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.SpringContextHolder;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -131,4 +133,14 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
     @TableField(exist = false)
     private List<EscmMaterialCompnentInspectCompanyDto> companyDtoList;
 
+    public String getUrl() {
+        MinioUtils minioUtils = SpringContextHolder.getBean("minioUtils");
+        return minioUtils.getObjectUrl(fileUrl);
+    }
+
+    public String getName() {
+//        if (StrUtil.isBlank(fileUrl)) return "";
+//        return fileUrl.substring(fileUrl.lastIndexOf("/"), fileUrl.length() + 1);
+        return materialsNo + "-" + DateUtil.format(getCreateDate(), "yyyyMMDD HHmmss");
+    }
 }
