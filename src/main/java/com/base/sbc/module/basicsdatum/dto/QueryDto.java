@@ -70,4 +70,8 @@ public class QueryDto extends Page {
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
     private String brand;
+
+    /** 温馨提示名称 */
+    @ApiModelProperty(value = "温馨提示名称"  )
+    private String reminderName;
 }
