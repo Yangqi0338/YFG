@@ -16,6 +16,7 @@ import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.annotation.MessageTrigger;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -200,7 +201,8 @@ public class PatternMakingController {
 
     @ApiOperation(value = "款式设计下发", notes = "打版指令从款式设计下发到技术中心看板")
     @PostMapping("/sampleDesignSend")
-    public boolean sampleDesignSend(@Valid @RequestBody StyleSendDto dto) {
+    @MessageTrigger("202408150008")
+    public ApiResult sampleDesignSend(@Valid @RequestBody StyleSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);
     }
 

@@ -83,7 +83,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param dto
      * @return
      */
-    boolean sampleDesignSend(StyleSendDto dto);
+    ApiResult sampleDesignSend(StyleSendDto dto);
 
     /**
      * 节点状态改变

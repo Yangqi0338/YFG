@@ -31,6 +31,8 @@ public interface FileTreeService extends BaseService<FileTree>{
 
     Boolean mergeFolder(MergeFolderDto dto);
 
+    boolean getConditionSql(String conditionSql);
+
 // 自定义方法区 不替换的区域【other_start】
 
 

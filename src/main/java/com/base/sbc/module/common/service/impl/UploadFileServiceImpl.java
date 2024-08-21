@@ -300,6 +300,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case replayRating:
                     case replayRatingFile:
                     case fittingReport:
+                    case messageTemptableUpload:
+                        objectName = "Message/template/" + System.currentTimeMillis() + "." + extName;
+                        break;
                     default:
                         objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
                                 .append(type)
