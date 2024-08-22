@@ -1234,7 +1234,7 @@ public class SmpService {
                         msg+="未填写门幅/规格;";
                     }
                 }
-                if(StrUtil.isNotBlank(packBomSize.getSize())){
+                if(StrUtil.isNotBlank(msg)){
                     throw new OtherException(msg);
                 }
 
