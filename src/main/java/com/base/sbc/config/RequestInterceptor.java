@@ -1,26 +1,19 @@
 package com.base.sbc.config;
 
-import cn.hutool.core.lang.Opt;
 import com.alibaba.fastjson2.JSON;
-import com.base.sbc.config.common.Ip2regionAnalysis;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.httplog.entity.HttpLog;
 import com.base.sbc.module.httplog.service.HttpLogService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.Date;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
@@ -59,6 +52,7 @@ public class RequestInterceptor implements HandlerInterceptor {
         httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
         httpLog.setThreadId(Thread.currentThread().getId() + "");
         userCompany.setMainThreadId(httpLog.getThreadId());
+        userCompany.setStartTime(httpLog.getStartTime());
 //        httpLog.setUserCode(userCompany.getUserCode());
 
         //获取swagger注解value值
