@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternmaking.vo;
 
 
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.style.entity.Style;
@@ -190,7 +191,12 @@ public class PatternMakingTaskListVo extends PatternMaking {
     @JsonIgnore
     private Style style;
 
-    private String prodCategory;
+    private String ratingProdCategory;
+
+    private boolean isNotFoundProdCategory() {
+        String regex = "未找到当前品类(\\w+)的评分数据";
+        return ReUtil.isMatch(regex, ratingProdCategory);
+    }
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

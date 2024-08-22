@@ -7,12 +7,10 @@
 package com.base.sbc.module.workload.vo;
 
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.text.StrJoiner;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
-import com.base.sbc.module.workload.entity.WorkloadRatingConfig;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -88,9 +86,9 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
     }
 
     public WorkloadRatingDetailSaveDTO decorateItem(WorkloadRatingItem item) {
-        this.setItemId(CommonUtils.saftyStrJoin(COMMA, this.getItemId(),item.getId()).toString());
-        this.setItemValue(CommonUtils.saftyStrJoin(COMMA, this.getItemValue(),item.getItemValue()).toString());
-        this.setItemName(CommonUtils.saftyStrJoin(COMMA, this.getItemName(),item.getItemName()).toString());
+        this.setItemId(CommonUtils.strJoin(COMMA, this.getItemId(), item.getId()).toString());
+        this.setItemValue(CommonUtils.strJoin(COMMA, this.getItemValue(), item.getItemValue()).toString());
+        this.setItemName(CommonUtils.strJoin(COMMA, this.getItemName(), item.getItemName()).toString());
         this.setScore(this.getScore().add(item.getScore()));
         return this;
     }

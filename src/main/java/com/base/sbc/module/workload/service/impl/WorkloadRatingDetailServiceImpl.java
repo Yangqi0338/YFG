@@ -6,12 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -182,19 +181,24 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         // 找config
                         List<String> keyList = StrUtil.split(ratingDetail.getOriginItemValue(), "#");
                         itemList.stream().filter(it-> it.getConfigName().equals(keyList.get(0))).forEach(it-> {
-                            YesOrNoEnum enableFlag = YesOrNoEnum.YES;
+                            YesOrNoEnum enableFlag = null;
                             if (keyList.size() >= 2) {
                                 enableFlag = YesOrNoEnum.findByValue(keyList.get(2));
                             }
-                            it.setEnableFlag(enableFlag);
+                            it.setEnableFlag(Opt.ofNullable(enableFlag).orElse(YesOrNoEnum.YES));
                         });
                     });
+                    BigDecimal baseProxy = ratingDetail.getBaseProxy();
                     configVOList.forEach(configVO -> {
-                        itemList.stream().filter(it-> it.getConfigId().equals(configVO.getId())).forEach(item-> {
-                            item.setItemList(configVO.getTitleFieldDTOList().stream().flatMap(configTitle->
-                                    itemList.stream().filter(it-> it.getConfigId().equals(configTitle.getConfigId()))).collect(Collectors.toList()));
-                        });
 
+                        workloadRatingItemList.addAll(itemList.stream().filter(it -> it.getConfigId().equals(configVO.getId())).peek(item -> {
+                            item.setItemList(configVO.getTitleFieldDTOList().stream().flatMap(configTitle ->
+                                    itemList.stream().filter(it -> it.getConfigId().equals(configTitle.getConfigId())).peek(it -> {
+                                        if (baseProxy != null && configVO.getCalculateType() == WorkloadRatingCalculateType.BASE) {
+                                            it.setScore(baseProxy);
+                                        }
+                                    })).collect(Collectors.toList()));
+                        }).collect(Collectors.toList()));
                     });
                 });
                 workloadRatingDetailList.addAll(ratingDetailDTOS);
