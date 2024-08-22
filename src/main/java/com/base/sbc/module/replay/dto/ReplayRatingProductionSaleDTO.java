@@ -37,7 +37,7 @@ public class ReplayRatingProductionSaleDTO implements Serializable {
 
     /** 投产 */
     @ApiModelProperty(value = "投产")
-    private BigDecimal production = BigDecimal.ZERO;
+    private BigDecimal production;
 
     /** 单位 */
     @ApiModelProperty(value = "投产单位")
@@ -50,7 +50,7 @@ public class ReplayRatingProductionSaleDTO implements Serializable {
 
     /** 销售 */
     @ApiModelProperty(value = "销售")
-    private BigDecimal sale = BigDecimal.ZERO;
+    private BigDecimal sale;
 
     /** 销售单位 */
     @ApiModelProperty(value = "销售单位")
