@@ -924,7 +924,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             ).stream().collect(CommonUtils.toMap(Style::getId));
             list.forEach(it -> it.setStyle(styleMap.getOrDefault(it.getStyleId(), null)));
             workloadRatingDetailService.decorateWorkloadRating(list, PatternMakingTaskListVo::getStyle, PatternMakingTaskListVo::getWorkloadRatingId,
-                    PatternMakingTaskListVo::setProdCategory, PatternMakingTaskListVo::setRatingDetailDTO, PatternMakingTaskListVo::setRatingConfigList);
+                    PatternMakingTaskListVo::setRatingProdCategory, PatternMakingTaskListVo::setRatingDetailDTO, PatternMakingTaskListVo::setRatingConfigList);
         }
         return objects.toPageInfo();
     }
