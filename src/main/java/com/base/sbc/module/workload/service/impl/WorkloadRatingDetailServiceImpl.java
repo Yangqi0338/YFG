@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
@@ -175,13 +176,10 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 List<WorkloadRatingDetailDTO> ratingDetailDTOS = this.queryList(ratingDetailQO);
                 // 手动构建ratingItemList
                 ratingDetailDTOS.forEach(ratingDetail -> {
-                    WorkloadRatingItemQO qo = new WorkloadRatingItemQO();
-                    qo.reset2QueryList();
-                    qo.setId(ratingDetail.getOriginItemId());
-                    List<WorkloadRatingItemVO> itemList = workloadRatingItemService.queryPageInfo(qo).getList();
-                    workloadRatingItemList.addAll(itemList);
+                    List<WorkloadRatingItemVO> itemList = WORKLOAD_CV.copy2ItemVO(workloadRatingItemService.listByIds(StrUtil.split(ratingDetail.getOriginItemId(), COMMA)));
                     List<String> itemValueList = StrUtil.split(ratingDetail.getOriginItemValue(), "-");
                     itemValueList.forEach(itemValue-> {
+                        // 找config
                         List<String> keyList = StrUtil.split(ratingDetail.getOriginItemValue(), "#");
                         itemList.stream().filter(it-> it.getConfigName().equals(keyList.get(0))).forEach(it-> {
                             YesOrNoEnum enableFlag = YesOrNoEnum.YES;
@@ -190,6 +188,13 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             }
                             it.setEnableFlag(enableFlag);
                         });
+                    });
+                    configVOList.forEach(configVO -> {
+                        itemList.stream().filter(it-> it.getConfigId().equals(configVO.getId())).forEach(item-> {
+                            item.setItemList(configVO.getTitleFieldDTOList().stream().flatMap(configTitle->
+                                    itemList.stream().filter(it-> it.getConfigId().equals(configTitle.getConfigId()))).collect(Collectors.toList()));
+                        });
+
                     });
                 });
                 workloadRatingDetailList.addAll(ratingDetailDTOS);
