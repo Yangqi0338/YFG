@@ -40,7 +40,7 @@ public class QueryGenerator {
             DataPermissionsService dataPermissionsService = SpringContextHolder.getBean(DataPermissionsService.class);
             dataPermissionsService.getDataPermissionsForQw(qw, dto.getTableCode());
         }
-        if (StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())) {
+        if (StrUtil.isEmpty(dto.getTableCode()) || (MapUtil.isEmpty(dto.getFieldQueryMap()) && MapUtil.isEmpty(dto.getFieldOrderMap()))) {
             return false;
         }
         String columnHeard = dto.getColumnHeard();
@@ -54,8 +54,8 @@ public class QueryGenerator {
         for (ColumnDefine columnDefine : list) {
             String columnCode = columnDefine.getColumnCode();
             String sqlCode = columnDefine.getSqlCode();
-            if (fieldQueryMap.containsKey(columnCode) && StrUtil.isNotEmpty(fieldQueryMap.get(columnCode))) {
-                String fieldValue = fieldQueryMap.get(columnCode);
+            String fieldValue = MapUtil.getStr(fieldQueryMap, columnCode);
+            if (StrUtil.isNotBlank(fieldValue)) {
                 String property = columnDefine.getProperty();
                 if (StrUtil.isEmpty(property) && StrUtil.isNotEmpty(columnDefine.getColumnType()) && "date".equals(columnDefine.getColumnType())) {
                     property = "date";

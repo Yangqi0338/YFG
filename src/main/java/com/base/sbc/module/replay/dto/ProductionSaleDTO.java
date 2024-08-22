@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -28,11 +29,11 @@ public class ProductionSaleDTO extends ReplayRatingProductionSaleDTO {
 
     /** 投产次数 */
     @ApiModelProperty(value = "投产次数")
-    private BigDecimal productionCount = BigDecimal.ZERO;
+    private BigDecimal productionCount;
 
     /** 库存款 */
     @ApiModelProperty(value = "库存款")
-    private BigDecimal storageCount = BigDecimal.ZERO;
+    private BigDecimal storageCount;
 
     /**
      * 列表数据合计成单个bean
@@ -43,6 +44,7 @@ public class ProductionSaleDTO extends ReplayRatingProductionSaleDTO {
             this.setSale(CommonUtils.sumBigDecimal(list, ProductionSaleDTO::getSale));
             this.setProductionCount(CommonUtils.sumBigDecimal(list, ProductionSaleDTO::getProductionCount));
             this.setStorageCount(CommonUtils.sumBigDecimal(list, ProductionSaleDTO::getStorageCount));
+            this.setBulkStyleNo(list.stream().map(ProductionSaleDTO::getBulkStyleNo).distinct().findFirst().orElse(this.getBulkStyleNo()));
         }
         this.setProductionUnit(BigDecimal.ONE);
         this.setSaleUnit(BigDecimal.ONE);

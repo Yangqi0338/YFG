@@ -7,6 +7,7 @@
 package com.base.sbc.module.replay.dto;
 
 import cn.hutool.core.collection.CollUtil;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -54,8 +55,8 @@ public class ReplayRatingYearProductionSaleDTO extends ReplayRatingProductionSal
         if (CollUtil.isEmpty(childrenList)) return;
         childrenList.forEach(children -> {
             children.calculate();
-            this.setProduction(children.getProduction().add(this.getProduction()));
-            this.setSale(children.getSale().add(this.getSale()));
+            this.setProduction(BigDecimalUtil.add(children.getProduction(), this.getProduction()));
+            this.setSale(BigDecimalUtil.add(children.getSale(),this.getSale()));
             if (this.getProductionUnit() == null) this.setProductionUnit(children.getProductionUnit());
             if (this.getSaleUnit() == null) this.setSaleUnit(children.getSaleUnit());
         });
