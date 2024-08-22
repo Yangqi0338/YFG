@@ -90,10 +90,6 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     /** 意见图片4 */
     @ApiModelProperty(value = "意见图片4"  )
     private String originalSuggestionImg4;
-
-    public String getSeason() {
-        return yearName + "-" + seasonName + "-" + brandName;
-    }
     /**
      * 打样设计师id
      */
@@ -129,4 +125,6 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     private String prodCategoryName;
     private String prodCategory2ndName;
     private String prodCategory3rdName;
+
+    private String season;
 }
