@@ -327,6 +327,14 @@ public class StylePricingVO {
      * 列头筛选数量
      */
     private Integer groupCount;
+    /** 设计工艺员id */
+    @ApiModelProperty(value = "设计工艺员id")
+    private String technicianId;
+    /**
+     * 设计工艺员名称
+     */
+    @ApiModelProperty(value = "设计工艺员名称")
+    private String technicianName;
 
 
     /** 大类code */

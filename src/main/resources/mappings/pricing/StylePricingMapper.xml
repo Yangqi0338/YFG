@@ -295,7 +295,9 @@
             sd.prod_category2nd,
             sd.prod_category2nd_name,
             sd.prod_category3rd,
-            sd.prod_category3rd_name
+            sd.prod_category3rd_name,
+            sd.technician_id,
+            sd.technician_name
             from t_style_color ssc
             left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
             LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
