@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -525,6 +526,18 @@ public class CommonUtils {
 
     public static <T extends BaseEntity> List<String> getIds(List<T> list, Function<T, String> func) {
         return list.stream().map(func).collect(Collectors.toList());
+    }
+
+    public static <T> List<List<T>> flattenStructure(List<T> list, Function<T, List<T>> func) {
+        List<List<T>> result = new ArrayList<>();
+        AtomicInteger index = new AtomicInteger();
+        result.add(index.getAndIncrement(), list);
+        do{
+            list = list.stream().map(func).filter(CollUtil::isNotEmpty)
+                    .flatMap(Collection::stream).collect(Collectors.toList());
+            result.add(index.getAndIncrement(), list);
+        } while (list.stream().anyMatch(it-> CollUtil.isNotEmpty(func.apply(it))));
+        return result;
     }
 
     public static String removeSuffix(CharSequence str, CharSequence suffix) {

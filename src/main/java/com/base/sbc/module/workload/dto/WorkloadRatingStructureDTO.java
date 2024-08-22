@@ -40,6 +40,11 @@ public class WorkloadRatingStructureDTO {
      */
     @ApiModelProperty(value = "中类")
     public String prodCategory2nd;
+    /**
+     * 小类
+     */
+    @ApiModelProperty(value = "小类")
+    public String prodCategory3st;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
