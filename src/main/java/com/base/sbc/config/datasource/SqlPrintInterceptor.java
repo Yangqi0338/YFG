@@ -1,16 +1,12 @@
 package com.base.sbc.config.datasource;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SqlProperties;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
-import com.base.sbc.module.httplog.entity.HttpLog;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -60,8 +56,8 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
 
 @Intercepts({
         @Signature(
-                type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class
-        })
+                type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}
+        )
 })
 public class SqlPrintInterceptor implements Interceptor {
 
@@ -117,11 +113,13 @@ public class SqlPrintInterceptor implements Interceptor {
 
         long end = System.currentTimeMillis();
         long timing = end - start;
+        UserCompany userCompany = companyUserInfo.get();
         if (logger.isInfoEnabled()) {
-            logger.info("\n执行sql耗时:" + timing + " ms" + "  方法ID: " + statementId + "\nSQL语句:" + sql1);
+            logger.info(String.format("\n执行sql耗时:%s ms  方法ID: %s  线程ID: %s\nSQL语句:%s", timing, statementId, userCompany.getMainThreadId(), sql1));
         }
         //记录sql信息
-        UserCompany userCompany = companyUserInfo.get();
+        // 节省位置 不记录 改成 上面打印日志是显示线程id,然后通过日志定位
+/*        UserCompany userCompany = companyUserInfo.get();
         if (userCompany != null) {
             HttpLog httpLog = userCompany.getHttpLog();
 
@@ -137,7 +135,7 @@ public class SqlPrintInterceptor implements Interceptor {
 
             jsonArray.add(jsonObject);
             httpLog.setSqlLog(jsonArray.toJSONString());
-        }
+        }*/
 
 
         return proceed;

@@ -37,6 +37,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
@@ -855,9 +856,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 sampleTypeCount.put(dict.getValue(), qty);
             }
             sampleTypeCount.put("总数", total);
-            String deptName = Optional.ofNullable(user.getDeptList()).map(item -> {
-                return item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA));
-            }).orElse("");
+            String deptName = user.getDeptName();
             patternDesignVo.setDeptName(deptName);
             patternDesignVo.setSampleTypeCount(sampleTypeCount);
             patternDesignVoList.add(patternDesignVo);
@@ -1835,11 +1834,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
 
         /*开启一个线程池*/
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(excelList.size()))
-                .build();
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*获取图片链接*/
@@ -1847,7 +1841,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 /*计时器*/
                 CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
                 for (SampleBoardExcel sampleBoardExcel : excelList) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             final String stylePic = sampleBoardExcel.getStylePic();
                             sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
@@ -1865,8 +1859,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
         } catch (Exception e) {
             log.info(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
     @Override
@@ -2397,7 +2389,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 sampleTypeCount.put("进行中", 0L);
                 sampleTypeCount.put("已完成", 0L);
             }
-            String deptName = Optional.ofNullable(user.getDeptList()).map(item -> item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA))).orElse("");
+            String deptName = user.getDeptName();
             patternDesignVo.setDeptName(deptName);
             patternDesignVo.setSampleTypeCount(sampleTypeCount);
             result.add(patternDesignVo);
@@ -2822,11 +2814,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * @param lockKey                       拼接的锁key
      */
     private void getData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key, String token, String lockKey, String countType) {
-        new Thread(() -> {
+        ExecutorContext.asyncExecutor.execute(() -> {
             try {
                 redisUtils.set(lockKey, token + patternMakingWeekMonthViewDto.getCompanyCode());
                 // 查询数据库数据再缓存
-                this.getCountType(patternMakingWeekMonthViewDto, key.toString(), countType);
+                this.getCountType(patternMakingWeekMonthViewDto, key, countType);
             } catch (Exception e) {
                 log.error("统计接口报错:{}", e);
                 redisUtils.del(lockKey);
@@ -2834,7 +2826,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 // 无论成功报错 都会清除锁
                 redisUtils.del(lockKey);
             }
-        }).start();
+        });
     }
 
     /**

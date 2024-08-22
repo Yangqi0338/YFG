@@ -21,12 +21,12 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.JacksonExtendHandler;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
@@ -407,12 +407,6 @@ public class ExcelUtils {
      * @param columns 图片列名
      */
     public static void executorExportExcel(List<?> list, Class<?> pojoClass, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, String... columns){
-        long t1 = System.currentTimeMillis();
-
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .build();
         try {
             if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
                 /*导出图片*/
@@ -422,7 +416,7 @@ public class ExcelUtils {
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
 
                 for (Object o  : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             for (String column : columns) {
                                 // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
@@ -444,18 +438,10 @@ public class ExcelUtils {
 
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 
     public static void executorExportExcel1(List<?> list, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, ExportParams exportParams, List<ExcelExportEntity> newExcelParams, String... columns){
-        long t1 = System.currentTimeMillis();
-
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .build();
         try {
             if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
                 /*导出图片*/
@@ -465,7 +451,7 @@ public class ExcelUtils {
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
 
                 for (Object o  : list) {
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             for (String column : columns) {
                                 // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
@@ -483,12 +469,9 @@ public class ExcelUtils {
                 }
                 countDownLatch.await();
             }
-            // ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
             defaultExport(list,name+".xlsx",response,exportParams,newExcelParams);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
     }
 
@@ -729,11 +712,6 @@ public class ExcelUtils {
         if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
             StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);
             MinioUtils minioUtils = SpringUtil.getBean(MinioUtils.class);
-            ExecutorService executor = ExecutorBuilder.create()
-                    .setCorePoolSize(8)
-                    .setMaxPoolSize(10)
-                    .setWorkQueue(new LinkedBlockingQueue<>(jsonArray.size()))
-                    .build();
             Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
             try {
                 /*导出图片*/
@@ -743,7 +721,7 @@ public class ExcelUtils {
                 CountDownLatch countDownLatch = new CountDownLatch(jsonArray.size());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
                                 String imgColumn = entry.getKey();
@@ -780,8 +758,6 @@ public class ExcelUtils {
                 countDownLatch.await();
             } catch (Exception e) {
                 throw new OtherException(e.getMessage());
-            } finally {
-                executor.shutdown();
             }
         }
         if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), (YesOrNoEnum.YES.getValue() + 1) + "")) {
@@ -915,11 +891,6 @@ public class ExcelUtils {
         if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
             StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);
             MinioUtils minioUtils = SpringUtil.getBean(MinioUtils.class);
-            ExecutorService executor = ExecutorBuilder.create()
-                    .setCorePoolSize(8)
-                    .setMaxPoolSize(10)
-                    .setWorkQueue(new LinkedBlockingQueue<>(jsonArray.size()))
-                    .build();
             Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
             try {
                 /*导出图片*/
@@ -929,7 +900,7 @@ public class ExcelUtils {
                 CountDownLatch countDownLatch = new CountDownLatch(jsonArray.size());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    executor.submit(() -> {
+                    ExecutorContext.imageExecutor.submit(() -> {
                         try {
                             for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
                                 String imgColumn = entry.getKey();
@@ -964,8 +935,6 @@ public class ExcelUtils {
                 countDownLatch.await();
             } catch (Exception e) {
                 throw new OtherException(e.getMessage());
-            } finally {
-                executor.shutdown();
             }
         }
         return jsonArray;

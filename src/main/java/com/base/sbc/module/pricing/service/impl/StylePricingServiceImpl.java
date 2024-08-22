@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -309,11 +310,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
 //        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .build();
-
         try {
             CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
             List<String> stylePricingIdList = stylePricingList.stream().map(StylePricingVO::getId).collect(Collectors.toList());
@@ -329,7 +325,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             );
 
             for (StylePricingVO stylePricingVO : stylePricingList) {
-            executor.submit(() -> {
+            ExecutorContext.imageExecutor.submit(() -> {
                 // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
                 PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
                 if (isPackType){
@@ -428,8 +424,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
         }
         if (decoratePic) {
             stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");

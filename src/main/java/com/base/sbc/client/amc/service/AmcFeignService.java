@@ -3,6 +3,7 @@ package com.base.sbc.client.amc.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.entity.Team;
@@ -51,7 +52,7 @@ public class AmcFeignService {
     @Resource
     private AmcService amcService;
 
-    public static ThreadLocal<List<String>> userPlanningSeasonId = new ThreadLocal<>();
+    public static ThreadLocal<List<String>> userPlanningSeasonId = new TransmittableThreadLocal<>();
 
     /**
      * 获取用户头像

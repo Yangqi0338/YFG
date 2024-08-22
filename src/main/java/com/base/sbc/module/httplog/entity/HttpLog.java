@@ -5,6 +5,7 @@ import com.base.sbc.config.SqlDataInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Data
 @TableName("t_http_log")
-public class HttpLog {
+public class HttpLog implements Serializable {
 
     //请求数据
     /** 请求开始时间 */
@@ -25,7 +26,7 @@ public class HttpLog {
     private Date startTime;
 
     /**请求类型 (1: 发出的请求, 2: 收到的请求)*/
-    private Integer type;
+//    private Integer type;
 
     /** IP地址 */
     private String ip;
@@ -52,10 +53,10 @@ public class HttpLog {
     private String reqBody;
 
     /** 用户编码 */
-    private String userCode;
+//    private String userCode;
 
     /** 团队编码 */
-    private String teamCode;
+//    private String teamCode;
 
     /** 线程Id */
     private String threadId;
@@ -64,17 +65,18 @@ public class HttpLog {
     private String reqName;
 
     /** 权限编码 */
-    private String authCode;
+//    private String authCode;
 
     /** 菜单权限名称 */
-    private String authName;
+//    private String authName;
 
     /** sql 记录 */
-    private String sqlLog;
+//    private String sqlLog;
 
     //响应数据
     /** 持续时间ms */
-    private Long intervalNum;
+//    private Long intervalNum;
+    private Short intervalNum;
 
     /** 响应数据 */
     private String respBody;
@@ -83,14 +85,14 @@ public class HttpLog {
     private Integer exceptionFlag;
 
     /** 异常信息 */
-    private String throwableException;
+//    private String throwableException;
 
     ///** 请求的cookie */
     //private Map<String, String> cookieMap;
 
     /** 请求sql */
-    @TableField(exist = false)
-    private List<SqlDataInfo> sqlDataInfoList;
+//    @TableField(exist = false)
+//    private List<SqlDataInfo> sqlDataInfoList;
 
     /** 业务具体日志 */
     //private Map<String, Object> businessDataMap;
@@ -100,10 +102,10 @@ public class HttpLog {
     private Integer statusCode;
 
     /***响应头*/
-    private String respHeaders;
+//    private String respHeaders;
 
     /***备注*/
-    private String remarks;
+//    private String remarks;
 
 
 
@@ -111,22 +113,22 @@ public class HttpLog {
     private static final long serialVersionUID = 7022181519896948997L;
 
     /** 更新者名称  */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    protected String updateName;
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    protected String updateName;
 
     /**  更新者id */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    protected String updateId;
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    protected String updateId;
 
     /** 更新日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    protected Date updateDate;
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    protected Date updateDate;
 
     /** 创建日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @TableField(fill = FieldFill.INSERT)
-    protected Date createDate;
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+//    @TableField(fill = FieldFill.INSERT)
+//    protected Date createDate;
 
     /**  创建者名称 */
     @TableField(fill = FieldFill.INSERT)
@@ -137,7 +139,7 @@ public class HttpLog {
     protected String createId;
 
     /**物理删除*/
-    protected String delFlag;
+//    protected String delFlag;
 
     /** 实体主键 */
     @TableId(type = IdType.ASSIGN_ID)

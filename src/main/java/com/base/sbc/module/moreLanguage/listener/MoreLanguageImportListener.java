@@ -10,7 +10,6 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
@@ -62,12 +61,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.ExecutorContext.moreLanguageListenerExecutor;
 import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.codeFunc;
 import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.enableFlagFunc;
 import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.idFunc;
@@ -103,25 +100,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     @Setter
     private MoreLanguageExcelQueryDto excelQueryDto;
 
-    private ThreadPoolExecutor threadPoolExecutor;
     SFunction<DataVerifyResultVO, String> sheetNameFunc = DataVerifyResultVO::getSheetName;
     SFunction<DataVerifyResultVO, Integer> rowIndexFunc = DataVerifyResultVO::getRowIndex;
-
-    @PostConstruct
-    public void initThread(){
-        threadPoolExecutor = new ThreadPoolExecutor(8, 8,
-                0L, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(16), r -> {
-                    Thread thread = new Thread(r,"多语言导入");
-                    thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
-                        if(e != null){
-                            e.printStackTrace();
-                            throw new OtherException(e.getMessage());
-                        }
-                    });
-                    return thread;
-                });
-    }
 
     /**
      * headRowNumber() 通过这个方法来解析对应的行, 不指定为1, 即第一行数据会进到invokeHeadMap方法
@@ -458,7 +438,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         RequestContextHolder.setRequestAttributes(servletRequestAttributes,true);
         taskList.forEach(task-> {
-            threadPoolExecutor.execute(TtlRunnable.get(task));
+            moreLanguageListenerExecutor.execute(task);
         });
     }
 

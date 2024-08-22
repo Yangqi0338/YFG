@@ -179,11 +179,6 @@ public class PackPricingController {
     @ApiOperation(value = "二次加工费-保存/修改")
     @PostMapping("/craftCosts")
     public PackPricingCraftCostsVo saveCraftCosts(@Valid @RequestBody PackPricingCraftCostsDto dto) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return packPricingCraftCostsService.saveByDto(dto);
     }
 

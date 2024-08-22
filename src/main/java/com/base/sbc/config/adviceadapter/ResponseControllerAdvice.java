@@ -1,5 +1,7 @@
 package com.base.sbc.config.adviceadapter;
 
+import cn.hutool.core.lang.Opt;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.ttl.TransmittableThreadLocal;
@@ -10,7 +12,9 @@ import com.base.sbc.config.i18n.LocaleMessages;
 import com.base.sbc.module.httplog.entity.HttpLog;
 import com.base.sbc.module.httplog.service.HttpLogService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -34,6 +38,7 @@ import static com.base.sbc.client.amc.service.AmcFeignService.userPlanningSeason
  */
 @RestControllerAdvice(basePackages = {"com.base.sbc"})
 @RequiredArgsConstructor
+@Slf4j
 public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
 
@@ -63,7 +68,6 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         // 如果接口返回的类型本身就是Result那就没有必要进行额外的操作，返回false,
-//		return !returnType.getGenericParameterType().equals(Result.class);
         return true;
     }
 
@@ -83,7 +87,6 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             apiResult = result;
         } else if (body instanceof String) {
             // 这样写远程调用没办法转json
-            //  return JsonUtils.beanToJson(ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body));
             apiResult = ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body);
         } else if (body instanceof Boolean) {
             if (body.equals(true)) {
@@ -96,7 +99,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             this.preHttpLog(request,response, apiResult);
         }catch (Exception e){
             this.preHttpLog(request,response, body);
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
 
         return apiResult;
@@ -112,16 +115,15 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
         //记录请求信息
-        HttpLog httpLog = companyUserInfo.get().getHttpLog();
-        if (httpLog==null){
-            httpLog =new HttpLog();
-        }
+        String httpLogId = companyUserInfo.get().getHttpLogId();
+        HttpLog httpLog = new HttpLog();
+        httpLog.setId(httpLogId);
         try {
-
             URI uri = request.getURI();
 
-            httpLog.setMethod(request.getMethod().toString());
-            httpLog.setUrl(request.getURI().toString());
+            httpLog.setMethod(Opt.ofNullable(request.getMethod()).map(HttpMethod::toString).orElse(""));
+            String uriStr = uri.toString();
+            httpLog.setUrl(uriStr.substring(0,uriStr.lastIndexOf("?")));
             httpLog.setIp(uri.getHost());
             httpLog.setAddress(Ip2regionAnalysis.getStringAddressByIp(uri.getHost()));
             httpLog.setReqHeaders(JSON.toJSONString(request.getHeaders()));
@@ -129,28 +131,24 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             //记录响应信息
             HttpServletResponse httpServletResponse = ((ServletServerHttpResponse)response).getServletResponse();
             String jsonString = JSON.toJSONString(body);
-            if (jsonString.length()<20000){
-                httpLog.setRespBody(JSON.toJSONString(body));
-            }
-            JSONObject headers=new JSONObject();
-            Collection<String> headerNames = httpServletResponse.getHeaderNames();
-            for (String headerName : headerNames) {
-                headers.put(headerName,httpServletResponse.getHeader(headerName));
-            }
+//            if (jsonString.length()<20000){
+                httpLog.setRespBody(jsonString);
+//            }
+//            JSONObject headers=new JSONObject();
+//            Collection<String> headerNames = httpServletResponse.getHeaderNames();
+//            for (String headerName : headerNames) {
+//                headers.put(headerName,httpServletResponse.getHeader(headerName));
+//            }
 
-            httpLog.setRespHeaders(headers.toJSONString());
+//            httpLog.setRespHeaders(headers.toJSONString());
             httpLog.setStatusCode(httpServletResponse.getStatus());
-            httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
+            httpLog.setIntervalNum((short) Math.min(Short.MAX_VALUE,(System.currentTimeMillis() - httpLog.getStartTime().getTime())));
             httpLog.setExceptionFlag(0);
-            try {
-                // System.out.println(JSON.parseObject(jsonString));
-                if (!JSON.parseObject(jsonString).getBoolean("success")){
-                    httpLog.setExceptionFlag(1);
-                    httpLog.setStatusCode(JSON.parseObject(jsonString).getInteger("status"));
-                    httpLog.setThrowableException(JSON.parseObject(jsonString).getString("message"));
-                }
-            }catch (Exception e){
-                e.printStackTrace();
+
+            if (!JSONUtil.parseObj(jsonString).getBool("success")){
+                httpLog.setExceptionFlag(1);
+                httpLog.setStatusCode(JSONUtil.parseObj(jsonString).getInt("status"));
+//                httpLog.setThrowableException(JSON.parseObject(jsonString).getString("message"));
             }
         }catch (Exception e){
          e.printStackTrace();

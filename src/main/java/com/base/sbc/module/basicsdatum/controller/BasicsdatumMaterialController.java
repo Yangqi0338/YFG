@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.ExecutorContext;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -65,8 +66,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -523,11 +522,9 @@ public class BasicsdatumMaterialController extends BaseController {
     public boolean matchPic() {
         long count = basicsdatumMaterialService.count();
         long pages = count / 100;
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
-
         for (int i = 1; i < pages + 2; i++) {
             int finalI = i;
-            executorService.submit(() -> {
+            ExecutorContext.baseExecutor.submit(() -> {
                 basicsdatumMaterialService.matchPic(finalI, 100);
             });
 
