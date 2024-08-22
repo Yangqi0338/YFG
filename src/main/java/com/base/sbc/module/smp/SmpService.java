@@ -1342,16 +1342,22 @@ public class SmpService {
                 }
             }
 
-            // 校验规格是否存在
-            BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
-            queryDto1.setMaterialCode(packBom.getMaterialCode());
-            PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
+            /*判断供应商报价是否停用
+             * 1.报次款无需校验供应商停用
+             * 2.停用状态下的BOM物料无需要校验供应商停用
+             */
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
             styleColor = styleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
-            if (BusinessProperties.needCheckByDefective(styleColor.getStyleNo(), "distributeSmp/bom")) {
+
+            //如果是报次款，不校验门幅
+            if("0".equals(styleColor.getIsDefective())){
+                // 校验规格是否存在
+                BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
+                queryDto1.setMaterialCode(packBom.getMaterialCode());
+                PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
                 if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
                     throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
                 } else {
@@ -1362,10 +1368,6 @@ public class SmpService {
                 }
             }
 
-            /*判断供应商报价是否停用
-             * 1.报次款无需校验供应商停用
-             * 2.停用状态下的BOM物料无需要校验供应商停用
-             */
             String category2Code = "";
             if (materialMap.containsKey(packBom.getMaterialCode())) {
                 BasicsdatumMaterial basicsdatumMaterial = materialMap.get(packBom.getMaterialCode());
@@ -1433,7 +1435,24 @@ public class SmpService {
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()).eq("bom_version_id", packBom.getBomVersionId()))) {
-                packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
+                String msg = "";
+                if(StrUtil.isBlank(packBomSize.getSize())){
+                    msg+="未填写尺码;";
+                }
+                if(packBomSize.getQuantity() == null){
+                    msg+="未填写数量;";
+                    throw new OtherException("未填写数量");
+                }
+                //如果是报次款，不校验门幅
+                if("0".equals(styleColor.getIsDefective())){
+                    if(StrUtil.isBlank(packBomSize.getWidth())){
+                        msg+="未填写门幅/规格;";
+                    }
+                }
+                if(StrUtil.isNotBlank(packBomSize.getSize())){
+                    throw new OtherException(msg);
+                }
+
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 // 根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
