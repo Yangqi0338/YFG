@@ -498,7 +498,7 @@ public class OpenSmpController extends BaseController {
             qw.in(PreProductionSampleTaskFob::getOrderNo, orderNoList);
             qw.in(PreProductionSampleTaskFob::getOrderNoBatch, orderNoBatchList);
             List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.list(qw);
-            Map<String, String> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNo(), BaseEntity::getId,(v1,v2)->v1));
+            Map<String, String> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNoBatch(), BaseEntity::getId,(v1,v2)->v1));
 
 
             LambdaQueryWrapper<StyleColor> queryWrapper = new LambdaQueryWrapper<>();
@@ -532,8 +532,8 @@ public class OpenSmpController extends BaseController {
                 //通过状态 status
                 //改版意见 techRemarks
                 //确认时间 processDepartmentDate
-                if(dbMap.containsKey(fob.getOrderNo()+fob.getOrderNo())){
-                    fob.setId(dbMap.get(fob.getOrderNo()+fob.getOrderNo()));
+                if(dbMap.containsKey(fob.getOrderNo()+fob.getOrderNoBatch())){
+                    fob.setId(dbMap.get(fob.getOrderNo()+fob.getOrderNoBatch()));
                 }else{
                     fob.setId(IdGen.getId().toString());
                 }
@@ -593,20 +593,18 @@ public class OpenSmpController extends BaseController {
         List<String> codes = new ArrayList<>();
         try {
             List<String> orderNoList = new ArrayList<>();
-            List<String> orderNoBatchList = new ArrayList<>();
             for (PreProductionSampleTaskFob fob : fobs) {
                 codes.add(fob.getCode());
                 orderNoList.add(fob.getOrderNo());
-                orderNoBatchList.add(fob.getOrderNoBatch());
             }
             LambdaQueryWrapper<PreProductionSampleTaskFob> qw = new LambdaQueryWrapper<>();
             qw.in(PreProductionSampleTaskFob::getOrderNo, orderNoList);
             List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.list(qw);
-            Map<String, PreProductionSampleTaskFob> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNo(), o->o, (v1, v2) -> v1));
+            Map<String, PreProductionSampleTaskFob> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNoBatch(), o->o, (v1, v2) -> v1));
 
             //查询barcode表
             List<String> ids = foreignId.stream().map(BaseEntity::getId).collect(Collectors.toList());
-            List<PatternMakingBarCode> patternMakingBarCodes = patternMakingBarCodeService.listByIds(ids);
+            List<PatternMakingBarCode> patternMakingBarCodes = ids.isEmpty()?new ArrayList<>():patternMakingBarCodeService.listByIds(ids);
             Map<String, PatternMakingBarCode> barCodeMap = patternMakingBarCodes.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
 
             List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
@@ -656,16 +654,14 @@ public class OpenSmpController extends BaseController {
         List<String> codes = new ArrayList<>();
         try {
             List<String> orderNoList = new ArrayList<>();
-            List<String> orderNoBatchList = new ArrayList<>();
             for (PreProductionSampleTaskFob fob : fobs) {
                 codes.add(fob.getCode());
                 orderNoList.add(fob.getOrderNo());
-                orderNoBatchList.add(fob.getOrderNoBatch());
             }
             LambdaQueryWrapper<PreProductionSampleTaskFob> qw = new LambdaQueryWrapper<>();
             qw.in(PreProductionSampleTaskFob::getOrderNo, orderNoList);
             List<PreProductionSampleTaskFob> foreignId = preProductionSampleTaskFobService.list(qw);
-            Map<String, PreProductionSampleTaskFob> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNo(), o->o, (v1, v2) -> v1));
+            Map<String, PreProductionSampleTaskFob> dbMap = foreignId.stream().collect(Collectors.toMap(o -> o.getOrderNo() + o.getOrderNoBatch(), o->o, (v1, v2) -> v1));
 
             List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
 
