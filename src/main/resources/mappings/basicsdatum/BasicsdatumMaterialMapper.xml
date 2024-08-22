@@ -198,7 +198,7 @@
 
 
 	<select id="getMaterialSkuList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
-		SELECT
+		SELECT SQL_BIG_RESULT
 		<if test="ew.sqlSelect != null and ew.sqlSelect != ''">
 			${ew.sqlSelect}
 		</if>
@@ -317,8 +317,10 @@
 		</if>
 		FROM
 		t_basicsdatum_material tbm
-		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code  AND tbmc.del_flag='0'
-		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code  AND select_flag ='1' AND tbmp.del_flag='0'
+		LEFT JOIN (select material_code,color_code,color_name,supplier_color_code from t_basicsdatum_material_color where del_flag = '0' )
+			tbmc on tbmc.material_code = tbm.material_code
+		LEFT JOIN (select material_code,quotation_price,supplier_material_code,order_day,width_name from t_basicsdatum_material_price where del_flag = '0' AND select_flag ='1' AND del_flag='0')
+			tbmp on tbmp.material_code = tbm.material_code
 		LEFT JOIN t_escm_material_component_inspect_company temcic ON temcic.id = (
 		select id from t_escm_material_component_inspect_company  where materials_no = tbm.material_code ORDER BY YEAR DESC, validity_time DESC limit 1)
 		${ew.customSqlSegment}
