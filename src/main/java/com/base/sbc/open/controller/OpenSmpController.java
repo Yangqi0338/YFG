@@ -604,8 +604,8 @@ public class OpenSmpController extends BaseController {
 
             //查询barcode表
             List<String> ids = foreignId.stream().map(BaseEntity::getId).collect(Collectors.toList());
-            List<PatternMakingBarCode> patternMakingBarCodes = ids.isEmpty()?new ArrayList<>():patternMakingBarCodeService.listByIds(ids);
-            Map<String, PatternMakingBarCode> barCodeMap = patternMakingBarCodes.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+            List<PatternMakingBarCode> patternMakingBarCodes = ids.isEmpty()?new ArrayList<>():patternMakingBarCodeService.listByField("head_id",ids);
+            Map<String, PatternMakingBarCode> barCodeMap = patternMakingBarCodes.stream().collect(Collectors.toMap(PatternMakingBarCode::getHeadId, o -> o));
 
             List<PreProductionSampleTaskFob> saveList = new ArrayList<>();
             List<PatternMakingBarCode> barCodeList = new ArrayList<>();
