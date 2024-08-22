@@ -291,10 +291,10 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
         ReplayRatingType type = qo.getType();
         // 若使用到了BI库排序，则需要先查BI再查我们这边
-        if (type == ReplayRatingType.STYLE && qo.isStyleReverse()) {
-            type = ReplayRatingType.STYLE_REVERSE;
+        if (qo.getType() == ReplayRatingType.STYLE && qo.isStyleReverse()) {
+            qo.setType(ReplayRatingType.STYLE_REVERSE);
         }
-        switch (type) {
+        switch (qo.getType()) {
             case STYLE:
                 page = doStyleList(qo);
                 break;

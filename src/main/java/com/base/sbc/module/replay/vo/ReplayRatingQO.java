@@ -161,7 +161,7 @@ public class ReplayRatingQO extends QueryFieldDto {
     }
 
     public Comparator<ProductionSaleDTO> findOrderComparator(Map<String, String> map) {
-        if (MapUtil.isEmpty(this.getFieldOrderMap())) return null;
+        if (MapUtil.isEmpty(map)) return null;
         ProductionSaleDTO productionSaleDTO = BeanUtil.toBean(MapUtil.edit(map,
                 (entry) -> MapUtil.entry(entry.getKey(), Arrays.asList("desc", "DESC").contains(entry.getValue()) ? "1" : "0")), ProductionSaleDTO.class);
         return productionSaleDTO.findOrderComparator();
