@@ -202,8 +202,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     private final FlowableService flowableService;
     private final AttachmentService attachmentService;
+    @Autowired
     @Lazy
-    private final PackBomService packBomService;
+    private PackBomService packBomService;
 
 
     @Autowired

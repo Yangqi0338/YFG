@@ -134,6 +134,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     private PackBomSizeService packBomSizeService;
 
     @Resource
+    @Lazy
     private PackBomVersionService packBomVersionService;
 
     @Resource
