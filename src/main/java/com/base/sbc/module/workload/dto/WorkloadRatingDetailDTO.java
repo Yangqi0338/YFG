@@ -45,6 +45,8 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     @NotEmpty
     private List<WorkloadRatingDetailSaveDTO> configList = new ArrayList<>();
 
+    private String proxyKey;
+
     @Override
     @JsonIgnore
     public String getItemValue() {
