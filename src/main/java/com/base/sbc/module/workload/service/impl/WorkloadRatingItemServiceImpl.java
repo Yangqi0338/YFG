@@ -172,6 +172,10 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         List<WorkloadRatingTitleFieldDTO> titleFieldDTOList = config.getTitleFieldDTOList();
 
         workloadRatingItemList.forEach(saveDTO -> {
+            saveDTO.setItemName(CommonUtils.removeSuffix(Opt.ofBlankAble(titleFieldDTOList.stream()
+                    .map(it -> StrUtil.toStringOrNull(saveDTO.getExtend().getOrDefault(it.getCode(), null)))
+                    .filter(StrUtil::isNotBlank).collect(Collectors.joining("/"))).orElse(saveDTO.getItemName()), "/"));
+
             WorkloadRatingItem originEntity = this.findOne(saveDTO.getId());
             // 检查能否更新
             String itemValue = CommonUtils.removeSuffix(saveDTO.getItemValue(), "/");
@@ -181,17 +185,17 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                     .eq(WorkloadRatingItem::getConfigId, saveDTO.getConfigId())
                     .eq(WorkloadRatingItem::getItemValue, itemValue)
             );
-            if (exists) throw new OtherException("存在相同的评分项");
+            if (exists) throw new OtherException(saveDTO.getItemName() + "存在相同的评分项");
             String[] itemSubValue = itemValue.split("/");
             int length = itemSubValue.length;
-            if (length > 1) {
-                if (this.exists(new BaseLambdaQueryWrapper<WorkloadRatingItem>()
-                        .notNullNe(WorkloadRatingItem::getId, saveDTO.getId())
-                        .eq(WorkloadRatingItem::getConfigId, saveDTO.getConfigId())
-                        .likeRight(WorkloadRatingItem::getItemValue, itemSubValue[0])
-                        .apply("(LENGTH(item_value) - LENGTH(REPLACE(item_value, '/', ''))) < {0}", length - 1)
-                )) throw new OtherException("已经存在上一级的评分项, 请删除后添加");
-            }
+//            if (length > 1) {
+//                if (this.exists(new BaseLambdaQueryWrapper<WorkloadRatingItem>()
+//                        .notNullNe(WorkloadRatingItem::getId, saveDTO.getId())
+//                        .eq(WorkloadRatingItem::getConfigId, saveDTO.getConfigId())
+//                        .likeRight(WorkloadRatingItem::getItemValue, itemSubValue[0])
+//                        .apply("(LENGTH(item_value) - LENGTH(REPLACE(item_value, '/', ''))) < {0}", length - 1)
+//                )) throw new OtherException(saveDTO.getItemName() + "已经存在上一级的评分项, 请删除后添加");
+//            }
 
             List<WorkloadRatingItem> entityList = configTitleFieldList.stream().flatMap(configTitle -> {
                 WorkloadRatingConfigVO currentConfigVO = configVOList.stream().filter(it -> it.getId().equals(configTitle.getConfigId()))
@@ -207,13 +211,14 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
                     dto.setType(configVO.getType());
                     dto.setBrand(configVO.getBrand());
                     dto.setItemType(configVO.getItemType());
-                    dto.setItemName(CommonUtils.removeSuffix(Opt.ofBlankAble(titleFieldDTOList.stream()
-                            .map(it -> StrUtil.toStringOrNull(dto.getExtend().getOrDefault(it.getCode(), null)))
-                            .filter(StrUtil::isNotBlank).collect(Collectors.joining("/"))).orElse(dto.getItemName()), "/"));
+
                     dto.setConfigId(configVO.getId());
                     dto.setConfigName(configVO.getItemName());
                     dto.setCalculateType(configVO.getCalculateType());
-                    dto.setScore(new BigDecimal(dto.getExtend().getOrDefault(configTitle.getCode(), dto.getScore()).toString()));
+                    Object score = dto.getExtend().getOrDefault(configTitle.getCode(), dto.getScore());
+                    if (score!=null) {
+                        dto.setScore(new BigDecimal(score.toString()));
+                    }
 
                     WorkloadRatingItem entity = new WorkloadRatingItem();
                     if (originEntity !=null ) {

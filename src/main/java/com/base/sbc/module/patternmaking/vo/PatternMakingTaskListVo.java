@@ -184,7 +184,7 @@ public class PatternMakingTaskListVo extends PatternMaking {
 
     private String ratingProdCategory;
 
-    private boolean isNotFoundProdCategory() {
+    public boolean getNotFoundProdCategory() {
         String regex = "未找到当前品类(\\w+)的评分数据";
         return ReUtil.isMatch(regex, ratingProdCategory);
     }

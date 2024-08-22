@@ -38,7 +38,7 @@ public class WorkloadRatingItemMapExportMapping extends MapExportMapping {
 
     private WorkloadRatingConfigVO configVO;
 
-    private List<WorkloadRatingItem> sourceData = new ArrayList<>();
+    private List<WorkloadRatingItemDTO> sourceData = new ArrayList<>();
 
     public WorkloadRatingItemMapExportMapping(String sheetName) {
         super(sheetName);
@@ -47,13 +47,16 @@ public class WorkloadRatingItemMapExportMapping extends MapExportMapping {
     @Override
     public Function<String, String> findCode(Map<Integer, String> firstRow) {
         if (MapUtil.isEmpty(mappingJson)) {
-            List<WorkloadRatingTitleFieldDTO> configTitleFieldList = configVO.getConfigTitleFieldList();
+            List<WorkloadRatingTitleFieldDTO> configTitleFieldList = configVO.getTitleFieldDTOList();
             mappingJson = new HashMap<>(this.getHeadMap().size());
-            firstRow.forEach((key,value)-> {
-                String code = configTitleFieldList.stream().filter(it -> it.getName().equals(value))
-                        .map(WorkloadRatingTitleFieldDTO::getCode).findFirst().orElseThrow(() -> new OtherException("不可知的数据列"));
-                mappingJson.put(value,code);
-            });
+            if (CollUtil.isNotEmpty(configTitleFieldList)) {
+                firstRow.forEach((key,value)-> {
+                    configTitleFieldList.stream().filter(it -> it.getName().equals(value))
+                            .map(WorkloadRatingTitleFieldDTO::getCode).findFirst().ifPresent(code-> {
+                                mappingJson.put(value,code);
+                            });
+                });
+            }
         }
         return (value)-> mappingJson.get(value);
     }

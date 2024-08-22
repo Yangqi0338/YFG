@@ -4,43 +4,16 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.alibaba.ttl.TtlRunnable;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
-import com.base.sbc.client.ccm.entity.BasicBaseDict;
-import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
-import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.enums.business.StandardColumnType;
-import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisKeyBuilder;
-import com.base.sbc.module.common.dto.MapExportMapping;
-import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
-import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.module.common.vo.SelectOptionsChildrenVo;
 import com.base.sbc.module.moreLanguage.dto.DataVerifyResultVO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageMapExportMapping;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
-import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
-import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
-import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
-import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
-import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
-import com.base.sbc.module.operalog.dto.OperaLogJsonDto;
-import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.standard.entity.StandardColumn;
-import com.base.sbc.module.standard.service.StandardColumnService;
 import com.base.sbc.module.workload.dto.WorkloadRatingItemDTO;
 import com.base.sbc.module.workload.dto.WorkloadRatingItemMapExportMapping;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
@@ -55,38 +28,19 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.module.common.convert.ConvertContext.WORKLOAD_CV;
-import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.codeFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.enableFlagFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.idFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.languageCodeFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.singleLanguageFlagFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.typeFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.countryLanguageIdFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.propertiesCodeFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.titleCodeFunc;
-import static com.base.sbc.module.moreLanguage.service.impl.StyleCountryStatusServiceImpl.statusFunc;
 
 /**
  * @author KC
@@ -133,7 +87,6 @@ public class WorkloadRatingItemImportListener extends AnalysisEventListener<Map<
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         WorkloadRatingConfigQO configQO = WORKLOAD_CV.copy2ConfigQO(excelQueryDto);
         configQO.setIsConfigShow(YesOrNoEnum.YES);
-        configQO.setSearchValue(false);
         configQO.reset2QueryFirst();
         List<WorkloadRatingConfigVO> list = workloadRatingConfigService.queryList(configQO);
         if (CollUtil.isEmpty(list)) throw new OtherException("未找到工作量配置");
@@ -172,6 +125,8 @@ public class WorkloadRatingItemImportListener extends AnalysisEventListener<Map<
         }
     }
 
+    AtomicInteger index = new AtomicInteger();
+
     /**
      * 调用完invokeHeadMap后会调用
      * */
@@ -180,19 +135,36 @@ public class WorkloadRatingItemImportListener extends AnalysisEventListener<Map<
         WorkloadRatingItemMapExportMapping exportMapping = getMapping(context, Function.identity());
         Map<String, String> map = exportMapping.buildMap(row);
         WorkloadRatingConfigVO configVO = exportMapping.getConfigVO();
-        String itemValue = configVO.getConfigTitleFieldList().stream()
-                .filter(it -> StrUtil.isBlank(it.getConfigId()))
-                .sorted(Comparator.comparing(WorkloadRatingTitleFieldDTO::getIndex)).map(it -> map.get(it.getName())).collect(Collectors.joining("/"));
+
+        List<List<SelectOptionsChildrenVo>> structureList = CommonUtils.flattenStructure(configVO.getOptionsList(), SelectOptionsChildrenVo::getChildren);
+        AtomicReference<String> itemValue = new AtomicReference<>();
+        try {
+            configVO.getTitleFieldDTOList().stream()
+                    .filter(it -> StrUtil.isBlank(it.getConfigId()))
+                    .sorted(Comparator.comparing(WorkloadRatingTitleFieldDTO::getIndex)).forEach(titleFieldDTO -> {
+                        String key = map.get(titleFieldDTO.getCode());
+                        if (StrUtil.isNotBlank(key)) {
+                            List<SelectOptionsChildrenVo> optionsList = CollUtil.get(structureList, titleFieldDTO.getIndex());
+                            SelectOptionsChildrenVo structure = CollUtil.findOne(optionsList, (it) -> it.getLabel().equals(key));
+                            itemValue.set(Opt.ofNullable(structure).map(SelectOptionsChildrenVo::getValue).orElseThrow(()-> new OtherException("找不到" + key)));
+                        }
+                    });
+        }catch (OtherException e) {
+            return;
+        }
 
         WorkloadRatingItemDTO itemDTO = BeanUtil.toBean(map,WorkloadRatingItemDTO.class);
         map.forEach((key,value)-> itemDTO.getExtend().put(key,value));
 
         itemDTO.setBrand(excelQueryDto.getBrand());
+        itemDTO.setType(excelQueryDto.getType());
         itemDTO.setConfigId(configVO.getId());
         itemDTO.setConfigName(configVO.getItemName());
-        itemDTO.setItemValue(itemValue);
-        exportMapping.getSourceData().add(WORKLOAD_CV.copy2Entity(itemDTO));
-
+        itemDTO.setItemValue(itemValue.get());
+        if (StrUtil.isNotBlank(itemDTO.getItemValue()) && exportMapping.getSourceData().stream().noneMatch(it-> itemDTO.getItemValue().equals(it.getItemValue()))) {
+            exportMapping.getSourceData().add(itemDTO);
+        }
+        index.incrementAndGet();
     }
 
     /**
@@ -201,12 +173,14 @@ public class WorkloadRatingItemImportListener extends AnalysisEventListener<Map<
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void doAfterAllAnalysed(AnalysisContext context) {
+        System.out.println(index.get());
         WorkloadRatingItemMapExportMapping exportMapping = getMapping(context, Function.identity());
-        List<WorkloadRatingItem> sourceData = exportMapping.getSourceData();
-        if (CollUtil.isNotEmpty(sourceData)) {
-            workloadRatingItemService.saveBatch(sourceData);
-        }
         removeMapping(context);
+        List<WorkloadRatingItemDTO> sourceData = exportMapping.getSourceData();
+        if (CollUtil.isNotEmpty(sourceData)) {
+            workloadRatingItemService.save(sourceData);
+        }
+        index.set(0);
     }
 
 

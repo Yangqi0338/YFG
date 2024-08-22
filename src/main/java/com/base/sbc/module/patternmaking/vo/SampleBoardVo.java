@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import cn.hutool.core.util.ReUtil;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
@@ -374,4 +375,9 @@ public class SampleBoardVo extends Style {
      */
     @ApiModelProperty(value = "工作量品类")
     private String ratingProdCategory;
+
+    public boolean getNotFoundProdCategory() {
+        String regex = "未找到当前品类(\\w+)的评分数据";
+        return ReUtil.isMatch(regex, ratingProdCategory);
+    }
 }
