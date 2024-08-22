@@ -3,7 +3,6 @@ package com.base.sbc.config.adviceadapter;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.Ip2regionAnalysis;
@@ -25,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.Collection;
+import java.util.Date;
 
 import static com.base.sbc.client.amc.service.AmcFeignService.userPlanningSeasonId;
 
@@ -115,7 +114,8 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
         //记录请求信息
-        String httpLogId = companyUserInfo.get().getHttpLogId();
+        UserCompany userCompany = companyUserInfo.get();
+        String httpLogId = userCompany.getHttpLogId();
         HttpLog httpLog = new HttpLog();
         httpLog.setId(httpLogId);
         try {
@@ -142,7 +142,13 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
 //            httpLog.setRespHeaders(headers.toJSONString());
             httpLog.setStatusCode(httpServletResponse.getStatus());
-            httpLog.setIntervalNum((short) Math.min(Short.MAX_VALUE,(System.currentTimeMillis() - httpLog.getStartTime().getTime())));
+            Date startTime = userCompany.getStartTime();
+            long intervalNum = 0;
+            if (startTime != null) {
+                intervalNum = (Math.min(Short.MAX_VALUE, (System.currentTimeMillis() - startTime.getTime())));
+            }
+            httpLog.setIntervalNum((short) intervalNum);
+
             httpLog.setExceptionFlag(0);
 
             if (!JSONUtil.parseObj(jsonString).getBool("success")){

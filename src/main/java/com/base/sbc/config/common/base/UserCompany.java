@@ -6,13 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
-import com.base.sbc.client.amc.entity.CompanyPost;
-import com.base.sbc.client.amc.entity.Dept;
-import com.base.sbc.client.amc.entity.Job;
-import com.base.sbc.module.httplog.entity.HttpLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +54,7 @@ public class UserCompany extends BaseDataEntity<String> {
 
     private String httpLogId;
     private String mainThreadId;
+	private Date startTime;
 //    private List<String> threadIdList;
 
 //    private List<Job> jobList;
