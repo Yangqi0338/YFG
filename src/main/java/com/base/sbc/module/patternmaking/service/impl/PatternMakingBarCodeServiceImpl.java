@@ -258,7 +258,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,dto);
         Page<Object> objects = PageHelper.startPage(dto);
         List<PatternMakingBarCodeVo> list;
-        if("sampleAuditBoard".equals(dto.getTableCode())){
+        if("sampleAuditA".equals(dto.getTableCode())){
             qw.groupBy("ts.design_no");
             list = baseMapper.findSAuditPage(qw);
         }else{
