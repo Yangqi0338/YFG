@@ -1,6 +1,7 @@
 package com.base.sbc.config.adviceadapter;
 
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.ttl.TransmittableThreadLocal;
@@ -122,8 +123,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             URI uri = request.getURI();
 
             httpLog.setMethod(Opt.ofNullable(request.getMethod()).map(HttpMethod::toString).orElse(""));
-            String uriStr = uri.toString();
-            httpLog.setUrl(uriStr.substring(0,uriStr.lastIndexOf("?")));
+            httpLog.setUrl(StrUtil.subBefore(uri.toString(), "?", false));
             httpLog.setIp(uri.getHost());
             httpLog.setAddress(Ip2regionAnalysis.getStringAddressByIp(uri.getHost()));
             httpLog.setReqHeaders(JSON.toJSONString(request.getHeaders()));
