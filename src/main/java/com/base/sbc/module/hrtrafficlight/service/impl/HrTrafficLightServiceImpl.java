@@ -223,7 +223,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         return hrTrafficLightsDetailVO;
     }
 
-    @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
     @Override
     public synchronized void importExcel(MultipartFile file, String hrTrafficLightId, Integer trafficLightVersionType) {
