@@ -115,7 +115,6 @@ import java.util.stream.Collectors;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -558,18 +557,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packInfoStatusService.updateById(packDesignStatus);
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
             StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
-            //只有不是反审并且不是报此款才触发
-            if (null == packDesignStatus.getToDesignDate() && !StrUtil.equals(BaseGlobal.YES,styleColor.getIsDefective())){
-                copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
-                PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
-                if (!Objects.isNull(packInfoStatusPre)){
-                    packInfoStatusPre.setBomStatus(BasicNumber.ONE.getNumber());
-                    packInfoStatusPre.setToBigGoodsDate(nowDate);
-                    packInfoStatusPre.setDelFlag("1");
-                    packInfoStatus.setTechSpecVideoFileId(packInfoStatusPre.getTechSpecVideoFileId());
-                    packInfoStatusService.updateById(packInfoStatusPre);
-                }
-            }
   //设置为已转大货
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
