@@ -57,7 +57,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         }
     }
 
-    public static class ContextAwareRunnable implements Runnable {
+    public class ContextAwareRunnable implements Runnable {
         private final Runnable thread;
         private final RequestAttributes context;
 
@@ -71,6 +71,11 @@ public class AsyncConfig extends AsyncConfigurerSupport {
             if (context != null) {
                 RequestContextHolder.setRequestAttributes(context, true);
             }
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes newRequestAttributes = new ServletRequestAttributes(
+                    new TinyHttpServletRequest(requestAttributes.getRequest()), requestAttributes.getResponse());
+            // 线程上下文传递
+            RequestContextHolder.setRequestAttributes(newRequestAttributes);
             try {
                 thread.run();
             } finally {
