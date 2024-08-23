@@ -2035,6 +2035,35 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public boolean savePatternMaking(AssignmentUserDto dto) {
+        PatternMaking byId = getById(dto.getId());
+        if (byId == null) {
+            throw new OtherException("任务不存在");
+        }
+        if (!StrUtil.equals(byId.getNode(), EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT.getNode()) ||
+                !StrUtil.equals(byId.getStatus(), EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT.getStatus())
+        ) {
+            throw new OtherException("节点不匹配");
+        }
+        if (StrUtil.isNotEmpty(dto.getSampleBarCode())) {
+            /*查询样衣码是否重复*/
+            checkSampleBarcodeRepeat(new SetSampleBarCodeDto(dto.getId(),dto.getSampleBarCode()));
+        }
+        byId.setStitcher(dto.getStitcher());
+        byId.setStitcherId(dto.getStitcherId());
+        byId.setSglKitting(dto.getSglKitting());
+        byId.setSampleBarCode(dto.getSampleBarCode());
+        byId.setSglKittingDate(new Date());
+        byId.setStitcherRemark(dto.getStitcherRemark());
+        byId.setKittingReason(dto.getKittingReason());
+        byId.setKittingReasonName(dto.getKittingReasonName());
+        if (!updateById(byId)) {
+            throw new OtherException("暂存失败");
+        }
+        return true;
+    }
+
+    @Override
     public List<PatternDesignVo> pdTaskDetail(String companyCode) {
         List<String> planningSeasonIdByUserId = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
         if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
