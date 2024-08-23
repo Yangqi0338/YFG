@@ -23,6 +23,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -96,7 +97,6 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
     @Override
     public PageInfo<StyleColorCorrectInfoVo> findList(QueryStyleColorCorrectDto page) {
         /*分页*/
-        Page<StyleColorCorrectInfoVo> objects = PageHelper.startPage(page);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.andLike(page.getSearch(), "ts.design_no", "tsc.style_no");
         if(StrUtil.isNotBlank(page.getPatternDesignId())){
@@ -124,9 +124,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
         queryWrapper.eq("tsc.del_flag","0");
-
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,page);
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_color_correct_info.getK());
-
+        Page<StyleColorCorrectInfoVo> objects = PageHelper.startPage(page);
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
 
         /*查询款式图*/
