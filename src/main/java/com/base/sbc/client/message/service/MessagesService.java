@@ -35,6 +35,14 @@ public interface MessagesService {
 	public String noticeOrMessageByModel(@RequestBody ModelMessage message);
 
 	/**
+	 * 通过模板发送通知 新
+	 * @param message 模板
+	 * @return
+	 */
+	@PostMapping("/mmc/api/token/triggerConfig/noticeOrMessageByModel")
+	public String tokenNoticeOrMessageByModel(@RequestBody ModelMessage message);
+
+	/**
 	 * 定时截至时间判断
 	 * @param code 触发配置code
 	 * @return
