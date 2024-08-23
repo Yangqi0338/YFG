@@ -24,7 +24,9 @@ import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -41,7 +43,6 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -49,10 +50,7 @@ import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -220,6 +218,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Autowired
     private BasicsdatumMaterialColorService materialColorService;
 
+    @Autowired
+    @Lazy
+    private BasicsdatumBomTemplateService basicsdatumBomTemplateService;
+
     private final ReentrantLock saveLock = new ReentrantLock();
 
     @Override
@@ -343,6 +345,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setDesignUnitUse(dto.getDesignUnitUse());
             BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
             updateById(db);
+            //特殊 判断这几个字段是否修改为空 为空时，设置置空
+            if (dto.getLossRate() == null || dto.getDesignUnitUse() == null || dto.getBulkUnitUse() == null) {
+                LambdaUpdateWrapper<PackBom> up = new LambdaUpdateWrapper<>();
+                up.set(PackBom::getLossRate, dto.getLossRate());
+                up.set(PackBom::getDesignUnitUse, dto.getDesignUnitUse());
+                up.set(PackBom::getBulkUnitUse, dto.getBulkUnitUse());
+                up.eq(PackBom::getId, db.getId());
+                update(up);
+            }
             packBom = db;
 
             /*替换物料时 当变更物料后（对应类型参照嘉威的业务配置字典），对用户进行提示
@@ -571,7 +582,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         long l1 = System.currentTimeMillis();
         Page<String> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper<Object> qw = new QueryWrapper();
-        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", bomFabricDto.getMaterialCodeName());
+        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", StrUtil.replace(bomFabricDto.getMaterialCodeName(), "_","\\_"));
         qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "pb.supplier_material_code", bomFabricDto.getMaterialCodeName());
         baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
         long l2 = System.currentTimeMillis();
@@ -1232,19 +1243,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             if (!CommonUtils.isInitId(packBom.getId())) {
-                if (YesOrNoEnum.YES == packBom.getCopy()) {
-                    String sourceId = packBom.getId();
-                    String id = null;
-                    if (NumberUtil.isLong(sourceId)) {
-                        id = (NumberUtil.parseLong(sourceId) + 1) + "";
-                    }
-                    packBom.setId(id);
-                }else {
-                    pageBomIds.add(packBom.getId());
-                }
+                pageBomIds.add(packBom.getId());
             } else {
                 packBom.setCode(null);
-                packBom.setSort(Math.toIntExact(versionBomCount++));
+                if (StringUtils.isNotBlank(packBom.getCopyId())){
+                    packBom.setSort(getBaseMapper().getByIdSort(packBom.getCopyId()));
+                }else {
+                    packBom.setSort(Math.toIntExact(versionBomCount++));
+                }
             }
             packBom.calculateCost();
         }
@@ -1361,12 +1367,17 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             colorCodes = style.getColorCodes().split(",");
             colors = style.getProductColors().split(",");
         }
+        // 查询物料
+        List<String> materialIdList = templateMaterialList.stream().map(BasicsdatumBomTemplateMaterial::getMaterialId).collect(Collectors.toList());
+        Map<String, String> category1CodeMap = basicsdatumMaterialService.mapOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
+                .in(BasicsdatumMaterial::getId, materialIdList), BasicsdatumMaterial::getId, BasicsdatumMaterial::getCategory1Code);
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
         for (PackBomDto b : bomDtoList) {
             b.setId(null);
             b.setBomTemplateId(bomTemplateSaveDto.getBomTemplateId());
             b.setDesignUnitUse(b.getUnitUse());
             b.setBulkUnitUse(b.getUnitUse());
+            b.setCategory1Code(category1CodeMap.getOrDefault(b.getMaterialId(), ""));
             List<PackBomSizeDto> sizeDtoList = new ArrayList<>();
             for (int i = 0; i < productSizess.length; i++) {
                 PackBomSizeDto packBomSizeDto = new PackBomSizeDto();
@@ -1391,6 +1402,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
         }
         saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
+        BasicsdatumBomTemplate basicsdatumBomTemplate = basicsdatumBomTemplateService.getById(bomTemplateSaveDto.getBomTemplateId());
+        PackBomVersion version = packBomVersionService.checkVersion(bomTemplateSaveDto.getBomVersionId());
+        if (ObjectUtil.isNotEmpty(basicsdatumBomTemplate) && ObjectUtil.isNotEmpty(version)) {
+            Map<String, String> map = new HashMap<>();
+            map.put("引用BOM模板", "->模板名称：" + basicsdatumBomTemplate.getName());
+            this.saveOperaLog("引用BOM模板", version.getForeignId(), version.getPackType(), "物料清单", style.getDesignNo(), style.getDesignNo(), map);
+        }
         return true;
     }
 
@@ -1639,6 +1657,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, foreignId, packType, null);
         qw.eq("bom_version_id", bomVersionId);
+        qw.orderByAsc("sort").orderByAsc("id");
         List<PackBom> list = list(qw);
         return BeanUtil.copyToList(list, PackBomVo.class);
     }
@@ -1666,6 +1685,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delByIds(String id) {
         /*cha*/
         /*控制是否下发外部SMP系统开关*/

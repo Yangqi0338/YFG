@@ -12,6 +12,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
@@ -30,6 +31,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,8 @@ import java.util.stream.Collectors;
 public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Attachment> implements AttachmentService {
 
 
+
+    @Lazy
     @Autowired
     private UploadFileService uploadFileService;
     @Autowired
@@ -66,12 +70,20 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
      */
     @Override
     public List<AttachmentVo> findByforeignId(String foreignId, String type) {
-        return getBaseMapper().findByFId(foreignId, type, null);
+        BaseQueryWrapper<Attachment> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("a.foreign_id", foreignId);
+        queryWrapper.notEmptyIn("a.type", type);
+        queryWrapper.orderByAsc("a.sort,a.id");
+        return getBaseMapper().findByFId(queryWrapper);
     }
 
     @Override
     public List<AttachmentVo> findByforeignIdTypeLikeStart(String foreignId, String typeLikeStart) {
-        return getBaseMapper().findByFId(foreignId, null, typeLikeStart);
+        BaseQueryWrapper<Attachment> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("a.foreign_id", foreignId);
+        queryWrapper.likeRight("a.type", typeLikeStart);
+        queryWrapper.orderByAsc("a.sort,a.id");
+        return getBaseMapper().findByFId(queryWrapper);
     }
 
     @Override
@@ -261,7 +273,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
             return true;
         }
         if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
-            delByForeignIdType(targetForeignId, targetPackType);
+            delByForeignIdType(targetForeignId, targetPackType + StrUtil.DASHED+specType);
         }
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);

@@ -48,6 +48,18 @@ public interface StyleColorService extends BaseService<StyleColor> {
         PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto);
 
         /**
+         * 更改上会状态为未上会
+         * @param styleColorIdList 修改的款式配色的 ID 集合
+         */
+        void updateNoMeetFlag(List<String> styleColorIdList);
+
+        /**
+         * 更改上会状态为已上会
+         * @param styleColorIdList 修改的款式配色的 ID 集合
+         */
+        void updateYesMeetFlag(List<String> styleColorIdList);
+
+        /**
          * 方法描述：大货款查询
          *
          * @param queryDto 查询条件
@@ -339,4 +351,6 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentUnControl(String id);
 
     ApiResult importMarkingOrder(List<Map<String, Object>> readAll) throws IOException;
+
+    PageInfo<StyleColorVo> materialListQuote(Principal user, QueryStyleColorDto querySampleStyleColorDto);
 }

@@ -15,7 +15,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.hangtag.dto.*;
+import com.base.sbc.module.fabric.dto.UpdateDTO;
+import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.dto.InspectCompanyDto;
+import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
@@ -28,14 +34,18 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,7 +83,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")
-    public PageInfo<HangTagListVO> queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
+    public PageInfo<HangTagListVO>  queryPageInfo(@RequestBody HangTagSearchDTO hangTagSearchDTO) {
         return hangTagService.queryPageInfo(hangTagSearchDTO, super.getUserCompany());
     }
 
@@ -103,7 +113,6 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
     public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
-        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO));
     }
 
@@ -154,6 +163,12 @@ public class HangTagController extends BaseController {
         dto.setUserCompany(super.getUserCompany());
         hangTagService.updateStatus(dto, false, new ArrayList<>());
         return updateSuccess("更新成功");
+    }
+
+    @ApiOperation(value = "提交审核")
+    @PostMapping("/oneUpdateStatus")
+    public ApiResult oneUpdateStatus(@Valid @RequestBody UpdateDTO updateDTO) {
+        return hangTagService.oneUpdateStatus(updateDTO.getIds());
     }
 
 

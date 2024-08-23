@@ -117,7 +117,6 @@ public class MoreLanguageController extends BaseController {
     public ApiResult exportMergeExcel(@RequestParam("bulkStyleNo") String bulkStyleNoList) {
         HangTagMoreLanguageDTO moreLanguageDTO = new HangTagMoreLanguageDTO();
         moreLanguageDTO.setBulkStyleNo(bulkStyleNoList);
-        moreLanguageDTO.setUserCompany(this.getUserCompany());
         moreLanguageService.exportMergeExcel(moreLanguageDTO);
 
         return selectSuccess("");

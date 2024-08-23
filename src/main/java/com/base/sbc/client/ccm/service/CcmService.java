@@ -2,10 +2,16 @@ package com.base.sbc.client.ccm.service;
 
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -223,6 +229,12 @@ public interface CcmService {
     @GetMapping(value = "/ccm/api/saas/basicStructure/treeByName")
     public String treeByName(@RequestParam("structureName") String structureName, @RequestParam("hasRoot") String hasRoot, @RequestParam("levels") String levels);
 
+    /**
+     * 通过类目名称查询类目树
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/tree")
+    public String tree(@RequestParam("structureId") String structureId, @RequestParam("hasRoot") String hasRoot, @RequestParam("levels") String levels);
+
 
     @GetMapping(value = "/ccm/api/open/structure/getCategorySByNameAndLevel")
     public String getOpenCategorySByNameAndLevel(@RequestParam("structureName") String structureName, @RequestParam("code") String code, @RequestParam("level") String level);
@@ -272,4 +284,16 @@ public interface CcmService {
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getAllByStructureCodes")
     String getAllByStructureCodes(@RequestParam("structureCode") String structureCode);
+
+
+    /**
+     * 获取结构管理
+     * @param structureName
+     * @param treeName
+     * @param status
+     * @return
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/queryTree")
+    ApiResult queryTree(@RequestParam("structureName") String structureName, @RequestParam("treeName") String treeName, @RequestParam("status") String status);
+
 }

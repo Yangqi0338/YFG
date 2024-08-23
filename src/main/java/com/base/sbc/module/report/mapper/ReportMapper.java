@@ -8,6 +8,7 @@ package com.base.sbc.module.report.mapper;
 
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.report.dto.PatternMakingQueryDto;
 import com.base.sbc.module.report.dto.SeasonPlanPercentageQueryDto;
 import com.base.sbc.module.report.vo.*;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,5 +26,7 @@ public interface ReportMapper{
     List<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReport(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
     List<SeasonPlanPercentageVo> seasonPlanPercentage(@Param(Constants.WRAPPER) BaseQueryWrapper<SeasonPlanPercentageQueryDto> qw);
+
+    List<PatternMakingReportVo> patternMaking(@Param(Constants.WRAPPER) BaseQueryWrapper<PatternMakingQueryDto> qw);
 }
 

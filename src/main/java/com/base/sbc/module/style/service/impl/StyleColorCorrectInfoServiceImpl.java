@@ -99,9 +99,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         Page<StyleColorCorrectInfoVo> objects = PageHelper.startPage(page);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.andLike(page.getSearch(), "ts.design_no", "tsc.style_no");
+        if(StrUtil.isNotBlank(page.getPatternDesignId())){
+            queryWrapper.in("ts.pattern_design_id", StringUtils.convertList(page.getPatternDesignId()));
+        }
         queryWrapper.notEmptyEq("ts.planning_season_id", page.getPlanningSeasonId());
         queryWrapper.notEmptyEq("ts.prod_category", page.getProdCategory());
-        queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
+        queryWrapper.notEmptyEq("tsc.devt_type", page.getDevtTypeName());
         if(StrUtil.isNotBlank(page.getDesigner())){
             queryWrapper.likeList("ts.designer", StringUtils.convertList(page.getDesigner()));
         }
@@ -235,6 +238,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             oldDto = findById(styleColorCorrectInfo.getId());
         }else{
             styleColorCorrectInfo.insertInit();
+            styleColorCorrectInfo.setId(styleColorCorrectInfo.getStyleColorId());
         }
 
         //修改产前样看板的工艺确认时间 和款式配色的时间
@@ -245,8 +249,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         StyleColor old = styleColorService.getById(styleColorId);
 
         LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate())
-                .eq(StyleColor::getId, styleColorId);
+        updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate());
+        updateWrapper.set(StyleColor::getSendMainFabricDate, styleColorCorrectInfo.getSendMainFabricDate());
+        updateWrapper.set(StyleColor::getSendBatchingDate1, styleColorCorrectInfo.getSendBatchingDate1());
+        updateWrapper.set(StyleColor::getSendBatchingDate2, styleColorCorrectInfo.getSendBatchingDate2());
+        updateWrapper.set(StyleColor::getSendSingleDate, styleColorCorrectInfo.getSendSingleDate());
+        updateWrapper.eq(StyleColor::getId, styleColorId);
         styleColorService.update(updateWrapper);
 
         StyleColor styleColor1 = styleColorService.getById(styleColorId);

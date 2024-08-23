@@ -41,9 +41,21 @@ public class WorkLogVoExcel {
     /**
      * 工作人员
      */
-    @ApiModelProperty(value = "工作人员")
-    @Excel(name = "工作人员", width=15)
+    @ApiModelProperty(value = "样衣工")
+    @Excel(name = "样衣工", width=15)
     private String worker;
+
+    /**
+     * 裁剪工
+     */
+    @ApiModelProperty(value = "裁剪工")
+    @Excel(name = "裁剪工", width=15)
+    private String cutterName;
+
+    @Excel(name = "样衣条码", width=15)
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
+
     /**
      * 工作人员Id
      */
@@ -99,7 +111,7 @@ public class WorkLogVoExcel {
      * 工作分数
      */
     @ApiModelProperty(value = "工作分数")
-    @Excel(name = "工作分数",numFormat = "#.#",type = 10,width=15)
+    @Excel(name = "工作分数",numFormat = "#.##",type = 10,width=15)
     private BigDecimal score;
 
 }

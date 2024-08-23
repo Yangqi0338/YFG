@@ -29,27 +29,22 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.base.sbc.config.annotation.EditPermission;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
-import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
-import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.config.enums.business.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.QueryGenerator;
-import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -58,6 +53,8 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnDefineService;
+import com.base.sbc.module.common.entity.UploadFile;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -100,6 +97,7 @@ import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -143,6 +141,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -152,6 +151,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -165,6 +165,10 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIP
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.DESIGN_CHECK;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.FINISH;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.PART_TRANSLATE_CHECK;
+import static com.base.sbc.config.enums.business.HangTagStatusEnum.TECH_CHECK;
 import static com.base.sbc.config.enums.business.HangTagStatusEnum.TRANSLATE_CHECK;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
@@ -265,6 +269,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private String packingDefaultType;
     @Autowired
     private CcmFeignService ccmFeignService;
+	@Autowired
+	private AttachmentService attachmentService;
+	@Autowired
+	private UserUtils userUtils;
 
 	@Override
 	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
@@ -302,10 +310,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
+
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
 			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
-		if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd.") ) {
+		if ((StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("tsd."))
+				|| !StringUtils.isEmpty(hangTagDTO.getProduceTypeName())
+				|| !StringUtils.isEmpty(hangTagDTO.getPlanningSeasonId())) {
 			columnMap.put("tsd", "tsd");
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryListByLine(hangTagDTO, qw);
@@ -364,7 +375,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									e.setStatus(HangTagStatusEnum.NOT_COMMIT);
 									break;
 								case "后技术确认":
-									e.setStatus(HangTagStatusEnum.TECH_CHECK);
+									e.setStatus(TECH_CHECK);
 									break;
 								case "品控确认":
 									e.setStatus(HangTagStatusEnum.QC_CHECK);
@@ -383,9 +394,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			bulkStyleNos.add(e.getBulkStyleNo());
 		});
 		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
-		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
+		if (hangTagListVOS.stream().anyMatch(it -> it.getStatus() == FINISH)) {
 			long size = countryLanguageService.getAllCountrySize();
-			hangTagListVOS.stream().filter(it-> it.getStatus() == HangTagStatusEnum.FINISH).forEach(hangTag-> {
+			hangTagListVOS.stream().filter(it -> it.getStatus() == FINISH).forEach(hangTag -> {
 				if (styleCountryStatusService.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
 						.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
 						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) < size) {
@@ -491,7 +502,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								e.setStatus(HangTagStatusEnum.NOT_COMMIT);
 								break;
 							case "后技术确认":
-								e.setStatus(HangTagStatusEnum.TECH_CHECK);
+								e.setStatus(TECH_CHECK);
 								break;
 							case "品控确认":
 								e.setStatus(HangTagStatusEnum.QC_CHECK);
@@ -530,9 +541,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}*/
 		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
-		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
+		if (hangTagListVOS.stream().anyMatch(it -> it.getStatus() == FINISH)) {
 			long size = countryLanguageService.getAllCountrySize();
-			hangTagListVOS.stream().filter(it-> it.getStatus() == HangTagStatusEnum.FINISH).forEach(hangTag-> {
+			hangTagListVOS.stream().filter(it -> it.getStatus() == FINISH).forEach(hangTag -> {
 				if (styleCountryStatusService.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
 						.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
 						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) < size) {
@@ -734,7 +745,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		if (hangTagDTO.getStatus() == HangTagStatusEnum.DESIGN_CHECK) {
+		if (hangTagDTO.getStatus() == DESIGN_CHECK) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 		/*检测报告*/
@@ -793,7 +804,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 
-		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.TRANSLATE_CHECK == hangTagDTO.getCheckType()) {
+		if (DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.TRANSLATE_CHECK == hangTagDTO.getCheckType()) {
 			hangTag = this.getById(hangTag.getId());
 			// 发起审批
 			flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(),
@@ -802,8 +813,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					BeanUtil.beanToMap(hangTag));
 		}
 		// 如果提交审核默认通过第一个审核
-		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
-			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
+		if (DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
+			hangTag.setStatus(TECH_CHECK);
 			this.updateById(hangTag);
 		}
 
@@ -817,27 +828,35 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			Opt.ofNullable(
 					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
 			).ifPresent(packInfo-> {
-				LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
-						.eq(PackTechPackaging::getForeignId, packInfo.getId())
-						.set(PackTechPackaging::getPackagingForm, packagingFormCode)
-						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
-						.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
-						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
+				// 改成调用已有接口 以适应有资料包但是没有对应的工艺说明数据
+				PackTechPackaging packTechPackaging = new PackTechPackaging();
+				packTechPackaging.setForeignId(packInfo.getId());
+				// 只修改大货款
+				packTechPackaging.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+				packTechPackaging.setPackagingForm(packagingFormCode);
+				packTechPackaging.setPackagingFormName(hangTagDTO.getPackagingForm());
+				packTechPackaging.setPackagingBagStandard(packagingBagStandardCode);
+				packTechPackaging.setPackagingBagStandardName(hangTagDTO.getPackagingBagStandard());
 				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
 						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
 						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-					boolean heightNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeHeight());
-					boolean widthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeWidth());
-					boolean lengthNotBlank = BigDecimalUtil.biggerThenZero(packingDictionary.getVolumeLength());
-					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
-							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
-							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
-							.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
-							.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
-							.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
-					;
+					BigDecimal volumeHeight = packingDictionary.getVolumeHeight();
+					if (BigDecimalUtil.biggerThenZero(volumeHeight)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedHeight(volumeHeight);
+						else packTechPackaging.setVolumeHeight(volumeHeight);
+					}
+					BigDecimal volumeWidth = packingDictionary.getVolumeWidth();
+					if (BigDecimalUtil.biggerThenZero(volumeWidth)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedWidth(volumeWidth);
+						else packTechPackaging.setVolumeWidth(volumeWidth);
+					}
+					BigDecimal volumeLength = packingDictionary.getVolumeLength();
+					if (BigDecimalUtil.biggerThenZero(volumeLength)) {
+						if (isDefaultPackingType) packTechPackaging.setStackedLength(volumeLength);
+						else packTechPackaging.setVolumeLength(volumeLength);
+					}
 				});
-				packTechPackagingService.update(qw);
+				packTechPackagingService.savePackaging(packTechPackaging);
 			});
 		}
 
@@ -932,7 +951,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 如果当前是部分确认,且部分确认,仅当部分确认
 		if (HangTagStatusEnum.PART_TRANSLATE_CHECK == updateStatus) {
 			List<HangTag> partCheckTranslateList = hangTags.stream()
-					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
+					.filter(it -> Arrays.asList(FINISH, TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
 //				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
 //				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
@@ -959,37 +978,97 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTags.forEach(e -> {
 			if (HangTagStatusEnum.NOT_COMMIT != updateStatus) {
 				try {
-					if (HangTagStatusEnum.FINISH == e.getStatus()) {
+					// 如果完成,但是是翻译批量反审
+					if (FINISH == e.getStatus() &&
+							(hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.MULTI_CHECK
+									||
+							!Arrays.asList(TRANSLATE_CHECK, PART_TRANSLATE_CHECK).contains(updateStatus))
+					) {
 						throw new OtherException("存在已通过审核数据，请反审");
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
-						if (HangTagStatusEnum.TECH_CHECK == updateStatus) {
-							if (!(StrUtil.isNotBlank(e.getProductName()) &&
-									StrUtil.isNotBlank(e.getQualityGrade()) &&
-									StrUtil.isNotBlank(e.getSaftyTitle()) &&
-									StrUtil.isNotBlank(e.getPackagingForm()) &&
-									StrUtil.isNotBlank(e.getPackagingBagStandard()) &&
-									StrUtil.isNotBlank(e.getIngredient()) &&
-									StrUtil.isNotBlank(e.getFabricDetails()) &&
-									StrUtil.isNotBlank(e.getWashingMaterialRemarks()) &&
-									StrUtil.isNotBlank(e.getWashingMaterialRemarksName()) &&
-									StrUtil.isNotBlank(e.getWashingCode()) &&
-									StrUtil.isNotBlank(e.getWashingLabelName()) &&
-									StrUtil.isNotBlank(e.getWarmTips()))) {
+						if (TECH_CHECK == updateStatus) {
+							// downContent：充绒量                     (devClassName != '次品')
+							// executeStandardCode：执行标准           ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// saftyTypeCode：安全类别                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// productCode：品名                       任何情况都校验
+							// qualityGradeCode：质量等级              ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// saftyTitleCode：安全标题                ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// specialSpec：特殊规格                   (prodCategory1stName == '配饰' && produceTypeName=='CMT' && devClassName != '次品')
+							// fabricDetails：面料详情                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && produceTypeName == 'CMT' && devClassName != '次品')
+							// ingredient：成分                        ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// packagingFormCode：包装形式             ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// packagingBagStandardCode：包装袋标准     ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// washingLabel：洗标                      ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
+							// warmTips：温馨提示                       ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')							boolean flag = true;
+							if (StrUtil.isBlank(e.getId())) throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+
+							// 查询大类信息
+							String bulkStyleNo = e.getBulkStyleNo();
+							StyleColor styleColor = styleColorService.getOne(
+									new LambdaQueryWrapper<StyleColor>()
+											.eq(StyleColor::getStyleNo, bulkStyleNo)
+							);
+							Style style = styleService.getById(styleColor.getStyleId());
+							// 获取大类名称
+							String prodCategory1stName = style.getProdCategory1stName();
+							// 获取开发分类
+							String devClassName = style.getDevClassName();
+							// 获取是否开启配饰校验
+							boolean value1 = ccmFeignService.getSwitchByCode("dppsjyzd");
+							boolean value2 = ccmFeignService.getSwitchByCode("TAG_BY_STYLE_DIMENSION_SWITCH");
+							// 获取生产类型
+							String devtTypeName = styleColor.getDevtTypeName();
+
+							if (StrUtil.isBlank(e.getProductCode())) {
 								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 							}
+
+							if (!devClassName.equals("次品")) {
+								if (e.getProductCode().contains("羽绒") && StrUtil.isBlank(e.getDownContent())) {
+									throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+								}
+								if (!Objects.equals(prodCategory1stName, "配饰") || !value1) {
+									if (
+											StrUtil.isBlank(e.getExecuteStandardCode())
+													|| StrUtil.isBlank(e.getSaftyTypeCode())
+													|| StrUtil.isBlank(e.getQualityGradeCode())
+													|| StrUtil.isBlank(e.getSaftyTitleCode())
+													|| StrUtil.isBlank(e.getIngredient())
+													|| StrUtil.isBlank(e.getPackagingFormCode())
+													|| StrUtil.isBlank(e.getPackagingBagStandardCode())
+													|| StrUtil.isBlank(e.getWashingLabel())
+													|| StrUtil.isBlank(e.getWarmTips())
+									) {
+										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+									}
+									if (Objects.equals(devtTypeName, "CMT")) {
+										if (StrUtil.isBlank(e.getFabricDetails())) {
+											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+										}
+									}
+								}
+								if (StrUtil.isNotBlank(e.getExecuteStandardCode())) {
+									if (Objects.equals(prodCategory1stName, "配饰")) {
+										if (StrUtil.isBlank(e.getSpecialSpec())) {
+											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
+										}
+									}
+								}
+							}
+
 						} else {
 							throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
 						}
 					}
 
-					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
+					if (DESIGN_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.TECH_CHECK != updateStatus
+							TECH_CHECK != updateStatus
 					) {
 						throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
 					}
-					if (HangTagStatusEnum.TECH_CHECK == e.getStatus()
+					if (TECH_CHECK == e.getStatus()
 							&&
 							HangTagStatusEnum.QC_CHECK != updateStatus) {
 						throw new OtherException("存在待技术员确认数据，请先技术员确认");
@@ -1001,12 +1080,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (TRANSLATE_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
+							((HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus)
+									&& (hangTagUpdateStatusDTO.getCountryStatus() != StyleCountryStatusEnum.CHECK || FINISH != updateStatus)
+							)) {
 						throw new OtherException("存在待翻译确认数据，请先翻译确认");
 					}
 					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
 							&&
-							!Arrays.asList(TRANSLATE_CHECK, HangTagStatusEnum.FINISH).contains(updateStatus)) {
+							!Arrays.asList(TRANSLATE_CHECK, FINISH).contains(updateStatus)) {
 						throw new OtherException("存在部分翻译数据，请先全部翻译确认");
 					}
 				}catch (OtherException ex) {
@@ -1161,7 +1242,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 													.filter(item ->
 															item.getUnusableFlag().equals("0") &&
 																	(ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
-																			|| item.getMaterialCodeName().contains("备扣袋"))
+																			|| (ObjectUtil.isNotEmpty(item.getMaterialCodeName()) && item.getMaterialCodeName().contains("备扣袋")))
 													)
 													.map(PackBom::getMaterialCodeName)
 													.collect(Collectors.toList()),
@@ -1284,7 +1365,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
-				tagPrinting.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				tagPrinting.setTechApproved(hangTag.getStatus().greatThan(DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
@@ -1343,6 +1424,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}
 
 							}
+							size1.setShowSizeStatus(basicsdatumSize.getHangTagShowSizeStatus());
 							size.add(size1);
 						}
 
@@ -1350,6 +1432,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 				// 款式尺码明细
 				tagPrinting.setSize(size);
+
+				if (packInfo != null) {
+					PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+					if (packInfoStatus != null && StrUtil.isNotBlank(packInfoStatus.getTechSpecFileId())) {
+						UploadFile uploadFile = uploadFileService.getById(packInfoStatus.getTechSpecFileId());
+						if (uploadFile != null) {
+							tagPrinting.setTechSpecFileUrl(minioUtils.getObjectUrl(uploadFile.getUrl()));
+						}
+					}
+				}
 
 				tagPrintings.add(tagPrinting);
 			}
@@ -1382,19 +1474,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 * @return
 	 */
 	@Override
-	public Boolean copyPack(String styleNo, String newStyleNo) {
+	public Boolean copyPack(String styleNo, String newStyleNo, Boolean isCopyStatus) {
 		QueryWrapper queryWrapper = new QueryWrapper();
 		queryWrapper.eq("bulk_style_no", styleNo);
 		HangTag hangTag = baseMapper.selectOne(queryWrapper);
+
 		if (!ObjectUtils.isEmpty(hangTag)) {
+			String oldId = hangTag.getId();
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
 			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
-			save(hangTag);
+			boolean save = save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();
-			queryWrapper.eq("hang_tag_id", hangTag.getId());
+			queryWrapper.eq("hang_tag_id", oldId);
 			List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(queryWrapper);
 			/* 复制成分 */
 			hangTagIngredientList.forEach(i -> {
@@ -1403,6 +1497,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			});
 			hangTagIngredientService.saveBatch(hangTagIngredientList);
 			hangTagLogService.save(new HangTagLog("报错款复制",hangTag.getId()));
+			logger.info("copyPack HangTag is not null oldId={}, newId={},save={}",oldId,hangTag.getId(),save);
+		}else {
+			logger.info("copyPack HangTag is null styleNo={},newStyleNo={},isCopyStatus={}",styleNo, newStyleNo, isCopyStatus);
 		}
 		return true;
 	}
@@ -1438,7 +1535,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取所有的吊牌
 		List<MoreLanguageHangTagVO> hangTagVOList = HANG_TAG_CV.copyList2MoreLanguage(hangTagMapper.getDetailsByBulkStyleNo(
-				bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType()
+				bulkStyleNoList, userUtils.getCompanyCode(), hangTagMoreLanguageDTO.getSelectType()
 		));
 
 		// 获取吊牌成分
@@ -1855,6 +1952,66 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
         return escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(queryWrapper, inspectCompanyIdList);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public ApiResult oneUpdateStatus(List<String> ids) {
+		List<String> warnMsgList = new ArrayList<>();
+		ids.forEach(id -> {
+			if (StrUtil.isBlank(id)) warnMsgList.add("存在未填写数据，请先填写");
+		});
+		// 先根据id获取所有大货款
+		List<HangTag> hangTags = this.listByIds(ids);
+
+		// 获取报次款后缀 存在不属于的直接报错
+		List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList("C8_CPNum");
+		boolean hasNormalHangTag = hangTags.stream().anyMatch(hangTag -> dictList.stream().noneMatch(it -> hangTag.getBulkStyleNo().endsWith(it.getValue())));
+		if (hasNormalHangTag) throw new OtherException("!只允许一键审核报次款!");
+
+		// 只选状态小于待翻译确认的
+		Map<HangTagStatusEnum, List<HangTag>> statusMap = hangTags.stream()
+				.sorted(Comparator.comparing(it -> (it.getStatus().ordinal())))
+				.collect(CommonUtils.groupingBy(HangTag::getStatus));
+		if (MapUtil.isNotEmpty(statusMap)) {
+			updateStatus(statusMap, warnMsgList);
+		}
+		int warnSize = warnMsgList.size();
+		String warnMsg = StrUtil.join("\n", warnMsgList);
+		// 全错
+		int successSize = ids.size() - warnSize;
+		if (successSize == 0) return ApiResult.error("全部失败\n" + warnMsg, 500);
+		else if (warnSize == 0) return ApiResult.success("更新成功");
+			// 部分错
+		else
+			return ApiResult.success(StrUtil.format("更新成功\n 成功{}条, 失败{}条 \n {}", successSize, warnSize, warnMsg),
+					BaseErrorEnum.PART_UPDATE_SUCCESS.getErrorCode());
+	}
+
+	private void updateStatus(Map<HangTagStatusEnum, List<HangTag>> statusMap, List<String> warnMsgList) {
+		statusMap.forEach((status, sameStatusList) -> {
+			if (status.lessThan(TRANSLATE_CHECK)) {
+				HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+				HangTagStatusEnum nextStatus = status.lessThan(TECH_CHECK) ? TECH_CHECK : status.nextLevel();
+				statusDTO.setStatus(nextStatus);
+				statusDTO.setIds(sameStatusList.stream().map(HangTag::getId).collect(Collectors.toList()));
+				try {
+					this.updateStatus(statusDTO, false, sameStatusList);
+				} catch (Exception e) {
+                    for (int i = 0; i < sameStatusList.size(); i++) {
+                        HangTag hangTag = sameStatusList.get(i);
+                        try {
+                            this.updateStatus(statusDTO, false, Collections.singletonList(hangTag));
+                        } catch (Exception e1) {
+                            sameStatusList.remove(i);
+                            warnMsgList.add(e1.getMessage());
+                        }
+                    }
+                }
+				sameStatusList.forEach(it-> it.setStatus(nextStatus));
+				updateStatus(MapUtil.of(nextStatus, sameStatusList), warnMsgList);
+            }
+        });
 	}
 
 	@Override

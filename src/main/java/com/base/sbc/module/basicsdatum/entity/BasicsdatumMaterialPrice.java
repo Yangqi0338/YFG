@@ -67,10 +67,10 @@ public class BasicsdatumMaterialPrice extends BaseDataEntity<String> {
 	private String currencyName;
 	/** 订货周期 */
 	@ApiModelProperty(value = "订货周期")
-	private BigDecimal orderDay;
+	private String orderDay;
 	/** 生产周期 */
 	@ApiModelProperty(value = "生产周期")
-	private BigDecimal productionDay;
+	private String productionDay;
 	/** 起订量 */
 	@ApiModelProperty(value = "起订量")
 	private Integer minimumOrderQuantity;

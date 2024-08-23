@@ -117,8 +117,8 @@ public class OpenSmpService {
                 for (Object quotItemsChild : quotItemsChildren) {
                     JSONObject json = (JSONObject) JSON.toJSON(quotItemsChild);
                     QuotItem quotItem = JSON.toJavaObject(json, QuotItem.class);
-                    quotItem.setC8_SupplierItemRev_MLeadTime(json.getBigDecimal("c8SupplierItemRevMLeadTime"));
-                    quotItem.setLeadTime(json.getBigDecimal("leadTime"));
+                    quotItem.setC8_SupplierItemRev_MLeadTime(json.getString("c8SupplierItemRevMLeadTime"));
+                    quotItem.setLeadTime(json.getString("leadTime"));
                     quotItemsList.add(quotItem);
                 }
 

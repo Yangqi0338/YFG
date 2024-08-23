@@ -48,4 +48,8 @@ public interface AttachmentTypeConstant {
      * 版型库文件
      */
     String PATTERN_LIBRARY_FILE = "PATTERN_LIBRARY_FILE";
+    /**
+     * 新面料试穿报告
+     */
+    String MATERIAL_FITTING_REPORT = "MATERIAL_FITTING_REPORT";
 }

@@ -9,6 +9,7 @@ package com.base.sbc.module.common.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,7 +31,7 @@ public interface AttachmentMapper extends BaseMapper<Attachment> {
  * 自定义方法区 不替换的区域【other_start】
  **/
 
-List<AttachmentVo> findByFId(@Param("foreignId") String foreignId, @Param("type") String type, @Param("typeLikeStart") String typeLikeStart);
+List<AttachmentVo> findByFId(@Param(Constants.WRAPPER) BaseQueryWrapper<Attachment> queryWrapper);
 
     List<AttachmentVo> findByQw(@Param(Constants.WRAPPER) QueryWrapper wrappe);
 /** 自定义方法区 不替换的区域【other_end】 **/

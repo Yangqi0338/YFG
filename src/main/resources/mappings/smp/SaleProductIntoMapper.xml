@@ -174,4 +174,38 @@
         group by T.ORDER_TYPE, T.YEARS
         order by T.YEARS
     </select>
+    <select id="queryMergeGoodsNoByGoodsNo" resultType="com.base.sbc.module.smp.entity.SalesData">
+        select GOODSNO goodsNo,MERGE_GOODSNO mergeGoodsNo
+        from BI_DW.ODS_GOODS_NEW
+        where GOODSNO in
+        <foreach collection="goodsNoList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="queryGoodsNoByMergeGoodsNo" resultType="com.base.sbc.module.smp.entity.SalesData">
+        select GOODSNO goodsNo,MERGE_GOODSNO mergeGoodsNo
+        from BI_DW.ODS_GOODS_NEW
+        where MERGE_GOODSNO in
+        <foreach collection="mergeGoodsNoList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="querySalesNumAndProductionNumByGoodsNos"
+            resultType="com.base.sbc.module.smp.entity.SalesData">
+        SELECT
+        dsf.PROD_CODE as goodsNo,
+        SUM(CASE WHEN dsf.RESULTTYPE LIKE '%销售%' THEN dsf.NUM ELSE 0 END) AS salesNum,
+        SUM(CASE WHEN dsf.RESULTTYPE LIKE '%投产%' THEN dsf.NUM ELSE 0 END) AS productionNum
+        FROM
+        BI_DW.DM_SALE_FAC dsf
+        WHERE
+        1=1
+        AND (dsf.RESULTTYPE LIKE '%销售%' OR dsf.RESULTTYPE LIKE '%投产%')
+        AND dsf.PROD_CODE in
+        <foreach collection="goodsNoList" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        GROUP BY
+        dsf.PROD_CODE;
+    </select>
 </mapper>

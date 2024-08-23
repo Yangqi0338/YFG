@@ -64,6 +64,13 @@ public enum HangTagStatusEnum {
         return this.code.compareTo(statusEnum.code) < 0;
     }
 
+    public HangTagStatusEnum nextLevel() {
+        HangTagStatusEnum[] values = HangTagStatusEnum.values();
+        int index = this.ordinal() + 1;
+        if (index == values.length) return this;
+        return values[index];
+    }
+
     public boolean greatThan(HangTagStatusEnum statusEnum){
         return this.code.compareTo(statusEnum.code) > 0;
     }

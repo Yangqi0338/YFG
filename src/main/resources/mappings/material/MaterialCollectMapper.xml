@@ -10,4 +10,17 @@
         and del_flag ='0'
         group by material_id
     </select>
+
+
+    <select id="getCollectFileCount" resultType="java.lang.Long">
+        select count(1) from t_material_collect tmc left join t_material tm on tmc.material_id = tm.id
+        where tmc.del_flag  = '0' and tm.del_flag = '0' and tmc.user_id = #{userId}
+        <if test="fileIds != null and fileIds.size > 0">
+            and tmc.folder_id in
+            <foreach collection="fileIds" item="fileId" separator="," open="(" close=")">
+                #{fileId}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>

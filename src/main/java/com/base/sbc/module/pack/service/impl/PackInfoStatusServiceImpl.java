@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -21,6 +23,7 @@ import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoStatusMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
 import org.springframework.context.annotation.Lazy;
@@ -241,7 +244,7 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
     @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus get(String foreignId, String packType) {
         PackInfoStatus one = super.get(foreignId, packType);
-        if (one != null) {
+        if (one != null || PACK_TYPE_BIG_GOODS_PRE.equals(packType)) {
             return one;
         }
         return newStatus(foreignId, packType);

@@ -9,13 +9,25 @@
         where
         del_flag = '0'
         and label_name like  concat('%',#{search},'%')
-        <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+        <if test="(materialCategoryIds != null and materialCategoryIds.size > 0) or (createId != null and createId != '')">
             and material_id in
-            (select id from t_material tm where status = '2' and tm.del_flag = '0' and tm.material_category_id in
-            <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
-                #{id}
-            </foreach>
-            )
+                (select id from t_material tm where   tm.del_flag = '0'
+                    <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+                        and tm.material_category_id in
+                        <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
+                            #{id}
+                        </foreach>
+                    </if>
+                    <if test="folderId != null and folderId != ''">
+                        and tm.folder_id = #{folderId}
+                    </if>
+                    <if test="status != null and status != ''">
+                        and tm.status = #{status}
+                    </if>
+                    <if test="createId != null and createId != ''">
+                        and tm.create_id = #{createId}
+                    </if>
+                )
         </if>
         group by  label_name
     </select>

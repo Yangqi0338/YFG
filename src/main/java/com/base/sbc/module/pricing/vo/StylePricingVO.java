@@ -1,12 +1,12 @@
 package com.base.sbc.module.pricing.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * 款式定价
@@ -30,9 +30,26 @@ public class StylePricingVO {
      * 计控确认成本时间
      */
     @ApiModelProperty(value = "计控确认成本时间")
-//    @Excel(name = "计控确认成本时间", format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date controlConfirmTime;
-
+    /**
+     * 工时部确认工价时间
+     */
+    @ApiModelProperty(value = "工时部确认工价时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date wagesConfirmTime;
+    /**
+     * 是否商品吊牌确认时间
+     */
+    @ApiModelProperty(value = "商品吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date productHangtagConfirmTime;
+    /**
+     * 是否计控吊牌确认时间
+     */
+    @ApiModelProperty(value = "计控吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date controlHangtagConfirmTime;
     /**
      * 样衣图片
      */
@@ -302,9 +319,39 @@ public class StylePricingVO {
 
     private String calcItemVal;
 
+    private String calcItemVal1;
+
+    private String calcItemVal2;
+
     /**
      * 列头筛选数量
      */
     private Integer groupCount;
+
+
+    /** 大类code */
+    @ApiModelProperty(value = "大类code"  )
+    private String prodCategory1st;
+    /** 大类名称 */
+    @ApiModelProperty(value = "大类名称"  )
+    private String prodCategory1stName;
+    /** 品类code */
+    @ApiModelProperty(value = "品类code"  )
+    private String prodCategory;
+    /** 品类名称 */
+    @ApiModelProperty(value = "品类名称"  )
+    private String prodCategoryName;
+    /** 中类code */
+    @ApiModelProperty(value = "中类code"  )
+    private String prodCategory2nd;
+    /** 中类名称 */
+    @ApiModelProperty(value = "中类名称"  )
+    private String prodCategory2ndName;
+    /** 小类code */
+    @ApiModelProperty(value = "小类code"  )
+    private String prodCategory3rd;
+    /** 小类名称 */
+    @ApiModelProperty(value = "小类名称"  )
+    private String prodCategory3rdName;
 }
 

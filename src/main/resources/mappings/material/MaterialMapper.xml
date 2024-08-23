@@ -35,6 +35,16 @@
         <if test="search != null and search != ''">
             and (file_info like concat('%',#{search},'%') or remarks like concat('%',#{search},'%') )
         </if>
+        <if test="searchName != null and searchName != ''">
+
+            and tm.id in (select distinct tmm.id from t_material tmm left join t_material_label tml on tmm.id = tml.material_id  and tml.del_flag = '0' where
+            tmm.del_flag = '0' and
+            (tmm.material_name like concat('%',#{searchName},'%') or tmm.desc_info like concat('%',#{searchName},'%')  or  tml.label_name  like concat('%',#{searchName},'%'))
+            <if test="createId != null and createId != ''">
+                and tmm.create_id = #{createId}
+            </if>
+                )
+        </if>
         <if test="categoryId != null and categoryId != ''">
             and category_id = #{categoryId}
         </if>
@@ -88,6 +98,18 @@
             and tm.material_name like concat('%',#{content},'%')
         </if>
 
+        <if test="issuerId != null and issuerId != ''">
+            and tm.issuer_id = #{issuerId}
+        </if>
+
+        <if test="issuerName != null and issuerName != ''">
+            and tm.issuer_name like concat('%',#{issuerName},'%')
+        </if>
+
+        <if test="issuerUsername != null and issuerUsername != ''">
+            and tm.issuer_username like concat('%',#{issuerUsername},'%')
+        </if>
+
         <if test="brandList != null and brandList.size > 0">
             and brand in
             <foreach collection="brandList" open="(" separator="," item="brand" close=")">
@@ -99,12 +121,20 @@
             #{sql}
         </if>
         <if test="folderIdList != null and folderIdList.size > 0">
-            and folder_id in
+            and tm.folder_id in
             <foreach collection="folderIdList" open="(" separator="," item="item" close=")">
                 #{item}
             </foreach>
         </if>
-        order by create_date desc
+        <if test="descInfoList != null and descInfoList.size > 0">
+            and tm.desc_info in
+            <foreach collection="descInfoList" item="descInfo" separator="," open="(" close=")">
+                #{descInfo}
+            </foreach>
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
     </select>
 
 
@@ -115,8 +145,16 @@
         where
         tm.del_flag = '0'
         and material_name like  concat('%',#{search},'%')
+        <if test="status != null and status != ''">
+            and tm.status = #{status}
+        </if>
+        <if test="folderId != null and folderId != ''">
+            and tm.folder_id = #{folderId}
+        </if>
+        <if test="createId != null and createId != ''">
+            and tm.create_id = #{createId}
+        </if>
         <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
-            and tm.status = '2'
             and tm.material_category_id  in
             <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
                 #{id}
@@ -131,12 +169,37 @@
         sum(file_size)
         from t_material tm
         where
-        tm.del_flag = '0' and create_id = #{userId}
+        tm.del_flag = '0' and create_id = #{userId} and status != '2'
         <if test="folderIds != null and folderIds.size > 0">
             and tm.folder_id  in
             <foreach collection="folderIds" item="folderId" separator="," open="(" close=")">
                 #{folderId}
             </foreach>
         </if>
+    </select>
+
+    <select id="linkageDescInfo" resultType="com.base.sbc.module.material.vo.MaterialChildren">
+        select
+        desc_info as label , desc_info as 'value'
+        from t_material tm
+        where
+        tm.del_flag = '0'
+        and tm.desc_info like  concat('%',#{search},'%')
+        <if test="status != null and status != ''">
+            and tm.status = #{status}
+        </if>
+        <if test="folderId != null and folderId != ''">
+            and tm.folder_id = #{folderId}
+        </if>
+        <if test="createId != null and createId != ''">
+            and tm.create_id = #{createId}
+        </if>
+        <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+            and tm.material_category_id  in
+            <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by material_name
     </select>
 </mapper>

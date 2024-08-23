@@ -147,6 +147,7 @@ public class QueryGenerator {
                 //qw.order(sqlCode);
             }
         }
+        dto.setColumnGroupSearch(isColumnHeard);
         return isColumnHeard;
     }
 

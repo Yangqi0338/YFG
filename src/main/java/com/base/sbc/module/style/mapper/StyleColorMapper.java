@@ -117,6 +117,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     List<StyleColorAgentVo> agentList(@Param(Constants.WRAPPER) BaseQueryWrapper queryWrapper);
 
+    List<StyleColorVo> materialListQuote(@Param(Constants.WRAPPER) BaseQueryWrapper queryWrapper);
+
 // 自定义方法区 不替换的区域【other_end】
 
 //    List<StyleColorVo> styleColorList_COUNT(@Param(Constants.WRAPPER) QueryWrapper qw);

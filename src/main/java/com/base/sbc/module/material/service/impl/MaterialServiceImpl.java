@@ -3,12 +3,17 @@ package com.base.sbc.module.material.service.impl;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.constant.Constants;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
@@ -36,6 +41,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -109,11 +115,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (materialQueryDto.isCollect()) {
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
-            qc.eq("user_id", materialQueryDto.getUserId());
+            qc.eq("user_id", StringUtils.isNotEmpty(materialQueryDto.getUserId()) ? materialQueryDto.getUserId() : materialQueryDto.getCreateId());
+
+            if (StringUtils.isNotEmpty(materialQueryDto.getFolderId())){
+                qc.in("folder_id",StringUtils.convertList(materialQueryDto.getFolderId()));
+            }
             List<MaterialCollect> materialCollects = materialCollectService.list(qc);
             for (MaterialCollect materialCollect : materialCollects) {
                 collectSet.add(materialCollect.getMaterialId());
             }
+            materialQueryDto.setCreateId(null);
+            materialQueryDto.setFolderId(null);
         }
 
         //标签筛选条件
@@ -128,11 +140,12 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         //标签名称筛选条件
         if (StringUtils.isNotEmpty(materialQueryDto.getLabelNames())) {
             labelSet = new HashSet<>();
-            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(StringUtils.convertList(materialQueryDto.getLabelNames()));
+            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(StringUtils.convertList(materialQueryDto.getLabelNames()),null);
             for (MaterialLabel materialLabel : materialLabels) {
                 labelSet.add(materialLabel.getMaterialId());
             }
         }
+
 
         //标签名称模糊筛选条件
         if (StringUtils.isNotEmpty(materialQueryDto.getContent())) {
@@ -187,6 +200,10 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             materialQueryDto.setFolderIdList(StringUtils.convertList(materialQueryDto.getFolderId()));
         }
 
+        if (StringUtils.isNotEmpty(materialQueryDto.getDescInfos())){
+            materialQueryDto.setDescInfoList(StringUtils.convertList(materialQueryDto.getDescInfos()));
+        }
+
         //品牌
         if (StringUtils.isBlank(materialQueryDto.getCreateId()) && null != materialQueryDto.getStatusList() && 1 == materialQueryDto.getStatusList().length && "2".equals(materialQueryDto.getStatusList()[0])){
             //获取用户组的品牌权限列表
@@ -196,6 +213,16 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
 
         }
+
+        //排序
+        BaseQueryWrapper qw = new BaseQueryWrapper<>();
+
+        if (Constants.CREATE_DATE_ASC.equals(materialQueryDto.getShowSort())) {
+            qw.orderByAsc("tm.create_date");
+        } else {
+            qw.orderByDesc("tm.create_date");
+        }
+        materialQueryDto.setEw(qw);
 
     }
 
@@ -238,13 +265,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         //查询引用数量
         List<Map<String, Integer>> maps = planningCategoryItemMaterialService.numList(ids);
         //获取用户头像
-        Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
+        Map<String, UserCompany> userAvatarMap = amcFeignService.getUserAvatarAndUserName(CollUtil.join(userIds, ","));
 
         // 获取素材库功能名称
         Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds, ","), "功能");
 
         for (MaterialVo materialVo : materialAllDtolist) {
-            materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()));
+            if (null != userAvatarMap.get(materialVo.getCreateId())){
+                materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()).getAliasUserAvatar());
+                materialVo.setUserName(userAvatarMap.get(materialVo.getCreateId()).getUsername());
+            }
+
             materialVo.setMaterialCategoryName(Optional.ofNullable(materialCategoryNames.get(materialVo.getMaterialCategoryId())).orElse(materialVo.getMaterialCategoryName()));
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();
@@ -383,6 +414,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     @Transactional
     public Integer updateList(List<MaterialSaveDto> materialSaveDtoList) {
         for (MaterialSaveDto materialSaveDto : materialSaveDtoList) {
+            if ("2".equals(materialSaveDto.getStatus()) && null != materialSaveDto.getCiteFlag() && materialSaveDto.getCiteFlag()){
+                throw new OtherException("该素材已经被引用，暂不允许编辑！");
+            }
             //修改关联标签
             QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
@@ -442,24 +476,41 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     }
 
     @Override
-    public List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds) {
+    public List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds,String folderId, String personQuery) {
+
+        //personQuery为1的时候，为个人查询
+        String status = Constants.ONE_STR.equals(personQuery) ? null : "2";
+        String createId = Constants.ONE_STR.equals(personQuery) ? userUtils.getUserId() : null;
+
         List<MaterialLinkageVo> list = Lists.newArrayList();
         //素材标签相关
         List<String> materialCategoryIdList = StringUtils.convertList(materialCategoryIds);
-        List<MaterialChildren> labelList = materialLabelService.linkageQuery(search,materialCategoryIdList);
+        List<MaterialChildren> labelList = materialLabelService.linkageQuery(search,materialCategoryIdList,folderId,status,createId);
         if (CollUtil.isNotEmpty(labelList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(labelList);
-            materialLinkageVo.setGroup("标签名称");
+            materialLinkageVo.setGroup("公司标签");
             list.add(materialLinkageVo);
         }
         // 素材名称相关
-        List<MaterialChildren> materialNameList = this.getBaseMapper().linkageQueryName(search,materialCategoryIdList);
+        List<MaterialChildren> materialNameList = this.getBaseMapper().linkageQueryName(search,materialCategoryIdList,folderId,status,createId);
         if (CollUtil.isNotEmpty(materialNameList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(materialNameList);
             materialLinkageVo.setGroup("素材名称");
             list.add(materialLinkageVo);
+        }
+
+        //个人标签相关
+
+        if (Constants.ONE_STR.equals(personQuery)){
+            List<MaterialChildren> descInfoList = this.getBaseMapper().linkageDescInfo(search,materialCategoryIdList,folderId,status,createId);
+            if (CollUtil.isNotEmpty(descInfoList)){
+                MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
+                materialLinkageVo.setChildren(descInfoList);
+                materialLinkageVo.setGroup("个人分类");
+                list.add(materialLinkageVo);
+            }
         }
         return list;
     }
@@ -475,26 +526,94 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     @Override
     public long getFileCount(String userId,List<String> folderIds) {
         QueryWrapper<Material> qw = new QueryWrapper<>();
-        qw.lambda().in(Material::getFolderId, folderIds);
+        if (CollUtil.isNotEmpty(folderIds)){
+            qw.lambda().in(Material::getFolderId, folderIds);
+        }
         qw.lambda().eq(Material::getCreateId,userId);
+        qw.lambda().eq(Material::getDelFlag,"0");
         return count(qw);
     }
 
     @Override
-    public String getFileSize(String userId, List<String> folderIds) {
-        Long fileSize = baseMapper.getFileSize(userId,folderIds);
-        if (fileSize == null){
-            return "0";
-        }
-        return fileSize.toString();
-
-//        if (fileSize > 1073741824){
-//            return Math.ceil((double) fileSize / 1073741824) + "GB";
-//        }
-//
-//        if (fileSize > 1048576){
-//            return Math.ceil((double) fileSize / 1048576) + "MB";
-//        }
-//        return Math.ceil((double) fileSize / 1024) + "KB";
+    public Long getFileSize(String userId, List<String> folderIds) {
+        Long fileSize = baseMapper.getFileSize(userId, folderIds);
+        return null == fileSize ? 0L : fileSize;
     }
+
+    @Override
+    public void mergeFolderReplace(String id, List<String> byMergeFolderIds) {
+        UpdateWrapper<Material> qw = new UpdateWrapper<>();
+        qw.lambda().in(Material::getFolderId,byMergeFolderIds);
+        qw.lambda().set(Material::getFolderId,id);
+        update(qw);
+    }
+
+    @Override
+    public List<String> listImgQuery(MaterialQueryDto materialQueryDto) {
+        materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
+        materialQueryDto.setUserId(userUtils.getUserId());
+        this.addQuery(materialQueryDto);
+        PageHelper.startPage(materialQueryDto);
+        List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
+        minioUtils.setObjectUrlToList(materialAllDtolist, "picUrl");
+        if (CollUtil.isEmpty(materialAllDtolist)){
+            return null;
+        }
+        return materialAllDtolist.stream().map(MaterialVo::getPicUrl).collect(Collectors.toList());
+    }
+
+    @Override
+    public void delMaterialPersonSpace(List<String> userIds) {
+
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getCreateId,userIds);
+        qw.lambda().eq(Material::getDelFlag,"0");
+        qw.lambda().notIn(Material::getStatus,Lists.newArrayList("2"));
+        List<Material> materials = list(qw);
+        if (CollUtil.isEmpty(materials)){
+            return;
+        }
+        //删除个人除了已发布的所有数据
+        UpdateWrapper<Material> uw = new UpdateWrapper<>();
+        uw.lambda().in(Material::getCreateId,userIds);
+        uw.lambda().notIn(Material::getStatus,Lists.newArrayList("2"));
+        uw.lambda().eq(Material::getDelFlag,"0");
+        uw.lambda().set(Material::getDelFlag,"1");
+        boolean b = update(uw);
+        if (b){
+            //修改成功，删除远端文件
+            materials.forEach(item ->minioUtils.delFile(item.getPicUrl()));
+        }
+
+    }
+
+    @Override
+    public Map<String, List<String>> listImg(MaterialQueryDto materialQueryDto) {
+        Map<String, String> basicStructureMap = materialQueryDto.getBasicStructureMap();
+
+        if (CollUtil.isEmpty(basicStructureMap)){
+            return Maps.newHashMap();
+        }
+        materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
+        materialQueryDto.setUserId(userUtils.getUserId());
+        this.addQuery(materialQueryDto);
+        PageHelper.startPage(materialQueryDto);
+        Map<String, List<String>> map = Maps.newHashMap();
+        for (String key : basicStructureMap.keySet()) {
+            List<String> materialBasicStructureIds = ccmFeignService.getMaterialBasicStructureIds(basicStructureMap.get(key),key);
+            if (CollUtil.isEmpty(materialBasicStructureIds)){
+                continue;
+            }
+            materialQueryDto.setMaterialCategoryIds(materialBasicStructureIds);
+            List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
+            if (CollUtil.isEmpty(materialAllDtolist)){
+                continue;
+            }
+            minioUtils.setObjectUrlToList(materialAllDtolist, "picUrl");
+            map.put(key, materialAllDtolist.stream().map(MaterialVo::getPicUrl).collect(Collectors.toList()));
+
+        }
+        return map;
+    }
+
 }

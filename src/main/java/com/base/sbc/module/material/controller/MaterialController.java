@@ -1,5 +1,7 @@
 package com.base.sbc.module.material.controller;
 
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -7,8 +9,10 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -25,14 +29,22 @@ import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialLinkageVo;
+import com.base.sbc.module.material.vo.MaterialSpaceInfoVo;
 import com.base.sbc.module.material.vo.MaterialVo;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,6 +94,14 @@ public class MaterialController extends BaseController {
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
+    private final PlanningCategoryItemService planningCategoryItemService;
+
+    @Autowired
+    private StorageSpacePersonService storageSpacePersonService;
+
+    @Autowired
+    private MinioUtils minioUtils;
+
     /**
      * 新增
      */
@@ -110,6 +130,9 @@ public class MaterialController extends BaseController {
             material.setPicUrl(CommonUtils.removeQuery(material.getPicUrl()));
         }
 
+        //检查空间
+        checkSpace(materialList);
+
         materialService.saveBatch(materialList);
         return insertSuccess(materialList.size());
     }
@@ -135,6 +158,9 @@ public class MaterialController extends BaseController {
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
         Material material = materialService.getById(materialSaveDto.getId());
+        if ("2".equals(material.getStatus()) && null != materialSaveDto.getCiteFlag() && materialSaveDto.getCiteFlag()){
+            throw new OtherException("该素材已经被引用，暂不允许编辑！");
+        }
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
             //从公司素材管理提交审批，静默审批，不用走审批流
@@ -148,6 +174,9 @@ public class MaterialController extends BaseController {
                     String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
                     materialSaveDto.setMaterialCode(materialCode);
                 }
+                materialSaveDto.setIssuerId(userUtils.getUserCompany().getUserId());
+                materialSaveDto.setIssuerName(userUtils.getUserCompany().getAliasUserName());
+                materialSaveDto.setIssuerUsername(userUtils.getUserCompany().getUsername());
             }else {
                 // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
                 MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
@@ -171,7 +200,10 @@ public class MaterialController extends BaseController {
         //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
         //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
-        materialService.updateById(materialSaveDto,"创意素材库");
+        if ("2".equals(materialSaveDto.getStatus()) && !"2".equals(material.getStatus())){
+            //图片路径更新
+            materialSaveDto.setPicUrl(picPathUpdate(material.getPicUrl()));
+        }
         boolean b = materialService.updateById(materialSaveDto);
             return updateSuccess(b);
     }
@@ -202,15 +234,27 @@ public class MaterialController extends BaseController {
         qw.lambda().eq(Material::getStatus,"2");
         List<Material> list = materialService.list(qw);
         if (CollUtil.isNotEmpty(list)){
+            List<String> enableFlags = list.stream().map(Material::getEnableFlag).filter(Constants.ONE_STR::equals).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(enableFlags)){
+                return ApiResult.error("已启用的素材，不允许删除！",500);
+            }
+
             //检查是否被引用
             QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
             qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
             qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, list.stream().map(Material::getId).collect(Collectors.toList()));
-            long count = planningCategoryItemMaterialService.count(qw1);
-            if (count > 0){
-                return ApiResult.error("此素材有被引用，不允许删除！",500);
+            qw1.lambda().select(PlanningCategoryItemMaterial::getPlanningCategoryItemId);
+            qw1.lambda().groupBy(PlanningCategoryItemMaterial::getPlanningCategoryItemId);
+            List<PlanningCategoryItemMaterial> list1 = planningCategoryItemMaterialService.list(qw1);
+//            long count = planningCategoryItemMaterialService.count(qw1);
+            if (CollUtil.isNotEmpty(list1)){
+                List<PlanningCategoryItem> planningCategoryItems = planningCategoryItemService.listByIds(list1.stream().map(PlanningCategoryItemMaterial::getPlanningCategoryItemId).collect(Collectors.toList()));
+                List<String> collect = planningCategoryItems.stream().map(PlanningCategoryItem::getDesignNo).collect(Collectors.toList());
+                return ApiResult.error("该素材有被设计款："+StringUtils.convertListToString(collect)+" 引用，不允许删除, 请去除引用后再进行删除！",500);
             }
         }
+        List<Material> materials = materialService.listByIds(Lists.newArrayList(ids));
+        materials.forEach(item -> minioUtils.delFile(item.getPicUrl()));
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
@@ -223,7 +267,10 @@ public class MaterialController extends BaseController {
         if (materialQueryDto == null) {
             throw new OtherException("参数不能为空");
         }
-        return selectSuccess(materialService.listQuery(materialQueryDto));
+        PageInfo<MaterialVo> materialVoPageInfo = materialService.listQuery(materialQueryDto);
+        //补充信息
+        fullMaterialVoPageInfo(materialVoPageInfo);
+        return selectSuccess(materialVoPageInfo);
     }
 
     /**
@@ -311,11 +358,11 @@ public class MaterialController extends BaseController {
      */
     @GetMapping("/linkageQuery")
     @ApiOperation(value = "模糊联动查询", notes = "模糊联动查询")
-    public ApiResult linkageQuery(String search, String materialCategoryIds) {
+    public ApiResult linkageQuery(String search, String materialCategoryIds, String folderId, String personQuery) {
         if (StringUtils.isEmpty(search)){
             return ApiResult.success();
         }
-        List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds);
+        List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds,folderId, personQuery);
         return updateSuccess(list);
     }
 
@@ -331,7 +378,10 @@ public class MaterialController extends BaseController {
         checkMaterial(materials, dto.getType());
         //参数补全
         fillMaterial(materials,dto.getType());
-        materialService.saveOrUpdateBatch(materials);
+        boolean b = materialService.saveOrUpdateBatch(materials);
+        if (!b){
+            throw new OtherException("提交失败!");
+        }
         return ApiResult.success("发布成功");
     }
 
@@ -342,10 +392,54 @@ public class MaterialController extends BaseController {
             throw new OtherException("查询id不能为空");
         }
         MaterialQueryDto materialQueryDto = new MaterialQueryDto();
-        materialQueryDto.setIds(Lists.newArrayList(id));
+        materialQueryDto.setIds(StringUtils.convertList(id));
         List<MaterialVo> list = materialService.listQuery(materialQueryDto).getList();
         return ApiResult.success("查询成功",CollUtil.isEmpty(list) ? null : list.get(0));
     }
+
+    @GetMapping("/listDetails")
+    @ApiOperation(value = "查看详情", notes = "查看详情")
+    public ApiResult listDetails( String id){
+        if (StringUtils.isEmpty(id)){
+            throw new OtherException("查询id不能为空");
+        }
+        MaterialQueryDto materialQueryDto = new MaterialQueryDto();
+        materialQueryDto.setIds(StringUtils.convertList(id));
+        List<MaterialVo> list = materialService.listQuery(materialQueryDto).getList();
+        return ApiResult.success("查询成功",list);
+    }
+
+    @PutMapping("/batchUpdate")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "批量更新", notes = "批量更新")
+    public ApiResult batchSubmit(@RequestBody @Valid List<MaterialSaveDto> list){
+        list.forEach(this::update);
+        return ApiResult.success("更新成功");
+    }
+
+
+    @GetMapping("/spaceUsage")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "空间使用情况", notes = "空间使用情况")
+    public ApiResult spaceUsage(){
+        String userId = userUtils.getUserCompany().getUserId();
+        MaterialSpaceInfoVo materialSpaceInfoVo = new MaterialSpaceInfoVo();
+        materialSpaceInfoVo.setUsageSpaceSize(Double.valueOf(materialService.getFileSize(userId, null)));
+        Double personSpace = storageSpacePersonService.getPersonSpace(userId, "1");
+        materialSpaceInfoVo.setTotalSpaceSize(personSpace*1073741824);
+        return ApiResult.success("更新成功",materialSpaceInfoVo);
+    }
+
+    @ApiOperation(value = "条件查询列表前几条的数据", notes = "条件查询列表前几条的数据")
+    @GetMapping("/listImg")
+    public ApiResult  listImg(MaterialQueryDto materialQueryDto) {
+        if (materialQueryDto == null) {
+            throw new OtherException("参数不能为空");
+        }
+        Map<String,List<String>> map = materialService.listImg(materialQueryDto);
+        return selectSuccess(map);
+    }
+
 
 
     private void checkMaterial(List<Material> list, String type) {
@@ -409,6 +503,10 @@ public class MaterialController extends BaseController {
 
         //提交发布
         if ("2".equals(type)){
+            String issuerId = userUtils.getUserCompany().getUserId();
+            String issuerName = userUtils.getUserCompany().getAliasUserName();
+            String username = userUtils.getUserCompany().getUsername();
+            //工号
             materials.forEach(item ->{
                 item.setStatus("2");
                 if (StringUtils.isEmpty(item.getMaterialCode())){
@@ -417,11 +515,68 @@ public class MaterialController extends BaseController {
                     String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
                     item.setMaterialCode(materialCode);
                 }
+                //图片路径更新
+                item.setPicUrl(picPathUpdate(item.getPicUrl()));
+                item.setIssuerId(issuerId);
+                item.setIssuerName(issuerName);
+                item.setIssuerUsername(username);
             });
+
         }
-
-
 
     }
 
+    private void checkSpace(List<Material> materials) {
+        if (CollUtil.isEmpty(materials)){
+            return;
+        }
+        if (Constants.ONE_STR.equals(materials.get(0).getCompanyFlag())){
+            return;
+        }
+        String userId = companyUserInfo.get().getUserId();
+        Long fileSize = materialService.getFileSize(userId, null);
+        if (fileSize != null){
+            long sum = materials.stream().mapToLong(Material::getFileSize).sum();
+            storageSpacePersonService.checkPersonSpacer(fileSize + sum,"1",userId);
+        }
+    }
+
+    private void fullMaterialVoPageInfo(PageInfo<MaterialVo> materialVoPageInfo) {
+        if (CollUtil.isEmpty(materialVoPageInfo.getList())){
+            return;
+        }
+        List<String> materialIds = materialVoPageInfo.getList().stream().filter(item -> "2".equals(item.getStatus())).map(MaterialVo::getId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(materialIds)){
+            return;
+        }
+
+        QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
+        qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
+        qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, materialIds);
+        qw1.lambda().select(PlanningCategoryItemMaterial::getMaterialId);
+        qw1.lambda().groupBy(PlanningCategoryItemMaterial::getMaterialId);
+        List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(qw1);
+        if (CollUtil.isEmpty(list)){
+            return;
+        }
+        List<String> collect = list.stream().map(PlanningCategoryItemMaterial::getMaterialId).collect(Collectors.toList());
+
+        materialVoPageInfo.getList().forEach(item ->{
+            if (collect.contains(item.getId())){
+                item.setCiteFlag(true);
+            }
+        });
+
+    }
+
+
+    private String picPathUpdate(String url) {
+        String username = userUtils.getUserCompany().getUsername();
+        if (!url.contains(username)){
+            return url;
+        }
+        String newUrl = url.replace(username,"companpay");
+        minioUtils.copyFile(url,newUrl);
+        return newUrl;
+    }
 }

@@ -26,13 +26,17 @@ import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectMapper;
 import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.entity.SalesData;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,6 +53,9 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final PlanningChannelService planningChannelService;
     private final CategoryPlanningService categoryPlanningService;
     private final CategoryPlanningDetailsService categoryPlanningDetailsService;
+    @Autowired
+    @Lazy
+    private SmpService smpService;
 
 
     /**

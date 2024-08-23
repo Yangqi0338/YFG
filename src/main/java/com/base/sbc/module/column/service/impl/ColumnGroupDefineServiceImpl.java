@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.column.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.column.dto.ColumnGroupDefineDto;
@@ -17,6 +18,8 @@ import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.column.service.ColumnGroupDefineItemService;
 import com.base.sbc.module.column.service.ColumnGroupDefineService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.google.common.collect.Maps;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,6 +66,8 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setHidden(userDefineItem.getHidden());
                 columnDefine.setIsEdit(userDefineItem.getIsEdit());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
+                columnDefine.setColumnColor(userDefineItem.getColumnColor());
+                columnDefine.setIsRequired(userDefineItem.getIsRequired());
             } else {
                 columnDefine.setId(null);
             }
@@ -80,8 +85,8 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
         List<ColumnGroupDefineItem> listByHeadIdJobList = columnGroupDefineItemService.findListByHeadIdJobList(tableCode, userGroupId);
         if(CollectionUtils.isNotEmpty(listByHeadIdJobList)){
             //一个用户可能存在多个用户组，过滤出显示的字段，取并集去重
-            Map<String, ColumnGroupDefineItem> collect = listByHeadIdJobList.stream().filter(o -> BaseGlobal.YES.equals(o.getHidden())).collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
-
+            Map<String, ColumnGroupDefineItem> collect = getColumnUserDefineItemMap(listByHeadIdJobList.stream().filter(o -> BaseGlobal.YES.equals(o.getHidden())).collect(Collectors.toList()));
+//            Map<String, ColumnGroupDefineItem> collect = listByHeadIdJobList.stream().filter(o -> BaseGlobal.YES.equals(o.getHidden())).collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
             List<ColumnDefine> byTableCode1 = new ArrayList<>();
             for (ColumnDefine columnDefine : byTableCode) {
                 if (collect.containsKey(columnDefine.getId())) {
@@ -91,6 +96,8 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                     columnDefine.setHidden(groupDefineItem.getHidden());
                     columnDefine.setIsEdit(groupDefineItem.getIsEdit());
                     columnDefine.setSortOrder(groupDefineItem.getSortOrder());
+                    columnDefine.setColumnColor(groupDefineItem.getColumnColor());
+                    columnDefine.setIsRequired(groupDefineItem.getIsRequired());
                     byTableCode1.add(columnDefine);
                 }
             }
@@ -99,6 +106,38 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
         byTableCode.sort(Comparator.comparing(ColumnDefine::getSortOrder));
 
         return byTableCode;
+    }
+
+
+
+    private Map<String, ColumnGroupDefineItem> getColumnUserDefineItemMap(List<ColumnGroupDefineItem> list) {
+        Map<String, List<ColumnGroupDefineItem>> listMap = list.stream().collect(Collectors.groupingBy(ColumnGroupDefineItem::getSysId));
+        Map<String, ColumnGroupDefineItem> map = Maps.newHashMap();
+        for (String key : listMap.keySet()) {
+            if (listMap.get(key).size() == 1){
+                map.put(key,listMap.get(key).get(0));
+                continue;
+            }
+            List<ColumnGroupDefineItem> columnGroupDefineItems = listMap.get(key);
+//            List<ColumnGroupDefineItem> hiddenList = columnGroupDefineItems.stream().filter(item -> BaseGlobal.NO.equals(item.getHidden())).collect(Collectors.toList());
+            List<ColumnGroupDefineItem> editList = columnGroupDefineItems.stream().filter(item -> BaseGlobal.YES.equals(item.getIsEdit())).collect(Collectors.toList());
+            List<ColumnGroupDefineItem> reequiredList = columnGroupDefineItems.stream().filter(item -> !BaseGlobal.YES.equals(item.getIsRequired())).collect(Collectors.toList());
+            ColumnGroupDefineItem columnGroupDefineItem = listMap.get(key).get(0);
+//            //有一个不隐藏的就为不隐藏
+//            if (CollUtil.isNotEmpty(hiddenList)){
+//                columnGroupDefineItem.setHidden(BaseGlobal.NO);
+//            }
+            //有一个可编辑的就为可编辑
+            if (CollUtil.isNotEmpty(editList)){
+                columnGroupDefineItem.setIsEdit(BaseGlobal.YES);
+            }
+            //有一个非必填的的就为非必填
+            if (CollUtil.isNotEmpty(reequiredList)){
+                columnGroupDefineItem.setIsRequired(BaseGlobal.NO);
+            }
+        }
+
+        return map;
     }
 
     @Override
@@ -172,6 +211,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setIsEdit(userDefineItem.getIsEdit());
                 columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
+                columnDefine.setIsRequired(userDefineItem.getIsRequired());
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
             } else {
                 columnDefine.setId(null);

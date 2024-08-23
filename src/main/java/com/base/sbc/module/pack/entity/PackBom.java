@@ -7,6 +7,8 @@
 package com.base.sbc.module.pack.entity;
 
 import cn.hutool.core.lang.Opt;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -103,6 +105,10 @@ public class PackBom extends BaseDataEntity<String> {
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
+    @ApiModelProperty(value = "复制来源id")
+    @TableField(exist = false)
+    private String copyId;
+
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
@@ -128,8 +134,8 @@ public class PackBom extends BaseDataEntity<String> {
     /**
      * 状态:暂未使用
      */
-    @ApiModelProperty(value = "状态:暂未使用")
-    private String status;
+    @ApiModelProperty(value = "状态:暂未使用 (240701开始使用,保持与BomVersion相同状态)")
+    private YesOrNoEnum status;
     /**
      * bom模板id
      */
@@ -469,6 +475,17 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计师核确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designVerifyDate;
+
+    /**
+     * 大类编码
+     */
+    @ApiModelProperty(value = "大类编码")
+    private String category1Code;
+    /**
+     * 大类
+     */
+    @ApiModelProperty(value = "大类")
+    private String category1Name;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 

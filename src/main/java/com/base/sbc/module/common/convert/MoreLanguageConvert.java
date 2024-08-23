@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
-import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageGroupDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
@@ -37,7 +36,7 @@ import java.util.List;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface MoreLanguageConvert {
     MoreLanguageConvert INSTANCE = Mappers.getMapper(MoreLanguageConvert.class);
 

@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -25,6 +24,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.base.sbc.module.common.convert.ConvertContext.PACK_CV;
 
 /**
  * 类描述：资料包-样衣评审 service类
@@ -50,22 +51,20 @@ public class PackSampleReviewServiceImpl extends AbstractPackBaseServiceImpl<Pac
         Page<PackSampleReview> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackSampleReview> pageInfo = page.toPageInfo();
-        PageInfo<PackSampleReviewVo> voPageInfo = CopyUtil.copy(pageInfo, PackSampleReviewVo.class);
-        return voPageInfo;
+        return CopyUtil.copy(pageInfo, PackSampleReviewVo.class);
     }
 
     @Override
     public PackSampleReviewVo getDetail(String id) {
-        PackSampleReview byId = getById(id);
-        return BeanUtil.copyProperties(byId, PackSampleReviewVo.class);
+        return PACK_CV.copy2Vo(getById(id));
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public PackSampleReviewVo saveByDto(PackSampleReviewDto dto) {
-        PackSampleReview pageData = BeanUtil.copyProperties(dto, PackSampleReview.class);
-        if (CommonUtils.isInitId(pageData.getId())) {
-            pageData.setId(null);
+        if (CommonUtils.isInitId(dto.getId())) {
+            dto.insertInit();
+            PackSampleReview pageData = PACK_CV.copy2Entity(dto);
             save(pageData);
             dto.setId(pageData.getId());
         } else {
@@ -74,7 +73,7 @@ public class PackSampleReviewServiceImpl extends AbstractPackBaseServiceImpl<Pac
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
             saveOrUpdateOperaLog(dto, dbData, genOperaLogEntity(dbData, "修改"));
-            BeanUtil.copyProperties(dto, dbData);
+            PACK_CV.copy2Entity(dto, dbData);
             updateById(dbData);
         }
         return getDetail(dto.getId());

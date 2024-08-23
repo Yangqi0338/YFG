@@ -8,6 +8,8 @@ package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.PackSampleReviewItemType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -69,6 +71,39 @@ public class PackSampleReview extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "评估内容")
     private String content;
+    /**
+     * 类型
+     */
+    @ApiModelProperty(value = "类型")
+    private PackSampleReviewItemType itemType;
+    /**
+     * 面料测试结果
+     */
+    @ApiModelProperty(value = "面料测试结果")
+    private YesOrNoEnum fabricTestFlag;
+
+    /**
+     * 面料测试说明
+     */
+    @ApiModelProperty(value = "面料测试说明")
+    private String fabricTestContent;
+
+    /**
+     * 面料测试文件id
+     */
+    @ApiModelProperty(value = "面料测试文件id")
+    private String fabricTestFileId;
+
+    /**
+     * 面料测试文件地址
+     */
+    @ApiModelProperty(value = "面料测试文件地址")
+    private String fabricTestFileUrl;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public String getSourceFabricTestFileUrl() {
+        return fabricTestFileUrl;
+    }
 }
 

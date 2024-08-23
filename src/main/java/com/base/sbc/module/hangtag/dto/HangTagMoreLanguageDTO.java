@@ -70,10 +70,6 @@ public class HangTagMoreLanguageDTO {
     @ApiModelProperty(value = "查找类型")
     private String selectType;
 
-    /** 洗标名称 */
-    @ApiModelProperty(value = "多租户Id"  )
-    private String userCompany;
-
     /** 模糊查询 */
     @ApiModelProperty(value = "模糊查询"  )
     private Boolean likeQueryFlag;

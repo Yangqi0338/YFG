@@ -40,6 +40,10 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     private String styleNo;
     @ApiModelProperty(value = "款式名称")
     private String styleName;
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
+    @ApiModelProperty(value = "bom名称")
+    private String name;
 
 
     @ApiModelProperty(value = "品类名称")

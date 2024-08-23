@@ -42,6 +42,11 @@ public class PackUtils {
     public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
 
     /**
+     * 资料包类型 大货资料包预填写
+     */
+    public static final String PACK_TYPE_BIG_GOODS_PRE = "packBigGoodsPre";
+
+    /**
      * 资料包类型 款式设计
      */
     public static final String PACK_TYPE_STYLE = "packStyle";
@@ -87,7 +92,7 @@ public class PackUtils {
         }
         for (PackBom packBom : bom) {
             packBom.setDelFlag(Opt.ofBlankAble(packBom.getDelFlag()).orElse(BaseGlobal.NO));
-            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(BaseGlobal.YES));
+            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(YesOrNoEnum.YES));
             packBom.setUnusableFlag(Opt.ofBlankAble(packBom.getUnusableFlag()).orElse(BaseGlobal.NO));
             packBom.setScmSendFlag(Opt.ofBlankAble(packBom.getScmSendFlag()).orElse(BaseGlobal.NO));
         }

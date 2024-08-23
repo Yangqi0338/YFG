@@ -1,5 +1,10 @@
 package com.base.sbc.config.common;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.ISqlSegment;
 import com.baomidou.mybatisplus.core.conditions.SharedString;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -9,7 +14,8 @@ import com.baomidou.mybatisplus.core.enums.SqlKeyword;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.google.common.collect.Sets;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -23,14 +29,6 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author 卞康
@@ -183,7 +181,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             wrapper.and(i -> {
                 for (int j = 0; j < val.size(); j++) {
                     String value = val.get(j);
-                    i.like(StrUtil.isNotBlank(value),columns, value).or(j < val.size() - 1);
+                    i.like(StrUtil.isNotBlank(value), columns, value).or(j < val.size() - 1);
                 }
             });
         });
@@ -201,6 +199,27 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
            return this;
        }
        return this.likeList(columns, StrUtil.split(val, CharUtil.COMMA));
+    }
+
+    /**
+     * 模糊搜索一个字段为集合
+     * @param columns
+     * @param val
+     * @return
+     */
+    public QueryWrapper<T> likeListOrNull(String columns, List<String> val) {
+        if (CollUtil.isEmpty(val)) {
+            return this;
+        }
+        this.and(wrapper -> {
+            wrapper.and(i -> {
+                for (int j = 0; j < val.size(); j++) {
+                    String value = val.get(j);
+                    i.like(StrUtil.isNotBlank(value), columns, value).or(j < val.size() - 1);
+                }
+            }).or(qw -> qw.isNull(columns).or(qw2 -> qw2.eq(columns, "")));
+        });
+        return this;
     }
 
     /**
@@ -246,14 +265,14 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
-    private Map<String,String> groupSqlSegment = new HashMap<>();
+    private Map<String, String> groupSqlSegment = new HashMap<>();
 
     /** 适配count */
-    public Map<String,String> getGroupSqlSegment(){
+    public Map<String, String> buildGroupSqlSegment() {
         if (MapUtil.isNotEmpty(groupSqlSegment)) {
             return groupSqlSegment;
         }
-        Map<String,StringJoiner> map = new HashMap<>();
+        Map<String, StringJoiner> map = new HashMap<>();
         MergeSegments expression = getExpression();
         List<ISqlSegment> linkKeyword = Arrays.asList(SqlKeyword.AND, SqlKeyword.OR);
         if (Objects.nonNull(expression)) {
@@ -261,6 +280,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             // 遍历
             StringJoiner joiner = new StringJoiner(StringPool.SPACE);
             AtomicInteger handlerNum = new AtomicInteger(0);
+            ISqlSegment existsSql = null;
             for (int i = 0, normalSize = normal.size() - 1; i <= normalSize; i++) {
                 boolean lastElement = i == normalSize;
                 int num = handlerNum.get();
@@ -272,11 +292,24 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                 if (iSqlSegment instanceof QueryWrapper) {
                     continue;
                 }
+                if (existsSql != null) {
+                    String key = "COMMON";
+                    if (map.containsKey(key)) {
+                        joiner = map.get(key);
+                        joiner.add(SqlKeyword.AND.name());
+                    } else {
+                        joiner = new StringJoiner(StringPool.SPACE);
+                    }
+                    joiner.add(existsSql.getSqlSegment()).add(sqlSegment);
+                    map.put(key, joiner);
+                    existsSql = null;
+                    continue;
+                }
                 if (linkKeyword.contains(iSqlSegment) && isFinish) {
-                    if (iSqlSegment == SqlKeyword.AND && (!lastElement) && !normal.get(i+1).getSqlSegment().contains("REGEXP")) {
+                    if (iSqlSegment == SqlKeyword.AND && (!lastElement) && !normal.get(i + 1).getSqlSegment().contains("REGEXP")) {
                         // 若下一个的前缀和之前一
-                        if ((i+1) != normalSize) {
-                            String[] split = normal.get(i+1).getSqlSegment().split(Pattern.quote(StringPool.DOT));
+                        if ((i + 1) != normalSize) {
+                            String[] split = normal.get(i + 1).getSqlSegment().split(Pattern.quote(StringPool.DOT));
                             // 有前缀
                             String key = split[0];
                             if (split.length > 1 && map.containsKey(key)) {
@@ -289,8 +322,12 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     // 支持OR TODO
 //                    if (iSqlSegment == SqlKeyword.OR)
                 }
+                if (SqlKeyword.EXISTS == iSqlSegment || SqlKeyword.NOT_EXISTS == iSqlSegment) {
+                    existsSql = iSqlSegment;
+                    continue;
+                }
                 // 找 ColumnSegment, 直到下一个为止
-                if (!nonFinish && !lastElement && normal.get(i+1) instanceof SqlKeyword && !linkKeyword.contains(iSqlSegment)) {
+                if (!nonFinish && !lastElement && normal.get(i + 1) instanceof SqlKeyword && !linkKeyword.contains(iSqlSegment)) {
                     String[] split = sqlSegment.split("[^a-zA-Z0-9._]");
                     Set<String> keySet = Sets.newHashSet();
                     // 有前缀
@@ -303,15 +340,15 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     }
                     //是权限列表有多个别名
                     String key = "";
-                    if (keySet.size() > 1){
+                    if (keySet.size() > 1) {
                         key = "permission";
-                    }else {
-                        if (CollUtil.isNotEmpty(keySet)){
+                    } else {
+                        if (CollUtil.isNotEmpty(keySet)) {
                             key = keySet.iterator().next();
                         }
                     }
                     joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
-                    if (StrUtil.isNotBlank(joiner.toString()) &&!joiner.toString().endsWith(SqlKeyword.AND.name())){
+                    if (StrUtil.isNotBlank(joiner.toString()) && !joiner.toString().endsWith(SqlKeyword.AND.name())) {
                         joiner.add(SqlKeyword.AND.name());
                     }
                     joiner.add(sqlSegment);
@@ -319,37 +356,38 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     handlerNum.set(1);
                 } else {
 
-                   if (sqlSegment.contains("1=0")){
-                       joiner.add(SqlKeyword.AND.name()+ " " + "1=0");
-                       continue;
-                   }
+                    if (sqlSegment.contains("1=0")) {
+                        joiner.add(SqlKeyword.AND.name() + " " + "1=0");
+                        map.put("COMMON", new StringJoiner("").add("1=0"));
+                        continue;
+                    }
 
-                   if (!linkKeyword.contains(iSqlSegment) && lastElement && !sqlSegment.contains("ew.")){
-                       Set<String> keySet = getPrefixKey(sqlSegment);
-                       //有前缀
-                       if (CollUtil.isNotEmpty(keySet)){
-                           //是权限列表有多个别名
-                           String key = "";
-                           if (keySet.size() > 1){
-                               key = "permission";
-                           }else {
-                               if (CollUtil.isNotEmpty(keySet)){
-                                   key = keySet.iterator().next();
-                               }
-                           }
-                           joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
-                           if (StrUtil.isNotBlank(joiner.toString()) &&!joiner.toString().endsWith(SqlKeyword.AND.name())){
-                               joiner.add(SqlKeyword.AND.name());
-                           }
-                           joiner.add(sqlSegment);
-                           map.put(key, joiner);
-                           handlerNum.set(1);
-                           continue;
-                       }
-                   }
-                   if (linkKeyword.contains(iSqlSegment) && (joiner.toString().endsWith(SqlKeyword.AND.name()) || joiner.toString().endsWith(SqlKeyword.OR.name()))){
-                       handlerNum.incrementAndGet();
-                       continue;
+                    if (!linkKeyword.contains(iSqlSegment) && lastElement && !sqlSegment.contains("ew.")) {
+                        Set<String> keySet = getPrefixKey(sqlSegment);
+                        //有前缀
+                        if (CollUtil.isNotEmpty(keySet)) {
+                            //是权限列表有多个别名
+                            String key = "";
+                            if (keySet.size() > 1) {
+                                key = "permission";
+                            } else {
+                                if (CollUtil.isNotEmpty(keySet)) {
+                                    key = keySet.iterator().next();
+                                }
+                            }
+                            joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
+                            if (StrUtil.isNotBlank(joiner.toString()) && !joiner.toString().endsWith(SqlKeyword.AND.name())) {
+                                joiner.add(SqlKeyword.AND.name());
+                            }
+                            joiner.add(sqlSegment);
+                            map.put(key, joiner);
+                            handlerNum.set(1);
+                            continue;
+                        }
+                    }
+                    if (linkKeyword.contains(iSqlSegment) && (joiner.toString().endsWith(SqlKeyword.AND.name()) || joiner.toString().endsWith(SqlKeyword.OR.name()))) {
+                        handlerNum.incrementAndGet();
+                        continue;
                     }
                     joiner.add(sqlSegment);
                     handlerNum.incrementAndGet();
@@ -359,15 +397,15 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         }
         map.remove("");
         Map<String, String> result = MapUtil.map(map, (key, value) -> {
-            if (value.length() <= 2){
+            if (value.length() <= 2) {
                 return null;
             }
             String str = value.toString();
-            if (str.endsWith(SqlKeyword.AND.name())){
-                return str.substring(0,str.length() -3);
+            if (str.endsWith(SqlKeyword.AND.name())) {
+                return str.substring(0, str.length() - 3);
             }
-            if (str.endsWith(SqlKeyword.OR.name())){
-                return str.substring(0,str.length() -2);
+            if (str.endsWith(SqlKeyword.OR.name())) {
+                return str.substring(0, str.length() - 2);
             }
 
             return value.toString();
@@ -376,12 +414,12 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return groupSqlSegment;
     }
 
-    public boolean hasAlias(String alias){
-        return getGroupSqlSegment().containsKey(alias);
+    public boolean hasAlias(String alias) {
+        return buildGroupSqlSegment().containsKey(alias);
     }
 
-    public String getSqlByAlias(String alias){
-        return getGroupSqlSegment().getOrDefault(alias, "1 = 1");
+    public String getSqlByAlias(String alias) {
+        return buildGroupSqlSegment().getOrDefault(alias, "1 = 1");
     }
 
     private Set<String> getPrefixKey(String sqlSegment) {
@@ -396,16 +434,6 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             }
         }
         return keySet;
-    }
-
-    public static void main(String[] args) {
-        String s = "concat(ts.year_name,\" \",ts.season_name,\" \",ts.brand_name)";
-        String[] tokens = s.split("[^a-zA-Z0-9._]");
-
-        for (String token : tokens) {
-            System.out.println(token);
-        }
-        System.out.println();
     }
 
 }
