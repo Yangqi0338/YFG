@@ -52,7 +52,7 @@ public class MessageTriggerAspect {
         ModelMessage modelMessage = new ModelMessage();
         modelMessage.setModelCode(value);
         modelMessage.setParams(apiResult.getMessageObjects());
-        String s = messagesService.noticeOrMessageByModel(modelMessage);
+        String s = messagesService.tokenNoticeOrMessageByModel(modelMessage);
         log.info("MessageTriggerAspect processResult result = {}",s);
     }
 
