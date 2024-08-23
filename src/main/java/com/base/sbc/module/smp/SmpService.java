@@ -303,6 +303,9 @@ public class SmpService {
     @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/information/pdm}")
     private String SCM_URL;
 
+    @Value("${interface.zlyScmUrl:http://10.98.250.71:9900}")
+    private String ZLY_SCM_URL;
+
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
 
@@ -2590,7 +2593,7 @@ public class SmpService {
         vedioMap.put("url",patternMakingBarCode.getSuggestionVideo());
         dto.setDesignAv(JSONObject.toJSONString(vedioMap));
 
-        restTemplateService.spmPost(SCM_URL + "/beforeProductMaterialCard/beforeProduct/receiveDesign", JSONObject.toJSONString(dto),
+        restTemplateService.spmPost(ZLY_SCM_URL + "/beforeProductMaterialCard/beforeProduct/receiveDesign", JSONObject.toJSONString(dto),
                 Pair.of("moduleName","scm"),
                 Pair.of("functionName","设计部确认"));
     }
