@@ -279,7 +279,8 @@
                 sum(if(tpm.pattern_status = '3',1,0)) as index4,
                 sum(if(tpm.pattern_status != '3',1,0)) as index5,
                 sum(if(tpm.technician_kitting = '1',1,0)) as index6,
-                sum(if(tpm.technician_kitting = '0',1,0)) as index7
+                sum(if(tpm.technician_kitting = '0',1,0)) as index7,
+                sum(if(tpm.sewing_status = '3',1,0)) as index8
         from
             t_pattern_making tpm
                 LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
@@ -290,5 +291,6 @@
             ${ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         GROUP BY ts.prod_category_name,ts.designer
+        order by ts.prod_category_name,ts.designer
     </select>
 </mapper>

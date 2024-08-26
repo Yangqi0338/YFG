@@ -130,4 +130,10 @@ public class ReportController {
         return reportService.patternMaking(dto);
     }
 
+    @ApiOperation(value = "下稿计划-导出")
+    @GetMapping("/patternMakingExport")
+    public void patternMakingExport(HttpServletResponse response, PatternMakingQueryDto dto) throws IOException {
+        reportService.patternMakingExport(response, dto);
+    }
+
 }

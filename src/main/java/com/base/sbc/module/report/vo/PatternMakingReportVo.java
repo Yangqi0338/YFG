@@ -33,6 +33,10 @@ public class PatternMakingReportVo {
     private BigDecimal index6;
     @ApiModelProperty(value = "未下发面料")
     private BigDecimal index7;
+    @ApiModelProperty(value = "样衣完成数")
+    private BigDecimal index8;
+    @ApiModelProperty(value = "样衣完成占比")
+    private BigDecimal index9;
 
     /**
      * 列头筛选数量
@@ -42,6 +46,13 @@ public class PatternMakingReportVo {
     public BigDecimal getIndex3() {
         if(BigDecimalUtil.notEqualZero(index1) && BigDecimalUtil.notEqualZero(index2)){
             return index2.divide(index1, 2, RoundingMode.DOWN).multiply(BigDecimal.TEN.multiply(BigDecimal.TEN));
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public BigDecimal getIndex9() {
+        if(BigDecimalUtil.notEqualZero(index1) && BigDecimalUtil.notEqualZero(index8)){
+            return (index1.subtract(index8)).divide(index1, 2, RoundingMode.DOWN).multiply(BigDecimal.TEN.multiply(BigDecimal.TEN));
         }
         return BigDecimal.ZERO;
     }
