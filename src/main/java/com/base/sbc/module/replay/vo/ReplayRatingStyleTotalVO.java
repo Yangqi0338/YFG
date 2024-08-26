@@ -9,6 +9,8 @@ package com.base.sbc.module.replay.vo;
 import com.base.sbc.module.replay.dto.ProductionSaleDTO;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 /**
  * 类描述：基础资料-复盘评分Vo 实体类
@@ -19,11 +21,12 @@ import lombok.Data;
  * @email kchange0915@gmail.com
  * @date 创建时间：2024-6-13 15:15:25
  */
-@Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("基础资料-复盘评分 ReplayRatingPatternTotalVO")
 public class ReplayRatingStyleTotalVO extends ProductionSaleDTO {
 
     /** 产销比 */
+    @Setter
     private String productionSaleRate;
 
 }

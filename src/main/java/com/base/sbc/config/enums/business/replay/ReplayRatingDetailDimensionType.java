@@ -22,6 +22,7 @@ public enum ReplayRatingDetailDimensionType {
     PATTERN("版型"),
     FABRIC("面料"),
     COLOR("颜色"),
+    DIMENSION("款式维度"),
 
     ;
     /** 编码 */
