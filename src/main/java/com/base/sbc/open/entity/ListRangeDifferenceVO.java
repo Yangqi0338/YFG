@@ -15,7 +15,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ListRangeDifferenceVO extends BaseDataEntity<String>{
+public class ListRangeDifferenceVO {
 
       /** 编码 */
     @ApiModelProperty(value = "编码"  )
