@@ -64,7 +64,9 @@ public class EscmOpenController {
             for (BasicsdatumRangeDifference basicsdatumRangeDifference : basicsdatumRangeDifferences) {
                 BasicsdatumRangeDifferenceVo basicsdatumRangeDifferenceVo =
                         basicsdatumRangeDifferenceService.getById(basicsdatumRangeDifference.getId());
-                basicsdatumRangeDifferenceVoList.add(BeanUtil.copyProperties(basicsdatumRangeDifferenceVo, ListRangeDifferenceVO.class));
+                ListRangeDifferenceVO listRangeDifferenceVO = BeanUtil.copyProperties(basicsdatumRangeDifferenceVo, ListRangeDifferenceVO.class);
+                listRangeDifferenceVO.setDifferenceList(basicsdatumRangeDifferenceVo.getDifferenceList());
+                basicsdatumRangeDifferenceVoList.add(listRangeDifferenceVO);
             }
         }
         return ApiResult.success("查询成功", basicsdatumRangeDifferenceVoList);
