@@ -775,8 +775,12 @@ public class SmpService {
                         smpHangTagIngredientDTOList.add(hangTagIngredientDTO);
                     }
                 }
+                //吊牌打印过才下发温馨提示及执行标准
+                if (hangTag.getPrintOrNot().equals("1")) {
+                    smpGoodsDto.setExecuteStandard(hangTag.getExecuteStandard());
+                    smpGoodsDto.setWarmTips(hangTag.getWarmTips());
+                }
                 smpGoodsDto.setHangTagIngredientList(smpHangTagIngredientDTOList);
-
             }
             // endregion
 
