@@ -11,6 +11,7 @@ import com.base.sbc.module.pack.dto.OtherCostsPageDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
+import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.github.pagehelper.PageInfo;
 
@@ -28,48 +29,13 @@ import java.util.Map;
  * @email your email
  * @date 创建时间：2023-7-10 13:35:18
  */
-public interface PackPricingOtherCostsService extends PackBaseService<PackPricingOtherCosts> {
+public interface PackPricingOtherCostsGstService extends PackBaseService<PackPricingOtherCostsGst> {
 
 
 // 自定义方法区 不替换的区域【other_start】
 
     PageInfo<PackPricingOtherCostsVo> pageInfo(OtherCostsPageDto dto);
 
-//    PackPricingOtherCostsVo saveByDto(PackPricingOtherCostsDto dto);
-
-    /**
-     * 批量保存他费用
-     * @param dto
-     * @return
-     */
-    void batchOtherCosts(List<PackPricingOtherCostsDto> dto);
-
-    Map<String, BigDecimal> statistics(PackCommonSearchDto dto);
-
-//    /**
-//     * 通过主id统计
-//     *
-//     * @param foreignIds
-//     * @param isPackType
-//     * @return
-//     */
-//    List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String packType);
-
-    /**
-     * 生成费用明细单
-     * @param itemType 字典编码 多个用,分割
-     * @param foreignId 父级id
-     * @param packType
-     * @return
-     */
-    boolean createCostDetail(List<PackPricingOtherCostsItemType> itemType, String foreignId, String packType, String productType);
-
-    /**
-     * 生成外辅工艺PDF
-     *
-     * @return
-     */
-    void generateWfgyPdf(OtherCostsPageDto dto, HttpServletResponse response);
 // 自定义方法区 不替换的区域【other_end】
 
 

@@ -62,10 +62,20 @@ public class OperaLogEntity extends BaseDataEntity<String> {
      * 路径
      */
     private String path;
+    /**
+     * 单据名称字段名
+     */
+    @TableField(exist = false)
+    private String pathField;
 
     /**
      * 父id
      */
     private String parentId;
+    /**
+     * 单据名称字段名
+     */
+    @TableField(exist = false)
+    private String parentIdField;
 
 }

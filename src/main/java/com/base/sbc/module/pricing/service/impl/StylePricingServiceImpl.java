@@ -21,11 +21,14 @@ import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -122,7 +125,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, StylePricingSearchDTO dto) {
-        dto.setCompanyCode(super.getCompanyCode());
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.notEmptyEq("sd.year", dto.getYear());
@@ -172,7 +174,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         CountDownLatch countDownLatch = new CountDownLatch(split.size());
         for (List<StylePricingVO> stylePricingVOS : split) {
             threadPoolExecutor.submit(() -> {
-                this.dataProcessingExcelImport(stylePricingVOS, dto.getCompanyCode());
+                this.dataProcessingExcelImport(stylePricingVOS);
                 countDownLatch.countDown();
             });
         }
@@ -274,7 +276,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (isColumnHeard) {
             return new PageInfo<>(stylePricingList);
         }
-        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true, true);
+        this.dataProcessing(stylePricingList,true, true);
         PageInfo<StylePricingVO> packInfo = new PageInfo<>(stylePricingList);
         return packInfo;
     }
@@ -283,9 +285,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * 数据组装处理
      *
      * @param stylePricingList
-     * @param companyCode
      */
-    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode, boolean isPackType, boolean decoratePic) {
+    public void dataProcessing(List<StylePricingVO> stylePricingList, boolean isPackType, boolean decoratePic) {
         if (CollUtil.isEmpty(stylePricingList)){
             return;
         }
@@ -296,7 +297,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (isPackType){
             packType = PackUtils.PACK_TYPE_BIG_GOODS;
         }
-        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
+        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId,packType);
 //        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
@@ -329,7 +330,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 packCommonSearchDto.setForeignId(stylePricingVO.getId());
                 //材料成本,如果fob,则不计算
-                if ("CMT".equals(stylePricingVO.getProductionType())) {
+                boolean isCmt = "CMT".equals(stylePricingVO.getProductionType());
+                if (isCmt) {
                     stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
                 } else {
                     stylePricingVO.setMaterialCost(BigDecimal.ZERO);
@@ -340,10 +342,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
                 BigDecimal coordinationProcessingFee = new BigDecimal(0);
                 coordinationProcessingFee = coordinationProcessingFee.add(
-                                BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协其他"))).
-                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协印花"))).
-                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协绣花"))).
-                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协压皱")));
+                        BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + PackPricingOtherCostsItemType.OUTSOURCE_PROCESS)));
 
                 stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
@@ -379,7 +378,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                         stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
                 stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
                 BigDecimal taxRate = BigDecimal.ONE;
-                if ("CMT".equals(stylePricingVO.getProductionType())) {
+                if (isCmt) {
 
                     System.out.println(stylePricingVO.getCalcItemVal());
                     JSONObject jsonObject = JSON.parseObject(stylePricingVO.getCalcItemVal());
@@ -425,13 +424,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
     }
 
-    public void dataProcessingExcelImport(List<StylePricingVO> stylePricingList, String companyCode) {
+    public void dataProcessingExcelImport(List<StylePricingVO> stylePricingList) {
         if (ObjectUtil.isNotEmpty(stylePricingList)) {
             List<String> foreignIdList = stylePricingList.stream()
                     .map(StylePricingVO::getId)
                     .collect(Collectors.toList());
-            Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, companyCode, "packBigGoods");
-            List<String> foreignIdInCmtList = stylePricingList.stream().filter(item -> "CMT".equals(item.getProductionType())).map(StylePricingVO::getId).distinct().collect(Collectors.toList());
+            Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, "packBigGoods");
+            List<String> foreignIdInCmtList = stylePricingList.stream().filter(StylePricingVO::isCmt).map(StylePricingVO::getId).distinct().collect(Collectors.toList());
             Map<String, BigDecimal> stringBigDecimalMap = new HashMap<>();
             if (ObjectUtil.isNotEmpty(foreignIdInCmtList)) {
                 stringBigDecimalMap = packBomService.calculateCosts(foreignIdInCmtList, PackUtils.PACK_TYPE_BIG_GOODS);
@@ -457,7 +456,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
             for (StylePricingVO stylePricingVO : stylePricingList) {
                 // 材料成本,如果fob,则不计算
-                if ("CMT".equals(stylePricingVO.getProductionType())) {
+                boolean isCmt = stylePricingVO.isCmt();
+                if (isCmt) {
                     BigDecimal bigDecimal = stringBigDecimalMap.get(stylePricingVO.getId());
                     stylePricingVO.setMaterialCost(bigDecimal);
                 } else {
@@ -469,10 +469,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
                 BigDecimal coordinationProcessingFee = new BigDecimal(0);
                 coordinationProcessingFee = coordinationProcessingFee.add(
-                                BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协其他"))).
-                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协印花"))).
-                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协绣花"))).
-                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协压皱")));
+                                BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + PackPricingOtherCostsItemType.OUTSOURCE_PROCESS)));
 
                 stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
@@ -507,7 +504,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                         stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
                 stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
                 BigDecimal taxRate = BigDecimal.ONE;
-                if ("CMT".equals(stylePricingVO.getProductionType())) {
+                if (isCmt) {
                     JSONObject jsonObject = JSON.parseObject(stylePricingVO.getCalcItemVal());
                     if (jsonObject != null) {
                         taxRate = jsonObject.getBigDecimal("税率");
@@ -538,7 +535,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     }
 
     @Override
-    public StylePricingVO getByPackId(String packId, String companyCode) {
+    public StylePricingVO getByPackId(String packId) {
         if (StringUtils.isEmpty(packId)) {
             throw new RuntimeException("资料包id不可为空");
         }
@@ -548,11 +545,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }
-        this.dataProcessing(stylePricingList, companyCode,true, true);
+        this.dataProcessing(stylePricingList,true, true);
         return stylePricingList.get(0);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
@@ -836,18 +833,22 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * 获取其他费用
      *
      * @param packId
-     * @param companyCode
      * @return
      */
-    private Map<String, BigDecimal> getOtherCosts(List<String> packId, String companyCode, String packType) {
-        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.getPriceSumByForeignIds(packId, companyCode,packType);
+    @Override
+    public Map<String, BigDecimal> getOtherCosts(List<String> packId, String packType) {
+        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.list(
+                new BaseLambdaQueryWrapper<PackPricingOtherCosts>()
+                        .notEmptyEq(PackPricingOtherCosts::getPackType,packType)
+                        .in(PackPricingOtherCosts::getForeignId,packId)
+                        .isNotNull(PackPricingOtherCosts::getPrice)
+        );
         if (CollectionUtils.isEmpty(packPricingOtherCosts)) {
             return new HashMap<>();
         }
         return packPricingOtherCosts.stream()
-                .filter(x -> Objects.nonNull(x.getPrice()))
-                .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsType(), PackPricingOtherCosts::getPrice,(k1, k2) -> k1));
-
+                .collect(CommonUtils.groupingSingleBy(PackPricingOtherCosts::getUniqueKey,
+                        (list)-> CommonUtils.sumBigDecimal(list,PackPricingOtherCosts::getPrice)));
     }
 
 // 自定义方法区 不替换的区域【other_start】

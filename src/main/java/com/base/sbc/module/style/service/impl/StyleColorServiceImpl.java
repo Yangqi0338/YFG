@@ -45,6 +45,7 @@ import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
@@ -458,7 +459,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         stylePicUtils.setStylePic(completeStyleVoList, "stylePic");
         stylePicUtils.setStyleColorPic2(completeStyleVoList, "styleColorPic");
 
-        dataProcessing(completeStyleVoList, super.getCompanyCode());
+        dataProcessing(completeStyleVoList);
         return new PageInfo<>(completeStyleVoList);
     }
 
@@ -474,14 +475,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * 数据组装处理
      *
      * @param styleList
-     * @param companyCode
      */
-    public void dataProcessing(List<CompleteStyleVo> styleList, String companyCode) {
+    public void dataProcessing(List<CompleteStyleVo> styleList) {
         List<String> packId = styleList.stream()
                 .map(CompleteStyleVo::getPackInfoId)
                 .collect(Collectors.toList());
         String packType = PackUtils.PACK_TYPE_BIG_GOODS;
-        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
+        Map<String, BigDecimal> otherCostsMap = stylePricingService.getOtherCosts(packId,packType);
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
@@ -496,7 +496,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                     packCommonSearchDto.setForeignId(styleVO.getPackInfoId());
                     //材料成本,如果fob,则不计算
-                    if ("CMT".equals(styleVO.getDevtTypeName())) {
+                    boolean isCmt = "CMT".equals(styleVO.getDevtTypeName());
+                    if (isCmt) {
                         styleVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
                     } else {
                         styleVO.setMaterialCost(BigDecimal.ZERO);
@@ -507,10 +508,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     styleVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(styleVO.getPackInfoId() + "毛纱加工费")));
                     BigDecimal coordinationProcessingFee = new BigDecimal(0);
                     coordinationProcessingFee = coordinationProcessingFee.add(
-                                    BigDecimalUtil.convertBigDecimal(otherCostsMap.get(styleVO.getPackInfoId() + "外协其他"))).
-                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(styleVO.getPackInfoId() + "外协印花"))).
-                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(styleVO.getPackInfoId() + "外协绣花"))).
-                            add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(styleVO.getPackInfoId() + "外协压皱")));
+                            BigDecimalUtil.convertBigDecimal(otherCostsMap.get(styleVO.getId() + PackPricingOtherCostsItemType.OUTSOURCE_PROCESS)));
 
                     styleVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
@@ -547,7 +545,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     styleVO.setTotalCost(styleVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
                     BigDecimal taxRate = BigDecimal.ONE;
 
-                    if ("CMT".equals(styleVO.getDevtTypeName())) {
+                    if (isCmt) {
                         com.alibaba.fastjson2.JSONObject jsonObject = JSON.parseObject(styleVO.getCalcItemVal());
                         if (jsonObject != null) {
                             taxRate = jsonObject.getBigDecimal("税率");
@@ -587,24 +585,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         stylePicUtils.setStylePic(styleList, "sampleDesignPic");
     }
 
-    /**
-     * 获取其他费用
-     *
-     * @param packId
-     * @param companyCode
-     * @return
-     */
-    private Map<String, BigDecimal> getOtherCosts(List<String> packId, String companyCode, String packType) {
-        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.getPriceSumByForeignIds(packId, companyCode,packType);
-        if (org.apache.commons.collections4.CollectionUtils.isEmpty(packPricingOtherCosts)) {
-            return new HashMap<>();
-        }
-        return packPricingOtherCosts.stream()
-                .filter(x -> Objects.nonNull(x.getPrice()))
-                .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsType(), PackPricingOtherCosts::getPrice,(k1, k2) -> k1));
-
-    }
-
     @Override
     public ApiResult getStyleColorBystyleNo(String styleNo) {
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
@@ -616,7 +596,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*查询款式图*/
         stylePicUtils.setStyleColorPic2(completeStyleVos, "styleColorPic");
         if (CollUtil.isNotEmpty(completeStyleVos)) {
-            dataProcessing(completeStyleVos, super.getCompanyCode());
+            dataProcessing(completeStyleVos);
             CompleteStyleVo detail = completeStyleVos.get(0);
             List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getStyleCompanyCode(), detail.getSizeRange());
             if (CollUtil.isNotEmpty(basicsdatumModelTypeList)) {
@@ -2715,7 +2695,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return tagPrintings;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void agentDelete(String id) {
         //状态校验
@@ -2751,7 +2731,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             packInfoQueryWrapper.last(" limit 1 ");
             PackInfo packInfoUpdate = packInfoService.getOne(packInfoQueryWrapper);
             if (packInfoUpdate != null) {
-                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId(), baseController.getUserCompany());
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId());
                 if (stylePricingVO != null) {
                     //删除款式定价信息
                     stylePricingService.removeById(stylePricingVO.getStylePricingId());
@@ -3470,7 +3450,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     packInfoQueryWrapper.last(" limit 1 ");
                     PackInfo packInfoUpdate = packInfoService.getOne(packInfoQueryWrapper);
                     if (packInfoUpdate != null) {
-                        StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId(), baseController.getUserCompany());
+                        StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId());
                         if (stylePricingVO != null) {
                             BigDecimal controlPlanCostDecimal = stylePricingVO.getControlPlanCost() != null ? stylePricingVO.getControlPlanCost() : BigDecimal.ZERO;
                             BigDecimal planCostPriceDecimal = StrUtil.isNotEmpty(dto.getPlanCostPrice()) ? new BigDecimal(dto.getPlanCostPrice()) : BigDecimal.ZERO;

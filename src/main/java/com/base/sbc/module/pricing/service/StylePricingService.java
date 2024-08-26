@@ -13,8 +13,10 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式定价 service类
@@ -51,7 +53,7 @@ public interface StylePricingService extends BaseService<StylePricing> {
      * @param companyCode
      * @return
      */
-    StylePricingVO getByPackId(String packId, String companyCode);
+    StylePricingVO getByPackId(String packId);
 
     /**
      * 保存
@@ -69,6 +71,8 @@ public interface StylePricingService extends BaseService<StylePricing> {
     void insertOrUpdateBatch(List<StylePricingSaveDTO> stylePricingSaves, String companyCode);
 
     void unAuditStatus(List<String> ids);
+
+    Map<String, BigDecimal> getOtherCosts(List<String> packId, String packType);
 
 
 // 自定义方法区 不替换的区域【other_end】

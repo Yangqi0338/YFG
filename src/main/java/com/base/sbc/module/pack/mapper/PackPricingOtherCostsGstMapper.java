@@ -7,11 +7,11 @@
 package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.common.vo.TotalVo;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
+import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,26 +27,6 @@ import java.util.List;
  * @date 创建时间：2023-7-10 13:35:18
  */
 @Mapper
-public interface PackPricingOtherCostsMapper extends BaseMapper<PackPricingOtherCosts> {
-// 自定义方法区 不替换的区域【other_start】
+public interface PackPricingOtherCostsGstMapper extends BaseMapper<PackPricingOtherCostsGst> {
 
-//    List<TotalVo> costsItemTotal(@Param(Constants.WRAPPER) QueryWrapper<PackPricingOtherCosts> qw);
-
-//    统计
-
-    List<TotalVo> newCostsItemTotal(@Param(Constants.WRAPPER) LambdaQueryWrapper<PackPricingOtherCosts> qw , @Param(Constants.WRAPPER+"1") LambdaQueryWrapper<PackPricingOtherCosts> qw1);
-
-//    /**
-//     * 通过主id统计
-//     *
-//     * @param foreignIds
-//     * @param isPackType
-//     * @return
-//     */
-//    List<PackPricingOtherCosts> getPriceSumByForeignIds(@Param("foreignIds") List<String> foreignIds,
-//                                                        @Param("packType")String packType);
-
-
-
-// 自定义方法区 不替换的区域【other_end】
 }

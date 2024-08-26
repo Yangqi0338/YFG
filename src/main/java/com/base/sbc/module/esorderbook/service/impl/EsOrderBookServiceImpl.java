@@ -119,11 +119,10 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         //组装费用信息
         List<String> packId = list.stream().map(EsOrderBookItemVo::getPackId).distinct().collect(Collectors.toList());
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
-        stylePricingSearchDTO.setCompanyCode(getCompanyCode());
         BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.in("p.id", packId);
         List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
-        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true, true);
+        stylePricingService.dataProcessing(stylePricingList, true, true);
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getPackId())) {

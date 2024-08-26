@@ -6,33 +6,49 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.annotation.ExtendField;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.BaseDataExtendEntity;
+import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
- * 类描述：资料包-核价信息 实体类
+ * 类描述：资料包-核价信息-其他费用 实体类
  *
  * @author your name
  * @version 1.0
- * @address com.base.sbc.module.pack.entity.PackPricing
+ * @address com.base.sbc.module.pack.entity.PackPricingOtherCosts
  * @email your email
- * @date 创建时间：2023-7-13 20:34:50
+ * @date 创建时间：2023-7-13 20:34:52
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_pack_pricing")
-@ApiModel("资料包-核价信息 PackPricing")
-public class PackPricing extends BaseDataEntity<String> {
+@TableName(value = "t_pack_pricing_other_costs_gst", autoResultMap = true)
+@ApiModel("资料包-核价信息-其他费用 PackPricingOtherCosts")
+public class PackPricingOtherCostsGst extends BaseDataExtendEntity {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /**
+     * 费用类型
+     */
+    @ApiModelProperty(value = "费用类型")
+    @ExtendField
+    private String costsType;
+
+    /**
+     * 名称
+     */
+    @ApiModelProperty(value = "名称")
+    @ExtendField
+    private String name;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -48,69 +64,42 @@ public class PackPricing extends BaseDataEntity<String> {
     @ApiModelProperty(value = "资料包类型")
     private String packType;
     /**
-     * 报价币种(1)
+     * 费用类型id
      */
-    @ApiModelProperty(value = "报价币种(1)")
-    private String currency;
+    @ApiModelProperty(value = "费用类型id")
+    private String costsTypeId;
     /**
-     * 汇率(1)
+     * 父id
      */
-    @ApiModelProperty(value = "汇率(1)")
-    private String exchangeRate;
+    @ApiModelProperty(value = "父id")
+    private String parentId;
     /**
-     * 单价/件(1)
+     * 价格
      */
-    @ApiModelProperty(value = "单价/件(1)")
-    private BigDecimal costPrice;
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
     /**
-     * 报价币种(2)
+     * 备注信息
      */
-    @ApiModelProperty(value = "报价币种(2)")
-    private String otherCurrency;
-    /**
-     * 汇率(2)
-     */
-    @ApiModelProperty(value = "汇率(2)")
-    private String otherExchangeRate;
-    /**
-     * 单价/件(2)
-     */
-    @ApiModelProperty(value = "单价/件(2)")
-    private BigDecimal otherCostPrice;
-    /**
-     * 计算项的值
-     */
-    @ApiModelProperty(value = "计算项的值")
-    private String calcItemVal;
-    /**
-     * 核价模板id
-     */
-    @ApiModelProperty(value = "核价模板id")
-    private String pricingTemplateId;
-    /**
-     * 备注
-     */
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty(value = "备注信息")
     private String remarks;
+    /**
+     * 外辅工厂
+     */
+    @ApiModelProperty(value = "外辅工厂")
+    private String factoryName;
 
     /**
-     * 颜色编码
+     * 单价
      */
-    @ApiModelProperty(value = "颜色编码")
-    private String colorCode;
+    @ApiModelProperty(value = "单价")
+    private String unit;
 
     /**
-     * 颜色名称
+     * 物料编号
      */
-    @ApiModelProperty(value = "颜色名称")
-    private String colorName;
-
-    /**
-     * cmt外辅工艺pdf
-     */
-    @ApiModelProperty(value = "cmt外辅工艺pdf")
-    private String outsourceCmtProcessFileUrl;
-
+    @ApiModelProperty(value = "物料编号")
+    private String materialCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
