@@ -83,6 +83,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.jetbrains.annotations.NotNull;
+import com.google.common.collect.Lists;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -674,6 +676,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         /**
          * 任务下发新建款的数据
          */
+        List<String>  prodCategorys = Lists.newArrayList("4","5","9");
         for (PlanningCategoryItem item : categoryItemList) {
             if (dbItemMap.containsKey(item.getId())) {
                 continue;
@@ -686,6 +689,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             style.setStylePic(null);
             if (genDesignNoAction) {
                 style.setDesignNo(null);
+            }
+            if (prodCategorys.contains(style.getProdCategory())) {
+                style.setStyleUnitCode("T");
+                style.setStyleUnit("条");
+            }else{
+                style.setStyleUnitCode("J");
+                style.setStyleUnit("件");
             }
             styleList.add(style);
         }
