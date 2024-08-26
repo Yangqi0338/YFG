@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -889,6 +890,12 @@ public class SmpService {
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.listByIds(Arrays.asList(ids));
         int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : list) {
+            Assert.notBlank(basicsdatumMaterial.getYear(), "年份不能为空");
+            Assert.notBlank(basicsdatumMaterial.getSeason(), "季节不能为空");
+            Assert.notBlank(basicsdatumMaterial.getWidthGroup(), "门幅/规格不能为空");
+            Assert.notBlank(basicsdatumMaterial.getProcMode(), "采购模式不能为空");
+            Assert.notBlank(basicsdatumMaterial.getPickingMethod(), "领料方式不能为空");
+            Assert.notBlank(basicsdatumMaterial.getStockUnitCode(), "库存单位不能为空");
             if (this.sendMaterials(basicsdatumMaterial)) {
                 i++;
             }
