@@ -54,6 +54,7 @@ import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTaskFob;
@@ -141,6 +142,7 @@ public class OpenSmpController extends BaseController {
     private StylePicUtils stylePicUtils;
 
     private final BasicsdatumSupplierService supplierService;
+    private final PackSizeService packSizeService;
 
     /**
      * bp供应商
@@ -760,5 +762,11 @@ public class OpenSmpController extends BaseController {
         }
 
         return selectSuccess(tempSupplierDto);
+    }
+
+    @PostMapping("/savePackSizeDetail")
+    @ApiOperation(value = "接收SCM传输过来的供应商", notes = "接收SCM传输过来的供应商")
+    public ApiResult savePackSizeDetail(@RequestBody OpenPackSizeDto openPackSizeDto) {
+        return packSizeService.openSaveBatch(openPackSizeDto);
     }
 }

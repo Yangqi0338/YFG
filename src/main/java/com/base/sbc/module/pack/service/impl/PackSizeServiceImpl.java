@@ -12,6 +12,8 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -21,24 +23,29 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeConfigReferencesDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackSizeConfig;
 import com.base.sbc.module.pack.entity.PackSizeDetail;
 import com.base.sbc.module.pack.mapper.PackSizeMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.pack.vo.PackSizeVo;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.dto.OpenPackSizeDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-尺寸表 service类
@@ -68,6 +75,9 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
 
     @Autowired
     private PackSizeConfigService packSizeConfigService;
+    @Lazy
+    @Autowired
+    private StyleColorService styleColorService;
 
     @Override
     public PageInfo<PackSizeVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -280,6 +290,98 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
     }
 
 // 自定义方法区 不替换的区域【other_end】
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public ApiResult openSaveBatch(OpenPackSizeDto openPackSizeDto) {
+        //查询大货款号是否存在
+        List<StyleColor> styleColorList = styleColorService.listByField("style_no", openPackSizeDto.getStyleNo());
+        if(CollUtil.isEmpty(styleColorList)) {
+            //没有查询到大货款号
+            return ApiResult.error("没有找到大货款号："+openPackSizeDto.getStyleNo(),500);
+        }
+        StyleColor styleColor = styleColorList.get(0);
+        String id = styleColor.getId();
+        //找到标准资料包id
+        List<PackInfo> packInfoList = packInfoService.listByField("style_color_id", id);
+        if(CollUtil.isEmpty(packInfoList)) {
+            //没有查询到大货款号
+            return ApiResult.error("没有找到大货款号："+openPackSizeDto.getStyleNo()+",对应的标准资料包",500);
+        }
+        String foreignId = packInfoList.get(0).getId();
+
+        //删除历史数据，先查询
+        List<PackSize> oldList = list(foreignId, openPackSizeDto.getPackType());
+        String oldIds = oldList.stream().map(BaseEntity::getId).collect(Collectors.joining(","));
+        delByIds(oldIds);
+
+        //获取尺寸表配置
+        PackSizeConfigVo oldConfig = packSizeConfigService.getConfig(foreignId, openPackSizeDto.getPackType());
+        String productSizes = oldConfig.getProductSizes();
+        List<String> productSizeList = Arrays.asList(productSizes.split(","));
+
+        //校验对方修改的尺码表信息
+        PackSizeConfig config = openPackSizeDto.getConfig();
+        String activeSizes = config.getActiveSizes();
+        List<String> activeSizeList = Arrays.asList(activeSizes.split(","));
+        if(!activeSizeList.contains(config.getDefaultSize())){
+            return ApiResult.error("尺码表默认尺码不能取消",500);
+        }
+        for (String activeSize : activeSizeList) {
+            if(!productSizeList.contains(activeSize)) {
+                return ApiResult.error("尺码表设计款中,不存在尺码："+activeSize,500);
+            }
+        }
+
+        //修改尺码表数据
+        boolean washSkippingFlag = "1".equals(config.getWashSkippingFlag());
+        oldConfig.setWashSkippingFlag(config.getWashSkippingFlag());
+        oldConfig.setSizeRange(config.getSizeRange());
+        oldConfig.setSizeRangeName(config.getSizeRangeName());
+        oldConfig.setDefaultSize(config.getDefaultSize());
+        oldConfig.setActiveSizes(config.getActiveSizes());
+        packSizeConfigService.updateById(oldConfig);
+
+        //插入新数据，并校验数据正确性
+        List<PackSizeDto> sizeDtos = openPackSizeDto.getSizeDtos();
+        for (PackSizeDto sizeDto : sizeDtos) {
+            sizeDto.setId(null);
+            //1是分割行 不做校验
+            if("0".equals(sizeDto.getRowType())){
+                //校验尺码
+                if(StrUtil.isEmpty(sizeDto.getSize()) || StrUtil.isEmpty(sizeDto.getCodeErrorSetting()) || StrUtil.isEmpty(sizeDto.getStandard())){
+                    return ApiResult.error("尺码数据中尺码不能为空",500);
+                }
+                if(!StrUtil.equals(activeSizes, sizeDto.getSize())){
+                    return ApiResult.error("尺码数据中尺码数据和尺码表配置不一致",500);
+                }
+                //校验档差配置
+                String codeErrorSetting = sizeDto.getCodeErrorSetting();
+                //校验样板、成衣尺寸
+                String standard = sizeDto.getStandard();
+                for (String activeSize : activeSizeList) {
+                   if(!codeErrorSetting.contains(activeSize)){
+                       return ApiResult.error("档差尺码数据和尺码表配置不一致",500);
+                   }
+                   if(!standard.contains("template"+activeSize) || !standard.contains("garment"+activeSize)){
+                       return ApiResult.error("样板尺寸和成衣尺寸的尺码数据和尺码表配置不一致",500);
+                   }
+                   if(washSkippingFlag){
+                       if(!standard.contains("washing"+activeSize)){
+                           return ApiResult.error("开启水洗后尺码,水洗后尺码数据和尺码表配置不一致",500);
+                       }
+                   }
+                }
+            }
+        }
+
+        PackCommonSearchDto commonDto = new PackCommonSearchDto();
+        commonDto.setForeignId(foreignId);
+        commonDto.setPackType(openPackSizeDto.getPackType());
+        saveBatchByDto(commonDto,sizeDtos);
+
+        return ApiResult.success("保存成功");
+    }
 
 }
 
