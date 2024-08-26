@@ -2,24 +2,20 @@ package com.base.sbc.module.hrtrafficlight.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.hash.Hash;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.entity.User;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
-import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.module.hrtrafficlight.dto.AddOrUpdateHrTrafficLightDTO;
 import com.base.sbc.module.hrtrafficlight.dto.HrTrafficLightDetailDTO;
 import com.base.sbc.module.hrtrafficlight.dto.ListHrTrafficLightVersionsDTO;
@@ -28,11 +24,9 @@ import com.base.sbc.module.hrtrafficlight.entity.HrTrafficLight;
 import com.base.sbc.module.hrtrafficlight.entity.HrTrafficLightData;
 import com.base.sbc.module.hrtrafficlight.entity.HrTrafficLightVersion;
 import com.base.sbc.module.hrtrafficlight.enums.HrTrafficLightVersionTypeEnum;
-import com.base.sbc.module.hrtrafficlight.listener.HrTrafficLightListener;
 import com.base.sbc.module.hrtrafficlight.mapper.HrTrafficLightMapper;
 import com.base.sbc.module.hrtrafficlight.service.IHrTrafficLightDataService;
 import com.base.sbc.module.hrtrafficlight.service.IHrTrafficLightService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.module.hrtrafficlight.service.IHrTrafficLightVersionService;
 import com.base.sbc.module.hrtrafficlight.vo.HrTrafficLightsDetailVO;
 import com.base.sbc.module.hrtrafficlight.vo.ListHrTrafficLightsVO;
@@ -48,7 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -70,6 +63,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
     private CcmFeignService ccmFeignService;
     private AmcService amcService;
     private DataPermissionsService dataPermissionsService;
+    private RedisUtils redisUtils;
 
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
@@ -166,9 +160,11 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                     String columnNameTwo = hrTrafficLightData.getColumnNameTwo();
                     String columnValue = hrTrafficLightData.getColumnValue();
                     String color = hrTrafficLightData.getColor();
+                    String backColor = hrTrafficLightData.getBackColor();
                     Map<String, String> dataItemMap = new LinkedHashMap<>();
                     dataItemMap.put("value", ObjectUtil.isNotEmpty(columnValue) ? columnValue : "");
                     dataItemMap.put("color", ObjectUtil.isNotEmpty(color) ? color : "");
+                    dataItemMap.put("backColor", ObjectUtil.isNotEmpty(backColor) ? backColor : "");
                     if (twoHeadType.contains(hrTrafficLightVersion.getType())) {
                         // 二级表头
                         dataMap.put(columnNameOne + "-"
@@ -190,7 +186,12 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         hrTrafficLightDataLambdaQueryWrapper.select(
                 HrTrafficLightData::getId,
                 HrTrafficLightData::getColumnNameOne,
-                HrTrafficLightData::getColumnNameTwo);
+                HrTrafficLightData::getColumnNameTwo,
+                HrTrafficLightData::getOneHeadColor,
+                HrTrafficLightData::getOneHeadBackColor,
+                HrTrafficLightData::getTwoHeadColor,
+                HrTrafficLightData::getTwoHeadBackColor
+        );
         List<HrTrafficLightData> headList = hrTrafficLightDataService.list(hrTrafficLightDataLambdaQueryWrapper);
         // 格式化表头集合
         List<Map<String, Object>> headMapList = new ArrayList<>(headList.size());
@@ -202,13 +203,16 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 List<HrTrafficLightData> value = item.getValue();
                 Map<String, Object> oneHeadhMap = new LinkedHashMap<>();
                 oneHeadhMap.put("title", key);
-
+                oneHeadhMap.put("color", value.get(0).getOneHeadColor());
+                oneHeadhMap.put("backColor", value.get(0).getOneHeadBackColor());
                 if (twoHeadType.contains(hrTrafficLightVersion.getType())) {
                     // 二级表头
                     List<Map<String, Object>> twoHeadList = new ArrayList<>();
                     for (HrTrafficLightData hrTrafficLightData : value) {
                         Map<String, Object> twoHeadMap = new LinkedHashMap<>();
                         twoHeadMap.put("title", hrTrafficLightData.getColumnNameTwo());
+                        twoHeadMap.put("color", hrTrafficLightData.getTwoHeadColor());
+                        twoHeadMap.put("backColor", hrTrafficLightData.getTwoHeadBackColor());
                         twoHeadList.add(twoHeadMap);
                     }
                     oneHeadhMap.put("children", twoHeadList);
@@ -225,7 +229,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public synchronized void importExcel(MultipartFile file, String hrTrafficLightId, Integer trafficLightVersionType) {
+    public void importExcel(MultipartFile file, String hrTrafficLightId, Integer trafficLightVersionType) {
         if (ObjectUtil.isEmpty(file)) {
             throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
         }
@@ -260,12 +264,26 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void readExcel(MultipartFile file,
+    public synchronized void readExcel(MultipartFile file,
                           String hrTrafficLightId,
                           Integer trafficLightVersionType,
                           String sheetNoName,
                           Long time,
                           List<Integer> twoHeadType) {
+        // 根据 sheet 名称生成版本号
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        String version = "RSHLD" + simpleDateFormat.format(new Date());
+        Object no = redisUtils.get("HrTrafficLight:" + sheetNoName + ":" + version);
+
+        if (ObjectUtil.isEmpty(no)) {
+            redisUtils.set("HrTrafficLight:" + sheetNoName + ":" + version, 1, 60*60*25);
+            version = version + "01";
+        } else {
+            Integer intNo = Integer.valueOf(String.valueOf(no));
+            intNo++;
+            redisUtils.set("HrTrafficLight:" + sheetNoName + ":" + version, intNo, 60*60*25);
+            version = version + String.format("%02d", intNo);
+        }
         // 初始化表格数据
         List<Map<Integer, Map<String, String>>> cachedDataList = new ArrayList<>();
         try {
@@ -287,20 +305,27 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                     // 如果当前字体 有颜色 则保存颜色信息
                     if (ObjectUtil.isNotEmpty(cellValue)) {
                         CellStyle cellStyle = cell.getCellStyle();
+                        XSSFColor backColor = (XSSFColor) cellStyle.getFillForegroundColorColor();
                         XSSFFont fontAt = workbook.getFontAt(cellStyle.getFontIndexAsInt());
-                        XSSFColor xssfColor = fontAt.getXSSFColor();
-                        String colorRgb = null;
+                        XSSFColor fontColor = fontAt.getXSSFColor();
+                        String fontColorRgb = null;
+                        String backColorRgb = null;
                         // 过滤黑颜色
-                        if (ObjectUtil.isNotEmpty(xssfColor)) {
-                            colorRgb = "#" + xssfColor.getARGBHex().substring(2, 8);
-                            colorRgb = "#000000".equals(colorRgb) ? null : colorRgb;
+                        if (ObjectUtil.isNotEmpty(fontColor)) {
+                            fontColorRgb = "#" + fontColor.getARGBHex().substring(2, 8);
+                            fontColorRgb = "#000000".equals(fontColorRgb) ? null : fontColorRgb;
+                        }
+                        if (ObjectUtil.isNotEmpty(backColor)) {
+                            backColorRgb = "#" + backColor.getARGBHex().substring(2, 8);
                         }
                         map.put("value", cellValue);
-                        map.put("color", colorRgb);
+                        map.put("fontColor", fontColorRgb);
+                        map.put("backColor", backColorRgb);
                         dataMap.put(cell.getColumnIndex(), map);
                     } else {
                         map.put("value", null);
-                        map.put("color", null);
+                        map.put("fontColor", null);
+                        map.put("backColor", null);
                         dataMap.put(cell.getColumnIndex(), map);
                     }
                 }
@@ -337,8 +362,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         HrTrafficLightVersion hrTrafficLightVersion = new HrTrafficLightVersion();
         hrTrafficLightVersion.setHrTrafficLightId(hrTrafficLightId);
         hrTrafficLightVersion.setType(trafficLightVersionType);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        hrTrafficLightVersion.setVersion("RSHLD" + simpleDateFormat.format(new Date()));
+        hrTrafficLightVersion.setVersion(version);
         hrTrafficLightVersion.setHrTrafficLightId(hrTrafficLightId);
         try {
             hrTrafficLightVersionService.save(hrTrafficLightVersion);
@@ -411,6 +435,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 throw new OtherException(sheetNoName + "sheet页【" + brandName + "】品牌不存在");
             }
             String oneHeadTemp = "";
+            String oneHeadFontColorTemp = "";
+            String oneHeadBackColorTemp = "";
             for (Integer idx : idxSet) {
                 // 生成认识红绿灯数据集合
                 HrTrafficLightData hrTrafficLightData = new HrTrafficLightData();
@@ -418,22 +444,36 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 hrTrafficLightData.setRowIdx(i);
                 Map<String, String> inOneHeadMap = oneHeadMap.get(idx);
                 String oneHead = inOneHeadMap.get("value");
+                String oneHeadFontColor = inOneHeadMap.get("fontColor");
+                String oneHeadBackColor = inOneHeadMap.get("backColor");
                 Map<String, String> inTwoHeadMap = twoHeadMap.get(idx);
                 String twoHead = inTwoHeadMap.get("value");
+                String twoHeadFontColor = inTwoHeadMap.get("fontColor");
+                String twoHeadBackColor = inTwoHeadMap.get("backColor");
                 Map<String, String> inDataMap = dataMap.get(idx);
                 String value = inDataMap.get("value");
-                String color = inDataMap.get("color");
+                String fontColor = inDataMap.get("fontColor");
+                String backColor = inDataMap.get("backColor");
                 if (StrUtil.isBlank(oneHead)) {
                     oneHead = oneHeadTemp;
+                    oneHeadFontColor = oneHeadFontColorTemp;
+                    oneHeadBackColor = oneHeadBackColorTemp;
                 } else {
                     oneHeadTemp = oneHead;
+                    oneHeadFontColorTemp = oneHeadFontColor;
+                    oneHeadBackColorTemp = oneHeadBackColor;
                 }
                 hrTrafficLightData.setColumnNameOne(oneHead);
                 if (contains) {
                     hrTrafficLightData.setColumnNameTwo(twoHead);
+                    hrTrafficLightData.setTwoHeadColor(twoHeadFontColor);
+                    hrTrafficLightData.setTwoHeadBackColor(twoHeadBackColor);
                 }
                 hrTrafficLightData.setColumnValue(value);
-                hrTrafficLightData.setColor(color);
+                hrTrafficLightData.setOneHeadColor(oneHeadFontColor);
+                hrTrafficLightData.setOneHeadBackColor(oneHeadBackColor);
+                hrTrafficLightData.setColor(fontColor);
+                hrTrafficLightData.setBackColor(backColor);
                 hrTrafficLightData.setBrandName(brandName);
                 for (Map.Entry<String, String> item : brandMap.entrySet()) {
                     if (brandName.equals(item.getValue())) {
