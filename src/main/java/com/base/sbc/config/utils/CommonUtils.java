@@ -299,6 +299,17 @@ public class CommonUtils {
         return URLUtil.decode(url.substring(0, url.indexOf("?")));
     }
 
+    /**
+     * 获取列表某个参数
+     *
+     * @return
+     */
+    public static <T,V> V get(List<T> list, int index, Function<T,V> func) {
+        T t = CollUtil.get(list, index);
+        if (t == null) return null;
+        return func.apply(t);
+    }
+
     public static void removeQueryList(List list, String... p) {
         if (CollUtil.isEmpty(list)) {
             return;

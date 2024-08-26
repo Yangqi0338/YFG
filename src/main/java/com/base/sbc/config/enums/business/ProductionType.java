@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Arrays;
+
 /**
  * {@code 描述：生产类型}
  *
@@ -39,4 +41,13 @@ public enum ProductionType {
         this.code = this.name();
         this.text = text;
     }
+
+    public static ProductionType findByCode(String code){
+        return Arrays.stream(ProductionType.values()).filter(it-> it.code.equals(code)).findFirst().orElse(null);
+    }
+
+    public static boolean equals(String code, ProductionType productionType){
+        return findByCode(code) == productionType;
+    }
+
 }

@@ -849,7 +849,7 @@ public class SmpService {
                 }
 
                 // 款式定价
-                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId());
 
 
                 if (stylePricingVO != null) {
@@ -1418,7 +1418,7 @@ public class SmpService {
                 throw new OtherException(packBom.getMaterialName() + "未关联大货(配色)信息,无法下发");
             }
             Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
-            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId());
 
             SmpBomDto smpBomDto = packBom.toSmpBomDto(stylePricingVO.getBomStage());
             //"0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production"
@@ -2297,7 +2297,7 @@ public class SmpService {
             PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("foreign_id", style.getId()));
             if (packInfo != null) {
                 // 款式定价
-                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId());
                 smpGoodsDto.setPlanCost(stylePricingVO.getControlPlanCost());
             }
 

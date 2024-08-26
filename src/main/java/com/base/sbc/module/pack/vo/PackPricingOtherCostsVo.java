@@ -16,4 +16,5 @@ import lombok.Data;
 @Data
 @ApiModel("资料包-核价信息-其他费用Vo PackPricingOtherCostsVo")
 public class PackPricingOtherCostsVo extends PackPricingOtherCosts {
+    private int index = 0;
 }

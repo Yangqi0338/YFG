@@ -41,6 +41,8 @@ import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -378,7 +380,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         /*复制不进来*/
         if(!StrUtil.equals(dto.getCopyFlag(),BaseGlobal.YES)){
             /*新建初始化核价消息的数据*/
-            packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource", packInfo.getId(), PACK_TYPE_DESIGN);
+            packPricingOtherCostsService.createCostDetail(Arrays.asList(PackPricingOtherCostsItemType.values()), packInfo.getId(), PACK_TYPE_DESIGN, ProductionType.FOB.getCode().equals(style.getDevtType())? ProductionType.FOB.getCode() : ProductionType.CMT.getCode());
             /*初始话核价信息*/
             packPricingService.createPackPricing(style.getId(), packInfo.getId());
         }

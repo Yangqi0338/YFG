@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -19,6 +20,7 @@ import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -27,10 +29,16 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -47,13 +55,15 @@ import java.util.Map;
 @Api(tags = "资料包-核价信息")
 @RequestMapping(value = BaseController.SAAS_URL + "/packPricing", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class PackPricingController {
+public class PackPricingController extends BaseController {
 
     @Autowired
     private PackPricingService packPricingService;
 
     @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
+    @Autowired
+    private PackPricingOtherCostsGstService packPricingOtherCostsGstService;
     @Autowired
     private PackPricingProcessCostsService packPricingProcessCostsService;
 
@@ -124,22 +134,43 @@ public class PackPricingController {
         return packPricingOtherCostsService.pageInfo(dto);
     }
 
+    @ApiOperation(value = "其他费用-gst-分页查询", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
+    @GetMapping("/otherCostsGst")
+    public PageInfo<PackPricingOtherCostsVo> otherCostsGstPageInfo(OtherCostsPageDto dto) {
+        return packPricingOtherCostsGstService.pageInfo(dto);
+    }
+
     @ApiOperation(value = "其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @PostMapping("/otherCosts")
     public PackPricingOtherCostsVo saveOtherCosts(@Valid @RequestBody PackPricingOtherCostsDto dto) {
-        return packPricingOtherCostsService.saveByDto(dto);
+        packPricingOtherCostsService.batchOtherCosts(Arrays.asList(dto));
+        return BeanUtil.copyProperties(dto, PackPricingOtherCostsVo.class);
     }
 
     @ApiOperation(value = "批量其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @PostMapping("/batchOtherCosts")
     public Boolean batchOtherCosts(@Valid @RequestBody List<PackPricingOtherCostsDto> dto) {
-        return packPricingOtherCostsService.batchOtherCosts(dto);
+        packPricingOtherCostsService.batchOtherCosts(dto);
+        return true;
+    }
+
+    @ApiOperation(value = "批量其他费用-gst-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
+    @PostMapping("/batchOtherCostsGst")
+    public Boolean batchOtherCostsGst(@Valid @RequestBody List<PackPricingOtherCostsGstDto> dto) {
+        packPricingOtherCostsGstService.saveOrUpdateBatch(BeanUtil.copyToList(dto, PackPricingOtherCostsGst.class));
+        return true;
     }
 
     @ApiOperation(value = "其他费用-删除", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @DeleteMapping("/otherCosts")
     public boolean delOtherCosts(@Valid IdsDto idsDto) {
         return packPricingOtherCostsService.delOtherCosts(idsDto.getId());
+    }
+
+    @ApiOperation(value = "导出外辅工艺PDF")
+    @GetMapping("/exportWfgyPdf")
+    public void exportExcel(OtherCostsPageDto dto) throws Exception {
+        packPricingOtherCostsService.generateWfgyPdf(dto, this.response);
     }
 
     @ApiOperation(value = "加工费用-分页查询")

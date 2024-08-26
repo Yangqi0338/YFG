@@ -2,6 +2,7 @@ package com.base.sbc.module.pack.dto;
 
 import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
+import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,7 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @Data
 @ApiModel("资料包-核价信息-其他费用 PackPricingOtherCosts Dto")
-public class PackPricingOtherCostsDto extends PackPricingOtherCosts {
+public class PackPricingOtherCostsGstDto extends PackPricingOtherCostsGst {
     @ApiModelProperty(value = "主数据id")
     @NotBlank(message = "主数据id为空")
     private String foreignId;

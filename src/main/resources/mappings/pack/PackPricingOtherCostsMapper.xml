@@ -11,36 +11,35 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
-    <select id="costsItemTotal" resultType="com.base.sbc.module.common.vo.TotalVo">
-        select costs_item as label, sum(price) as total
-        from t_pack_pricing_other_costs ${ ew.customSqlSegment}
-        group by costs_item
+<!--    <select id="costsItemTotal" resultType="com.base.sbc.module.common.vo.TotalVo">-->
+<!--        select costs_item as label, sum(price) as total-->
+<!--        from t_pack_pricing_other_costs ${ ew.customSqlSegment}-->
+<!--        group by costs_item-->
 
-    </select>
+<!--    </select>-->
 
-    <select id="getPriceSumByForeignIds" resultType="com.base.sbc.module.pack.entity.PackPricingOtherCosts">
-        SELECT
-        sum( price ) as price,
-        costs_type,
-        costs_item,
-        foreign_id
-        FROM
-        t_pack_pricing_other_costs
-        WHERE
-        del_flag='0'
-        and company_code = #{companyCode}
-        and foreign_id in
-        <foreach collection="foreignIds" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-        <if test="packType != null and packType != ''">
-        AND pack_type = #{packType}
-        </if>
-#         AND pack_type = 'packBigGoods'
-        GROUP BY
-        foreign_id,costs_item,costs_type,id
-        order by id desc
-    </select>
+<!--    <select id="getPriceSumByForeignIds" resultType="com.base.sbc.module.pack.entity.PackPricingOtherCosts">-->
+<!--        SELECT-->
+<!--        sum( price ) as price,-->
+<!--        costs_type,-->
+<!--        costs_item,-->
+<!--        foreign_id-->
+<!--        FROM-->
+<!--        t_pack_pricing_other_costs-->
+<!--        WHERE-->
+<!--        del_flag='0'-->
+<!--        and foreign_id in-->
+<!--        <foreach collection="foreignIds" item="id" separator="," open="(" close=")">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+<!--        <if test="packType != null and packType != ''">-->
+<!--        AND pack_type = #{packType}-->
+<!--        </if>-->
+<!--#         AND pack_type = 'packBigGoods'-->
+<!--        GROUP BY-->
+<!--        foreign_id,costs_item,costs_type,id-->
+<!--        order by id desc-->
+<!--    </select>-->
 
 
     <select id="newCostsItemTotal" resultType="com.base.sbc.module.common.vo.TotalVo">

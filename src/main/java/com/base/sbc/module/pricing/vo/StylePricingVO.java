@@ -1,6 +1,7 @@
 package com.base.sbc.module.pricing.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -361,5 +362,9 @@ public class StylePricingVO {
     /** 小类名称 */
     @ApiModelProperty(value = "小类名称"  )
     private String prodCategory3rdName;
+
+    public boolean isCmt(){
+        return ProductionType.valueOf(this.getProductionType()) == ProductionType.CMT;
+    }
 }
 

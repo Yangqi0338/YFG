@@ -143,7 +143,7 @@ public class StylePricingController extends BaseController {
     @ApiOperation(value = "通过资料包id获取")
     @GetMapping("/getByPackId")
     public ApiResult getByPackId(@Valid @NotBlank(message = "资料包id不可为空") String packId) {
-        return selectSuccess(stylePricingService.getByPackId(packId, super.getUserCompany()));
+        return selectSuccess(stylePricingService.getByPackId(packId));
     }
 
     @ApiOperation(value = "从 SCM 系统获取物料采购单价数据")

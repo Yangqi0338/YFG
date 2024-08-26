@@ -1420,7 +1420,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
             List<StylePricingVO> stylePricingList = stylePricingServiceimpl.getBaseMapper().getStylePricingList(stylePricingSearchDTO, qw);
             /*款式定价数据组装处理*/
-            stylePricingServiceimpl.dataProcessing(stylePricingList, orderBookDetailVos.get(0).getCompanyCode(),false, false);
+            stylePricingServiceimpl.dataProcessing(stylePricingList,false, false);
             /*按大货款号分类*/
             Map<String, StylePricingVO> map = stylePricingList.stream().collect(CommonUtils.toMap(StylePricingVO::getBulkStyleNo));
 

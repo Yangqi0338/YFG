@@ -1294,8 +1294,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								styleColor != null ? styleColor.getStyleNo() : " "));
 				if (packInfo != null) {
 					// 款式定价
-					StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(),
-							styleColor.getCompanyCode());
+					StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId());
 					if (stylePricingVO != null) {
 						// 商品吊牌价确认
 						tagPrinting.setMerchApproved("1".equals(stylePricingVO.getPlanTagPriceConfirm()));
