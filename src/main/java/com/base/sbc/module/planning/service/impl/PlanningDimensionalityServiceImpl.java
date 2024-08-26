@@ -525,6 +525,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
                         }
                     }
                     saveDimensionalityDtoList.addAll(collect1);
+                }else{
+                    saveDimensionalityDtoList.addAll(updateDimensionalityDtos);
                 }
             }
         }

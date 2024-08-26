@@ -275,6 +275,7 @@ public class PlanningDemandController {
 		dto.setPlanningSeasonId(treeDto.getPlanningSeasonId());
 		dto.setPlanningSeasonName(treeDto.getPlanningSeasonName());
 		//渠道
+		dto.setPlanningChannelId(planningChannel.getId());
 		dto.setChannel(planningChannel.getChannel());
 		dto.setChannelName(planningChannel.getChannelName());
 		//大类
@@ -298,7 +299,7 @@ public class PlanningDemandController {
 		dto.setResearchExamineFlag(fieldDto.getResearchExamineFlag());
 		dto.setReplayShowFlag(fieldDto.getReplayShowFlag());
 		dto.setReplayExamineFlag(fieldDto.getReplayExamineFlag());
-		dto.setCoefficientFlag(fieldDto.getCoefficientFlag());
+		dto.setCoefficientFlag("1");
 		dto.setSort(fieldDto.getSort());
 		dto.setGroupSort(fieldDto.getGroupSort());
 		dto.setStatus(fieldDto.getStatus());
