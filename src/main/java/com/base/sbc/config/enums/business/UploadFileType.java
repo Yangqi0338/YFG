@@ -35,14 +35,15 @@ public enum UploadFileType {
     patternLibraryPic("版型库图片"),
     fabricAtactiform("调料管理 面料、辅料图片上传"),
     ingredientsAtactiform(""),
-    account(""),
+
+    SampleVideo(""),
     replayRating("ReplayRating", "复盘评分", Arrays.asList("BMP", "JPG", "JPEG", "PNG", "TIFF", "PCX", "RAW", "MP4", "MKV", "AVI", "RMVB")),
     replayRatingFile("ReplayRatingFile", "复盘评分附件", Arrays.asList("DOCX", "DOC", "PDF", "PPT", "PPTX", "XLS", "XLSX", "RTF")),
     markingOrderUpload("markingOrderUpload"),
     planningProjectPlank("planningProjectPlank"),
     materialUpload("materialUpload"),
+    Account("账号相关图片"),
     fob("fob"),
-    Account(""),
     fittingReport("物料面料试穿报告", Arrays.asList("RAR", "ZIP", "DOC", "DOCX", "PDF", "JPG"), materialOther),
     messageTemptableUpload("messageTemptableUpload"),
 

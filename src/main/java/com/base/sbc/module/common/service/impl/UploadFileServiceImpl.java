@@ -314,7 +314,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case messageTemptableUpload:
                         objectName = "Message/template/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    case "SampleVideo":
+                    case SampleVideo:
                         QueryWrapper qw = new QueryWrapper();
                         qw.eq("design_no", code);
                         Style style2 = styleMapper.selectOne(qw);
@@ -813,9 +813,42 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
     }
 
+
+    /**
+     * 获取素材库上传的文件路径
+     * @param code
+     * @return
+     */
+    private String getSourceMaterialFileName(String code) {
+
+        String prefix = "DesignMaterial";
+        //工号
+        String username = userUtils.getUserCompany().getUsername();
+
+        StringBuilder fileName = new StringBuilder();
+        if (StringUtils.isNotEmpty(code)){
+            List<String> list = StringUtils.convertList(code);
+            for (String s : list) {
+                fileName.append(s).append("_");
+            }
+        }
+        String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
+        fileName.append(formatDate);
+        String redisKey = "MaterialPicRedis" + username + formatDate;
+        long incr = redisUtils.incr(redisKey, 1, 5, TimeUnit.SECONDS);
+        if (incr > 1){
+            fileName.append("_").append(incr-1);
+        }
+        return prefix + "/" + username + "/" + fileName.toString();
+
+    }
+
+
+
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void asyncCompress(String fileId, String contentType, String type, String code) {
+    public void asyncCompress(String fileId, String contentType, UploadFileType type, String code) {
         UploadFile uploadFile = getById(fileId);
         if (Objects.isNull(uploadFile)){
             return;
