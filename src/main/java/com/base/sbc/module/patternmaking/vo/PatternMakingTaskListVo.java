@@ -1,7 +1,7 @@
 package com.base.sbc.module.patternmaking.vo;
 
 
-import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.style.entity.Style;
@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -185,8 +187,10 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private String ratingProdCategory;
 
     public boolean getNotFoundProdCategory() {
-        String regex = "未找到当前品类(\\w+)的评分数据";
-        return ReUtil.isMatch(regex, ratingProdCategory);
+        String regex = "(?<=未找到当前品类下)(.*?)(?=的评分数据)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(Opt.ofBlankAble(ratingProdCategory).orElse(""));
+        return matcher.find();
     }
 
     public Map<String, NodeStatusVo> getNodeStatus() {

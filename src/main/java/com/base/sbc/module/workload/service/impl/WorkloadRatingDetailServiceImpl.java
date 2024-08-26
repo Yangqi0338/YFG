@@ -42,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -155,7 +154,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
         );
         WORKLOAD_CV.copy(entity, workloadRatingDetail);
         this.saveOrUpdate(entity);
-        workloadRatingDetail.setId(entity.getId());
+        WORKLOAD_CV.copy(workloadRatingDetail, entity);
     }
 
     @Override

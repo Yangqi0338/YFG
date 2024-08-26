@@ -57,6 +57,9 @@ public interface WorkloadRatingConvert {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void copy(@MappingTarget WorkloadRatingDetail target, WorkloadRatingDetailDTO source);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void copy(@MappingTarget WorkloadRatingDetailDTO target, WorkloadRatingDetail source);
+
     @Condition
     default boolean isNotEmpty(String value) {
         return StrUtil.isNotEmpty(value);
