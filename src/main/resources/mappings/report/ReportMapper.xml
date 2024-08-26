@@ -271,4 +271,24 @@
         dm.designer) temp
         ${ew.customSqlSegment}
     </select>
+
+    <select id="patternMaking" resultType="com.base.sbc.module.report.vo.PatternMakingReportVo">
+        select ts.prod_category_name,ts.designer,
+               COUNT(1) as index1,
+                count(tpm.receive_sample_date) as index2,
+                sum(if(tpm.pattern_status = '3',1,0)) as index4,
+                sum(if(tpm.pattern_status != '3',1,0)) as index5,
+                sum(if(tpm.technician_kitting = '1',1,0)) as index6,
+                sum(if(tpm.technician_kitting = '0',1,0)) as index7
+        from
+            t_pattern_making tpm
+                LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
+        where tpm.sample_type = '初版样'
+          and tpm.del_flag = '0'
+          and tpm.prm_send_status = '1'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        GROUP BY ts.prod_category_name,ts.designer
+    </select>
 </mapper>

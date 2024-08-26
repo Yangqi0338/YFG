@@ -18,13 +18,13 @@ import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
@@ -39,10 +39,7 @@ import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
-import com.base.sbc.open.dto.DesignStyleOverdueReasonDto;
-import com.base.sbc.open.dto.MtBpReqDto;
-import com.base.sbc.open.dto.OrderBookDto;
+import com.base.sbc.open.dto.*;
 import com.base.sbc.open.entity.*;
 import com.base.sbc.open.service.BasicsdatumGarmentInspectionService;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -100,7 +97,7 @@ public class OpenSmpController extends BaseController {
     private final OrderBookDetailService orderBookDetailService;
     private final PlanningSeasonService planningSeasonService;
     private final MoreLanguageService moreLanguageService;
-
+    private final BasicsdatumSupplierService supplierService;
 
     /**
      * bp供应商
@@ -439,5 +436,30 @@ public class OpenSmpController extends BaseController {
             return selectSuccess(CopyUtil.copy(list, DesignStyleOverdueReasonVo.class));
         }
         return selectSuccess(null);
+    }
+
+
+    @PostMapping("/receiveScmSupplier")
+    @ApiOperation(value = "接收SCM传输过来的供应商", notes = "接收SCM传输过来的供应商")
+    public ApiResult receiveScmSupplier(@RequestBody TempSupplierDto tempSupplierDto) {
+        String supplierCode = tempSupplierDto.getSupplierCode();
+        if (StrUtil.isEmpty(supplierCode)) {
+            throw new OtherException("临时供应商编号不能为空！");
+        }
+        BasicsdatumSupplier basicsdatumSupplier = BeanUtil.copyProperties(tempSupplierDto, BasicsdatumSupplier.class);
+
+        QueryWrapper<BasicsdatumSupplier> basicsdatumSupplierQueryWrapper = new QueryWrapper<>();
+        basicsdatumSupplierQueryWrapper.eq("supplier_code",supplierCode);
+        BasicsdatumSupplier supplier = supplierService.getOne(basicsdatumSupplierQueryWrapper);
+        if (supplier == null) {
+            basicsdatumSupplier.setDelFlag("1");
+            supplierService.save(basicsdatumSupplier);
+        }else{
+            //将数据copy已存在实体
+            BeanUtil.copyProperties(tempSupplierDto, supplier);
+            supplierService.updateById(supplier);
+        }
+
+        return selectSuccess(tempSupplierDto);
     }
 }

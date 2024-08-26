@@ -580,6 +580,39 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogService.save(operaLogEntity);
     }
 
+    /**
+     * 保存操作日志
+     *
+     * @param type 操作类型  新增 修改 删除
+     * @param name 模块名称
+     */
+    @Override
+    public void saveOperaLog(String type,String parentId,String path, String name, String documentName, String documentCode, Map<String, String> data) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        JSONArray jsonArray = new JSONArray();
+
+        for (Map.Entry<String, String> listEntry : data.entrySet()) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", listEntry.getKey());
+            if (listEntry.getValue() != null) {
+                String[] split = listEntry.getValue().split("->");
+                jsonObject.put("oldStr", split.length > 0 ? split[0] : "");
+                jsonObject.put("newStr", split.length > 1 ? split[1] : "");
+                jsonArray.add(jsonObject);
+            }
+
+        }
+
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogEntity.setName(name);
+        operaLogEntity.setDocumentName(documentName);
+        operaLogEntity.setDocumentCode(documentCode);
+        operaLogEntity.setType(type);
+        operaLogEntity.setParentId(parentId);
+        operaLogEntity.setPath(path);
+        operaLogService.save(operaLogEntity);
+    }
+
 
     /**
      * 保存操作日志

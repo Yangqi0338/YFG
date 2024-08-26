@@ -186,6 +186,7 @@ import java.util.stream.Collectors;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
+import static com.base.sbc.module.common.utils.AttachmentTypeConstant.MATERIAL_FITTING_REPORT;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -650,9 +651,9 @@ public class SmpService {
                 smpGoodsDto.setGarmentWash(oldFvMap.get("GarmentWash"));
             }
 
-            // 生产类型
-            smpGoodsDto.setProductionType(style.getDevtType());
-            smpGoodsDto.setProductionTypeName(style.getDevtTypeName());
+            //生产类型
+            smpGoodsDto.setProductionType(styleColor.getDevtType().getCode());
+            smpGoodsDto.setProductionTypeName(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
@@ -1095,6 +1096,12 @@ public class SmpService {
                 throw new OtherException("报价不能为空");
             }
             smpMaterialDto.setQuotList(quotList);
+
+            // 封装下发的接口
+            List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(smpMaterialDto.getId(), MATERIAL_FITTING_REPORT);
+            if (CollUtil.isNotEmpty(attachmentVoList)) {
+                smpMaterialDto.setFabricTestFileUrl(attachmentVoList.stream().map(AttachmentVo::getSourceUrl).collect(Collectors.toList()));
+            }
 
             String jsonString = JsonStringUtils.toJSONString(smpMaterialDto);
             // 获取事务

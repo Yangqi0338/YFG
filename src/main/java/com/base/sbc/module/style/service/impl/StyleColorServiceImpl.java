@@ -23,7 +23,6 @@ import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
-import com.aliyun.oss.ServiceException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -49,26 +48,15 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.CodeGen;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.QueryGenerator;
-import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibraryAgent;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryAgentService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumWashIconService;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
@@ -94,21 +82,9 @@ import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
-import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
-import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
-import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
-import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
-import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -132,39 +108,14 @@ import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
-import com.base.sbc.module.style.dto.MangoHangTagExeclDto;
-import com.base.sbc.module.style.dto.MangoStyleColorExeclDto;
-import com.base.sbc.module.style.dto.MangoStyleColorExeclExportDto;
-import com.base.sbc.module.style.dto.PublicStyleColorDto;
-import com.base.sbc.module.style.dto.QueryBulkCargoDto;
-import com.base.sbc.module.style.dto.QueryStyleColorAgentDto;
-import com.base.sbc.module.style.dto.QueryStyleColorDto;
-import com.base.sbc.module.style.dto.RelevanceBomDto;
-import com.base.sbc.module.style.dto.StyleColorOverdueReasonDto;
-import com.base.sbc.module.style.dto.StyleColorsDto;
-import com.base.sbc.module.style.dto.StyleMainAccessoriesSaveDto;
-import com.base.sbc.module.style.dto.UpdateColorDto;
-import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.style.dto.UpdateTagPriceDto;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorAgent;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.service.StyleColorAgentService;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleMainAccessoriesService;
-import com.base.sbc.module.style.service.StylePicService;
-import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.CompleteStyleVo;
-import com.base.sbc.module.style.vo.StyleColorAgentVo;
-import com.base.sbc.module.style.vo.StyleColorExcel;
-import com.base.sbc.module.style.vo.StyleColorListExcel;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
-import com.base.sbc.module.style.vo.StylePicVo;
+import com.base.sbc.module.style.service.*;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -197,15 +148,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -4771,6 +4714,64 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //总计导入 成功 失败多少 修改多少
         return ApiResult.success("总计导入" + readAll.size() +"条,成功"+goodsIds.size()+"条,失败"+(readAll.size() - goodsIds.size())+"条,修改"+updateSize+"条",attachmentVo);
+    }
+
+    /**
+     * 样衣-款式配色分页查询
+     *
+     * @param queryDto
+     * @return
+     */
+    @Override
+    public PageInfo<StyleColorVo> materialListQuote(Principal user, QueryStyleColorDto queryDto) {
+        /*分页*/
+        BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+
+        //添加数据权限，根据前端传值
+        //打版进度	patternMakingSteps
+        //款式配色	styleColor
+        //款式列表	stylePage
+        //款式库	    styleLibrary
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "ts.");
+        Page<Object> objects = PageHelper.startPage(queryDto);
+
+        /*获取配色数据*/
+        queryWrapper.eq("ts.del_flag", "0");
+        queryWrapper.eq("tpi.del_flag", "0");
+        queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
+        queryWrapper.orderByDesc("ts.create_date");
+        //查询款式配色
+        List<StyleColorVo> sampleStyleColorList = baseMapper.materialListQuote(queryWrapper);
+
+        List<String> stringList = IdGen.getIds(sampleStyleColorList.size());
+        int index = 0;
+        for (StyleColorVo styleColorVo : sampleStyleColorList) {
+            if (stringList != null) {
+                styleColorVo.setIssuerId(stringList.get(index));
+            }
+            index++;
+        }
+
+        /*查询款式图*/
+        stylePicUtils.setStylePic(sampleStyleColorList, "stylePic");
+        /*查询款式配色图*/
+        stylePicUtils.setStyleColorPic2(sampleStyleColorList, "styleColorPic");
+
+        // 查询产品季的名称
+        if (ObjectUtil.isNotEmpty(sampleStyleColorList)) {
+            List<String> planningSeasonIdList = sampleStyleColorList
+                    .stream().map(StyleColorVo::getPlanningSeasonId).distinct().collect(Collectors.toList());
+            List<PlanningSeason> planningSeasonList = planningSeasonService.listByIds(planningSeasonIdList);
+            Map<String, String> planningSeasonNameMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(planningSeasonList)) {
+                planningSeasonNameMap = planningSeasonList
+                        .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
+            }
+            for (StyleColorVo styleColorVo : sampleStyleColorList) {
+                styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
+            }
+        }
+        return new PageInfo<>(sampleStyleColorList);
     }
 
 

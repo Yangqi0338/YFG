@@ -7,22 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * {@code 描述：生产类型}
+ * {@code 描述：全量标准表类型}
  *
  * @author KC
  * @CopyRight @ 广州尚捷科技有限公司
- * @since 2024/4/11
+ * @since 2023/11/30
  */
 @Getter
 @AllArgsConstructor
-public enum ProductionType {
-    CMT("CMT","CMT"),
-    FOB("FOB","FOB"),
-    WPO("WPO","外购"),
-    SALE("999","代销"),
-    SCK("SCK","市场"),
-    ;
+public enum PackSampleReviewItemType {
+    /**/
+    SAMPLE("样衣"),
 
+    FABRIC("面料"),
+    ;
     /** 编码 */
     @EnumValue
     private final String code;
@@ -30,13 +28,15 @@ public enum ProductionType {
     private final String text;
 
 
+    PackSampleReviewItemType(String text) {
+        String code = this.name().toLowerCase();
+        this.code = StrUtil.toCamelCase(code);
+        this.text = text;
+    }
+
     @JsonValue
     public String getCode() {
         return code;
     }
 
-    ProductionType(String text) {
-        this.code = this.name();
-        this.text = text;
-    }
 }
