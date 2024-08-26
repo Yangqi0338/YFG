@@ -18,7 +18,6 @@ import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -33,6 +32,7 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
@@ -98,6 +98,7 @@ public class OpenSmpController extends BaseController {
     private final PlanningSeasonService planningSeasonService;
     private final MoreLanguageService moreLanguageService;
     private final BasicsdatumSupplierService supplierService;
+    private final PackSizeService packSizeService;
 
     /**
      * bp供应商
@@ -461,5 +462,11 @@ public class OpenSmpController extends BaseController {
         }
 
         return selectSuccess(tempSupplierDto);
+    }
+
+    @PostMapping("/savePackSizeDetail")
+    @ApiOperation(value = "接收SCM传输过来的供应商", notes = "接收SCM传输过来的供应商")
+    public ApiResult savePackSizeDetail(@RequestBody OpenPackSizeDto openPackSizeDto) {
+        return packSizeService.openSaveBatch(openPackSizeDto);
     }
 }

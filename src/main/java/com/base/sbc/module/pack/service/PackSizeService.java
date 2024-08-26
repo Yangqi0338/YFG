@@ -6,12 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeConfigReferencesDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.vo.PackSizeVo;
+import com.base.sbc.open.dto.OpenPackSizeDto;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -65,6 +67,8 @@ public interface PackSizeService extends PackBaseService<PackSize> {
 
 
 // 自定义方法区 不替换的区域【other_end】
+
+    ApiResult openSaveBatch(OpenPackSizeDto openPackSizeDto);
 
 
 }
