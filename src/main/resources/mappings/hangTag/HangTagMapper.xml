@@ -1170,6 +1170,7 @@
                 tssc.color_code AS colorCode,
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
+                tssc.is_defective,
                 tssc.style_color_pic ,
                 tssc.bom_status ,
                 tssc.devt_type_name as produceTypeName,
