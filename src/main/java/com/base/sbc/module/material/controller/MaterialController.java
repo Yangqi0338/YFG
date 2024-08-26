@@ -165,7 +165,7 @@ public class MaterialController extends BaseController {
         if (!materialSaveDto.isSave()){
             //从公司素材管理提交审批，静默审批，不用走审批流
             if ( "2".equals(materialSaveDto.getStatus())){
-                if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus())){
+                if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus()) && !"1".equals(material.getDirectSubmit())){
                     throw new OtherException("未审核过的素材，不允许提交！");
                 }
                 if (StringUtils.isBlank(materialSaveDto.getMaterialCode())){
@@ -453,6 +453,9 @@ public class MaterialController extends BaseController {
         }
         if ("2".equals(type)){
             for (Material saveDto : list) {
+                if ("1".equals(saveDto.getDirectSubmit())){
+                    continue;
+                }
                 if (!"1".equals(saveDto.getCompanyFlag()) && !"4".equals(saveDto.getStatus())){
                     throw new OtherException("未审核过的素材，不允许提交！");
                 }
