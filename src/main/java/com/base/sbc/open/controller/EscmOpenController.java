@@ -1,5 +1,6 @@
 package com.base.sbc.open.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,12 +15,15 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
+import com.base.sbc.open.entity.ListMeasurementVO;
+import com.base.sbc.open.entity.ListRangeDifferenceVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,9 +51,9 @@ public class EscmOpenController {
     private MinioUtils minioUtils;
     @ApiOperation(value = "查询已启用的档差管理列表")
     @GetMapping("/listRangeDifference")
-    public ApiResult<List<BasicsdatumRangeDifferenceVo>> listRangeDifference() {
+    public ApiResult<List<ListRangeDifferenceVO>> listRangeDifference() {
         // 初始化返回数据
-        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceVoList = null;
+        List<ListRangeDifferenceVO> basicsdatumRangeDifferenceVoList = null;
         LambdaQueryWrapper<BasicsdatumRangeDifference> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BasicsdatumRangeDifference::getStatus, "0");
         queryWrapper.orderByDesc(BasicsdatumRangeDifference::getCreateDate);
@@ -60,7 +64,9 @@ public class EscmOpenController {
             for (BasicsdatumRangeDifference basicsdatumRangeDifference : basicsdatumRangeDifferences) {
                 BasicsdatumRangeDifferenceVo basicsdatumRangeDifferenceVo =
                         basicsdatumRangeDifferenceService.getById(basicsdatumRangeDifference.getId());
-                basicsdatumRangeDifferenceVoList.add(basicsdatumRangeDifferenceVo);
+                ListRangeDifferenceVO listRangeDifferenceVO = BeanUtil.copyProperties(basicsdatumRangeDifferenceVo, ListRangeDifferenceVO.class);
+                listRangeDifferenceVO.setDifferenceList(basicsdatumRangeDifferenceVo.getDifferenceList());
+                basicsdatumRangeDifferenceVoList.add(listRangeDifferenceVO);
             }
         }
         return ApiResult.success("查询成功", basicsdatumRangeDifferenceVoList);
@@ -68,14 +74,15 @@ public class EscmOpenController {
 
     @ApiOperation(value = "查询已启用测量点列表")
     @GetMapping("/listMeasurement")
-    public ApiResult<List<BasicsdatumMeasurement>> listMeasurement() {
+    public ApiResult<List<ListMeasurementVO>> listMeasurement() {
         // 初始化返回数据
         LambdaQueryWrapper<BasicsdatumMeasurement> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BasicsdatumMeasurement::getStatus, "1");
         queryWrapper.orderByDesc(BasicsdatumMeasurement::getCreateDate);
         List<BasicsdatumMeasurement> basicsdatumMeasurements = basicsdatumMeasurementService.list(queryWrapper);
         minioUtils.setObjectUrlToList(basicsdatumMeasurements, "image");
-        return ApiResult.success("查询成功", basicsdatumMeasurements);
+        List<ListMeasurementVO> listMeasurementVOS = BeanUtil.copyToList(basicsdatumMeasurements, ListMeasurementVO.class);
+        return ApiResult.success("查询成功", listMeasurementVOS);
     }
 
 }
