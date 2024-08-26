@@ -14,6 +14,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
@@ -29,7 +30,6 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
-import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.base.sbc.config.annotation.EditPermission;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
@@ -39,12 +39,21 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.*;
+import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -126,6 +135,7 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,6 +151,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -578,10 +589,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany, String selectType) {
-		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), userCompany, selectType).stream().findFirst().orElse(null);
-		if (hangTagVO == null) {
-			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
-		}
+		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), userCompany, selectType)
+				.stream().findFirst().orElseThrow(() -> new OtherException("大货款号:" + bulkStyleNo + " 不存在"));
 		hangTagVO.setStylePic(stylePicUtils.getStyleUrl(hangTagVO.getStylePic()));
 		hangTagVO.setStyleColorPic(stylePicUtils.getStyleUrl(hangTagVO.getStyleColorPic()));
 		minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
@@ -718,6 +727,23 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}
 
+
+		List<String> checkFieldList = hangTagDTO.getCheckFieldList();
+		if (CollUtil.isNotEmpty(checkFieldList)) {
+			Field[] fields = ReflectUtil.getFields(HangTagDTO.class, (field) -> checkFieldList.contains(field.getName()));
+			for (Field field : fields) {
+				field.setAccessible(true);
+				try {
+					Object obj = field.get(hangTagDTO);
+					ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
+					if (ObjectUtil.isEmpty(obj)) {
+						throw new OtherException("非报次款或特定报次款必须要填写" + apiModelProperty.value());
+					}
+				} catch (IllegalAccessException e) {
+					log.error(e.getMessage());
+				}
+			}
+		}
 
 		logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO),
 				userCompany);

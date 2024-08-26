@@ -17,8 +17,11 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.util.*;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -44,7 +47,11 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -65,13 +72,61 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.dto.BomPrintVo;
+import com.base.sbc.module.pack.dto.CopyBomDto;
+import com.base.sbc.module.pack.dto.CreatePackInfoByStyleDto;
+import com.base.sbc.module.pack.dto.PackBomVersionDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackCopyDto;
+import com.base.sbc.module.pack.dto.PackInfoAssociationDto;
+import com.base.sbc.module.pack.dto.PackInfoDto;
+import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.dto.PackInfoSetPatternNoDto;
+import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
+import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomColor;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomColorService;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackBusinessOpinionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.PackProcessPriceService;
+import com.base.sbc.module.pack.service.PackSampleReviewService;
+import com.base.sbc.module.pack.service.PackSizeConfigService;
+import com.base.sbc.module.pack.service.PackSizeDetailService;
+import com.base.sbc.module.pack.service.PackSizeService;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
+import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoExcel;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
+import com.base.sbc.module.pack.vo.CopyItemsVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.vo.PackInfoStatusVo;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
+import com.base.sbc.module.pack.vo.PackSizeVo;
+import com.base.sbc.module.pack.vo.PricingSelectListVO;
+import com.base.sbc.module.pack.vo.StylePackInfoListVo;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.entity.PricingTemplateItem;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
@@ -94,7 +149,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
-import org.bouncycastle.util.Pack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -111,27 +167,26 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.MATERIAL_CREATE_PURCHASEDEMAND;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：资料包 service类
@@ -1456,7 +1511,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.in("scm_send_flag", StringUtils.convertList("1,3"));
         List<PackBom> packBomList = packBomService.list(qw);
         if (CollUtil.isNotEmpty(packBomList)) {
-            throw new OtherException("物料清单存在已下发数据无法取消");
+            throw new OtherException("物料清单中存在已下发的物料，则不允许换绑");
         }
 
         QueryWrapper queryWrapper = new QueryWrapper();
@@ -1465,9 +1520,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
         /*验证是否下发*/
         if (color != null) {
-            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
-                throw new OtherException("数据存在已下发");
-            }
+//            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
+//                throw new OtherException("数据存在已下发");
+//            }
             color.setBom("");
             styleColorMapper.updateById(color);
         }

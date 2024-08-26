@@ -357,4 +357,14 @@ public class SmpGoodsDto extends SmpBaseDto {
      */
     private List<SmpHangTagIngredientDTO> hangTagIngredientList;
 
+    /**
+     * 执行标准
+     */
+    private String executeStandard;
+
+    /**
+     * 温馨提示
+     */
+    private String warmTips;
+
 }

@@ -50,7 +50,7 @@
             count(0)
         </if>
         FROM t_pattern_making p
-        INNER JOIN t_style s ON p.style_id = s.id
+        INNER JOIN t_style s ON p.style_id = s.id and s.historical_data = '0'
         ${ew.customSqlSegment}
     </select>
 
