@@ -17,6 +17,8 @@ import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
@@ -44,6 +46,7 @@ import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.utils.VideoUtil;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
@@ -72,6 +75,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,6 +88,12 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -302,6 +313,12 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case fittingReport:
                     case messageTemptableUpload:
                         objectName = "Message/template/" + System.currentTimeMillis() + "." + extName;
+                        break;
+                    case "SampleVideo":
+                        QueryWrapper qw = new QueryWrapper();
+                        qw.eq("design_no", code);
+                        Style style2 = styleMapper.selectOne(qw);
+                        objectName = type + "/" + style2.getBrandName() + "/" + style2.getYearName() + "/" + style2.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     default:
                         objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
@@ -796,38 +813,56 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
     }
 
-
-    /**
-     * 获取素材库上传的文件路径
-     * @param code
-     * @return
-     */
-    private String getSourceMaterialFileName(String code) {
-
-        String prefix = "DesignMaterial";
-        //工号
-        String username = userUtils.getUserCompany().getUsername();
-
-        StringBuilder fileName = new StringBuilder();
-        if (StringUtils.isNotEmpty(code)){
-            List<String> list = StringUtils.convertList(code);
-            for (String s : list) {
-                fileName.append(s).append("_");
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void asyncCompress(String fileId, String contentType, String type, String code) {
+        UploadFile uploadFile = getById(fileId);
+        if (Objects.isNull(uploadFile)){
+            return;
+        }
+        String url = uploadFile.getUrl();
+        String objectUrl = minioUtils.getObjectUrl(url);
+        File targetFile = null;
+        File newFile = null;
+        try {
+            targetFile = VideoUtil.toUrlFile(objectUrl ,url);
+            newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
+            MultipartFile multipartFile = VideoUtil.toMultipartFile(newFile, contentType);
+            AttachmentVo attachmentVo = uploadToMinio(multipartFile, type, code);
+            String newUrl = CommonUtils.removeQuery(attachmentVo.getUrl());
+            UpdateWrapper<UploadFile> uw = new UpdateWrapper<>();
+            uw.lambda().eq(UploadFile::getId,fileId);
+            uw.lambda().set(UploadFile::getUrl,newUrl);
+            boolean update = update(uw);
+            if (update){
+                this.delUrl(url);
+            }
+            removeById(attachmentVo.getFileId());
+        }catch (Exception e){
+            log.error("asyncCompress error={}, fileId={} type={}, code={}",e.getMessage(),fileId, type,code);
+            e.printStackTrace();
+            throw new OtherException("压缩转换失败");
+        }finally {
+            if (targetFile !=null){
+                targetFile.delete();
+            }
+            if (newFile !=null){
+                newFile.delete();
             }
         }
-        String formatDate = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");
-        fileName.append(formatDate);
-        String redisKey = "MaterialPicRedis" + username + formatDate;
-        long incr = redisUtils.incr(redisKey, 1, 5, TimeUnit.SECONDS);
-        if (incr > 1){
-            fileName.append("_").append(incr-1);
-        }
-        return prefix + "/" + username + "/" + fileName.toString();
 
     }
 
-
-
+    public void delUrl(String url) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    minioUtils.delFile(url);
+                }
+            });
+        }
+    }
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
