@@ -23,6 +23,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeConfigReferencesDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.entity.PackSizeConfig;
 import com.base.sbc.module.pack.entity.PackSizeDetail;
@@ -301,14 +302,21 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
         }
         StyleColor styleColor = styleColorList.get(0);
         String id = styleColor.getId();
+        //找到标准资料包id
+        List<PackInfo> packInfoList = packInfoService.listByField("style_color_id", id);
+        if(CollUtil.isEmpty(packInfoList)) {
+            //没有查询到大货款号
+            return ApiResult.error("没有找到大货款号："+openPackSizeDto.getStyleNo()+",对应的标准资料包",500);
+        }
+        String foreignId = packInfoList.get(0).getId();
 
         //删除历史数据，先查询
-        List<PackSize> oldList = list(id, openPackSizeDto.getPackType());
+        List<PackSize> oldList = list(foreignId, openPackSizeDto.getPackType());
         String oldIds = oldList.stream().map(BaseEntity::getId).collect(Collectors.joining(","));
         delByIds(oldIds);
 
         //获取尺寸表配置
-        PackSizeConfigVo oldConfig = packSizeConfigService.getConfig(id, openPackSizeDto.getPackType());
+        PackSizeConfigVo oldConfig = packSizeConfigService.getConfig(foreignId, openPackSizeDto.getPackType());
         String productSizes = oldConfig.getProductSizes();
         List<String> productSizeList = Arrays.asList(productSizes.split(","));
 
@@ -326,7 +334,7 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
         }
 
         //修改尺码表数据
-        boolean washSkippingFlag = "0".equals(config.getWashSkippingFlag());
+        boolean washSkippingFlag = "1".equals(config.getWashSkippingFlag());
         oldConfig.setWashSkippingFlag(config.getWashSkippingFlag());
         oldConfig.setSizeRange(config.getSizeRange());
         oldConfig.setSizeRangeName(config.getSizeRangeName());
@@ -368,7 +376,7 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
         }
 
         PackCommonSearchDto commonDto = new PackCommonSearchDto();
-        commonDto.setForeignId(id);
+        commonDto.setForeignId(foreignId);
         commonDto.setPackType(openPackSizeDto.getPackType());
         saveBatchByDto(commonDto,sizeDtos);
 
