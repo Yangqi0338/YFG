@@ -56,10 +56,35 @@ public class HrTrafficLightData extends BaseDataEntity<String> implements Serial
     @ApiModelProperty("行号")
     private Integer rowIdx;
     /**
+     * 一级标题颜色
+     */
+    @ApiModelProperty("一级标题颜色")
+    private String oneHeadColor;
+    /**
+     * 一级标题背景颜色
+     */
+    @ApiModelProperty("一级标题背景颜色")
+    private String oneHeadBackColor;
+    /**
+     * 一级标题颜色
+     */
+    @ApiModelProperty("一级标题颜色")
+    private String twoHeadColor;
+    /**
+     * 二级标题背景颜色
+     */
+    @ApiModelProperty("二级标题背景颜色")
+    private String twoHeadBackColor;
+    /**
      * 颜色
      */
     @ApiModelProperty("颜色")
     private String color;
+    /**
+     * 背景颜色
+     */
+    @ApiModelProperty("背景颜色")
+    private String backColor;
     /**
      * 品牌名称
      */
