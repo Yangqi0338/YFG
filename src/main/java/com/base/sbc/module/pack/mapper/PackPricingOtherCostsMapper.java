@@ -34,7 +34,7 @@ public interface PackPricingOtherCostsMapper extends BaseMapper<PackPricingOther
 
 //    统计
 
-    List<TotalVo> newCostsItemTotal(@Param(Constants.WRAPPER) LambdaQueryWrapper<PackPricingOtherCosts> qw , @Param(Constants.WRAPPER+"1") LambdaQueryWrapper<PackPricingOtherCosts> qw1);
+    List<TotalVo> newCostsItemTotal(@Param(Constants.WRAPPER) QueryWrapper<PackPricingOtherCosts> qw , @Param(Constants.WRAPPER+"1") QueryWrapper<PackPricingOtherCosts> qw1);
 
 //    /**
 //     * 通过主id统计

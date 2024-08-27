@@ -120,6 +120,18 @@ public class PackPricingOtherCosts extends BaseDataEntity<String> {
     private String unit;
 
     /**
+     * 图片
+     */
+    @ApiModelProperty(value = "图片")
+    private String picId;
+
+    /**
+     * 图片url
+     */
+    @ApiModelProperty(value = "图片url")
+    private String picUrl;
+
+    /**
      * 物料编号
      */
     @ApiModelProperty(value = "物料编号")
