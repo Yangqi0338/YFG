@@ -1432,14 +1432,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             PackPricing packPricing = packPricingService.getOne(
                     new LambdaQueryWrapper<PackPricing>()
                             .eq(PackPricing::getForeignId, packInfo.getId())
+                            .eq(PackPricing::getPackType, PackUtils.PACK_TYPE_DESIGN)
             );
             packPricing.setCalcItemVal(JSON.toJSONString(hashMap));
             packPricing.setPricingTemplateId(pricingTemplate.getId());
             packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
             packPricingService.updateById(packPricing);
         }
-
-
         return true;
     }
 
