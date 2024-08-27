@@ -729,24 +729,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}
 
-
-		List<String> checkFieldList = hangTagDTO.getCheckFieldList();
-		if (CollUtil.isNotEmpty(checkFieldList)) {
-			Field[] fields = ReflectUtil.getFields(HangTagDTO.class, (field) -> checkFieldList.contains(field.getName()));
-			for (Field field : fields) {
-				field.setAccessible(true);
-				try {
-					Object obj = field.get(hangTagDTO);
-					ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
-					if (ObjectUtil.isEmpty(obj)) {
-						throw new OtherException("非报次款或特定报次款必须要填写" + apiModelProperty.value());
-					}
-				} catch (IllegalAccessException e) {
-					log.error(e.getMessage());
-				}
-			}
-		}
-
 		logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO),
 				userCompany);
 		HangTag hangTag = new HangTag();
@@ -775,6 +757,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 成分检查
 		if (hangTagDTO.getStatus() == DESIGN_CHECK) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
+			List<String> checkFieldList = hangTagDTO.getCheckFieldList();
+			if (CollUtil.isNotEmpty(checkFieldList)) {
+				Field[] fields = ReflectUtil.getFields(HangTagDTO.class, (field) -> checkFieldList.contains(field.getName()));
+				for (Field field : fields) {
+					field.setAccessible(true);
+					try {
+						Object obj = field.get(hangTagDTO);
+						ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
+						if (ObjectUtil.isEmpty(obj)) {
+							throw new OtherException("非报次款或特定报次款必须要填写" + apiModelProperty.value());
+						}
+					} catch (IllegalAccessException e) {
+						log.error(e.getMessage());
+					}
+				}
+			}
 		}
 		/*检测报告*/
 		List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagDTO.getHangTagInspectCompanyList();
