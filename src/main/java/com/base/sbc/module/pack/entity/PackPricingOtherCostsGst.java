@@ -100,6 +100,18 @@ public class PackPricingOtherCostsGst extends BaseDataExtendEntity {
      */
     @ApiModelProperty(value = "物料编号")
     private String materialCode;
+
+    /**
+     * 图片
+     */
+    @ApiModelProperty(value = "图片")
+    private String picId;
+
+    /**
+     * 图片url
+     */
+    @ApiModelProperty(value = "图片url")
+    private String picUrl;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

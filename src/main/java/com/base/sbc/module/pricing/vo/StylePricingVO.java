@@ -364,7 +364,7 @@ public class StylePricingVO {
     private String prodCategory3rdName;
 
     public boolean isCmt(){
-        return ProductionType.valueOf(this.getProductionType()) == ProductionType.CMT;
+        return ProductionType.findByCode(this.getProductionType()) == ProductionType.CMT;
     }
 }
 
