@@ -108,9 +108,11 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     private PackPricingOtherCostsGstService otherCostsGstService;
 
     @Autowired
+    @Lazy
     private StyleColorService styleColorService;
 
     @Autowired
+    @Lazy
     private StyleService styleService;
     @Autowired
     private MinioUtils minioUtils;
