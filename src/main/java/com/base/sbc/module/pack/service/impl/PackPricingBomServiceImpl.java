@@ -77,7 +77,9 @@ public class PackPricingBomServiceImpl extends AbstractPackBaseServiceImpl<PackP
      */
     @Override
     public BigDecimal calculateCosts(PackCommonSearchDto dto) {
-
+        if (org.apache.commons.lang.StringUtils.isEmpty(dto.getPackType()) || org.apache.commons.lang.StringUtils.isEmpty(dto.getForeignId())) {
+            return BigDecimal.valueOf(0);
+        }
         BigDecimal result = BigDecimal.ZERO;
         BaseQueryWrapper<PackPricingBom> queryWrapper = new BaseQueryWrapper<>();
         PackUtils.commonQw(queryWrapper, dto);

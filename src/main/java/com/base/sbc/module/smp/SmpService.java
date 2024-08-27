@@ -27,7 +27,6 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.constant.BusinessProperties;
 import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
