@@ -312,7 +312,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
-        String packType="packDesign";
+        String packType="";
         if (isPackType){
             packType = PackUtils.PACK_TYPE_BIG_GOODS;
         }
