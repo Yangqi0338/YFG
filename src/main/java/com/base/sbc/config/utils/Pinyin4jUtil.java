@@ -33,7 +33,10 @@ public class Pinyin4jUtil {
      *            汉字 
      * @return 拼音 
      */  
-    public static String converterToFirstSpell(String chines) {  
+    public static String converterToFirstSpell(String chines) {
+        if (StringUtils.isEmpty(chines)){
+            return "";
+        }
         StringBuilder pinyinName = new StringBuilder();
         char[] nameChar = chines.toCharArray();  
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();  
