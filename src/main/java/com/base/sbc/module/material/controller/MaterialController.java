@@ -164,9 +164,12 @@ public class MaterialController extends BaseController {
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
             //从公司素材管理提交审批，静默审批，不用走审批流
-            if ( "2".equals(materialSaveDto.getStatus())){
-                if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus())){
+            if ( "2".equals(materialSaveDto.getStatus()) || "1".equals(material.getDirectSubmit())){
+                if (!"1".equals(materialSaveDto.getCompanyFlag()) && !"4".equals(material.getStatus()) && !"1".equals(material.getDirectSubmit())){
                     throw new OtherException("未审核过的素材，不允许提交！");
+                }
+                if ("1".equals(material.getDirectSubmit())){
+                    materialSaveDto.setStatus("2");
                 }
                 if (StringUtils.isBlank(materialSaveDto.getMaterialCode())){
                     String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getMaterialBrandName()).split(",");
@@ -453,6 +456,9 @@ public class MaterialController extends BaseController {
         }
         if ("2".equals(type)){
             for (Material saveDto : list) {
+                if ("1".equals(saveDto.getDirectSubmit())){
+                    continue;
+                }
                 if (!"1".equals(saveDto.getCompanyFlag()) && !"4".equals(saveDto.getStatus())){
                     throw new OtherException("未审核过的素材，不允许提交！");
                 }
@@ -491,40 +497,80 @@ public class MaterialController extends BaseController {
     }
     private void fillMaterial(List<Material> materials, String type) {
 
-        //提交审核
+        materials.forEach(item ->{
+            if ("1".equals(item.getDirectSubmit())){
+                materialByType(item,"2");
+            }else {
+                materialByType(item,type);
+            }
+        });
+//
+//        //提交审核
+//        if ("1".equals(type)){
+//            materials.forEach(item ->{
+//                if ("1".equals(item.getDirectSubmit())){
+//                    materialByType(item,"2");
+//                }else {
+//                    materialByType(item,type);
+//                }
+//         });
+//
+//        }
+//
+//        //提交发布
+//        if ("2".equals(type)){
+//            String issuerId = userUtils.getUserCompany().getUserId();
+//            String issuerName = userUtils.getUserCompany().getAliasUserName();
+//            String username = userUtils.getUserCompany().getUsername();
+//            //工号
+//            materials.forEach(item ->{
+//                item.setStatus("2");
+//                if (StringUtils.isEmpty(item.getMaterialCode())){
+//                    String[] split = Pinyin4jUtil.converterToFirstSpell(item.getMaterialBrandName()).split(",");
+//                    String time = String.valueOf(System.currentTimeMillis());
+//                    String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+//                    item.setMaterialCode(materialCode);
+//                }
+//                //图片路径更新
+//                item.setPicUrl(picPathUpdate(item.getPicUrl()));
+//                item.setIssuerId(issuerId);
+//                item.setIssuerName(issuerName);
+//                item.setIssuerUsername(username);
+//            });
+//
+//        }
+
+    }
+
+    private void materialByType(Material item, String type){
         if ("1".equals(type)){
-            materials.forEach(item ->{
-                item.setStatus("1");
-                flowableService.start(FlowableService.MATERIAL + item.getMaterialCategoryName(), FlowableService.MATERIAL, item.getId(), "/pdm/api/saas/material/toExamine",
-                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, BeanUtil.beanToMap(item));
-            });
+            item.setStatus("1");
+            flowableService.start(FlowableService.MATERIAL + item.getMaterialCategoryName(), FlowableService.MATERIAL, item.getId(), "/pdm/api/saas/material/toExamine",
+                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, BeanUtil.beanToMap(item));
 
         }
 
-        //提交发布
         if ("2".equals(type)){
             String issuerId = userUtils.getUserCompany().getUserId();
             String issuerName = userUtils.getUserCompany().getAliasUserName();
             String username = userUtils.getUserCompany().getUsername();
             //工号
-            materials.forEach(item ->{
-                item.setStatus("2");
-                if (StringUtils.isEmpty(item.getMaterialCode())){
-                    String[] split = Pinyin4jUtil.converterToFirstSpell(item.getMaterialBrandName()).split(",");
-                    String time = String.valueOf(System.currentTimeMillis());
-                    String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
-                    item.setMaterialCode(materialCode);
-                }
+            item.setStatus("2");
+            if (StringUtils.isEmpty(item.getMaterialCode())){
+                String[] split = Pinyin4jUtil.converterToFirstSpell(item.getMaterialBrandName()).split(",");
+                String time = String.valueOf(System.currentTimeMillis());
+                String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+                item.setMaterialCode(materialCode);
+            }
                 //图片路径更新
-                item.setPicUrl(picPathUpdate(item.getPicUrl()));
-                item.setIssuerId(issuerId);
-                item.setIssuerName(issuerName);
-                item.setIssuerUsername(username);
-            });
+            item.setPicUrl(picPathUpdate(item.getPicUrl()));
+            item.setIssuerId(issuerId);
+            item.setIssuerName(issuerName);
+            item.setIssuerUsername(username);
 
         }
-
     }
+
 
     private void checkSpace(List<Material> materials) {
         if (CollUtil.isEmpty(materials)){
