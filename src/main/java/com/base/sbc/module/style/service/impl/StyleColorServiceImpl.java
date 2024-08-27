@@ -485,7 +485,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 .map(CompleteStyleVo::getPackInfoId)
                 .collect(Collectors.toList());
         String packType = PackUtils.PACK_TYPE_BIG_GOODS;
-        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId,packType);
+        Map<String, BigDecimal> otherCostsMap = stylePricingService.getOtherCosts(packId,packType);
         try {
             CountDownLatch countDownLatch = new CountDownLatch(styleList.size());
             for (CompleteStyleVo styleVO : styleList) {

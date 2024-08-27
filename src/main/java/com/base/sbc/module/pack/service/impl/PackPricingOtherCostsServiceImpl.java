@@ -8,7 +8,6 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -37,7 +36,6 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
-import com.base.sbc.module.pack.mapper.PackPricingOtherCostsGstMapper;
 import com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
@@ -46,8 +44,6 @@ import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
-import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -222,7 +218,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         otherCostsGstService.saveOrUpdateBatch(otherCostsGstList);
 
         /*重新计算*/
-        packPricingService.calculatePricingJson(dto.get(0).getForeignId(),dto.get(0).getPackType());
+        packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(),dtoList.get(0).getPackType());
     }
 
     @Override
