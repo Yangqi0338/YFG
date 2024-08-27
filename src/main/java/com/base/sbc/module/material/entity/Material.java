@@ -211,4 +211,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "发布人工号")
     private String issuerUsername;
 
+    @ApiModelProperty(value = "直接提交标识：1:直接提交")
+    private String directSubmit;
+
 }
