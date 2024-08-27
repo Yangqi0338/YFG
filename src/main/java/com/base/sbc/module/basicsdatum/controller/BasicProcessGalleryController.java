@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -63,7 +64,7 @@ public class BasicProcessGalleryController extends BaseController {
      */
     @PostMapping(value = "/saveOrUpdate")
     @DuplicationCheck
-    public ApiResult<Object> saveOrUpdate(@RequestBody BasicProcessGallerySaveDto basicProcessGallerySaveDto) {
+    public ApiResult<Object> saveOrUpdate(@RequestBody @Valid BasicProcessGallerySaveDto basicProcessGallerySaveDto) {
         String image = basicProcessGallerySaveDto.getImage();
         if (StringUtils.isNotBlank(image)){
             String[] split = image.split("\\?");

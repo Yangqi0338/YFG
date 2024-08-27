@@ -14,6 +14,14 @@ import lombok.Data;
 @Data
 @TableName("t_basic_process_gallery")
 public class BasicProcessGallery extends BaseDataEntity<String> {
+    /** 品牌id */
+    @ApiModelProperty(value = "品牌id")
+    private String brandId;
+
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称")
+    private String brandName;
+
     /**
      * 编码
      */
