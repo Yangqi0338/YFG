@@ -97,6 +97,9 @@ public class PackPricingProcessCostsServiceImpl extends AbstractPackBaseServiceI
 
     @Override
     public BigDecimal calculateCosts(PackCommonSearchDto dto) {
+        if (StringUtils.isEmpty(dto.getPackType()) || StringUtils.isEmpty(dto.getForeignId())) {
+            return BigDecimal.valueOf(0);
+        }
         BigDecimal result = BigDecimal.ZERO;
         QueryWrapper<PackPricingProcessCosts> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
