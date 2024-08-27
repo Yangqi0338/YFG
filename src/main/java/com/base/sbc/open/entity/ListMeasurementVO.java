@@ -19,4 +19,8 @@ public class ListMeasurementVO {
     /** 测量点 */
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
+
+    /** 描述 */
+    @ApiModelProperty(value = "描述"  )
+    private String description;
 }
