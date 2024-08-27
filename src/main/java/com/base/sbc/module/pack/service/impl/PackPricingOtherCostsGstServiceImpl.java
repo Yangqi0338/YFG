@@ -17,6 +17,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
@@ -83,9 +84,9 @@ public class PackPricingOtherCostsGstServiceImpl extends AbstractPackBaseService
 
     @Override
     public PageInfo<PackPricingOtherCostsVo> pageInfo(OtherCostsPageDto dto) {
-        BaseLambdaQueryWrapper<PackPricingOtherCostsGst> qw = new BaseLambdaQueryWrapper<>();
-        PackUtils.commonQw(qw, dto);
         Page<PackPricingOtherCostsGst> page = PageHelper.startPage(dto);
+        BaseQueryWrapper<PackPricingOtherCostsGst> qw = new BaseQueryWrapper<>();
+        PackUtils.commonQw(qw, dto);
         list(qw);
         PageInfo<PackPricingOtherCostsGst> pageInfo = page.toPageInfo();
         return CopyUtil.copy(pageInfo, PackPricingOtherCostsVo.class);

@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 类描述：资料包-核价信息-其他费用DTO
  *
@@ -29,6 +31,6 @@ public class PackPricingOtherCostsGstDto extends PackPricingOtherCostsGst {
     private String packType;
 
     @ApiModelProperty(value = "类型:包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
-    @NotBlank(message = "类型不能为空:包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
+    @NotNull(message = "类型不能为空:包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     private PackPricingOtherCostsItemType costsItem;
 }

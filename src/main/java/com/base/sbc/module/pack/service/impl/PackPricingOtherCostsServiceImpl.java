@@ -19,6 +19,7 @@ import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
@@ -118,11 +119,12 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
     @Override
     public PageInfo<PackPricingOtherCostsVo> pageInfo(OtherCostsPageDto dto) {
-        BaseLambdaQueryWrapper<PackPricingOtherCosts> qw = new BaseLambdaQueryWrapper<>();
-        PackUtils.commonQw(qw, dto);
-        qw.notNullEq(PackPricingOtherCosts::getCostsItem, dto.getCostsItem());
         Page<PackPricingOtherCosts> page = PageHelper.startPage(dto);
-        qw.notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode());
+        BaseQueryWrapper<PackPricingOtherCosts> qw = new BaseLambdaQueryWrapper<PackPricingOtherCosts>()
+                .notNullEq(PackPricingOtherCosts::getCostsItem, dto.getCostsItem())
+                .notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode())
+                .unwrap();
+        PackUtils.commonQw(qw, dto);
         list(qw);
         PageInfo<PackPricingOtherCosts> pageInfo = page.toPageInfo();
         return CopyUtil.copy(pageInfo, PackPricingOtherCostsVo.class);
@@ -220,15 +222,17 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     @Override
     public Map<String, BigDecimal> statistics(PackCommonSearchDto dto) {
         Map<String, BigDecimal> result = new HashMap<>(16);
-        BaseLambdaQueryWrapper<PackPricingOtherCosts> qw = new BaseLambdaQueryWrapper<>();
-        BaseLambdaQueryWrapper<PackPricingOtherCosts> qw1 = new BaseLambdaQueryWrapper<>();
+        BaseQueryWrapper<PackPricingOtherCosts> qw = new BaseLambdaQueryWrapper<PackPricingOtherCosts>()
+                .notNullNe(PackPricingOtherCosts::getCostsItem, PackPricingOtherCostsItemType.OTHER)
+                .notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode())
+                .unwrap();
         PackUtils.commonQw(qw, dto);
+        BaseQueryWrapper<PackPricingOtherCosts> qw1 = new BaseLambdaQueryWrapper<PackPricingOtherCosts>()
+                .notNullEq(PackPricingOtherCosts::getCostsItem, PackPricingOtherCostsItemType.OTHER)
+                .notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode())
+                .unwrap();
         PackUtils.commonQw(qw1, dto);
         // 其他费用
-        qw.notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode());
-        qw1.notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode());
-        qw.ne(PackPricingOtherCosts::getCostsItem, PackPricingOtherCostsItemType.OTHER);
-        qw1.eq(PackPricingOtherCosts::getCostsItem, PackPricingOtherCostsItemType.OTHER);
         List<TotalVo> costsItemTotalList = getBaseMapper().newCostsItemTotal(qw,qw1);
         if (CollUtil.isNotEmpty(costsItemTotalList)) {
             costsItemTotalList =  costsItemTotalList.stream().filter(c -> !ObjectUtil.isEmpty(c)&& StrUtil.isNotBlank(c.getLabel())).collect(Collectors.toList());
