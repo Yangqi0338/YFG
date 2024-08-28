@@ -391,7 +391,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         for (StyleColorVo styleColorVo : sampleStyleColorList) {
             if (ObjectUtil.isNotEmpty(styleColorVo.getTagPrice())) {
-                styleColorVo.setTagPrice(String.valueOf(Integer.valueOf(styleColorVo.getTagPrice())));
+                styleColorVo.setTagPrice(String.valueOf(Double.valueOf(styleColorVo.getTagPrice()).intValue()));
             }
         }
         return new PageInfo<>(sampleStyleColorList);
