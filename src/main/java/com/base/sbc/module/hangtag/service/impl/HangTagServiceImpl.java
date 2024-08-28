@@ -14,6 +14,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
@@ -134,6 +135,7 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +151,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -748,26 +751,29 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
+		StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
 
 		// 成分检查
 		if (hangTagDTO.getStatus() == DESIGN_CHECK) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
-//			List<String> checkFieldList = hangTagDTO.getCheckFieldList();
-//			if (CollUtil.isNotEmpty(checkFieldList)) {
-//				Field[] fields = ReflectUtil.getFields(HangTagDTO.class, (field) -> checkFieldList.contains(field.getName()));
-//				for (Field field : fields) {
-//					field.setAccessible(true);
-//					try {
-//						Object obj = field.get(hangTagDTO);
-//						ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
-//						if (ObjectUtil.isEmpty(obj)) {
-//							throw new OtherException("非报次款或特定报次款必须要填写" + apiModelProperty.value());
-//						}
-//					} catch (IllegalAccessException e) {
-//						log.error(e.getMessage());
-//					}
-//				}
-//			}
+			if (styleColor != null && YesOrNoEnum.YES.getValueStr().equals(styleColor.getIsDefective())) {
+				List<String> checkFieldList = hangTagDTO.getCheckFieldList();
+				if (CollUtil.isNotEmpty(checkFieldList)) {
+					Field[] fields = ReflectUtil.getFields(HangTagDTO.class, (field) -> checkFieldList.contains(field.getName()));
+					for (Field field : fields) {
+						field.setAccessible(true);
+						try {
+							Object obj = field.get(hangTagDTO);
+							ApiModelProperty apiModelProperty = field.getAnnotation(ApiModelProperty.class);
+							if (ObjectUtil.isEmpty(obj)) {
+								throw new OtherException("非报次款或特定报次款必须要填写" + apiModelProperty.value());
+							}
+						} catch (IllegalAccessException e) {
+							log.error(e.getMessage());
+						}
+					}
+				}
+			}
 		}
 		/*检测报告*/
 		List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagDTO.getHangTagInspectCompanyList();
@@ -811,7 +817,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		 * 当存在品名时同步到配色
 		 */
 		if (!StringUtils.isEmpty(hangTag.getProductCode()) && !StringUtils.isEmpty(hangTag.getProductName())) {
-			StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
 			/* 同步配色品名 */
 			if (!ObjectUtils.isEmpty(styleColor)) {
 				styleColor.setProductCode(hangTag.getProductCode());
