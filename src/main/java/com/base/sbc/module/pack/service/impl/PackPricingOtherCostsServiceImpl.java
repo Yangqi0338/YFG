@@ -323,7 +323,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         Style style = styleService.findOne(packInfo.getStyleId());
 
         Map<String, Object> baseMap = MapUtil.ofEntries(
-                MapUtil.entry("date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss"))),
+                MapUtil.entry("date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))),
                 MapUtil.entry("bulkStyleNo", packInfo.getStyleNo()),
                 MapUtil.entry("designNo", packInfo.getDesignNo()),
                 MapUtil.entry("technicianName", style.getTechnicianName()),
