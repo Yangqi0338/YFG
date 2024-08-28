@@ -87,7 +87,8 @@ public class PackPricingOtherCostsGstServiceImpl extends AbstractPackBaseService
         Page<PackPricingOtherCostsGst> page = PageHelper.startPage(dto);
         BaseQueryWrapper<PackPricingOtherCostsGst> qw = new BaseQueryWrapper<>();
         PackUtils.commonQw(qw, dto);
-        list(qw);
+        List<PackPricingOtherCostsGst> list = list(qw);
+        list.forEach(PackPricingOtherCostsGst::build);
         PageInfo<PackPricingOtherCostsGst> pageInfo = page.toPageInfo();
         return CopyUtil.copy(pageInfo, PackPricingOtherCostsVo.class);
     }

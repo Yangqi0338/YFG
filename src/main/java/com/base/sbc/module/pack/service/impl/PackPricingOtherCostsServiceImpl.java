@@ -8,6 +8,9 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Range;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,11 +26,16 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
 import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.PdfUtil;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.common.vo.TotalVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.OtherCostsPageDto;
@@ -35,6 +43,7 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
 import com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper;
@@ -52,14 +61,15 @@ import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang.math.IntRange;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -73,7 +83,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 
@@ -94,8 +106,8 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     private CcmFeignService ccmFeignService;
 
     @Autowired
-    private  PackPricingService packPricingService;
-
+    @Lazy
+    private PackPricingService packPricingService;
 
     @Autowired
     @Lazy
@@ -117,6 +129,12 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     private StyleService styleService;
     @Autowired
     private MinioUtils minioUtils;
+
+    @Autowired
+    private UploadFileService uploadFileService;
+
+    @Autowired
+    private AttachmentService attachmentService;
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -314,17 +332,23 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         return true;
     }
     @Override
-    public void generateWfgyPdf(OtherCostsPageDto dto, HttpServletResponse response) {
+    public AttachmentVo generateWfgyPdf(OtherCostsPageDto dto) {
         String foreignId = dto.getForeignId();
+        String packType = dto.getPackType();
         // 先获取当前资料包
         PackInfo packInfo = packInfoService.getById(foreignId);
+        styleService.warnMsg("未找到对应的设计款" + packInfo.getDesignNo());
+        Style style = styleService.findOne(packInfo.getStyleId());
+
         Map<String, Object> baseMap = MapUtil.ofEntries(
-                MapUtil.entry("date", LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)),
+                MapUtil.entry("date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss"))),
                 MapUtil.entry("bulkStyleNo", packInfo.getStyleNo()),
                 MapUtil.entry("designNo", packInfo.getDesignNo()),
-                MapUtil.entry("technicianName", packInfo.getDesignNo()),
-                MapUtil.entry("designer", packInfo.getDesignNo())
+                MapUtil.entry("technicianName", style.getTechnicianName()),
+                MapUtil.entry("designer", style.getDesigner()),
+                MapUtil.entry("bandName", style.getBandName())
         );
+
         String styleColorId = packInfo.getStyleColorId();
         if (StrUtil.isNotBlank(styleColorId)) {
             styleColorService.warnMsg("未找到对应的大货款" + packInfo.getStyleNo());
@@ -332,15 +356,12 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             baseMap.put("bandName",styleColor.getBandName());
             baseMap.put("styleColorPic", minioUtils.getObjectUrl(styleColor.getStyleColorPic()));
         }else {
-            styleService.warnMsg("未找到对应的设计款" + packInfo.getDesignNo());
-            Style style = styleService.findOne(packInfo.getStyleId());
-            baseMap.put("bandName",style.getBandName());
             baseMap.put("styleColorPic", minioUtils.getObjectUrl(style.getStylePic()));
         }
 
         dto.reset2QueryList();
         List<PackPricingOtherCostsVo> list = otherCostsGstService.pageInfo(dto).getList();
-        list.forEach(it-> it.setIndex(1));
+        list.forEach(it-> {it.setIndex(1); it.setRole("GST报价");});
 
         dto.setCostsItem(PackPricingOtherCostsItemType.OUTSOURCE_PROCESS);
         list.addAll(pageInfo(dto).getList());
@@ -352,43 +373,48 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         if (CollUtil.isNotEmpty(materialCodeList)) {
             packBomList.addAll(packBomService.list(new LambdaQueryWrapper<PackBom>()
                     .eq(PackBom::getForeignId, foreignId)
-                    .eq(PackBom::getPackType, dto.getPackType())
+                    .eq(PackBom::getPackType, packType)
                     .in(PackBom::getMaterialCode, materialCodeList)
             ));
         }
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        InputStream templateInputStream = new ByteArrayInputStream(bos.toByteArray());
-        //输出流
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (ExcelWriter excelWriter = EasyExcel.write(out).withTemplate(templateInputStream).build()) {
+        Map<String, List<PackPricingOtherCostsVo>> costTypeListMap = list.stream().collect(CommonUtils.groupingBy(PackPricingOtherCostsVo::getCostsType));
+        try(ByteArrayOutputStream bos = new ByteArrayOutputStream();
             InputStream fileInputStream = new DefaultResourceLoader().getResource("excelTemp/ExternalCraftTemplate.xlsx").getInputStream();
-            XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
+            XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream)) {
+            int numberOfSheets = workbook.getNumberOfSheets();
+            costTypeListMap.keySet().forEach(name-> workbook.cloneSheet(sheetIndex, name));
+            IntStream.range(0,numberOfSheets).boxed().forEach(workbook::removeSheetAt);
+            workbook.sheetIterator().forEachRemaining((it)->
+                    System.out.println(it.getSheetName())
+            );
             //模板写到流里
             workbook.write(bos);
-            List<String> rightSheetNameList = new ArrayList<>();
-            list.stream().collect(CommonUtils.groupingBy(PackPricingOtherCostsVo::getCostsTypeId)).forEach((name,sameNameList)-> {
-                rightSheetNameList.add(name);
+
+            InputStream templateInputStream = new ByteArrayInputStream(bos.toByteArray());
+            //输出流
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ExcelWriter excelWriter = EasyExcel.write(out).withTemplate(templateInputStream).build();
+
+            costTypeListMap.forEach((name, sameNameList)-> {
                 PackPricingOtherCostsVo baseOtherCosts = sameNameList.get(0);
-                workbook.cloneSheet(sheetIndex, name);
                 Map<String, Object> otherCostsMap = MapUtil.ofEntries(
                         MapUtil.entry("factoryName", baseOtherCosts.getFactoryName()),
+                        MapUtil.entry("pic", minioUtils.getObjectUrl(baseOtherCosts.getPicUrl())),
                         MapUtil.entry("name", name)
                 );
 
-                List<PackBom> costsPackBomLList = packBomList.stream().filter(it -> it.getMaterialCode().equals(baseOtherCosts.getMaterialCode())).limit(5).collect(Collectors.toList());
-
-                // 根据物料编号 获取当前packBom里的
+                List<PackBom> costsPackBomList = packBomList.stream().filter(it -> it.getMaterialCode().equals(baseOtherCosts.getMaterialCode())).collect(Collectors.toList());
 
                 //创建对应的sheet
                 WriteSheet writeSheet = EasyExcel.writerSheet(sheetIndex).build();
                 excelWriter.fill(baseMap,writeSheet);
                 excelWriter.fill(otherCostsMap,writeSheet);
                 sameNameList.stream().sorted(Comparator.comparing(PackPricingOtherCostsVo::getIndex)).forEach(it-> {
-                    excelWriter.fill(new FillWrapper("data"+it.getIndex(), Collections.singletonList(it)),writeSheet);
+                    excelWriter.fill(new FillWrapper("data"+it.getIndex(), Collections.singletonList(BeanUtil.beanToMap(it))),writeSheet);
                 });
-                if (CollUtil.isNotEmpty(costsPackBomLList)) {
-                    Map<String, List<PackBom>> packBomMap = costsPackBomLList.stream().sorted(Comparator.comparing(PackBom::getSort))
+                if (CollUtil.isNotEmpty(costsPackBomList)) {
+                    Map<String, List<PackBom>> packBomMap = costsPackBomList.stream().sorted(Comparator.comparing(PackBom::getSort))
                             .collect(CommonUtils.groupingBy(PackBom::getMaterialName));
 
                     List<List<String>> packBomParam = new ArrayList<>();
@@ -396,25 +422,31 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                         packBomParam.add(Arrays.asList(key,
                                 CommonUtils.get(value,0,PackBom::getColor),
                                 CommonUtils.get(value,1,PackBom::getColor),
-                                CommonUtils.get(value,2,PackBom::getColor),
-                                CommonUtils.get(value,3,PackBom::getColor),
                                 CommonUtils.get(value,0,PackBom::getAuxiliaryMaterial),
-                                CommonUtils.get(value,1,PackBom::getAuxiliaryMaterial),
-                                CommonUtils.get(value,2,PackBom::getAuxiliaryMaterial),
-                                CommonUtils.get(value,3,PackBom::getAuxiliaryMaterial)));
+                                CommonUtils.get(value,1,PackBom::getAuxiliaryMaterial)));
                     });
                     excelWriter.write(packBomParam,writeSheet);
                 }
             });
+            excelWriter.finish();
 
-            workbook.sheetIterator().forEachRemaining((it)-> {
-                if (!rightSheetNameList.contains(it.getSheetName())) {
-                    workbook.sheetIterator().remove();
-                }
-            });
-            ExcelUtils.toPdf(new ByteArrayInputStream(out.toByteArray()), response);
+            ByteArrayOutputStream pdfOut = new ByteArrayOutputStream();
+            PdfUtil.excel2pdf(new ByteArrayInputStream(out.toByteArray()), pdfOut, null);
+
+            String fileName = packInfo.getName() + ".pdf";
+            MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), pdfOut.toByteArray());
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.externalProcess, StrUtil.join(COMMA,Arrays.asList("PDF",packInfo.getName())));
+            // 将文件id保存到状态表
+            PackPricing packPricing = packPricingService.getByForeignIdOne(foreignId, packType);
+            packPricing.setOutsourceCmtProcessFileUrl(attachmentVo.getSourceUrl());
+            packPricingService.updateById(packPricing);
+            // 插入日志
+            attachmentService.saveOperaLog("生成核价外辅工艺PDF",packType + StrUtil.DASHED + "核价外辅工艺PDF",
+                    foreignId, null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
+            return attachmentVo;
         } catch (Exception e) {
-
+            e.printStackTrace();
+            throw new OtherException("生成外辅工艺文件失败，失败原因：" + e.getMessage());
         }
     }
 
