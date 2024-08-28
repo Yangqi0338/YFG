@@ -107,4 +107,8 @@ public enum WorkloadRatingItemType {
     public List<SelectOptionsChildrenVo> findSelectOptionsByKey(String key) {
         return JSONUtil.toList(key, SelectOptionsChildrenVo.class);
     }
+
+    public static WorkloadRatingItemType findByCode(String code) {
+        return Arrays.stream(WorkloadRatingItemType.values()).filter(it -> it.getCode().equals(code)).findFirst().orElse(null);
+    }
 }

@@ -121,6 +121,7 @@ public class WorkloadRatingConfigServiceImpl extends BaseServiceImpl<WorkloadRat
                                 titleFieldDTOList.add(new WorkloadRatingTitleFieldDTO("score" + i, notShowConfig.getItemName(), maxValue + 1 + i, notShowConfig.getId(), notShowConfig.getCalculateType()));
                             }
                             result.setTitleField(JSONUtil.toJsonStr(titleFieldDTOList));
+                            result.setTitleFieldDTOList(titleFieldDTOList);
                         }
                     }
                 });

@@ -45,14 +45,6 @@ public class WorkloadRatingConfigVO extends WorkloadRatingConfig {
 
     private List<WorkloadRatingTitleFieldDTO> titleFieldDTOList;
 
-    @JsonIgnore
-    public List<WorkloadRatingTitleFieldDTO> getTitleFieldDTOList(){
-        if (CollUtil.isEmpty(titleFieldDTOList)) {
-            titleFieldDTOList = JSONUtil.toList(titleField, WorkloadRatingTitleFieldDTO.class);
-        }
-        return titleFieldDTOList;
-    }
-
     private List<WorkloadRatingTitleFieldDTO> configTitleFieldList;
 
     @JsonIgnore
