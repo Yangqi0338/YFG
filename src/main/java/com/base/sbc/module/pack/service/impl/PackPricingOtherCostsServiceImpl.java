@@ -435,7 +435,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
             String fileName = packInfo.getName() + ".pdf";
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), pdfOut.toByteArray());
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.externalProcess, StrUtil.join(COMMA,Arrays.asList("PDF",packInfo.getName())));
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, UploadFileType.externalProcess, StrUtil.join(COMMA,Arrays.asList(style.getBrandName(),style.getYearName(),packInfo.getName(),"PDF")));
             // 将文件id保存到状态表
             PackPricing packPricing = packPricingService.getByForeignIdOne(foreignId, packType);
             packPricing.setOutsourceCmtProcessFileUrl(attachmentVo.getSourceUrl());
