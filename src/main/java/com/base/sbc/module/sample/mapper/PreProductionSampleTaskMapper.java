@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.vo.PreProductionSampleTaskPageSumVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -38,6 +39,8 @@ public interface PreProductionSampleTaskMapper extends BaseMapper<PreProductionS
      * @return
      */
     List<PreProductionSampleTaskVo> taskList(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> qw);
+
+    PreProductionSampleTaskPageSumVo taskListSum(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> qw);
 
     List<PreProductionSampleTaskVo> taskListFOB(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> qw);
 

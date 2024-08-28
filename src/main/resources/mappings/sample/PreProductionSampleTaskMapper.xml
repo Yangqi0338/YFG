@@ -132,6 +132,26 @@
         </if>
 
     </select>
+
+    <select id="taskListSum" resultType="com.base.sbc.module.sample.vo.PreProductionSampleTaskPageSumVo">
+        SELECT
+            SUM(t.sample_making_score) sampleMakingScoreSum,
+            SUM(t.sample_quality_score) sampleQualityScoreSum
+        FROM
+        (t_style s,
+        t_pre_production_sample_task t,
+        t_pack_info p)
+        left join t_pattern_making tpm ON (tpm.sample_bar_code = t.sample_bar_code and tpm.sample_bar_code!=null and  tpm.sample_bar_code !='')
+        left join t_hang_tag  tht  on (tht.bulk_style_no = p.style_no  )
+        WHERE
+        s.id = t.style_id and p.id=t.pack_info_id
+        AND s.del_flag = '0'
+        AND t.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
     <select id="countByQw" resultType="java.lang.Long">
         select count(*)
         from t_pre_production_sample_task ${ew.customSqlSegment}

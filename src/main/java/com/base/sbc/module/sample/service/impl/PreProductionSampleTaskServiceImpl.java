@@ -57,9 +57,7 @@ import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
-import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
-import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
+import com.base.sbc.module.sample.vo.*;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.entity.Style;
@@ -319,7 +317,13 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             workloadRatingDetailService.decorateWorkloadRating(list, PreProductionSampleTaskVo::getStyleEntity, PreProductionSampleTaskVo::getWorkloadRatingId,
                     PreProductionSampleTaskVo::setProdCategory, PreProductionSampleTaskVo::setRatingDetailDTO, PreProductionSampleTaskVo::setRatingConfigList);
         }
-        return objects.toPageInfo();
+        PreProductionSampleTaskPageVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PreProductionSampleTaskPageVo.class);
+        pageVo.setSumVo(taskListSum(qw));
+        return pageVo;
+    }
+
+    private PreProductionSampleTaskPageSumVo taskListSum(BaseQueryWrapper<PreProductionSampleTask> qw){
+        return getBaseMapper().taskListSum(qw);
     }
 
     /**
