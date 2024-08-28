@@ -2,6 +2,7 @@ package com.base.sbc.config;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONWriter;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -85,7 +86,7 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
                                 } else {
                                     throw new UnsupportedOperationException();
                                 }
-                                map.put(field.getName(), value);
+                                map.put(field.getName(), StrUtil.unWrap(value,'"'));
                             }
                             if (field.isAnnotationPresent(ApiModelProperty.class)) {
                                 String comment = field.getAnnotation(ApiModelProperty.class).value();

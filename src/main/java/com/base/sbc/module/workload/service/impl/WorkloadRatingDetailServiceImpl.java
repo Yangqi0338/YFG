@@ -134,6 +134,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     workloadRatingDetail.setBaseProxy(config.getScore());
                 }
                 BigDecimal score = BigDecimal.ZERO;
+                ratingItemList.sort(Comparator.comparing(WorkloadRatingItem::getCalculateType));
                 for (WorkloadRatingItem ratingItem : ratingItemList) {
                     Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
                     score = score.add(calculatePair.getValue());
@@ -251,6 +252,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         if (configVO.getCalculateType() != WorkloadRatingCalculateType.BASE || itemValueOpt.isPresent()) {
                             List<WorkloadRatingItemVO> configFieldItemList = configItemList.stream()
                                     .filter(it-> it.getBrand().equals(configVO.getBrand()))
+                                    .filter(it-> it.getCalculateType().equals(configTitleField.getCalculateType()))
                                     .filter(it -> !itemValueOpt.isPresent() || it.getItemValue().equals(itemValueOpt.get()))
                                     .collect(Collectors.toList());
                             // 对条对格

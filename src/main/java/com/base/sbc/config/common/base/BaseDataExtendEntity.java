@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.JacksonExtendHandler;
 import com.base.sbc.config.MybatisPlusExtendHandler;
@@ -27,7 +30,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -134,28 +136,59 @@ public class BaseDataExtendEntity extends BaseDataNewEntity {
             declaredFields.forEach(it -> it.setAccessible(true));
             declaredFieldMap.put(this.getClass(), declaredFields);
         }
+//        try {
+        MybatisPlusExtendHandler typeHandler = getTypeHandler();
+        if (typeHandler == null) throw new UnsupportedOperationException("不支持该操作");
+        if (MapUtil.isEmpty(this.extend)) return;
+        String json = typeHandler.toJson(this.extend);
+        Object source = typeHandler.parse(json, this.getClass());
+        // 检查枚举类型
         try {
-            for (Map.Entry<String, Object> entry : this.extend.entrySet()) {
-                String fieldName = entry.getKey();
-                Optional<Field> fieldOpt = declaredFields.stream().filter(it -> it.getName().equals(fieldName)).findFirst();
-                if (fieldOpt.isPresent()) {
-                    Field field = fieldOpt.get();
+            for (Field enumField : this.getClass().getDeclaredFields()) {
+                String name = enumField.getName();
+                Object value = this.extend.get(name);
+                Class<?> type = enumField.getType();
+                if (type.isEnum() && value != null) {
+                    enumField.setAccessible(true);
+                    Object[] enumConstants = type.getEnumConstants();
 
-                    String json = entry.getValue() != null ? entry.getValue().toString() : null;
-                    Class<?> type = field.getType();
-                    MybatisPlusExtendHandler typeHandler = getTypeHandler();
-                    if (typeHandler == null) throw new UnsupportedOperationException("不支持该操作");
-                    Object object = json;
-                    try {
-                        object = typeHandler.parse(json, type);
-                    } catch (Exception e) {
+                    BREAKPOINT:for (Field field : type.getDeclaredFields()) {
+                        field.setAccessible(true);
+                        if (field.isAnnotationPresent(EnumValue.class)) {
+                            for (Object enumConstant : enumConstants) {
+                                if (field.get(enumConstant).equals(value)) {
+                                    enumField.set(source,enumConstant);
+                                    break BREAKPOINT;
+                                }
+                            }
+                            break;
+                        }
                     }
-                    field.set(this, object);
                 }
             }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        }catch (Exception ignored) {}
+        BeanUtil.copyProperties(source, this, CopyOptions.create().ignoreNullValue().setOverride(false));
+//            for (Map.Entry<String, Object> entry : this.extend.entrySet()) {
+//                String fieldName = entry.getKey();
+//                Optional<Field> fieldOpt = declaredFields.stream().filter(it -> it.getName().equals(fieldName)).findFirst();
+//                if (fieldOpt.isPresent()) {
+//                    Field field = fieldOpt.get();
+//
+//                    String json = entry.getValue() != null ? entry.getValue().toString() : null;
+//                    Class<?> type = field.getType();
+//                    MybatisPlusExtendHandler typeHandler = getTypeHandler();
+//                    if (typeHandler == null) throw new UnsupportedOperationException("不支持该操作");
+//                    Object object = json;
+//                    try {
+//                        object = typeHandler.parse(json, type);
+//                    } catch (Exception e) {
+//                    }
+//                    field.set(this, object);
+//                }
+//            }
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
     }
 
 }
