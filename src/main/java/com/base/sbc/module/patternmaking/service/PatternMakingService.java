@@ -287,6 +287,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
+    boolean savePatternMaking(AssignmentUserDto dto);
+
     List<PatternDesignVo> pdTaskDetail(String companyCode);
 
     PageInfo queryPageInfo(PatternMakingCommonPageSearchDto dto);
