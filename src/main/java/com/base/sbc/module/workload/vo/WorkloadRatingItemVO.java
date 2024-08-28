@@ -37,7 +37,7 @@ public class WorkloadRatingItemVO extends WorkloadRatingItem {
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
     @JsonIgnore
-    private YesOrNoEnum enableFlag = YesOrNoEnum.YES;
+    private YesOrNoEnum enableFlag;
 
     /**
      * 拥有的itemValue
