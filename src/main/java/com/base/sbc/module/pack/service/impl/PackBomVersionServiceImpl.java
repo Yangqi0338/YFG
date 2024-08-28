@@ -397,6 +397,11 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                     for (PackBomVo packBomVo : bomList) {
                         bomIds.add(packBomVo.getId());
                         packBomVo.setScmSendFlag(BaseGlobal.NO);
+                        // 转大货的时候将设计损耗设置到计控损耗上面
+                        if (ObjectUtil.isEmpty(packBomVo.getPlanningLoossRate())) {
+                            packBomVo.setPlanningLoossRate(packBomVo.getLossRate());
+                        }
+
                         if(!StrUtil.equals(flag,BaseGlobal.YES)){
                             packBomVo.setStageFlag(targetPackType);
                         }else {
