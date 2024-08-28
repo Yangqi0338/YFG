@@ -619,8 +619,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 , StyleColor::getId, StyleColor::getStyleColorPic);
         fabricVOList.forEach(fabric -> {
             fabric.setStyleColorPic(styleColorPicMap.getOrDefault(fabric.getStyleColorId(), ""));
+            fabric.setImageUrl(minioUtils.getObjectUrl(fabric.getImageUrl()));
         });
-        stylePicUtils.setStyleColorPic2(fabricVOList, "imageUrl");
 
         decorateList(fabricVOList, qo);
 
