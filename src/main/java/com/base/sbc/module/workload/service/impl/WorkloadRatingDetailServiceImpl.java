@@ -250,6 +250,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         String detailConfigId = detailSaveDTO.getConfigId();
                         if (configVO.getCalculateType() != WorkloadRatingCalculateType.BASE || itemValueOpt.isPresent()) {
                             List<WorkloadRatingItemVO> configFieldItemList = configItemList.stream()
+                                    .filter(it-> it.getBrand().equals(configVO.getBrand()))
                                     .filter(it -> !itemValueOpt.isPresent() || it.getItemValue().equals(itemValueOpt.get()))
                                     .collect(Collectors.toList());
                             // 对条对格
