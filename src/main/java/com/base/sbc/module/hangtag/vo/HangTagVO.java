@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -401,6 +403,8 @@ public class HangTagVO extends HangTag {
         List<String> checkFieldList = CollUtil.newArrayList("packagingFormCode", "packagingBagStandardCode", "fabricDetails");
         if (YesOrNoEnum.YES.getValueStr().equals(isDefective)) {
             checkFieldList.removeIf(it -> !BusinessProperties.needCheckByDefective(bulkStyleNo, it));
+        }else if (YesOrNoEnum.YES.getValueStr().equals(isTrim)) {
+            checkFieldList = Collections.singletonList("packagingFormCode");
         }
         return checkFieldList;
     }
