@@ -384,6 +384,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
             }
         }
+        for (StyleColorVo styleColorVo : sampleStyleColorList) {
+            if (ObjectUtil.isNotEmpty(styleColorVo.getTagPrice())) {
+                styleColorVo.setTagPrice(String.valueOf(Integer.valueOf(styleColorVo.getTagPrice())));
+            }
+        }
         return new PageInfo<>(sampleStyleColorList);
     }
 
