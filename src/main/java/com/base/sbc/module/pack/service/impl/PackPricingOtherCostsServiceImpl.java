@@ -347,8 +347,8 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
         dto.setCostsItem(PackPricingOtherCostsItemType.OUTSOURCE_PROCESS);
         list.addAll(pageInfo(dto).getList());
-        List<String> costsTypeSize = list.stream().map(PackPricingOtherCostsVo::getCostsType).distinct().collect(Collectors.toList());
-        int sheetIndex = (costsTypeSize.size() > 2 ? costsTypeSize.size()-2 : 0);
+        List<String> roleSize = list.stream().map(PackPricingOtherCostsVo::getRole).distinct().collect(Collectors.toList());
+        int sheetIndex = (roleSize.size() > 2 ? roleSize.size()-2 : 0);
 
         List<String> materialCodeList = list.stream().map(PackPricingOtherCostsVo::getMaterialCode).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
         List<PackBom> packBomList = new ArrayList<>();
@@ -378,6 +378,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ExcelWriter excelWriter = EasyExcel.write(out).withTemplate(templateInputStream).build();
 
+            AtomicInteger atomicInteger = new AtomicInteger();
             costTypeListMap.forEach((name, sameNameList)-> {
                 PackPricingOtherCostsVo baseOtherCosts = sameNameList.get(0);
                 Map<String, Object> otherCostsMap = MapUtil.ofEntries(
@@ -389,7 +390,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 List<PackBom> costsPackBomList = packBomList.stream().filter(it -> it.getMaterialCode().equals(baseOtherCosts.getMaterialCode())).collect(Collectors.toList());
 
                 //创建对应的sheet
-                WriteSheet writeSheet = EasyExcel.writerSheet(sheetIndex).build();
+                WriteSheet writeSheet = EasyExcel.writerSheet(atomicInteger.getAndIncrement()).build();
                 excelWriter.fill(baseMap,writeSheet);
                 excelWriter.fill(otherCostsMap,writeSheet);
                 sameNameList.stream().sorted(Comparator.comparing(PackPricingOtherCostsVo::getIndex)).forEach(it-> {
