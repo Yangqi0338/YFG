@@ -3134,6 +3134,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         messageObjects.put("pattern_technician_name",patternMaking.getPatternTechnicianName());
         messageObjects.put("pattern_technician_id",patternMaking.getPatternTechnicianId());
         messageObjects.put("sample_type",patternMaking.getSampleType());
+        messageObjects.put("style_pic",stylePicUtils.getStyleUrl(style.getStylePic()));
         return messageObjects;
     }
 }
