@@ -11,6 +11,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingItemType;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,6 +22,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 类描述：工作量评分配置Vo 实体类
@@ -55,16 +57,18 @@ public class WorkloadRatingItemVO extends WorkloadRatingItem {
 
     @Override
     public Map<Object, Object> decorateWebMap() {
-        Map<Object, Object> map = super.decorateWebMap();
-        if (CollUtil.isNotEmpty(titleFieldList)) {
-            titleFieldList.stream().filter(it -> !this.getConfigId().equals(it.getConfigId())).forEach(titleFieldDTO -> {
-                String value = itemList.stream().filter(it -> it.getConfigId().equals(titleFieldDTO.getConfigId()))
-                        .findFirst().map(it -> it.getScore().toString())
-                        .orElse(getItemNameByIndex(titleFieldDTO.getIndex()));
-                map.put(titleFieldDTO.getCode(), value);
-            });
+        try {
+            Map<Object, Object> map = super.decorateWebMap();
+            if (CollUtil.isNotEmpty(titleFieldList)) {
+                titleFieldList.stream().filter(it -> !this.getConfigId().equals(it.getConfigId())).forEach(titleFieldDTO -> {
+                    Optional<WorkloadRatingItem> configItemOpt = itemList.stream().filter(it -> it.getConfigId().equals(titleFieldDTO.getConfigId())).findFirst();
+                    map.put(titleFieldDTO.getCode(), configItemOpt.isPresent() ? configItemOpt.get().getScore() : getItemNameByIndex(titleFieldDTO.getIndex()));
+                });
+            }
+            return map;
+        }catch (Exception e) {
+            throw new OtherException(e.getMessage());
         }
-        return map;
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
