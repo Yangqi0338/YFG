@@ -1253,7 +1253,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList) {
         CommonUtils.removeQueryList(dtoList, "imageUrl");
         // 校验版本
-        PackBomVersion version = packBomVersionService.checkVersion(bomVersionId);
+        PackBomVersion version = packBomVersionService.checkVersion(bomVersionId, 0);
         if (CollUtil.isEmpty(dtoList)) {
             dtoList = new ArrayList<>(2);
         }
