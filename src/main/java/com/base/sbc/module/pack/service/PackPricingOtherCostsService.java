@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service;
 
 import com.base.sbc.config.enums.business.PackPricingOtherCostsItemType;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.OtherCostsPageDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
@@ -69,7 +70,7 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
      *
      * @return
      */
-    void generateWfgyPdf(OtherCostsPageDto dto, HttpServletResponse response);
+    AttachmentVo generateWfgyPdf(OtherCostsPageDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 

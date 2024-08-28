@@ -69,7 +69,7 @@ public class Page implements Serializable {
 
     public void reset2QueryList() {
         this.setPageNum(1);
-        this.setPageSize(Integer.MAX_VALUE);
+        this.setPageSize(Integer.MAX_VALUE-1);
     }
 
     public void reset2QueryFirst() {

@@ -42,6 +42,8 @@ public enum UploadFileType {
     materialUpload("materialUpload"),
     Account(""),
     fittingReport("物料面料试穿报告", Arrays.asList("RAR", "ZIP", "DOC", "DOCX", "PDF", "JPG"), materialOther),
+    messageTemptableUpload("messageTemptableUpload"),
+    externalProcess("外辅工艺"),
 
     ;
     /** 编码 */
