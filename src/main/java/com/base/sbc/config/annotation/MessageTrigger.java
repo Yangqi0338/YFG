@@ -10,5 +10,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface MessageTrigger {
 
+    /** 业务对象 */
     String value();
+
+    /** 操作触发 code */
+    String code();
 }
