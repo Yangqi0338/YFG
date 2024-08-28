@@ -170,8 +170,8 @@ public class PackPricingController extends BaseController {
 
     @ApiOperation(value = "导出外辅工艺PDF")
     @GetMapping("/exportWfgyPdf")
-    public void exportExcel(OtherCostsPageDto dto) throws Exception {
-        packPricingOtherCostsService.generateWfgyPdf(dto, this.response);
+    public ApiResult exportExcel(OtherCostsPageDto dto) throws Exception {
+        return selectSuccess(packPricingOtherCostsService.generateWfgyPdf(dto));
     }
 
     @ApiOperation(value = "加工费用-分页查询")

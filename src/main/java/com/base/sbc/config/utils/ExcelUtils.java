@@ -33,8 +33,6 @@ import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.excelToPdf.Excel2Pdf;
-import com.base.sbc.config.utils.excelToPdf.ExcelObject;
 import com.base.sbc.config.vo.ExcelTableCodeVO;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
@@ -63,8 +61,6 @@ import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -581,13 +577,6 @@ public class ExcelUtils {
             workbookIWriter.close();
         }
 
-    }
-
-    public static void toPdf(InputStream fis, HttpServletResponse response) throws IOException, DocumentException {
-        List<ExcelObject> objects = new ArrayList<>();
-        objects.add(new ExcelObject("导航1",fis));
-        Excel2Pdf pdf = new Excel2Pdf(objects, response.getOutputStream());
-        pdf.convert();
     }
 
     public static void exportExcelByTableCode(List<?> list, String fileName, ExportParams exportParams, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
