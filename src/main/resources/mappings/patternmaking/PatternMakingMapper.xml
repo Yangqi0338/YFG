@@ -157,7 +157,9 @@
             tbs.supplier as supplierName,
             tbs.supplier_abbreviation as supplierAbbreviation,
             p.pattern_making_devt_type,
-            s.style_origin_name
+            s.style_origin_name,
+            p.kitting_reason,
+            p.kitting_reason_name
         </if>
         FROM
         t_pattern_making p
