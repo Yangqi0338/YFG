@@ -353,6 +353,18 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         return byId;
     }
 
+    @Override
+    public PackBomVersion checkVersion(String id, Integer type) {
+        PackBomVersion byId = getById(id);
+        if (byId == null) {
+            throw new OtherException("版本不存在");
+        }
+        if (!type.equals(0) && StrUtil.equals(byId.getLockFlag(), BaseGlobal.YES)) {
+            throw new OtherException("物料清单已锁定，请解锁");
+        }
+        return byId;
+    }
+
     /**
      * 复制
      *
