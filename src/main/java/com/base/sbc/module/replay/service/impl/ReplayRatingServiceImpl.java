@@ -319,6 +319,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     public Page<? extends ReplayRatingVO> doFabricList(ReplayRatingQO qo) {
+        long timeMillis = System.currentTimeMillis();
         // 构建基础ew
         BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
         // 加入动态列和数据权限
@@ -331,6 +332,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         }
         // 装饰列表
         List<ReplayRatingFabricVO> fabricList = baseMapper.queryFabricList(queryWrapper, qo);
+        System.out.println("----------1-----------" + (System.currentTimeMillis() - timeMillis));
         decorateFabricList(fabricList, qo);
         // 会从queryFabricList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
         ReplayRatingFabricTotalVO totalFabricVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingFabricTotalVO.class);
@@ -346,22 +348,26 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             );
             totalFabricVO.setProduction(CommonUtils.sumBigDecimal(saleFacList, SaleFac::getNum));
         }
+        System.out.println("----------7-----------" + (System.currentTimeMillis() - timeMillis));
         // 是否仅统计当前页
-        if (!ReplayRatingProperties.totalCurrentPage) {
+        if (ReplayRatingProperties.totalCurrentPage) {
             totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList, ReplayRatingFabricVO::getRemainingMaterial));
-        } else {
+        } else if (qo.needSpecialTotalSum()) {
             String materialCode = totalFabricVO.getMaterialCode();
             if (StrUtil.isNotBlank(materialCode)) {
-                List<String> materialCodeList = CollUtil.removeWithAddIf(Arrays.asList(materialCode.split(COMMA)),
-                        (subMaterialCode) -> fabricList.stream().anyMatch(it -> subMaterialCode.equals(it.getMaterialCode())));
-                BigDecimal sum = BigDecimal.valueOf(materialCodeList.stream().mapToInt(it -> {
-                    ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(it, 2);
-                    if (!result.getSuccess()) return 0;
-                    return result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum();
-                }).sum());
-                totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList, ReplayRatingFabricVO::getRemainingMaterial).add(sum));
+                List<String> materialCodeList = CollUtil.distinct(CollUtil.removeWithAddIf(CollUtil.newArrayList(materialCode.split(COMMA)),
+                        (subMaterialCode) -> fabricList.stream().noneMatch(it -> subMaterialCode.equals(it.getMaterialCode()))));
+
+                ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(StrUtil.join(COMMA, materialCodeList), 2);
+                BigDecimal sum = BigDecimal.ZERO;
+                if (result.getSuccess()) {
+                    sum = BigDecimal.valueOf(materialCodeList.stream().mapToInt(materialNo ->
+                            result.getData().stream().filter(it -> materialNo.equals(it.getMaterialNo())).mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum()).sum());
+                }
+                totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList.stream().collect(CommonUtils.toMap(ReplayRatingFabricVO::getMaterialCode)).values(), ReplayRatingFabricVO::getRemainingMaterial).add(sum));
             }
         }
+        System.out.println("----------8-----------" + (System.currentTimeMillis() - timeMillis));
         // 最后将汇总实体类转成map
         page.setAttributes(BeanUtil.beanToMap(totalFabricVO));
         return page;
@@ -609,6 +615,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     private void decorateFabricList(List<ReplayRatingFabricVO> fabricVOList, ReplayRatingQO qo) {
+        long timeMillis = System.currentTimeMillis();
         if (qo.isColumnGroupSearch() || CollUtil.isEmpty(fabricVOList)) return;
 
         /* ----------------------------大货款维度数据---------------------------- */
@@ -617,27 +624,34 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         Map<String, String> styleColorPicMap = styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
                         .in(StyleColor::getId, styleColorIdList)
                 , StyleColor::getId, StyleColor::getStyleColorPic);
+        System.out.println("----------2-----------" + (System.currentTimeMillis() - timeMillis));
         fabricVOList.forEach(fabric -> {
             fabric.setStyleColorPic(styleColorPicMap.getOrDefault(fabric.getStyleColorId(), ""));
+            fabric.setImageUrl(minioUtils.getObjectUrl(fabric.getImageUrl()));
         });
-        stylePicUtils.setStyleColorPic2(fabricVOList, "imageUrl");
 
         decorateList(fabricVOList, qo);
+        System.out.println("----------4-----------" + (System.currentTimeMillis() - timeMillis));
 
         /* ----------------------------面料自主研发 + 剩余备料---------------------------- */
         AtomicInteger fabricOwnDevelopFlagAtomic = new AtomicInteger();
+        String fabricMaterialCode = fabricVOList.stream().map(ReplayRatingFabricVO::getMaterialCode).collect(Collectors.joining(COMMA));
+        ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(fabricMaterialCode, 2);
+        System.out.println("----------5-----------" + (System.currentTimeMillis() - timeMillis));
         fabricVOList.forEach(fabric -> {
             int increment = fabricOwnDevelopFlagAtomic.getAndIncrement();
             // 是否交替 TODO
             fabric.setFabricOwnDevelopFlag(YesOrNoEnum.findByValue(increment < 2 ? increment : (increment / 2) % 2));
-            // TODO
-            ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(fabric.getMaterialCode(), 2);
             BigDecimal remainingMaterial = BigDecimal.ZERO;
             if (result.getSuccess() && CollUtil.isNotEmpty(result.getData())) {
-                remainingMaterial = BigDecimal.valueOf(result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum());
+                remainingMaterial = BigDecimal.valueOf(result.getData().stream()
+                        .filter(it -> fabric.getMaterialCode().equals(it.getMaterialNo()))
+                        .mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum()
+                );
             }
             fabric.setRemainingMaterial(remainingMaterial);
         });
+        System.out.println("----------3-----------" + (System.currentTimeMillis() - timeMillis));
 
         /* ----------------------------大货款维度投产量 + 使用米数---------------------------- */
         List<String> bulkStyleNoList = fabricVOList.stream().map(ReplayRatingFabricVO::getBulkStyleNo).collect(Collectors.toList());
@@ -650,6 +664,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             fabric.setProduction(CommonUtils.sumBigDecimal(saleFacList.stream()
                     .filter(it -> it.getBulkStyleNo().equals(fabric.getBulkStyleNo())).collect(Collectors.toList()), SaleFac::getNum));
         });
+        System.out.println("----------6-----------" + (System.currentTimeMillis() - timeMillis));
     }
 
     @Transactional(rollbackFor = Exception.class)
