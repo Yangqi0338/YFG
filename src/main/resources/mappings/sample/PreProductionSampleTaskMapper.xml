@@ -118,10 +118,7 @@
             tpmbc.suggestion,
             tpmbc.suggestion_img,
             tpmbc.suggestion_video,
-            tpmbc.update_date as confrimDate,
-            fob.status as fobStatus,
-            fob.tech_remarks,
-            fob.process_department_date as processDepartmentDate
+            tpmbc.update_date as confrimDate
         </if>
         FROM
         t_pre_production_sample_task_fob t
