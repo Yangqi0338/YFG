@@ -56,7 +56,7 @@
         LEFT JOIN t_style ts on tsc.style_id = ts.id and ts.del_flag = '0'
         LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no and tpi.del_flag = '0'
         LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id and tsp.del_flag = '0'
-        LEFT JOIN t_pack_info_status ps ON (tpi.id = ps.foreign_id and ps.del_flag = '0')
+        LEFT JOIN t_pack_info_status ps ON (tpi.id = ps.foreign_id and ps.del_flag = '0' and ((tsc.bom_status = '0' and ps.pack_type = 'packDesign') or (tsc.bom_status = '1' and ps.pack_type = 'packBigGoods')))
         left join t_pack_pricing as tpp on (tpp.foreign_id = tpi.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
         ${ew.customSqlSegment}
     </select>
