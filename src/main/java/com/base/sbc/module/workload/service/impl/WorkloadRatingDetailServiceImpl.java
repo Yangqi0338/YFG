@@ -13,6 +13,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
@@ -123,6 +124,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
                             .in(WorkloadRatingItem::getItemValue, itemValueList)
                     );
+                    ratingItemList.forEach(BaseDataExtendEntity::build);
                     Collection<String> disjunctionItemValueList = CollUtil.disjunction(ratingItemList.stream().map(WorkloadRatingItem::getItemValue).distinct().collect(Collectors.toList()), itemValueList);
                     if (calculateType != WorkloadRatingCalculateType.APPEND && CollUtil.isNotEmpty(disjunctionItemValueList))
                         throw new OtherException(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), disjunctionItemValueList));
@@ -130,11 +132,12 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     WorkloadRatingItem item = new WorkloadRatingItem();
                     item.setScore(config.getScore());
                     item.setId(workloadRatingDetail.getProxyKey());
+                    item.setCalculateType(config.getCalculateType());
                     ratingItemList = CollUtil.newArrayList(item);
                     workloadRatingDetail.setBaseProxy(config.getScore());
                 }
                 BigDecimal score = BigDecimal.ZERO;
-                ratingItemList.sort(Comparator.comparing(WorkloadRatingItem::getCalculateType));
+                ratingItemList.sort(Comparator.nullsFirst(Comparator.comparing(WorkloadRatingItem::getCalculateType)));
                 for (WorkloadRatingItem ratingItem : ratingItemList) {
                     Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
                     score = score.add(calculatePair.getValue());
