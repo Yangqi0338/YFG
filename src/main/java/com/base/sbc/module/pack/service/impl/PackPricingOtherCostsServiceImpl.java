@@ -45,7 +45,6 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
-import com.base.sbc.module.pack.mapper.PackPricingOtherCostsGstMapper;
 import com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
@@ -54,8 +53,6 @@ import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
-import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -188,7 +185,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchOtherCosts(List<PackPricingOtherCostsDto> dtoList) {
+    public void batchOtherCosts(List<PackPricingOtherCostsDto> dtoList, boolean needCalculatePricing) {
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName(getModeName());
         operaLogEntity.setDocumentCodeField("costsType");
@@ -249,6 +246,11 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             return otherCostsGst;
         }).collect(Collectors.toList());
         otherCostsGstService.saveOrUpdateBatch(otherCostsGstList);
+
+        /*重新计算*/
+        if (needCalculatePricing) {
+            packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(), dtoList.get(0).getPackType());
+        }
     }
 
     @Override
@@ -318,7 +320,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             });
         });
         if(CollUtil.isNotEmpty(list)){
-            this.batchOtherCosts(list);
+            this.batchOtherCosts(list, false);
         }
         return true;
     }

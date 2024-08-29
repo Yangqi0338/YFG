@@ -130,14 +130,14 @@ public class PackPricingController extends BaseController {
     @ApiOperation(value = "其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @PostMapping("/otherCosts")
     public PackPricingOtherCostsVo saveOtherCosts(@Valid @RequestBody PackPricingOtherCostsDto dto) {
-        packPricingOtherCostsService.batchOtherCosts(Arrays.asList(dto));
+        packPricingOtherCostsService.batchOtherCosts(Arrays.asList(dto), true);
         return BeanUtil.copyProperties(dto, PackPricingOtherCostsVo.class);
     }
 
     @ApiOperation(value = "批量其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @PostMapping("/batchOtherCosts")
     public Boolean batchOtherCosts(@Valid @RequestBody List<PackPricingOtherCostsDto> dto) {
-        packPricingOtherCostsService.batchOtherCosts(dto);
+        packPricingOtherCostsService.batchOtherCosts(dto, true);
         return true;
     }
 
