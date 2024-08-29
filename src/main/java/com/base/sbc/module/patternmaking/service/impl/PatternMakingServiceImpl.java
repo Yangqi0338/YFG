@@ -29,7 +29,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -395,6 +394,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.set(PatternMaking::getReferSample, dto.getStatus());
         this.update(updateWrapper);
         return true;
+    }
+
+    @Override
+    public SampleBoardVo getWorkloadById(String id) {
+        PatternMaking patternMaking = this.findRequiredFieldById(id, PatternMaking::getWorkloadRatingId, PatternMaking::getStyleId, PatternMaking::getSecondProcessing);
+        SampleBoardVo sampleBoardVo = BeanUtil.copyProperties(patternMaking, SampleBoardVo.class);
+        sampleBoardVo.setPatternMakingId(id);
+
+        styleService.warnMsg("未找到款式信息");
+        Style style = styleService.findOne(sampleBoardVo.getStyleId());
+
+        workloadRatingDetailService.decorateWorkloadRating(CollUtil.newArrayList(sampleBoardVo), (vo) -> style, SampleBoardVo::getWorkloadRatingId,
+                SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        return sampleBoardVo;
     }
 
 
@@ -1585,10 +1598,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
 
-        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
-            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
-                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
-        }
+//        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
+//            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+//                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+//        }
 
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));

@@ -54,6 +54,7 @@ import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
+import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
 import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
 import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
 import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
@@ -330,6 +331,11 @@ public class PatternMakingController {
         return patternMakingService.sampleBoardList(dto);
     }
 
+    @ApiOperation(value = "获取评分", notes = "")
+    @GetMapping("/getWorkloadById")
+    public SampleBoardVo getWorkloadById(String id) {
+        return patternMakingService.getWorkloadById(id);
+    }
 
     @ApiOperation(value = "导出", notes = "")
     @GetMapping("/deriveExcel")

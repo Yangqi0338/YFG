@@ -37,6 +37,7 @@ import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
+import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
 import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
 import com.base.sbc.module.patternmaking.vo.StyleResearchNodeVo;
 import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
@@ -445,6 +446,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     Boolean updateReferSample(PatternMakingReferSampleDto dto);
 
+    SampleBoardVo getWorkloadById(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

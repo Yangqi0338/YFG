@@ -11,7 +11,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -80,7 +79,7 @@ public class WorkloadRatingItemServiceImpl extends BaseServiceImpl<WorkloadRatin
         List<WorkloadRatingItem> extendList = this.list(buildQueryWrapper(qo));
 
         resultList.forEach(result -> {
-            List<WorkloadRatingItem> list = extendList.stream().filter(it -> it.getItemValue().equals(result.getItemValue())).collect(Collectors.toList());
+            List<WorkloadRatingItemVO> list = WORKLOAD_CV.copy2ItemVO(extendList.stream().filter(it -> it.getItemValue().equals(result.getItemValue())).collect(Collectors.toList()));
             result.setItemList(list);
             result.setTitleFieldList(config.getTitleFieldDTOList());
         });
