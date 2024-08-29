@@ -13,7 +13,6 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
-import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
@@ -102,51 +101,48 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
         configQO.setIsConfigShow(YesOrNoEnum.YES);
         List<WorkloadRatingConfigVO> configVOList = workloadRatingConfigService.queryList(configQO);
 
-        configVOList.stream().sorted(Comparator.comparing(WorkloadRatingConfigVO::getIndex)).forEach(configVO -> {
-            WorkloadRatingCalculateType calculateType = configVO.getCalculateType();
-            List<WorkloadRatingTitleFieldDTO> configTitleFieldList = configVO.findConfigTitleFieldList();
+        for (WorkloadRatingCalculateType calculateType : WorkloadRatingCalculateType.values()) {
+            configVOList.stream().sorted(Comparator.comparing(WorkloadRatingConfigVO::getIndex)).forEach(configVO -> {
+                List<WorkloadRatingTitleFieldDTO> configTitleFieldList = configVO.findConfigTitleFieldList();
 
-            List<WorkloadRatingDetailSaveDTO> configList = workloadRatingDetail.getConfigList().stream()
-                    .filter(it -> configTitleFieldList.stream().anyMatch(titleFieldDTO -> titleFieldDTO.getConfigId().equals(it.getConfigId())))
-                    .collect(Collectors.toList());
+                List<WorkloadRatingDetailSaveDTO> configList = workloadRatingDetail.getConfigList().stream()
+                        .filter(it -> configTitleFieldList.stream().anyMatch(titleFieldDTO -> titleFieldDTO.getConfigId().equals(it.getConfigId())))
+                        .collect(Collectors.toList());
 
-            String itemValue = configList.stream().filter(it -> it.getConfigId().equals(configVO.getId()))
-                    .findFirst().map(WorkloadRatingDetailSaveDTO::getItemValue)
-                    .orElseThrow(() -> new OtherException("!基础项数据有误,请刷新页面重试!"));
+                String itemValue = configList.stream().filter(it -> it.getConfigId().equals(configVO.getId()))
+                        .findFirst().map(WorkloadRatingDetailSaveDTO::getItemValue)
+                        .orElseThrow(() -> new OtherException("!基础项数据有误,请刷新页面重试!"));
 
-            boolean proxy = (calculateType == WorkloadRatingCalculateType.BASE && StrUtil.isNotBlank(workloadRatingDetail.getProxyKey()));
-
-            configList.forEach(config -> {
-                List<WorkloadRatingItem> ratingItemList;
-                if (!proxy) {
-                    List<String> itemValueList = StrUtil.split(itemValue, COMMA);
-                    ratingItemList = workloadRatingItemService.list(new LambdaQueryWrapper<WorkloadRatingItem>()
-                            .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
-                            .in(WorkloadRatingItem::getItemValue, itemValueList)
-                    );
-                    ratingItemList.forEach(BaseDataExtendEntity::build);
-                    Collection<String> disjunctionItemValueList = CollUtil.disjunction(ratingItemList.stream().map(WorkloadRatingItem::getItemValue).distinct().collect(Collectors.toList()), itemValueList);
-                    if (calculateType != WorkloadRatingCalculateType.APPEND && CollUtil.isNotEmpty(disjunctionItemValueList))
-                        throw new OtherException(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), disjunctionItemValueList));
-                }else {
-                    WorkloadRatingItem item = new WorkloadRatingItem();
-                    item.setScore(config.getScore());
-                    item.setId(workloadRatingDetail.getProxyKey());
-                    item.setCalculateType(config.getCalculateType());
-                    ratingItemList = CollUtil.newArrayList(item);
-                    workloadRatingDetail.setBaseProxy(config.getScore());
-                }
-                BigDecimal score = BigDecimal.ZERO;
-                ratingItemList.sort(Comparator.nullsFirst(Comparator.comparing(WorkloadRatingItem::getCalculateType)));
-                for (WorkloadRatingItem ratingItem : ratingItemList) {
-                    Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
-                    score = score.add(calculatePair.getValue());
-                    workloadRatingDetail.setResult(calculatePair.getKey());
-                }
-                config.setScore(score);
-                config.setItemId(ratingItemList.stream().map(WorkloadRatingItem::getId).collect(Collectors.joining(COMMA)));
+                configList.stream().filter(it -> it.getCalculateType().equals(calculateType)).forEach(config -> {
+                    boolean proxy = (calculateType == WorkloadRatingCalculateType.BASE && StrUtil.isNotBlank(workloadRatingDetail.getProxyKey()));
+                    List<WorkloadRatingItem> ratingItemList;
+                    if (!proxy) {
+                        List<String> itemValueList = StrUtil.split(itemValue, COMMA);
+                        ratingItemList = workloadRatingItemService.list(new LambdaQueryWrapper<WorkloadRatingItem>()
+                                .eq(WorkloadRatingItem::getConfigId, config.getConfigId())
+                                .in(WorkloadRatingItem::getItemValue, itemValueList)
+                        );
+                        Collection<String> disjunctionItemValueList = CollUtil.disjunction(ratingItemList.stream().map(WorkloadRatingItem::getItemValue).distinct().collect(Collectors.toList()), itemValueList);
+                        if (calculateType != WorkloadRatingCalculateType.APPEND && CollUtil.isNotEmpty(disjunctionItemValueList))
+                            throw new OtherException(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), disjunctionItemValueList));
+                    } else {
+                        WorkloadRatingItem item = new WorkloadRatingItem();
+                        item.setScore(config.getScore());
+                        item.setId(workloadRatingDetail.getProxyKey());
+                        ratingItemList = CollUtil.newArrayList(item);
+                        workloadRatingDetail.setBaseProxy(config.getScore());
+                    }
+                    BigDecimal score = BigDecimal.ZERO;
+                    for (WorkloadRatingItem ratingItem : ratingItemList) {
+                        Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
+                        score = score.add(calculatePair.getValue());
+                        workloadRatingDetail.setResult(calculatePair.getKey());
+                    }
+                    config.setScore(score);
+                    config.setItemId(ratingItemList.stream().map(WorkloadRatingItem::getId).collect(Collectors.joining(COMMA)));
+                });
             });
-        });
+        }
 
         String itemValue = workloadRatingDetail.getItemValue();
         // type brand itemValue 唯一
