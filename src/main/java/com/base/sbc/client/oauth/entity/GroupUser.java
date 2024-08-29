@@ -31,6 +31,12 @@ public class GroupUser implements Serializable{
     /*账号*/
 	private String username;
 
+	/** 部门 */
+	private String deptNames;
+
+
+
+
 	public String getId() {
 		return id;
 	}
@@ -81,5 +87,13 @@ public class GroupUser implements Serializable{
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getDeptNames() {
+		return deptNames;
+	}
+
+	public void setDeptNames(String deptNames) {
+		this.deptNames = deptNames;
 	}
 }

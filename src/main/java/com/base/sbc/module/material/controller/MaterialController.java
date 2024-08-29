@@ -187,7 +187,7 @@ public class MaterialController extends BaseController {
                     redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
                 }
                 flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, TriggerMessageConvert.materialApproveConvert(materialSaveDto));
+                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, TriggerMessageConvert.materialApproveConvert(materialSaveDto,userUtils.getUser(userUtils.getUserId())));
 
             }
         }
@@ -497,7 +497,7 @@ public class MaterialController extends BaseController {
             materials.forEach(item ->{
                 item.setStatus("1");
                 flowableService.start(FlowableService.MATERIAL + item.getMaterialCategoryName(), FlowableService.MATERIAL, item.getId(), "/pdm/api/saas/material/toExamine",
-                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, TriggerMessageConvert.materialApproveConvert(item));
+                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, TriggerMessageConvert.materialApproveConvert(item,userUtils.getUser(userUtils.getUserId())));
             });
 
         }
