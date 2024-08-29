@@ -33,9 +33,9 @@ import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.EasyExcelUtils;
 import com.base.sbc.config.utils.PdfUtil;
 import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.TemplateExcelUtils;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -75,7 +75,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -363,11 +362,9 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         }else {
             styleColorPic = stylePicUtils.getStyleUrl(style.getStylePic());
         }
-        try {
-            baseMap.put("styleColorPic", TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(styleColorPic), 600.0, 400.0, 0.6, 1.9));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        baseMap.put("styleColorPic", HttpUtil.downloadBytes(styleColorPic));
+
 
         dto.reset2QueryList();
         List<PackPricingOtherCostsVo> list = otherCostsGstService.pageInfo(dto).getList();
@@ -415,17 +412,13 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 );
                 String picUrl = minioUtils.getObjectUrl(baseOtherCosts.getPicUrl());
                 if (StrUtil.isNotBlank(picUrl)) {
-                    try {
-                        otherCostsMap.put("pic", TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(picUrl), 400.0, 200.0, 0.6, 1.9));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    otherCostsMap.put("pic", HttpUtil.downloadBytes(picUrl));
                 }
 
                 List<PackBom> costsPackBomList = packBomList.stream().filter(it -> it.getMaterialCode().equals(baseOtherCosts.getMaterialCode())).collect(Collectors.toList());
 
                 //创建对应的sheet
-                WriteSheet writeSheet = EasyExcel.writerSheet(atomicInteger.getAndIncrement()).build();
+                WriteSheet writeSheet = EasyExcel.writerSheet(atomicInteger.getAndIncrement()).registerWriteHandler(new EasyExcelUtils.ImageModifyHandler()).build();
                 excelWriter.fill(baseMap,writeSheet);
                 excelWriter.fill(otherCostsMap,writeSheet);
                 sameNameList.stream().sorted(Comparator.comparing(PackPricingOtherCostsVo::getIndex)).forEach(it-> {
