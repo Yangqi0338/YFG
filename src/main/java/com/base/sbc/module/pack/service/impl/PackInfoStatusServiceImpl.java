@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -244,7 +243,7 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
     @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus get(String foreignId, String packType) {
         PackInfoStatus one = super.get(foreignId, packType);
-        if (one != null || PACK_TYPE_BIG_GOODS_PRE.equals(packType)) {
+        if (one != null) {
             return one;
         }
         return newStatus(foreignId, packType);
