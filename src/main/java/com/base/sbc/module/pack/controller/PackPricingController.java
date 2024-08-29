@@ -6,22 +6,36 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.IdsDto;
-import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.dto.FormulaDto;
+import com.base.sbc.module.pack.dto.OtherCostsPageDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackPricingBomDto;
+import com.base.sbc.module.pack.dto.PackPricingCraftCostsDto;
+import com.base.sbc.module.pack.dto.PackPricingDto;
+import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
+import com.base.sbc.module.pack.dto.PackPricingOtherCostsGstDto;
+import com.base.sbc.module.pack.dto.PackPricingProcessCostsDto;
+import com.base.sbc.module.pack.dto.SyncPricingBomDto;
 import com.base.sbc.module.pack.entity.PackPricingBom;
 import com.base.sbc.module.pack.entity.PackPricingOtherCostsGst;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackPricingBomService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsGstService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
 import com.base.sbc.module.pack.vo.PackPricingVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -144,14 +158,14 @@ public class PackPricingController extends BaseController {
     @ApiOperation(value = "其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @PostMapping("/otherCosts")
     public PackPricingOtherCostsVo saveOtherCosts(@Valid @RequestBody PackPricingOtherCostsDto dto) {
-        packPricingOtherCostsService.batchOtherCosts(Arrays.asList(dto));
+        packPricingOtherCostsService.batchOtherCosts(Arrays.asList(dto), true);
         return BeanUtil.copyProperties(dto, PackPricingOtherCostsVo.class);
     }
 
     @ApiOperation(value = "批量其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @PostMapping("/batchOtherCosts")
     public Boolean batchOtherCosts(@Valid @RequestBody List<PackPricingOtherCostsDto> dto) {
-        packPricingOtherCostsService.batchOtherCosts(dto);
+        packPricingOtherCostsService.batchOtherCosts(dto, true);
         return true;
     }
 

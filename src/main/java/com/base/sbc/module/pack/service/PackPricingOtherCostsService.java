@@ -15,7 +15,6 @@ import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.github.pagehelper.PageInfo;
 
-import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
      * @param dto
      * @return
      */
-    void batchOtherCosts(List<PackPricingOtherCostsDto> dto);
+    void batchOtherCosts(List<PackPricingOtherCostsDto> dto, boolean needCalculatePricing);
 
     Map<String, BigDecimal> statistics(PackCommonSearchDto dto);
 

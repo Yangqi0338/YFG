@@ -187,7 +187,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchOtherCosts(List<PackPricingOtherCostsDto> dtoList) {
+    public void batchOtherCosts(List<PackPricingOtherCostsDto> dtoList, boolean needCalculatePricing) {
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName(getModeName());
         operaLogEntity.setDocumentCodeField("costsType");
@@ -250,7 +250,9 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         otherCostsGstService.saveOrUpdateBatch(otherCostsGstList);
 
         /*重新计算*/
-        packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(),dtoList.get(0).getPackType());
+        if (needCalculatePricing) {
+            packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(), dtoList.get(0).getPackType());
+        }
     }
 
     @Override
@@ -320,7 +322,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             });
         });
         if(CollUtil.isNotEmpty(list)){
-            this.batchOtherCosts(list);
+            this.batchOtherCosts(list, false);
         }
         return true;
     }
