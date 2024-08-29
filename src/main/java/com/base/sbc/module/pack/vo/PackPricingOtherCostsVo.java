@@ -18,4 +18,5 @@ import lombok.Data;
 public class PackPricingOtherCostsVo extends PackPricingOtherCosts {
     private int index = 0;
     private String role = "加工厂报价";
+    private String parentId;
 }

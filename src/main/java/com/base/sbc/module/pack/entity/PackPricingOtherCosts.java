@@ -37,6 +37,10 @@ public class PackPricingOtherCosts extends BaseDataEntity<String> {
         return costsItem == PackPricingOtherCostsItemType.OTHER ? (this.foreignId + this.costsType) : (this.foreignId + costsItem);
     }
 
+    public String getPdfUniqueKey() {
+        return this.costsTypeId + "-" + this.materialCode;
+    }
+
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
