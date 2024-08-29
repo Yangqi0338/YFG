@@ -417,6 +417,9 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
             // 获取工号
             Map<String, String> usernameDataMap = dataMap.get(usernameIdx);
+            if (ObjectUtil.isEmpty(usernameDataMap)) {
+                throw new OtherException(sheetNoName + "sheet页工号不能为空");
+            }
             String username = usernameDataMap.get("value");
             if (ObjectUtil.isEmpty(username)) {
                 throw new OtherException(sheetNoName + "sheet页工号不能为空");
@@ -427,6 +430,9 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
             // 获取品牌
             Map<String, String> brandDataMap = dataMap.get(brandIdx);
+            if (ObjectUtil.isEmpty(brandDataMap)) {
+                throw new OtherException(sheetNoName + "sheet页品牌不能为空");
+            }
             String brandName = brandDataMap.get("value");
             if (ObjectUtil.isEmpty(brandName)) {
                 throw new OtherException(sheetNoName + "sheet页品牌不能为空");
