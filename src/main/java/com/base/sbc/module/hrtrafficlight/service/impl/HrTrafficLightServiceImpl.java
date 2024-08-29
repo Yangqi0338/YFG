@@ -451,9 +451,14 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 String twoHeadFontColor = inTwoHeadMap.get("fontColor");
                 String twoHeadBackColor = inTwoHeadMap.get("backColor");
                 Map<String, String> inDataMap = dataMap.get(idx);
-                String value = inDataMap.get("value");
-                String fontColor = inDataMap.get("fontColor");
-                String backColor = inDataMap.get("backColor");
+                String value = "";
+                String fontColor = "";
+                String backColor = "";
+                if (ObjectUtil.isNotEmpty(inDataMap)) {
+                    value = inDataMap.get("value");
+                    fontColor = inDataMap.get("fontColor");
+                    backColor = inDataMap.get("backColor");
+                }
                 if (StrUtil.isBlank(oneHead)) {
                     oneHead = oneHeadTemp;
                     oneHeadFontColor = oneHeadFontColorTemp;
