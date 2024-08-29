@@ -355,8 +355,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         } else if (qo.needSpecialTotalSum()) {
             String materialCode = totalFabricVO.getMaterialCode();
             if (StrUtil.isNotBlank(materialCode)) {
-                List<String> materialCodeList = CollUtil.removeWithAddIf(CollUtil.newArrayList(materialCode.split(COMMA)),
-                        (subMaterialCode) -> fabricList.stream().anyMatch(it -> subMaterialCode.equals(it.getMaterialCode())));
+                List<String> materialCodeList = CollUtil.distinct(CollUtil.removeWithAddIf(CollUtil.newArrayList(materialCode.split(COMMA)),
+                        (subMaterialCode) -> fabricList.stream().noneMatch(it -> subMaterialCode.equals(it.getMaterialCode()))));
 
                 ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(StrUtil.join(COMMA, materialCodeList), 2);
                 BigDecimal sum = BigDecimal.ZERO;
@@ -364,7 +364,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     sum = BigDecimal.valueOf(materialCodeList.stream().mapToInt(materialNo ->
                             result.getData().stream().filter(it -> materialNo.equals(it.getMaterialNo())).mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum()).sum());
                 }
-                totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList, ReplayRatingFabricVO::getRemainingMaterial).add(sum));
+                totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList.stream().collect(CommonUtils.toMap(ReplayRatingFabricVO::getMaterialCode)).values(), ReplayRatingFabricVO::getRemainingMaterial).add(sum));
             }
         }
         System.out.println("----------8-----------" + (System.currentTimeMillis() - timeMillis));
