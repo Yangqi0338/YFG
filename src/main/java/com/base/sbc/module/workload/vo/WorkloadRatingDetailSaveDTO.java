@@ -9,6 +9,7 @@ package com.base.sbc.module.workload.vo;
 import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingItem;
@@ -89,7 +90,7 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
         this.setItemId(CommonUtils.strJoin(COMMA, this.getItemId(), item.getId()).toString());
         this.setItemValue(CommonUtils.strJoin(COMMA, this.getItemValue(), item.getItemValue()).toString());
         this.setItemName(CommonUtils.strJoin(COMMA, this.getItemName(), item.getItemName()).toString());
-        this.setScore(this.getScore().add(item.getScore()));
+        this.setScore(BigDecimalUtil.add(this.getScore(), item.getScore()));
         return this;
     }
 
