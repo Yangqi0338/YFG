@@ -2542,8 +2542,8 @@ public class SmpService {
 
         HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
                 Pair.of("moduleName", "scm1"),
-                Pair.of("functionName", "剩余备料"),
-                Pair.of("code", materialNo)
+//                Pair.of("code", materialNo),
+                Pair.of("functionName", "剩余备料")
         );
 
         ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
