@@ -1540,7 +1540,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 return "该配饰款：【" + styleColorNo + "】没有绑定主款号！";
             }
         }
-        return null;
+        return "";
         //endregion
     }
     /**
