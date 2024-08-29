@@ -46,7 +46,7 @@ public class WorkloadRatingItemVO extends WorkloadRatingItem {
      */
     @ApiModelProperty(value = "拥有的itemValue")
     @JsonIgnore
-    private List<WorkloadRatingItem> itemList;
+    private List<WorkloadRatingItemVO> itemList;
 
     /**
      * 拥有的itemValue
@@ -61,7 +61,7 @@ public class WorkloadRatingItemVO extends WorkloadRatingItem {
             Map<Object, Object> map = super.decorateWebMap();
             if (CollUtil.isNotEmpty(titleFieldList)) {
                 titleFieldList.stream().filter(it -> !this.getConfigId().equals(it.getConfigId())).forEach(titleFieldDTO -> {
-                    Optional<WorkloadRatingItem> configItemOpt = itemList.stream().filter(it -> it.getConfigId().equals(titleFieldDTO.getConfigId())).findFirst();
+                    Optional<WorkloadRatingItemVO> configItemOpt = itemList.stream().filter(it -> it.getConfigId().equals(titleFieldDTO.getConfigId())).findFirst();
                     map.put(titleFieldDTO.getCode(), configItemOpt.isPresent() ? configItemOpt.get().getScore() : getItemNameByIndex(titleFieldDTO.getIndex()));
                 });
             }

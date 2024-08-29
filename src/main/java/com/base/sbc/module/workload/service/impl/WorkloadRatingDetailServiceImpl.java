@@ -188,7 +188,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     List<String> itemValueList = StrUtil.split(ratingDetail.getOriginItemValue(), "-");
                     itemValueList.forEach(itemValue-> {
                         // 找config
-                        List<String> keyList = StrUtil.split(ratingDetail.getOriginItemValue(), "#");
+                        List<String> keyList = StrUtil.split(itemValue, "#");
                         itemList.stream().filter(it-> it.getConfigName().equals(keyList.get(0))).forEach(it-> {
                             YesOrNoEnum enableFlag = null;
                             if (keyList.size() >= 2) {
@@ -240,6 +240,8 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 List<WorkloadRatingDetailSaveDTO> saveDTOList = brandConfigVOList.stream().flatMap(configVO -> {
                     List<WorkloadRatingItemVO> configItemList = workloadRatingItemList.stream()
                             .filter(it -> it.getConfigName().equals(configVO.getItemName()))
+                            .filter(it -> it.getBrand().equals(configVO.getBrand()))
+                            .filter(it -> it.getCalculateType().equals(configVO.getCalculateType()))
                             .collect(Collectors.toList());
 
                     Optional<String> itemValueOpt = matchItemValueList.stream()
@@ -250,14 +252,12 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         String detailConfigId = detailSaveDTO.getConfigId();
                         if (configVO.getCalculateType() != WorkloadRatingCalculateType.BASE || itemValueOpt.isPresent()) {
                             List<WorkloadRatingItemVO> configFieldItemList = configItemList.stream()
-                                    .filter(it-> it.getBrand().equals(configVO.getBrand()))
-                                    .filter(it-> it.getCalculateType().equals(configTitleField.getCalculateType()))
                                     .filter(it -> !itemValueOpt.isPresent() || it.getItemValue().equals(itemValueOpt.get()))
                                     .collect(Collectors.toList());
                             // 对条对格
                             if (!configVO.getId().equals(detailConfigId)) {
-                                configFieldItemList = configFieldItemList.stream()
-                                        .flatMap(it -> it.getItemList().stream()).map(WORKLOAD_CV::copy2ItemVO)
+                                configFieldItemList = configItemList.stream()
+                                        .flatMap(it -> it.getItemList().stream())
                                         .filter(it -> it.getConfigId().equals(detailConfigId))
                                         .collect(Collectors.toList());
                             }

@@ -17,7 +17,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
@@ -29,15 +28,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.ExecutorContext;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
@@ -163,8 +161,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -436,6 +432,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.eq(PatternMaking::getId, dto.getId());
         updateWrapper.set(PatternMaking::getReceiveSampleDate, dto.getDesignReceiptDate());
         this.update(updateWrapper);
+    }
+
+    @Override
+    public SampleBoardVo getWorkloadById(String id) {
+        PatternMaking patternMaking = this.findRequiredFieldById(id, PatternMaking::getWorkloadRatingId, PatternMaking::getStyleId, PatternMaking::getSecondProcessing);
+        SampleBoardVo sampleBoardVo = BeanUtil.copyProperties(patternMaking, SampleBoardVo.class);
+        sampleBoardVo.setPatternMakingId(id);
+
+        styleService.warnMsg("未找到款式信息");
+        Style style = styleService.findOne(sampleBoardVo.getStyleId());
+
+        workloadRatingDetailService.decorateWorkloadRating(CollUtil.newArrayList(sampleBoardVo), (vo) -> style, SampleBoardVo::getWorkloadRatingId,
+                SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        return sampleBoardVo;
     }
 
 
@@ -1793,10 +1803,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
 
-        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
-            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
-                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
-        }
+//        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
+//            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+//                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+//        }
 
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
