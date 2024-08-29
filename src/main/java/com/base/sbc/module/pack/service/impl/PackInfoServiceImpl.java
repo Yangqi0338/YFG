@@ -592,6 +592,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
             packInfoStatus.setToBigGoodsDate(nowDate);
+            packInfoStatus.setTechSpecVideoFileId(packDesignStatus.getTechSpecVideoFileId());
             packInfoStatusService.updateById(packInfoStatus);
             //updateById(packInfo);
             //设置bom 状态
