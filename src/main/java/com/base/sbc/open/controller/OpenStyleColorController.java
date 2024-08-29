@@ -134,6 +134,7 @@ public class OpenStyleColorController {
             pushRecords.setPushCount(1);
             pushRecords.setPushStatus(pushStatus);
             pushRecords.setResponseMessage(responseMessage);
+            pushRecordsService.save(pushRecords);
         }
 
     }
