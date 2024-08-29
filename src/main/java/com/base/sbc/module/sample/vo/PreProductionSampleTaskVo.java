@@ -156,4 +156,9 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
 
     private String orderUserId;
 
+     private String fobStatus;
+     private String techRemarks;
+    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    private Date processDepartmentDate;
+
 }

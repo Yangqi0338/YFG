@@ -61,6 +61,7 @@ public enum DataPermissionsBusinessTypeEnum {
     pre_production_sample_board("pre_production_sample_board", "产前样看板"),
     PatternMakingWeekMonthView("PatternMakingWeekMonthView", "版类对比"),
     CategorySummaryCount("CategorySummaryCount", "品类汇总统计"),
+    patternMakingFOBMune("patternMakingFOBMune","打版指令"),
 
     //报表中心
     styleAnalyseDesign("styleAnalyseDesign", "设计分析报表"),

@@ -437,6 +437,15 @@
             tpmbc.bar_code,
             tpmbc.img,
             tpmbc.create_date as receiveSampleDate,
+            tpmbc.status,
+            tpmbc.suggestion,
+            tpmbc.suggestion_video,
+            tpmbc.suggestion_img,
+            tpmbc.suggestion_img1,
+            tpmbc.suggestion_img2,
+            tpmbc.suggestion_img3,
+            tpmbc.suggestion_img4,
+            tpmbc.update_date as barCodeUpdateDate,
             p.del_flag,
             p.code
         </if>
@@ -1120,6 +1129,39 @@
                  left join t_pattern_making_bar_code tpmbc on (tpm.id = tpmbc.head_id and tpmbc.del_flag = '0')
         where
             tpm.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="listFob" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            ts.design_no,
+            concat(ts.year_name," ",ts.season_name," ",ts.brand_name) season,
+            tpm.*
+        </if>
+        from t_pattern_making tpm
+             left join t_style ts on ts.id = tpm.style_id and ts.del_flag = '0'
+        where
+        tpm.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="listFobSum" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
+        select
+            tpm.pattern_room_id,
+            tpm.supplier_style_no,
+            count(tpm.id) patternMakingSum
+        from t_pattern_making tpm
+        left join t_style ts on ts.id = tpm.style_id and ts.del_flag = '0'
+        where
+        tpm.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

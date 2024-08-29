@@ -459,6 +459,14 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "importOldId是否引用旧数据")
     private String importOldId;
 
+    @ApiModelProperty(value = "供应商款号"  )
+    private String supplierStyleNo;
+    @ApiModelProperty(value = "打版文件id"  )
+    private String sampleFile;
+    @ApiModelProperty(value = "是否绑定设计款"  )
+    private String bindDesign;
+    @ApiModelProperty(value = "创建部门"  )
+    private String createDeptId;
 
     /**
      * 评分详情id
