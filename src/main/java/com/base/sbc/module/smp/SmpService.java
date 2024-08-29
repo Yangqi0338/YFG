@@ -603,7 +603,25 @@ public class SmpService {
                     throw new OtherException(message);
                 }
             }
-            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
+
+            //TODO 这个方法弊端，实际上查出来两条数据但返回了一条，这一条数据可能是错的
+            //PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
+
+            //region 根据code和阶段以及款式bom查询出款式定价数据,出现多条用大货款号进行比对
+            PackInfoListVo packInfo = null;
+            List<PackInfoListVo> packInfoListVos = packInfoService.queryByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
+            if (packInfoListVos.size() > 2) {
+                String styleNo = styleColor.getStyleNo();
+                for (PackInfoListVo packInfoListVo : packInfoListVos) {
+                    if (packInfoListVo.getStyleNo().equals(styleNo)) {
+                        packInfo = packInfoListVo;
+                    }
+                }
+            } else if (packInfoListVos.size() == 1) {
+                packInfo = packInfoListVos.get(0);
+            }
+            //endregion
+
             Style style = new Style();
             if (packInfo != null) {
                 // 产前样查询 拿最早的工艺部接收正确样时间
@@ -617,6 +635,8 @@ public class SmpService {
                 if (style == null) {
                     style = styleService.getById(styleColor.getStyleId());
                 }
+            }else{
+                throw new OtherException("找不到款式定价数据，下发失败！");
             }
 
             smpGoodsDto.setSendMainFabricDate(styleColor.getSendMainFabricDate());
