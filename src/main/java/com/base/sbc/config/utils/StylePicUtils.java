@@ -122,7 +122,7 @@ public class StylePicUtils {
      * @param list
      * @param fileIdKey 修改字段
      */
-    public List<Object> setStyleColorPic2(List list, String fileIdKey) {
+    public <T> List<T> setStyleColorPic2(List<T> list, String fileIdKey) {
         if (CollUtil.isEmpty(list)) {
             return list;
         }
@@ -137,8 +137,8 @@ public class StylePicUtils {
             return list;
         }
         /*获取款式图*/
-        List<Object> result = new ArrayList<>();
-        for (Object l : list) {
+        List<T> result = new ArrayList<>();
+        for (T l : list) {
             String v = BeanUtil.getProperty(l, fileIdKey);
             if (StrUtil.isBlank(v)) {
                 result.add(l);

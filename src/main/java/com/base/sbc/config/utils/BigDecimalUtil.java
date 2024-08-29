@@ -445,6 +445,17 @@ public class BigDecimalUtil {
 	}
 
 	/**
+	 * 去除后缀0
+	 *
+	 * @param d1
+	 * @return
+	 */
+	public static BigDecimal stripZeros(BigDecimal d1) {
+		if (d1 == null) return d1;
+		return d1.stripTrailingZeros();
+	}
+
+	/**
 	 * 计算两个BigDecimal的比值
 	 * @param d1
 	 * @param d2
