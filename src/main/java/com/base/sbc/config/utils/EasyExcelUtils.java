@@ -155,6 +155,8 @@ public class EasyExcelUtils {
         // 行高与像素的转换因子
         public static Float rowHeight2PixelFactor = 1.3333f;
 
+        // 边距
+        public static Integer spacingFactor = 5;
 
         /**
          * 后单元格数据转换
@@ -194,8 +196,8 @@ public class EasyExcelUtils {
                 double scale = Math.min(scaleX, scaleY);
 
                 // 计算缩放后的图像大小
-                int scaledWidth = (int) (image.getWidth() * scale);
-                int scaledHeight = (int) (image.getHeight() * scale);
+                int scaledWidth = (int) (image.getWidth() * scale) - spacingFactor;
+                int scaledHeight = (int) (image.getHeight() * scale) - spacingFactor;
 
                 // 计算上下左右四个角的空白
                 int topPadding = (targetHeight - scaledHeight) / 2;
