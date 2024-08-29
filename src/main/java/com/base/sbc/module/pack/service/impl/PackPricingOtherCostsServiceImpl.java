@@ -11,8 +11,10 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
@@ -28,9 +30,12 @@ import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.UploadFileType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.PdfUtil;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.TemplateExcelUtils;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -70,6 +75,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -134,6 +140,9 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     @Autowired
     private AttachmentService attachmentService;
 
+    @Autowired
+    private StylePicUtils stylePicUtils;
+
 // 自定义方法区 不替换的区域【other_start】
 
     @Override
@@ -144,8 +153,9 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 .notEmptyEq(PackPricingOtherCosts::getColorCode, dto.getColorCode())
                 .unwrap();
         PackUtils.commonQw(qw, dto);
-        list(qw);
+        List<PackPricingOtherCosts> list = list(qw);
         PageInfo<PackPricingOtherCosts> pageInfo = page.toPageInfo();
+        list.forEach(it -> it.setPicUrl(minioUtils.getObjectUrl(it.getPicUrl())));
         return CopyUtil.copy(pageInfo, PackPricingOtherCostsVo.class);
     }
 
@@ -362,13 +372,19 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         );
 
         String styleColorId = packInfo.getStyleColorId();
+        String styleColorPic;
         if (StrUtil.isNotBlank(styleColorId)) {
             styleColorService.warnMsg("未找到对应的大货款" + packInfo.getStyleNo());
             StyleColor styleColor = styleColorService.findOne(styleColorId);
             baseMap.put("bandName",styleColor.getBandName());
-            baseMap.put("styleColorPic", minioUtils.getObjectUrl(styleColor.getStyleColorPic()));
+            styleColorPic = stylePicUtils.getStyleUrl(styleColor.getStyleColorPic());
         }else {
-            baseMap.put("styleColorPic", minioUtils.getObjectUrl(style.getStylePic()));
+            styleColorPic = stylePicUtils.getStyleUrl(style.getStylePic());
+        }
+        try {
+            baseMap.put("styleColorPic", TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(styleColorPic), 600.0, 400.0, 0.6, 1.9));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         dto.reset2QueryList();
@@ -413,9 +429,16 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 PackPricingOtherCostsVo baseOtherCosts = sameNameList.get(0);
                 Map<String, Object> otherCostsMap = MapUtil.ofEntries(
                         MapUtil.entry("factoryName", baseOtherCosts.getFactoryName()),
-                        MapUtil.entry("pic", minioUtils.getObjectUrl(baseOtherCosts.getPicUrl())),
-                        MapUtil.entry("name", name)
+                        MapUtil.entry("name", ArrayUtil.get(name.split("-"), 0))
                 );
+                String picUrl = minioUtils.getObjectUrl(baseOtherCosts.getPicUrl());
+                if (StrUtil.isNotBlank(picUrl)) {
+                    try {
+                        otherCostsMap.put("pic", TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(picUrl), 400.0, 200.0, 0.6, 1.9));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
 
                 List<PackBom> costsPackBomList = packBomList.stream().filter(it -> it.getMaterialCode().equals(baseOtherCosts.getMaterialCode())).collect(Collectors.toList());
 
@@ -424,6 +447,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 excelWriter.fill(baseMap,writeSheet);
                 excelWriter.fill(otherCostsMap,writeSheet);
                 sameNameList.stream().sorted(Comparator.comparing(PackPricingOtherCostsVo::getIndex)).forEach(it-> {
+                    it.setPrice(BigDecimalUtil.stripZeros(it.getPrice()));
                     excelWriter.fill(new FillWrapper("data"+it.getIndex(), Collections.singletonList(BeanUtil.beanToMap(it))),writeSheet);
                 });
                 if (CollUtil.isNotEmpty(costsPackBomList)) {
