@@ -7,10 +7,9 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Range;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -61,7 +60,6 @@ import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.lang.math.IntRange;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -199,10 +197,20 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
         List<PackPricingOtherCosts> newEntityList = BeanUtil.copyToList(dtoList, PackPricingOtherCosts.class);
         newEntityList.stream().collect(CommonUtils.groupingBy((it)-> StrUtil.isNotBlank(it.getId()))).forEach((exists, list)-> {
+            list.forEach(it -> {
+                if (this.exists(new BaseLambdaQueryWrapper<PackPricingOtherCosts>()
+                        .notNullNe(PackPricingOtherCosts::getId, it.getId())
+                        .eq(PackPricingOtherCosts::getForeignId, it.getForeignId())
+                        .eq(PackPricingOtherCosts::getPackType, it.getPackType())
+                        .eq(PackPricingOtherCosts::getCostsTypeId, it.getCostsTypeId())
+                        .eq(PackPricingOtherCosts::getMaterialCode, it.getMaterialCode())
+                )) throw new OtherException("已存在相同的名称和物料编号的数据,请核实后再添加或修改");
+            });
             if (exists) {
                 operaLogEntity.setType("修改");
                 List<PackPricingOtherCosts> dbList = this.listByIds(list.stream().map(PackPricingOtherCosts::getId).collect(Collectors.toList()));
                 list.forEach(newEntity-> {
+
                     PackPricingOtherCosts entity = dbList.stream().filter(it -> it.getId().equals(newEntity.getId()))
                             .findFirst().orElseThrow(() -> new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND));
                     BeanUtil.copyProperties(newEntity, entity);
@@ -234,7 +242,9 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 newOtherCostsGst.setParentId(otherCosts.getId());
                 return newOtherCostsGst;
             });
-            BeanUtil.copyProperties(otherCosts, otherCostsGst);
+            otherCosts.setPrice(null);
+            otherCosts.setRemarks(null);
+            BeanUtil.copyProperties(otherCosts, otherCostsGst, CopyOptions.create().ignoreNullValue());
             return otherCostsGst;
         }).collect(Collectors.toList());
         otherCostsGstService.saveOrUpdateBatch(otherCostsGstList);
@@ -378,7 +388,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             ));
         }
 
-        Map<String, List<PackPricingOtherCostsVo>> costTypeListMap = list.stream().collect(CommonUtils.groupingBy(PackPricingOtherCostsVo::getCostsType));
+        Map<String, List<PackPricingOtherCostsVo>> costTypeListMap = list.stream().collect(CommonUtils.groupingBy(PackPricingOtherCostsVo::getPdfUniqueKey));
         try(ByteArrayOutputStream bos = new ByteArrayOutputStream();
             InputStream fileInputStream = new DefaultResourceLoader().getResource("excelTemp/ExternalCraftTemplate.xlsx").getInputStream();
             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream)) {
