@@ -218,6 +218,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     workloadRatingItemList.addAll(workloadRatingItemService.queryPageInfo(qo).getList());
                 });
             }
+            workloadRatingItemList.stream().filter(it -> it.getCalculateType() == WorkloadRatingCalculateType.BASE).forEach(it -> it.setEnableFlag(YesOrNoEnum.YES));
             for (T vo : existsOrNotList) {
                 Style style = styleFunc.apply(vo);
                 String workloadRatingId = workloadRatingIdFunc.apply(vo);
@@ -261,10 +262,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                                         .filter(it -> it.getConfigId().equals(detailConfigId))
                                         .collect(Collectors.toList());
                             }
-                            configFieldItemList.forEach(it -> {
-                                detailSaveDTO.decorateItem(it);
-                                detailSaveDTO.setEnableFlag(it.getEnableFlag());
-                            });
+                            configFieldItemList.forEach(detailSaveDTO::decorateItem);
                         }
                         return detailSaveDTO;
                     });
