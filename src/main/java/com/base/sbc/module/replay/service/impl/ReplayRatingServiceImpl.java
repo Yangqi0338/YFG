@@ -148,6 +148,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -285,99 +286,26 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         // 设置廓形请求参
         qo.setGroupName(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         qo.setFieldExplain(FieldValProperties.silhouette);
-        // 构建基础ew
-        BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
-        // 加入动态列和数据权限
-        QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
         // 开启分页
-        Page<? extends ReplayRatingVO> page = qo.startPage();
-        Map<String, Object> totalMap = new HashMap<>();
+        Page<? extends ReplayRatingVO> page;
+
+        ReplayRatingType type = qo.getType();
+        // 若使用到了BI库排序，则需要先查BI再查我们这边
+        if (qo.getType() == ReplayRatingType.STYLE && qo.isStyleReverse()) {
+            qo.setType(ReplayRatingType.STYLE_REVERSE);
+        }
         switch (qo.getType()) {
             case STYLE:
-                // 单款复盘以设计款排序
-                queryWrapper.orderByAsc("tsc.design_no");
-                // 装饰列表
-                decorateStyleList(baseMapper.queryStyleList(queryWrapper, qo), qo);
-                // 会从queryStyleList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
-                ReplayRatingStyleTotalVO totalStyleVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingStyleTotalVO.class);
-                if (qo.needSpecialTotalSum()) {
-                    // 根据大货款号获取生产销售数据
-                    String bulkStyleNo = totalStyleVO.getBulkStyleNo();
-                    if (StrUtil.isBlank(bulkStyleNo)) break;
-                    SaleFacQO saleFacQO = new SaleFacQO();
-                    saleFacQO.setBulkStyleNo(bulkStyleNo);
-                    List<ProductionSaleDTO> productionSaleList = findProductionSaleList(saleFacQO);
-                    // 直接通过多个计算合计
-                    totalStyleVO.decorateTotal(productionSaleList);
-                }
-                // 最后将汇总实体类转成map
-                totalStyleVO.setProductionSaleRate(totalStyleVO.getProductionSaleRate());
-                totalMap.putAll(BeanUtil.beanToMap(totalStyleVO));
+                page = doStyleList(qo);
+                break;
+            case STYLE_REVERSE:
+                page = doStyleReverseList(qo);
                 break;
             case PATTERN:
-                // 装饰列表
-                decoratePatternList(baseMapper.queryPatternList(queryWrapper, qo), qo);
-                // 会从queryPatternList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
-                ReplayRatingPatternTotalVO totalPatternVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingPatternTotalVO.class);
-                // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
-                if (qo.needSpecialTotalSum()) {
-                    // 根据大货款号获取生产销售数据
-                    String bulkStyleNo = totalPatternVO.getBulkStyleNo();
-                    if (StrUtil.isBlank(bulkStyleNo)) break;
-                    List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
-                            .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
-                            .select(SaleFac::getProductionType, SaleFac::getNum)
-                    );
-                    // 判断其是否投产,设置到对应的合计数据
-                    saleFacList.stream().collect(Collectors.groupingBy(SaleFac::isProduction)).forEach((isProduction, sameTypeList) -> {
-                        BigDecimal sum = CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum);
-                        if (isProduction) totalPatternVO.setSeasonProductionCount(sum);
-                        else totalPatternVO.setSeasonSaleCount(sum);
-                    });
-                }
-                // 最后将汇总实体类转成map
-                totalMap.putAll(BeanUtil.beanToMap(totalPatternVO));
+                page = doPatternList(qo);
                 break;
             case FABRIC:
-                // 若不是动态列,加入groupBy
-                if (!qo.isColumnGroupSearch()) {
-                    queryWrapper.groupBy("tpb.material_code", "tpb.foreign_id");
-//                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
-                }
-                // 装饰列表
-                List<ReplayRatingFabricVO> fabricList = baseMapper.queryFabricList(queryWrapper, qo);
-                decorateFabricList(fabricList, qo);
-                // 会从queryFabricList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
-                ReplayRatingFabricTotalVO totalFabricVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingFabricTotalVO.class);
-                // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
-                if (qo.needSpecialTotalSum()) {
-                    // 根据大货款号获取生产数据
-                    String bulkStyleNo = totalFabricVO.getBulkStyleNo();
-                    if (StrUtil.isBlank(bulkStyleNo)) break;
-                    List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
-                            .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
-                            .in(SaleFac::getResultType, SaleFacResultType.productionList())
-                            .select(SaleFac::getNum)
-                    );
-                    totalFabricVO.setProduction(CommonUtils.sumBigDecimal(saleFacList, SaleFac::getNum));
-                }
-                // 是否仅统计当前页
-                if (!ReplayRatingProperties.totalCurrentPage) {
-                    totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList, ReplayRatingFabricVO::getRemainingMaterial));
-                }else {
-                    String materialCode = totalFabricVO.getMaterialCode();
-                    if (StrUtil.isNotBlank(materialCode)) {
-                        List<String> materialCodeList = CollUtil.removeWithAddIf(Arrays.asList(materialCode.split(COMMA)),
-                                (subMaterialCode) -> fabricList.stream().anyMatch(it -> subMaterialCode.equals(it.getMaterialCode())));
-                        BigDecimal sum = BigDecimal.valueOf(materialCodeList.stream().mapToInt(it -> {
-                            ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(it, 2);
-                            if (!result.getSuccess()) return 0;
-                            return result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum();
-                        }).sum());
-                        totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList,ReplayRatingFabricVO::getRemainingMaterial).add(sum));
-                    }
-                }
-                totalMap.putAll(BeanUtil.beanToMap(totalFabricVO));
+                page = doFabricList(qo);
                 break;
             default:
                 throw new UnsupportedOperationException("不受支持的复盘类型");
@@ -386,72 +314,75 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
         // 设置汇总数据,通过JsonAnyGetter平铺数据
         ReplayRatingPageVO<? extends ReplayRatingVO> pageVo = BeanUtil.copyProperties(pageInfo, ReplayRatingPageVO.class);
-        pageVo.setTotalMap(totalMap);
+        pageVo.setTotalMap(page.getAttributes());
         return pageVo;
     }
 
-    private <T extends ReplayRatingVO> List<T> decorateList(List<T> list, ReplayRatingQO qo) {
-        // 若是动态列, 直接返回
-        if (qo.isColumnGroupSearch()) return list;
-        // 获取产品季名字和大货款图
-        List<String> planningSeasonIdList = list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList());
-        Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(new LambdaQueryWrapper<PlanningSeason>()
-                        .in(PlanningSeason::getId, planningSeasonIdList)
-                , PlanningSeason::getId, PlanningSeason::getName);
-        stylePicUtils.setStyleColorPic2(list);
-        list.forEach(it -> it.setPlanningSeasonName(planningSeasonNameMap.getOrDefault(it.getPlanningSeasonId(), "")));
-        return list;
+    public Page<? extends ReplayRatingVO> doFabricList(ReplayRatingQO qo) {
+        long timeMillis = System.currentTimeMillis();
+        // 构建基础ew
+        BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
+        // 加入动态列和数据权限
+        QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
+        Page<ReplayRatingPatternVO> page = qo.startPage();
+        // 若不是动态列,加入groupBy
+        if (!qo.isColumnGroupSearch()) {
+            queryWrapper.groupBy("tpb.material_code", "tpb.foreign_id");
+//                    queryWrapper.orderByAsc("tpb.material_code", "tpb.color");
+        }
+        // 装饰列表
+        List<ReplayRatingFabricVO> fabricList = baseMapper.queryFabricList(queryWrapper, qo);
+        System.out.println("----------1-----------" + (System.currentTimeMillis() - timeMillis));
+        decorateFabricList(fabricList, qo);
+        // 会从queryFabricList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
+        ReplayRatingFabricTotalVO totalFabricVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingFabricTotalVO.class);
+        // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
+        if (qo.needSpecialTotalSum()) {
+            // 根据大货款号获取生产数据
+            String bulkStyleNo = totalFabricVO.getBulkStyleNo();
+            if (StrUtil.isBlank(bulkStyleNo)) return page;
+            List<SaleFac> saleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
+                    .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
+                    .in(SaleFac::getResultType, SaleFacResultType.productionList())
+                    .select(SaleFac::getNum)
+            );
+            totalFabricVO.setProduction(CommonUtils.sumBigDecimal(saleFacList, SaleFac::getNum));
+        }
+        System.out.println("----------7-----------" + (System.currentTimeMillis() - timeMillis));
+        // 是否仅统计当前页
+        if (ReplayRatingProperties.totalCurrentPage) {
+            totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList, ReplayRatingFabricVO::getRemainingMaterial));
+        } else if (qo.needSpecialTotalSum()) {
+            String materialCode = totalFabricVO.getMaterialCode();
+            if (StrUtil.isNotBlank(materialCode)) {
+                List<String> materialCodeList = CollUtil.distinct(CollUtil.removeWithAddIf(CollUtil.newArrayList(materialCode.split(COMMA)),
+                        (subMaterialCode) -> fabricList.stream().noneMatch(it -> subMaterialCode.equals(it.getMaterialCode()))));
+
+                ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(StrUtil.join(COMMA, materialCodeList), 2);
+                BigDecimal sum = BigDecimal.ZERO;
+                if (result.getSuccess()) {
+                    sum = BigDecimal.valueOf(materialCodeList.stream().mapToInt(materialNo ->
+                            result.getData().stream().filter(it -> materialNo.equals(it.getMaterialNo())).mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum()).sum());
+                }
+                totalFabricVO.setRemainingMaterial(CommonUtils.sumBigDecimal(fabricList.stream().collect(CommonUtils.toMap(ReplayRatingFabricVO::getMaterialCode)).values(), ReplayRatingFabricVO::getRemainingMaterial).add(sum));
+            }
+        }
+        System.out.println("----------8-----------" + (System.currentTimeMillis() - timeMillis));
+        // 最后将汇总实体类转成map
+        page.setAttributes(BeanUtil.beanToMap(totalFabricVO));
+        return page;
     }
 
-    private void decorateStyleList(List<ReplayRatingStyleVO> styleVOList, ReplayRatingQO qo) {
-        if (CollUtil.isEmpty(styleVOList)) return;
-        // 先普通装饰
-        decorateList(styleVOList, qo);
+    public Page<? extends ReplayRatingVO> doPatternList(ReplayRatingQO qo) {
+        // 构建基础ew
+        BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
+        // 加入动态列和数据权限
+        QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
+        Page<ReplayRatingStyleVO> page = qo.startPage();
 
-        // 获取版型id 用于版型复盘跳转
-        List<String> styleIdList = styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList());
-        Map<String, String> patternIdMap = patternLibraryService.mapOneField(new LambdaQueryWrapper<PatternLibrary>()
-                        .in(PatternLibrary::getStyleId, styleIdList)
-                , PatternLibrary::getStyleId, PatternLibrary::getId);
-
-        SaleFacQO saleFacQO = new SaleFacQO();
-        saleFacQO.setBulkStyleNo(styleVOList.stream().map(ReplayRatingStyleVO::getBulkStyleNo).collect(Collectors.joining(COMMA)));
-        List<ProductionSaleDTO> productionSaleList = findProductionSaleList(saleFacQO);
-        styleVOList.forEach(styleDTO -> {
-            // 版型id
-            styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
-            // 获取所有销售记录
-            ProductionSaleDTO saleDTO = new ProductionSaleDTO().decorateTotal(
-                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList()));
-            saleDTO.setProductionUnit(BigDecimal.ONE);
-            saleDTO.setSaleUnit(BigDecimal.ONE);
-            styleDTO.setProductionSaleDTO(saleDTO);
-        });
-    }
-
-    /**
-     * 根据某个key,获取维度数据,并将val和valName设置到对应的值上
-     */
-    private <T> void decorateFieldVal(List<T> sourceList, QueryFieldManagementDto qo, Function<T, String> keyFunc, BiConsumer<T, String> codeSetFunc, BiConsumer<T, String> nameSetFunc) {
-        List<FieldVal> fieldValList = fieldValService.list(new BaseLambdaQueryWrapper<FieldVal>()
-                .in(FieldVal::getForeignId, sourceList.stream().map(keyFunc).collect(Collectors.toList()))
-                .eq(FieldVal::getDataGroup, qo.getGroupName())
-                .eq(FieldVal::getFieldExplain, qo.getFieldExplain())
-        );
-        sourceList.forEach(source -> {
-            // 获取时间最新的
-            fieldValList.stream()
-                    .filter(it -> it.getForeignId().equals(keyFunc.apply(source)))
-                    .max(Comparator.comparing(FieldVal::getUpdateDate))
-                    .ifPresent(fieldVal -> {
-                        nameSetFunc.accept(source, fieldVal.getValName());
-                        codeSetFunc.accept(source, fieldVal.getVal());
-                    });
-        });
-    }
-
-    private void decoratePatternList(List<ReplayRatingPatternVO> patternVOList, ReplayRatingQO qo) {
-        if (CollUtil.isEmpty(patternVOList)) return;
+        // 装饰列表
+        List<ReplayRatingPatternVO> patternVOList = baseMapper.queryPatternList(queryWrapper, qo);
+        if (CollUtil.isEmpty(patternVOList)) return page;
         // 先普通装饰
         decorateList(patternVOList, qo);
 
@@ -471,7 +402,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         /* ----------------------------当季投产销售---------------------------- */
 
         // 查询
-        if (CollUtil.isEmpty(bulkStyleNoList)) return;
+        if (CollUtil.isEmpty(bulkStyleNoList)) return page;
         List<SaleFac> saleFacList = saleFacMapper.selectList(new LambdaQueryWrapper<SaleFac>()
                 .in(SaleFac::getBulkStyleNo, bulkStyleNoList)
         );
@@ -486,6 +417,174 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                         } else {
                             pattern.setSeasonProductionCount(sum);
                         }
+                    });
+        });
+
+        // 会从queryPatternList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
+        ReplayRatingPatternTotalVO totalPatternVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingPatternTotalVO.class);
+        // 若需要特殊查询某个汇总数据(多半是上面的count无法连表或性能差)
+        if (qo.needSpecialTotalSum()) {
+            // 根据大货款号获取生产销售数据
+            String bulkStyleNo = totalPatternVO.getBulkStyleNo();
+            if (StrUtil.isBlank(bulkStyleNo)) return page;
+            List<SaleFac> totalSaleFacList = saleFacMapper.selectList(new BaseLambdaQueryWrapper<SaleFac>()
+                    .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo)
+                    .select(SaleFac::getProductionType, SaleFac::getNum)
+            );
+            // 判断其是否投产,设置到对应的合计数据
+            totalSaleFacList.stream().collect(Collectors.groupingBy(SaleFac::isProduction)).forEach((isProduction, sameTypeList) -> {
+                BigDecimal sum = CommonUtils.sumBigDecimal(sameTypeList, SaleFac::getNum);
+                if (isProduction) totalPatternVO.setSeasonProductionCount(sum);
+                else totalPatternVO.setSeasonSaleCount(sum);
+            });
+        }
+        // 最后将汇总实体类转成map
+        page.setAttributes(BeanUtil.beanToMap(totalPatternVO));
+        return page;
+    }
+
+    public Page<? extends ReplayRatingVO> doStyleList(ReplayRatingQO qo) {
+        // 构建基础ew
+        BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
+        // 加入动态列和数据权限
+        QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
+        Page<ReplayRatingStyleVO> page = qo.startPage();
+
+        // 装饰列表
+        List<ReplayRatingStyleVO> styleVOList = baseMapper.queryStyleList(queryWrapper, qo);
+        if (CollUtil.isEmpty(styleVOList)) return page;
+        // 先普通装饰
+        decorateList(styleVOList, qo);
+
+        // 获取版型id 用于版型复盘跳转
+        List<String> styleIdList = styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList());
+        Map<String, String> patternIdMap = patternLibraryService.mapOneField(new LambdaQueryWrapper<PatternLibrary>()
+                        .in(PatternLibrary::getStyleId, styleIdList)
+                , PatternLibrary::getStyleId, PatternLibrary::getId);
+
+        SaleFacQO saleFacQO = new SaleFacQO();
+        saleFacQO.setBulkStyleNo(styleVOList.stream().map(ReplayRatingStyleVO::getBulkStyleNo).collect(Collectors.joining(COMMA)));
+        List<ProductionSaleDTO> productionSaleList = findProductionSaleList(saleFacQO);
+        styleVOList.forEach(styleDTO -> {
+            // 版型id
+            styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
+            // 获取所有销售记录
+            styleDTO.setProductionSaleDTO(new ProductionSaleDTO().decorateTotal(
+                    productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo())).collect(Collectors.toList())));
+        });
+
+        // 会从queryStyleList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
+        ReplayRatingStyleTotalVO totalStyleVO = BeanUtil.toBean(page.getAttributes(), ReplayRatingStyleTotalVO.class);
+        if (qo.needSpecialTotalSum()) {
+            // 根据大货款号获取生产销售数据
+            String bulkStyleNo = totalStyleVO.getBulkStyleNo();
+            if (StrUtil.isBlank(bulkStyleNo)) return page;
+            saleFacQO.setBulkStyleNo(bulkStyleNo);
+            List<ProductionSaleDTO> totalProductionSaleList = findProductionSaleList(saleFacQO);
+            // 直接通过多个计算合计
+            totalStyleVO.decorateTotal(totalProductionSaleList);
+        }
+        // 最后将汇总实体类转成map
+        totalStyleVO.setProductionSaleRate(totalStyleVO.getProductionSaleRateStr());
+        page.setAttributes(BeanUtil.beanToMap(totalStyleVO));
+        return page;
+    }
+
+    public Page<ReplayRatingStyleVO> doStyleReverseList(ReplayRatingQO qo) {
+        Map<String, String> fieldOrderMap = MapUtil.newConcurrentHashMap(qo.getFieldOrderMap());
+        // 构建基础ew
+        BaseQueryWrapper<ReplayRating> queryWrapper = buildQueryWrapper(qo);
+        // 加入动态列和数据权限
+        QueryGenerator.initQueryWrapperByMap(queryWrapper, qo);
+        Page<ReplayRatingStyleVO> realPage = qo.startPage();
+        qo.reset2QueryList();
+        qo.startPage();
+
+        // 装饰列表
+        List<ReplayRatingStyleVO> styleVOList = baseMapper.queryStyleList(queryWrapper, qo);
+        if (CollUtil.isEmpty(styleVOList)) return realPage;
+
+        qo.syncOrderBy();
+        qo.startPage();
+
+        SaleFacQO saleFacQO = new SaleFacQO();
+        saleFacQO.setBulkStyleNo(styleVOList.stream().map(ReplayRatingStyleVO::getBulkStyleNo).collect(Collectors.joining(COMMA)));
+        List<ProductionSaleDTO> totalProductionSaleList = findProductionSaleList(saleFacQO);
+        if (CollUtil.isEmpty(totalProductionSaleList)) return realPage;
+
+        totalProductionSaleList = totalProductionSaleList.stream().collect(Collectors.groupingBy(ProductionSaleDTO::getBulkStyleNo)).values()
+                .stream().map(it -> new ProductionSaleDTO().decorateTotal(it)).collect(Collectors.toList());
+        Comparator<ProductionSaleDTO> comparing = qo.findOrderComparator(fieldOrderMap);
+        if (comparing == null) throw new OtherException("程序错误");
+        totalProductionSaleList.sort(comparing);
+        List<ProductionSaleDTO> productionSaleList = totalProductionSaleList.subList(realPage.getStartRow(), realPage.getEndRow());
+        Map<String,Integer> sortMap = new TreeMap<>();
+        for (int i = 0; i < productionSaleList.size(); i++) {
+            ProductionSaleDTO saleDTO = productionSaleList.get(i);
+            sortMap.put(saleDTO.getBulkStyleNo(), i);
+        }
+
+        styleVOList = styleVOList.stream().filter(it -> sortMap.containsKey(it.getBulkStyleNo()))
+                .sorted(Comparator.comparing(a -> sortMap.get(a.getBulkStyleNo()))).collect(Collectors.toList());
+
+        // 先普通装饰
+        decorateList(styleVOList, qo);
+
+        // 获取版型id 用于版型复盘跳转
+        List<String> styleIdList = styleVOList.stream().map(ReplayRatingStyleVO::getStyleId).collect(Collectors.toList());
+        Map<String, String> patternIdMap = patternLibraryService.mapOneField(new LambdaQueryWrapper<PatternLibrary>()
+                        .in(PatternLibrary::getStyleId, styleIdList)
+                , PatternLibrary::getStyleId, PatternLibrary::getId);
+
+        styleVOList.forEach(styleDTO -> {
+            // 版型id
+            styleDTO.setGotoPatternId(patternIdMap.getOrDefault(styleDTO.getStyleId(), ""));
+            // 获取所有销售记录
+            productionSaleList.stream().filter(it -> it.getBulkStyleNo().equals(styleDTO.getBulkStyleNo()))
+                    .findFirst().ifPresent(styleDTO::setProductionSaleDTO);
+        });
+
+        // 会从queryStyleList_COUNT获取分页的其他数据并转化实体类,详见SqlUtil 355
+        ReplayRatingStyleTotalVO totalStyleVO = BeanUtil.toBean(realPage.getAttributes(), ReplayRatingStyleTotalVO.class);
+        totalStyleVO.decorateTotal(totalProductionSaleList);
+        // 最后将汇总实体类转成map
+        totalStyleVO.setProductionSaleRate(totalStyleVO.getProductionSaleRateStr());
+
+        realPage.addAll(styleVOList);
+        realPage.setAttributes(BeanUtil.beanToMap(totalStyleVO));
+        return realPage;
+    }
+
+    private <T extends ReplayRatingVO> List<T> decorateList(List<T> list, ReplayRatingQO qo) {
+        // 若是动态列, 直接返回
+        if (qo.isColumnGroupSearch()) return list;
+        // 获取产品季名字和大货款图
+        List<String> planningSeasonIdList = list.stream().map(ReplayRatingVO::getPlanningSeasonId).distinct().collect(Collectors.toList());
+        Map<String, String> planningSeasonNameMap = planningSeasonService.mapOneField(new LambdaQueryWrapper<PlanningSeason>()
+                        .in(PlanningSeason::getId, planningSeasonIdList)
+                , PlanningSeason::getId, PlanningSeason::getName);
+        stylePicUtils.setStyleColorPic2(list);
+        list.forEach(it -> it.setPlanningSeasonName(planningSeasonNameMap.getOrDefault(it.getPlanningSeasonId(), "")));
+        return list;
+    }
+
+    /**
+     * 根据某个key,获取维度数据,并将val和valName设置到对应的值上
+     */
+    private <T> void decorateFieldVal(List<T> sourceList, QueryFieldManagementDto qo, Function<T, String> keyFunc, BiConsumer<T, String> codeSetFunc, BiConsumer<T, String> nameSetFunc) {
+        List<FieldVal> fieldValList = fieldValService.list(new BaseLambdaQueryWrapper<FieldVal>()
+                .in(FieldVal::getForeignId, sourceList.stream().map(keyFunc).collect(Collectors.toList()))
+                .eq(FieldVal::getDataGroup, qo.getGroupName())
+                .eq(FieldVal::getFieldExplain, qo.getFieldExplain())
+        );
+        sourceList.forEach(source -> {
+            // 获取时间最新的
+            fieldValList.stream()
+                    .filter(it -> it.getForeignId().equals(keyFunc.apply(source)))
+                    .max(Comparator.comparing(FieldVal::getUpdateDate))
+                    .ifPresent(fieldVal -> {
+                        nameSetFunc.accept(source, fieldVal.getValName());
+                        codeSetFunc.accept(source, fieldVal.getVal());
                     });
         });
     }
@@ -516,6 +615,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
     }
 
     private void decorateFabricList(List<ReplayRatingFabricVO> fabricVOList, ReplayRatingQO qo) {
+        long timeMillis = System.currentTimeMillis();
         if (qo.isColumnGroupSearch() || CollUtil.isEmpty(fabricVOList)) return;
 
         /* ----------------------------大货款维度数据---------------------------- */
@@ -524,27 +624,34 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
         Map<String, String> styleColorPicMap = styleColorService.mapOneField(new LambdaQueryWrapper<StyleColor>()
                         .in(StyleColor::getId, styleColorIdList)
                 , StyleColor::getId, StyleColor::getStyleColorPic);
+        System.out.println("----------2-----------" + (System.currentTimeMillis() - timeMillis));
         fabricVOList.forEach(fabric -> {
             fabric.setStyleColorPic(styleColorPicMap.getOrDefault(fabric.getStyleColorId(), ""));
+            fabric.setImageUrl(minioUtils.getObjectUrl(fabric.getImageUrl()));
         });
-        stylePicUtils.setStyleColorPic2(fabricVOList, "imageUrl");
 
         decorateList(fabricVOList, qo);
+        System.out.println("----------4-----------" + (System.currentTimeMillis() - timeMillis));
 
         /* ----------------------------面料自主研发 + 剩余备料---------------------------- */
         AtomicInteger fabricOwnDevelopFlagAtomic = new AtomicInteger();
+        String fabricMaterialCode = fabricVOList.stream().map(ReplayRatingFabricVO::getMaterialCode).collect(Collectors.joining(COMMA));
+        ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(fabricMaterialCode, 2);
+        System.out.println("----------5-----------" + (System.currentTimeMillis() - timeMillis));
         fabricVOList.forEach(fabric -> {
             int increment = fabricOwnDevelopFlagAtomic.getAndIncrement();
             // 是否交替 TODO
             fabric.setFabricOwnDevelopFlag(YesOrNoEnum.findByValue(increment < 2 ? increment : (increment / 2) % 2));
-            // TODO
-            ApiResult<List<Scm1SpareMaterialDTO>> result = smpService.spareList(fabric.getMaterialCode(), 2);
             BigDecimal remainingMaterial = BigDecimal.ZERO;
             if (result.getSuccess() && CollUtil.isNotEmpty(result.getData())) {
-                remainingMaterial = BigDecimal.valueOf(result.getData().stream().mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum());
+                remainingMaterial = BigDecimal.valueOf(result.getData().stream()
+                        .filter(it -> fabric.getMaterialCode().equals(it.getMaterialNo()))
+                        .mapToInt(Scm1SpareMaterialDTO::getNoOccupyQuantity).sum()
+                );
             }
             fabric.setRemainingMaterial(remainingMaterial);
         });
+        System.out.println("----------3-----------" + (System.currentTimeMillis() - timeMillis));
 
         /* ----------------------------大货款维度投产量 + 使用米数---------------------------- */
         List<String> bulkStyleNoList = fabricVOList.stream().map(ReplayRatingFabricVO::getBulkStyleNo).collect(Collectors.toList());
@@ -557,6 +664,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
             fabric.setProduction(CommonUtils.sumBigDecimal(saleFacList.stream()
                     .filter(it -> it.getBulkStyleNo().equals(fabric.getBulkStyleNo())).collect(Collectors.toList()), SaleFac::getNum));
         });
+        System.out.println("----------6-----------" + (System.currentTimeMillis() - timeMillis));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -589,6 +697,8 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                 replayRatingDetailList.remove(newReplayRatingDetail);
 
                 // 修正详情数据
+                replayRatingDetailDTO.setForeignId(replayRatingSaveDTO.getForeignId());
+                replayRatingDetailDTO.setCode(replayRatingSaveDTO.getCode());
                 replayRatingDetailDTO.setType(replayRatingDetailType);
                 replayRatingDetailDTO.setReplayRatingId(replayRatingId);
                 REPLAY_CV.copy(newReplayRatingDetail, replayRatingDetailDTO);
@@ -751,7 +861,7 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
 
         LambdaQueryWrapper<SaleFac> queryWrapper = new BaseLambdaQueryWrapper<SaleFac>()
                 .notEmptyIn(SaleFac::getBulkStyleNo, bulkStyleNo);
-        List<SaleFac> sourceSaleFacList = saleFacMapper.selectList(queryWrapper);
+        List<SaleFac> sourceSaleFacList = saleFacMapper.selectList(queryWrapper.select(SaleFac::getId, SaleFac::getBulkStyleNo, SaleFac::getProductionType));
         List<Map<String, Object>> sizeMapList = saleFacMapper.findSizeMap(queryWrapper);
         if (sizeMapList.isEmpty()) return list;
 
@@ -781,14 +891,14 @@ public class ReplayRatingServiceImpl extends BaseServiceImpl<ReplayRatingMapper,
                     productionSaleDTO.setSizeName(sizeName);
                     // 投产
                     if (StrUtil.isNotBlank(saleFac.getProductionType())) {
-                        productionSaleDTO.setProduction(productionSaleDTO.getProduction().add(num));
+                        productionSaleDTO.setProduction(BigDecimalUtil.add(productionSaleDTO.getProduction(), num));
                         if (BigDecimalUtil.biggerThenZero(num)) {
-                            productionSaleDTO.setProductionCount(productionSaleDTO.getProductionCount() + 1);
+                            productionSaleDTO.setProductionCount(BigDecimalUtil.add(BigDecimal.ONE, productionSaleDTO.getProductionCount()));
                         }
                     } else {
-                        productionSaleDTO.setSale(productionSaleDTO.getSale().add(num));
+                        productionSaleDTO.setSale(BigDecimalUtil.add(productionSaleDTO.getSale(),num));
                     }
-                    productionSaleDTO.setStorageCount(stockQty);
+                    productionSaleDTO.setStorageCount(BigDecimal.valueOf(stockQty));
                 });
             });
         });

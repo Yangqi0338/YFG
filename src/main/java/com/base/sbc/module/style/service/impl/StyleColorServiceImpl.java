@@ -384,6 +384,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
             }
         }
+        for (StyleColorVo styleColorVo : sampleStyleColorList) {
+            if (ObjectUtil.isNotEmpty(styleColorVo.getTagPrice())) {
+                styleColorVo.setTagPrice(String.valueOf(Double.valueOf(styleColorVo.getTagPrice()).intValue()));
+            }
+        }
         return new PageInfo<>(sampleStyleColorList);
     }
 
@@ -1167,7 +1172,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean addRevampSampleStyleColor(AddRevampStyleColorDto addRevampStyleColorDto) {
+    public Boolean addRevampSampleStyleColor(Principal user,AddRevampStyleColorDto addRevampStyleColorDto) {
         StyleColor styleColor = new StyleColor();
         if (StringUtils.isEmpty(addRevampStyleColorDto.getId())) {
             /*新增*/
@@ -1185,6 +1190,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 throw new OtherException("无颜色");
             }
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
+            String oldStyleNo = styleColor.getStyleNo();
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
             /*颜色修改*/
@@ -1336,6 +1342,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 /*重新下发配色*/
                 dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
             }
+
+            //款号修改了
+            if (!oldStyleNo.equals(styleColor1.getStyleNo()) && StringUtils.isNotBlank(styleColor.getStyleColorPic())){
+                UpdateStyleNoBandDto updateStyleNoBandDto = new UpdateStyleNoBandDto();
+                updateStyleNoBandDto.setId(styleColor1.getId());
+                updateStyleNoBandDto.setStyleNo(styleColor1.getStyleNo());
+                Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, old, styleColor1);
+                if (!result) {
+                    throw new OtherException("图片上传失败！");
+                }
+            }
+
         }
         return true;
     }
@@ -1545,7 +1563,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 return "该配饰款：【" + styleColorNo + "】没有绑定主款号！";
             }
         }
-        return null;
+        return "";
         //endregion
     }
     /**
@@ -2062,13 +2080,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*取消关联*/
         styleColorList.forEach(s -> {
             /*验证是否下发*/
-            if (!s.getScmSendFlag().equals(BaseGlobal.NO)) {
-                throw new OtherException("数据存在已下发");
-            }
+//            if (!s.getScmSendFlag().equals(BaseGlobal.NO)) {
+//                throw new OtherException("数据存在已下发");
+//            }
             s.setBom("");
         });
         /*取消关联*/
         packInfoList.forEach(p -> {
+            QueryWrapper qw = new QueryWrapper();
+            qw.eq("foreign_id", p.getId());
+            qw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+            qw.in("scm_send_flag", StringUtils.convertList("1,3"));
+            if (packBomService.exists(qw)) {
+                throw new OtherException("物料清单存在已下发数据无法取消");
+            }
             p.setStyleNo("");
             p.setColorCode("");
             p.setColor("");

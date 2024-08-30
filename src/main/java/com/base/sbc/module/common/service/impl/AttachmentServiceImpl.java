@@ -12,6 +12,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
@@ -69,12 +70,20 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
      */
     @Override
     public List<AttachmentVo> findByforeignId(String foreignId, String type) {
-        return getBaseMapper().findByFId(foreignId, type, null);
+        BaseQueryWrapper<Attachment> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("a.foreign_id", foreignId);
+        queryWrapper.notEmptyIn("a.type", type);
+        queryWrapper.orderByAsc("a.sort,a.id");
+        return getBaseMapper().findByFId(queryWrapper);
     }
 
     @Override
     public List<AttachmentVo> findByforeignIdTypeLikeStart(String foreignId, String typeLikeStart) {
-        return getBaseMapper().findByFId(foreignId, null, typeLikeStart);
+        BaseQueryWrapper<Attachment> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("a.foreign_id", foreignId);
+        queryWrapper.likeRight("a.type", typeLikeStart);
+        queryWrapper.orderByAsc("a.sort,a.id");
+        return getBaseMapper().findByFId(queryWrapper);
     }
 
     @Override

@@ -31,7 +31,11 @@
         ts.prod_category2nd_name,
         ts.prod_category3rd,
         ts.prod_category3rd_name,
-        trr.*
+        trr.*,
+        (select level from t_replay_rating_detail where foreign_id = tsc.id and type = 'rating' and dimension_type = 'pattern') as patternLevel,
+	    (select level from t_replay_rating_detail where foreign_id = tsc.id and type = 'rating' and dimension_type = 'fabric') as fabricLevel,
+	    (select level from t_replay_rating_detail where foreign_id = tsc.id and type = 'rating' and dimension_type = 'color') as colorLevel,
+	    (select level from t_replay_rating_detail where foreign_id = tsc.id and type = 'rating' and dimension_type = 'dimension') as dimensionLevel
     </sql>
 
     <select id="queryStyleList" resultType="com.base.sbc.module.replay.vo.ReplayRatingStyleVO">

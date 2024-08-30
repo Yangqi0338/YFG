@@ -69,4 +69,6 @@ public interface ReportService {
     void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException;
 
     List<PatternMakingReportVo> patternMaking(PatternMakingQueryDto dto);
+
+    void patternMakingExport(HttpServletResponse response, PatternMakingQueryDto dto) throws IOException;
 }

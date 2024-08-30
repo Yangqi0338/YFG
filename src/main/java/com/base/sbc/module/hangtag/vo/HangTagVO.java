@@ -6,9 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
-import java.util.Date;
-import java.util.List;
-
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.BusinessProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
@@ -16,11 +16,12 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：吊牌表 实体类
@@ -365,6 +366,7 @@ public class HangTagVO extends HangTag {
     private String attachment;
 
     private String isTrim;
+    private String isDefective;
 
     private String produceTypeName;
 
@@ -393,6 +395,14 @@ public class HangTagVO extends HangTag {
             return styleColorPic;
         }
         return stylePic;
+    }
+
+    public List<String> getCheckFieldList() {
+        List<String> checkFieldList = CollUtil.newArrayList("packagingFormCode", "packagingBagStandardCode", "fabricDetails");
+        if (YesOrNoEnum.YES.getValueStr().equals(isDefective)) {
+            checkFieldList.removeIf(it -> !BusinessProperties.needCheckByDefective(bulkStyleNo, it));
+        }
+        return checkFieldList;
     }
 }
 

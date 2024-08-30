@@ -209,4 +209,22 @@ public class  SmpMaterialDto extends SmpBaseDto {
 
     @ApiModelProperty(value = "物料库动态字段")
     List<FieldManagementVo> dynamicFieldList;
+
+    /**
+     * 面料测试结果
+     */
+    @ApiModelProperty(value = "面料测试结果")
+    private String fabricTestFlag;
+
+    /**
+     * 面料附件地址
+     */
+    @ApiModelProperty(value = "面料附件地址")
+    private List<String> fabricTestFileUrl;
+
+    /**
+     * 面料测试说明
+     */
+    @ApiModelProperty(value = "面料测试说明")
+    private String fabricTestContent;
 }

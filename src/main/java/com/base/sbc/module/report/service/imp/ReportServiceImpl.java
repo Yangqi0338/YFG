@@ -186,7 +186,7 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
-        qw.orderByDesc("tsc.create_date");
+        qw.orderByDesc("tsc.create_date,tsc.style_no");
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleSizeReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
@@ -475,5 +475,11 @@ public class ReportServiceImpl implements ReportService {
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.patternMakingReport.getK());
         List<PatternMakingReportVo> list = reportMapper.patternMaking(qw);
         return list;
+    }
+
+    @Override
+    public void patternMakingExport(HttpServletResponse response, PatternMakingQueryDto dto) throws IOException {
+        List<PatternMakingReportVo> list = patternMaking(dto);
+        ExcelUtils.exportExcelByTableCode(list, "下稿报表", response, dto);
     }
 }

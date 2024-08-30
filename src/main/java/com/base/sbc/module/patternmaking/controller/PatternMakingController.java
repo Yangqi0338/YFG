@@ -384,6 +384,14 @@ public class PatternMakingController {
         return b;
     }
 
+    @ApiOperation(value = "暂存分配人员(车缝工)信息")
+    @PostMapping("/savePatternMaking")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult<String> savePatternMaking(@RequestBody AssignmentUserDto dto) {
+        patternMakingService.savePatternMaking(dto);
+        return ApiResult.success("暂存成功");
+    }
+
     @ApiOperation(value = "版师任务明细", notes = "")
     @GetMapping("/pdTaskDetail")
     public List<PatternDesignVo> pdTaskDetail(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
@@ -532,6 +540,14 @@ public class PatternMakingController {
     public boolean updateReferSample(@RequestBody @Valid PatternMakingReferSampleDto dto) {
         return patternMakingService.updateReferSample(dto);
     }
+
+    @ApiOperation(value = "样衣看板-设计收到时间编辑")
+    @PostMapping("/updateDesignReceiptDate")
+    public boolean editDesignReceiptDate(@RequestBody PatternMakingDesignReceiptDto dto) {
+        patternMakingService.updateDesignReceiptDate(dto);
+        return true;
+    }
+
 
 
 }

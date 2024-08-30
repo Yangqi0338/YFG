@@ -582,7 +582,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         long l1 = System.currentTimeMillis();
         Page<String> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper<Object> qw = new QueryWrapper();
-        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", bomFabricDto.getMaterialCodeName());
+        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", StrUtil.replace(bomFabricDto.getMaterialCodeName(), "_","\\_"));
         qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "pb.supplier_material_code", bomFabricDto.getMaterialCodeName());
         baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
         long l2 = System.currentTimeMillis();
@@ -1033,6 +1033,36 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         uw.lambda().set(PackBom::getDesignVerify, dto.getDesignVerify());
         uw.lambda().set(PackBom::getDesignVerifyDate, BaseGlobal.YES.equals(dto.getDesignVerify()) ? new Date() : null);
         return update(uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String updateVersion(PackBomPageSearchDto dto) {
+        PackBomVersion bomVersion = packBomVersionService.getById(dto.getBomVersionId());
+        if (null == bomVersion){
+            throw new OtherException("没有此版本号");
+        }
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        qw.lambda().eq(PackBom::getBomVersionId,bomVersion.getId());
+        qw.lambda().eq(PackBom::getPackType,dto.getPackType());
+        qw.lambda().eq(PackBom::getForeignId,dto.getForeignId());
+
+        List<PackBom> list = list(qw);
+        if (CollUtil.isEmpty(list)){
+            throw new OtherException("物料清单无数据，不需要更新版本");
+        }
+        bomVersion.setId(null);
+        PackBomVersionDto packBomVersionDto = BeanUtil.copyProperties(bomVersion, PackBomVersionDto.class);
+        packBomVersionDto.setId(null);
+        PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(packBomVersionDto);
+        packBomVersionService.enable(packBomVersionVo);
+        IdGen idGen = new IdGen();
+        for (PackBom packBom : list) {
+            packBom.setId(idGen.nextIdStr());
+            packBom.setBomVersionId(packBomVersionVo.getId());
+        }
+        saveBatch(list);
+        return packBomVersionVo.getId();
     }
 
     /**

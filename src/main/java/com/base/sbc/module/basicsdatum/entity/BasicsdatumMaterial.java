@@ -6,20 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * 类描述：基础资料-物料档案 实体类
@@ -63,7 +63,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setMaterialCategoryName(materialCategoryName);
 		smpMaterialDto.setWidthGroup(widthGroup);
 		smpMaterialDto.setWidthGroupName(widthGroupName);
-		smpMaterialDto.setKilogramsAndMeters(kgMNum==null ? BigDecimal.valueOf(0) : kgMNum);
+		smpMaterialDto.setKilogramsAndMeters(kgMNum == null ? BigDecimal.valueOf(0) : kgMNum);
 		smpMaterialDto.setDeveloper(devName);
 		smpMaterialDto.setBuyer(purchaseName);
 		smpMaterialDto.setBuyerTeam(purchaseDeptName);
@@ -116,7 +116,8 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setRemarks(remarks);
 		try {
 			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
-		}catch (Exception ignored){}
+		} catch (Exception ignored) {
+		}
 
 		smpMaterialDto.setId(id);
 		smpMaterialDto.setCreator(getCreateName());
@@ -126,6 +127,8 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setPlmId(null);
 		smpMaterialDto.setSyncId(String.valueOf(idGen.nextId()));
 		smpMaterialDto.setActive("0".equals(status));
+		smpMaterialDto.setFabricTestFlag(fabricTestFlag);
+		smpMaterialDto.setFabricTestContent(fabricTestContent);
 		return smpMaterialDto;
 	}
 
@@ -512,6 +515,59 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 附件名称
 	 */
 	private String attachmentName;
+	/**
+	 * 质量等级
+	 */
+	@ApiModelProperty(value = "质量等级")
+	private String qualityLevel;
+	/**
+	 * 质量等级
+	 */
+	@ApiModelProperty(value = "质量等级名称")
+	private String qualityLevelName;
+
+	/**
+	 * 面料测试结果
+	 */
+	@ApiModelProperty(value = "面料测试结果")
+	private String fabricTestFlag;
+
+	/**
+	 * 面料测试说明
+	 */
+	@ApiModelProperty(value = "面料测试说明")
+	private String fabricTestContent;
+
+	/**
+	 * 大货外观报告
+	 */
+	@ApiModelProperty(value = "大货外观报告")
+	private String prodAppearance;
+	/**
+	 * 开发样理化判定
+	 */
+	@ApiModelProperty(value = "开发样理化判定")
+	private String devDesignPhysicalJudge;
+	/**
+	 * 开发样理化结果
+	 */
+	@ApiModelProperty(value = "开发样理化结果")
+	private String devDesignPhysicalResult;
+	/**
+	 * 大货理化判定
+	 */
+	@ApiModelProperty(value = "大货理化判定")
+	private String prodPhysicalJudge;
+	/**
+	 * 大货样理化结果
+	 */
+	@ApiModelProperty(value = "大货样理化结果")
+	private String prodPhysicalResult;
+	/**
+	 * 大货样理化结果
+	 */
+	@ApiModelProperty(value = "大货样理化结果")
+	private YesOrNoEnum hasFabricTestFile;
 
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】

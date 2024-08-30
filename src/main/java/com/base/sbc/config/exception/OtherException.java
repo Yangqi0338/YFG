@@ -21,6 +21,11 @@ public class OtherException  extends RuntimeException {
         this.code = err.getErrorCode();
     }
 
+    public OtherException(String s,int code) {
+        super(s);
+        this.code = code;
+    }
+
     public int getCode() {
         return code;
     }

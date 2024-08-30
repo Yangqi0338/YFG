@@ -152,7 +152,9 @@
             p.sample_making_score,
             p.sample_making_quality_score,
             p.second_processing,
-            p.receive_sample
+            p.receive_sample,
+            p.kitting_reason,
+            p.kitting_reason_name
         </if>
         FROM
         t_pattern_making p
