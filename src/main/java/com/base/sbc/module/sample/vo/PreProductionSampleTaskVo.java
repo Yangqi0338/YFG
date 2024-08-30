@@ -4,11 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
-import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -116,14 +112,14 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date updateDate;
 
-    private List<WorkloadRatingConfigVO> ratingConfigList;
-
-    private WorkloadRatingDetailDTO ratingDetailDTO;
-
-    @JsonIgnore
-    private Style styleEntity;
-
-    private String prodCategory;
+//    private List<WorkloadRatingConfigVO> ratingConfigList;
+//
+//    private WorkloadRatingDetailDTO ratingDetailDTO;
+//
+//    @JsonIgnore
+//    private Style styleEntity;
+//
+//    private String prodCategory;
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

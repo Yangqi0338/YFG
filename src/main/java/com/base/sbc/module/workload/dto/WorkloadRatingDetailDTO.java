@@ -47,6 +47,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
 
     private String proxyKey;
     private String secondProcessing;
+    private String materialName;
 
     @Override
     @JsonIgnore

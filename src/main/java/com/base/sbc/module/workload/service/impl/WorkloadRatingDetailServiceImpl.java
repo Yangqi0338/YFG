@@ -114,7 +114,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         .orElseThrow(() -> new OtherException("!基础项数据有误,请刷新页面重试!"));
 
                 configList.stream().filter(it -> it.getCalculateType().equals(calculateType)).forEach(config -> {
-                    boolean proxy = (calculateType == WorkloadRatingCalculateType.BASE && StrUtil.isNotBlank(workloadRatingDetail.getProxyKey()));
+                    boolean proxy = StrUtil.isNotBlank(workloadRatingDetail.getProxyKey());
                     List<WorkloadRatingItem> ratingItemList;
                     if (!proxy) {
                         List<String> itemValueList = StrUtil.split(itemValue, COMMA);
