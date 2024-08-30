@@ -115,7 +115,7 @@ public class BaseDataExtendEntity extends BaseDataNewEntity {
                             this.decorateMapByDetail(map, key, objects);
                         }
                     } else {
-                        map.put(key, declaredField.get(obj).toString());
+                        map.put(key, declaredField.get(obj));
                     }
                 }
             }
