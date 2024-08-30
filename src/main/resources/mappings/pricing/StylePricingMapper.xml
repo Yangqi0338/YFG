@@ -268,7 +268,7 @@
             ssc.supplier AS supplierName,
             ssc.supplier_abbreviation AS supplierAbbreviation,
             ssc.style_color_pic AS styleColorPic,
-            ssc.order_flag AS meetFlag,
+            ssc.meet_flag as meetFlag,
             sp.id AS stylePricingId,
             sp.planning_rate AS planningRatio,
             sp.wages_confirm AS wagesConfirm,
