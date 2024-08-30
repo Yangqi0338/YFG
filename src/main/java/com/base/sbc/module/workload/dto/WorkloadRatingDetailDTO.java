@@ -46,6 +46,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     private List<WorkloadRatingDetailSaveDTO> configList = new ArrayList<>();
 
     private String proxyKey;
+    private String secondProcessing;
 
     @Override
     @JsonIgnore

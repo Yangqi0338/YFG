@@ -9,9 +9,9 @@ package com.base.sbc.module.workload.vo;
 import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
-import com.base.sbc.module.workload.entity.WorkloadRatingItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -85,11 +85,14 @@ public class WorkloadRatingDetailSaveDTO implements Serializable {
         return this;
     }
 
-    public WorkloadRatingDetailSaveDTO decorateItem(WorkloadRatingItem item) {
+    public WorkloadRatingDetailSaveDTO decorateItem(WorkloadRatingItemVO item) {
         this.setItemId(CommonUtils.strJoin(COMMA, this.getItemId(), item.getId()).toString());
         this.setItemValue(CommonUtils.strJoin(COMMA, this.getItemValue(), item.getItemValue()).toString());
         this.setItemName(CommonUtils.strJoin(COMMA, this.getItemName(), item.getItemName()).toString());
-        this.setScore(this.getScore().add(item.getScore()));
+        if (item.getEnableFlag() == YesOrNoEnum.YES) {
+            this.setScore(BigDecimalUtil.add(this.getScore(), item.getScore()));
+        }
+        this.setEnableFlag(item.getEnableFlag());
         return this;
     }
 
