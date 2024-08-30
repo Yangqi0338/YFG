@@ -30,7 +30,7 @@ public class SampleXxlJob {
      */
     @XxlJob("demoJobHandler")
     public void demoJobHandler() {
-        String messageCode = "202408160009";
+        String messageCode = "pre_production_sample_board";
         boolean b = messagesFeignService.timingEndTime(messageCode);
         if (b){
             log.info("SampleXxlJob demoJobHandler timingEndTime");
