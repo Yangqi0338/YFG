@@ -42,6 +42,7 @@ public class SampleXxlJob {
         params.put("prodCategory_3rd","小类111");
         params.put("designer","测试人");
         params.put("设计部","xx部门");
+        params.put("triggerActionCode","001");
         ModelMessage modelMessage = new ModelMessage();
         modelMessage.setModelCode(messageCode);
         modelMessage.setParams(params);
