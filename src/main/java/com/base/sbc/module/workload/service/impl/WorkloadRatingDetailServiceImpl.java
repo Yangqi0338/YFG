@@ -256,7 +256,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                                     .collect(Collectors.toList());
                             // 对条对格
                             if (!configVO.getId().equals(detailConfigId)) {
-                                configFieldItemList = configItemList.stream()
+                                configFieldItemList = configFieldItemList.stream()
                                         .flatMap(it -> it.getItemList().stream())
                                         .filter(it -> it.getConfigId().equals(detailConfigId))
                                         .collect(Collectors.toList());
