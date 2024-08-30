@@ -43,7 +43,11 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -73,8 +77,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -581,7 +594,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             List<String> foreignIdList = stylePricingList.stream()
                     .map(StylePricingVO::getId)
                     .collect(Collectors.toList());
-            Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, companyCode, packType);
+            Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, packType);
             List<String> foreignIdInCmtList = stylePricingList.stream()
                     .filter(item -> "CMT".equals(item.getProductionType()))
                     .map(StylePricingVO::getId).distinct().collect(Collectors.toList());
