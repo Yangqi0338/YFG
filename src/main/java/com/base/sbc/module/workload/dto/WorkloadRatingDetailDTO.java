@@ -7,12 +7,12 @@
 package com.base.sbc.module.workload.dto;
 
 import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
-import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -47,7 +47,8 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
 
     private String proxyKey;
     private String secondProcessing;
-    private String materialName;
+    @ApiModelProperty(value = "面料成分")
+    private String ingredient;
 
     @Override
     @JsonIgnore
@@ -76,7 +77,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     private <T> void buildCalculateTypeResult(Map<T, Object> map, Function<WorkloadRatingCalculateType, T> func) {
         configList.stream().collect(Collectors.groupingBy(WorkloadRatingDetailSaveDTO::getCalculateType)).forEach((calculateType, sameTypeList) -> {
             BigDecimal score = CommonUtils.sumBigDecimal(sameTypeList, WorkloadRatingDetailSaveDTO::getScore);
-            if (BigDecimalUtil.biggerThenZero(score)) map.put(func.apply(calculateType), score);
+            map.put(func.apply(calculateType), score);
         });
     }
 

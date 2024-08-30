@@ -398,7 +398,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public SampleBoardVo getWorkloadById(String id) {
-        PatternMaking patternMaking = this.findRequiredFieldById(id, PatternMaking::getWorkloadRatingId, PatternMaking::getStyleId, PatternMaking::getSecondProcessing);
+        PatternMaking patternMaking = this.findRequiredFieldById(id,
+                PatternMaking::getWorkloadRatingId, PatternMaking::getStyleId, PatternMaking::getSecondProcessing,
+                PatternMaking::getIngredient
+        );
         SampleBoardVo sampleBoardVo = BeanUtil.copyProperties(patternMaking, SampleBoardVo.class);
         sampleBoardVo.setPatternMakingId(id);
 
@@ -1598,10 +1601,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
 
-//        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
-//            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
-//                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
-//        }
+        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
+            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        }
 
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));

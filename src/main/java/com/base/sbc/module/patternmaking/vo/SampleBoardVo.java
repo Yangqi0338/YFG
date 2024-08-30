@@ -334,6 +334,9 @@ public class SampleBoardVo extends Style {
 
     private String patternDesignerName;
 
+    @ApiModelProperty(value = "面料成分")
+    private String ingredient;
+
     /**
      * 是否参考样衣
      */

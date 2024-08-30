@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.workload.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
@@ -22,7 +23,6 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.dto.WorkloadRatingTitleFieldDTO;
 import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
@@ -37,6 +37,7 @@ import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailSaveDTO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemQO;
 import com.base.sbc.module.workload.vo.WorkloadRatingItemVO;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -73,8 +74,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
     @Autowired
     private WorkloadRatingConfigService workloadRatingConfigService;
 
-    @Autowired
-    private StyleService styleService;
+    private static String proxyField = "[proxy]";
 
     @Override
     public List<WorkloadRatingDetailDTO> queryList(WorkloadRatingDetailQO qo) {
@@ -90,12 +90,12 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
     }
 
     @Override
-    public void save(WorkloadRatingDetailDTO workloadRatingDetail) {
+    public void save(@NotNull WorkloadRatingDetailDTO workloadRatingDetail) {
         workloadRatingDetail.setId(null);
         workloadRatingDetail.setResult(BigDecimal.ZERO);
 
         WorkloadRatingConfigQO configQO = new WorkloadRatingConfigQO();
-        configQO.setSearchValue(true);
+        configQO.setSearchValue(false);
         configQO.setType(WorkloadRatingType.SAMPLE);
         configQO.setBrand(workloadRatingDetail.getBrand());
         configQO.setIsConfigShow(YesOrNoEnum.YES);
@@ -113,8 +113,8 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         .findFirst().map(WorkloadRatingDetailSaveDTO::getItemValue)
                         .orElseThrow(() -> new OtherException("!基础项数据有误,请刷新页面重试!"));
 
+                boolean proxy = (configVO.getCalculateType() == WorkloadRatingCalculateType.BASE && StrUtil.isNotBlank(workloadRatingDetail.getProxyKey()));
                 configList.stream().filter(it -> it.getCalculateType().equals(calculateType)).forEach(config -> {
-                    boolean proxy = StrUtil.isNotBlank(workloadRatingDetail.getProxyKey());
                     List<WorkloadRatingItem> ratingItemList;
                     if (!proxy) {
                         List<String> itemValueList = StrUtil.split(itemValue, COMMA);
@@ -124,13 +124,12 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         );
                         Collection<String> disjunctionItemValueList = CollUtil.disjunction(ratingItemList.stream().map(WorkloadRatingItem::getItemValue).distinct().collect(Collectors.toList()), itemValueList);
                         if (calculateType != WorkloadRatingCalculateType.APPEND && CollUtil.isNotEmpty(disjunctionItemValueList))
-                            throw new OtherException(String.format("未找到%s-%s项,无法计算,请联系管理员添加", config.getConfigName(), disjunctionItemValueList));
+                            throw new OtherException(String.format("%s-%s项未全部找到,无法计算,请联系管理员添加", config.getConfigName(), config.getItemName()));
                     } else {
-                        WorkloadRatingItem item = new WorkloadRatingItem();
-                        item.setScore(config.getScore());
-                        item.setId(workloadRatingDetail.getProxyKey());
+                        WorkloadRatingItem item = BeanUtil.copyProperties(config, WorkloadRatingItem.class);
+                        item.setId(config.getItemId());
+                        workloadRatingDetail.getExtend().put(config.getConfigId() + proxyField, config.getScore());
                         ratingItemList = CollUtil.newArrayList(item);
-                        workloadRatingDetail.setBaseProxy(config.getScore());
                     }
                     BigDecimal score = BigDecimal.ZERO;
                     for (WorkloadRatingItem ratingItem : ratingItemList) {
@@ -138,7 +137,6 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
                             score = score.add(calculatePair.getValue());
                             workloadRatingDetail.setResult(calculatePair.getKey());
-                            config.setEnableFlag(YesOrNoEnum.YES);
                         }
                     }
                     config.setScore(score);
@@ -200,13 +198,13 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             it.setEnableFlag(Opt.ofNullable(enableFlag).orElse(YesOrNoEnum.YES));
                         });
                     });
-                    BigDecimal baseProxy = ratingDetail.getBaseProxy();
                     configVOList.forEach(configVO -> {
                         workloadRatingItemList.addAll(itemList.stream().filter(it -> it.getConfigId().equals(configVO.getId())).peek(item -> {
                             item.setItemList(configVO.getTitleFieldDTOList().stream().flatMap(configTitle ->
                                     itemList.stream().filter(it -> it.getConfigId().equals(configTitle.getConfigId())).peek(it -> {
-                                        if (baseProxy != null && configVO.getCalculateType() == WorkloadRatingCalculateType.BASE) {
-                                            it.setScore(baseProxy);
+                                        String proxyFieldKey = it.getConfigId() + proxyField;
+                                        if (ratingDetail.getExtend().containsKey(proxyFieldKey)) {
+                                            it.setScore(new BigDecimal(ratingDetail.getExtend().get(proxyFieldKey).toString()));
                                         }
                                     })).collect(Collectors.toList()));
                         }).collect(Collectors.toList()));
