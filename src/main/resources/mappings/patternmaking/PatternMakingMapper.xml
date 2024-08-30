@@ -1141,6 +1141,7 @@
         </if>
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             ts.design_no,
+            ts.default_size size,
             concat(ts.year_name," ",ts.season_name," ",ts.brand_name) season,
             tpm.*
         </if>
