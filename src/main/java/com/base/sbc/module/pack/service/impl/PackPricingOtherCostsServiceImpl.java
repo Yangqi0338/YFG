@@ -350,6 +350,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         }
         baseMapper.deleteById(packPricingOtherCosts.getId());
         packPricingService.calculatePricingJson(packPricingOtherCosts.getForeignId(),packPricingOtherCosts.getPackType());
+        otherCostsGstService.remove(new LambdaQueryWrapper<PackPricingOtherCostsGst>().eq(PackPricingOtherCostsGst::getParentId, id));
         return true;
     }
     @Override
