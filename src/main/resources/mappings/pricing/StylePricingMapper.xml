@@ -269,7 +269,7 @@
             ssc.supplier as supplierName,
             ssc.supplier_abbreviation as supplierAbbreviation,
             ssc.style_color_pic as styleColorPic,
-            ssc.order_flag as meetFlag, #临时改为取配色的是否下单
+            ssc.meet_flag as meetFlag,
             sp.id as stylePricingId,
             sp.planning_rate as planningRatio,
             sp.wages_confirm as wagesConfirm,
