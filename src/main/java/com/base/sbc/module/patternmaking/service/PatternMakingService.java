@@ -443,9 +443,9 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     PatternMaking savePatternMakingFOB(PatternMaking dto);
 
-    void checkPatSeqRepeatFob(String patternRoomId, String supplierStyleNo, String sampleType, String patSeq);
+    void checkPatSeqRepeatFob(String patternRoomId, String supplierStyleNo, String sampleType, String patSeq, String id);
 
-    void bindFOB(String styleId, String patternRoomId, String supplierStyleNo);
+    void bindFOB(PatternMakingBindDto dto);
 
     void unBindFOB(String ids);
 

@@ -624,7 +624,7 @@ public class PatternMakingController {
     @ApiOperation(value = "修改")
     @PutMapping("/updateFOB")
     public PatternMaking updateFOB(@RequestBody PatternMaking dto) {
-        patternMakingService.checkPatSeqRepeatFob(dto.getPatternRoomId(), dto.getSupplierStyleNo(), dto.getSampleType(), dto.getPatSeq());
+        patternMakingService.checkPatSeqRepeatFob(dto.getPatternRoomId(), dto.getSupplierStyleNo(), dto.getSampleType(), dto.getPatSeq(),dto.getId());
         PatternMaking old = patternMakingService.getById(dto.getId());
 
         if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {
@@ -652,8 +652,8 @@ public class PatternMakingController {
 
     @ApiOperation(value = "绑定")
     @GetMapping("/bindFOB")
-    public ApiResult bindFOB(String styleId,String patternRoomId,String supplierStyleNo) {
-        patternMakingService.bindFOB(styleId,patternRoomId,supplierStyleNo);
+    public ApiResult bindFOB(PatternMakingBindDto dto) {
+        patternMakingService.bindFOB(dto);
         return ApiResult.success("绑定成功");
     }
 

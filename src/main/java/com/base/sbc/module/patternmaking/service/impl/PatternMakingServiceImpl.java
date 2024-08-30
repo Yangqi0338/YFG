@@ -3160,7 +3160,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PatternMaking savePatternMakingFOB(PatternMaking patternMaking) {
         BigDecimal patternMakingScore = BigDecimal.ZERO;
         // 校验打样顺序重复
-        checkPatSeqRepeatFob(patternMaking.getPatternRoomId(), patternMaking.getSupplierStyleNo(), patternMaking.getSampleType(), patternMaking.getPatSeq());
+        checkPatSeqRepeatFob(patternMaking.getPatternRoomId(), patternMaking.getSupplierStyleNo(), patternMaking.getSampleType(), patternMaking.getPatSeq(),null);
 
         //这里根据 供应商+款号查询一下，如果之前的已经绑定设计款了，这里直接也绑定这个设计款 TODO
 
@@ -3214,13 +3214,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public void checkPatSeqRepeatFob(String patternRoomId, String supplierStyleNo, String sampleType, String patSeq) {
+    public void checkPatSeqRepeatFob(String patternRoomId, String supplierStyleNo, String sampleType, String patSeq, String id) {
         //校验打样顺序重复  patSeq
         LambdaQueryWrapper<PatternMaking> patSeqQw = new LambdaQueryWrapper<>();
         patSeqQw.eq(PatternMaking::getPatternRoomId, patternRoomId);
         patSeqQw.eq(PatternMaking::getSupplierStyleNo, supplierStyleNo);
         patSeqQw.eq(PatternMaking::getSampleType, sampleType);
         patSeqQw.eq(PatternMaking::getPatSeq, patSeq);
+        patSeqQw.ne(PatternMaking::getId, id);
         long patSeqCount = count(patSeqQw);
         if (patSeqCount > 0) {
             throw new OtherException("供应商+厂家款号+打版类型+打版顺序 重复");
@@ -3229,12 +3230,25 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public void bindFOB(String styleId, String patternRoomId, String supplierStyleNo) {
+    public void bindFOB(PatternMakingBindDto dto) {
+        String styleId = dto.getStyleId();
+
+        List<PatternMakingBindDto.PMBindDetailDto> bindList = dto.getList();
+
+        List<String> patternRoomIdList = new ArrayList<>();
+        List<String> supplierStyleNoList= new ArrayList<>();
+        bindList.forEach(o->{
+            patternRoomIdList.add(o.getPatternRoomId());
+            supplierStyleNoList.add(o.getSupplierStyleNo());
+        });
+
         //根据供应商+款号查询所有数据
         LambdaQueryWrapper<PatternMaking> patSeqQw = new LambdaQueryWrapper<>();
-        patSeqQw.eq(PatternMaking::getPatternRoomId, patternRoomId);
-        patSeqQw.eq(PatternMaking::getSupplierStyleNo, supplierStyleNo);
+        patSeqQw.in(PatternMaking::getPatternRoomId, patternRoomIdList);
+        patSeqQw.in(PatternMaking::getSupplierStyleNo, supplierStyleNoList);
         List<PatternMaking> list = list(patSeqQw);
+        Map<String, List<PatternMaking>> dbMap = list.stream().collect(Collectors.groupingBy(o -> o.getPatternRoomId() + o.getSupplierStyleNo()));
+
         //copy保存日志使用
         List<PatternMaking> oldList = BeanUtil.copyToList(list, PatternMaking.class);
         Map<String, PatternMaking> oldMap = oldList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
@@ -3242,30 +3256,37 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         //查询设计款，绑定时补充字段
         Style style = styleService.getById(styleId);
 
-        for (PatternMaking patternMaking : list) {
-            patternMaking.setStyleId(styleId);
-            patternMaking.setCode(getNextCode(style));
-            patternMaking.setPlanningSeasonId(style.getPlanningSeasonId());
-            //patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
-            //patternMaking.setPatternDesignName(style.getPatternDesignName());
-            //patternMaking.setPatternDesignId(style.getPatternDesignId());
-            patternMaking.setBindDesign("1");
+        List<PatternMaking> updateList = new ArrayList<>();
+        OperaLogEntity operaLogEntity;
+
+        for (PatternMakingBindDto.PMBindDetailDto dto1 : bindList) {
+            List<PatternMaking> patternMakings = dbMap.get(dto1.getPatternRoomId() + dto1.getSupplierStyleNo());
+            for (PatternMaking patternMaking : patternMakings) {
+                patternMaking.setStyleId(styleId);
+                patternMaking.setCode(getNextCode(style));
+                patternMaking.setPlanningSeasonId(style.getPlanningSeasonId());
+                //patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
+                //patternMaking.setPatternDesignName(style.getPatternDesignName());
+                //patternMaking.setPatternDesignId(style.getPatternDesignId());
+                patternMaking.setBindDesign("1");
+
+                updateList.add(patternMaking);
+
+                PatternMaking oldDto = oldMap.get(patternMaking.getId());
+                operaLogEntity = new OperaLogEntity();
+                operaLogEntity.setType("绑定");
+                operaLogEntity.setName("打板指令FOB");
+                operaLogEntity.setParentId(patternMaking.getStyleId());
+                operaLogEntity.setDocumentId(patternMaking.getId());
+                operaLogEntity.setDocumentCode(patternMaking.getPatternRoom()+patternMaking.getSupplierStyleNo());
+                operaLogEntity.setDocumentName(patternMaking.getPatternNo());
+
+                saveOrUpdateOperaLog(patternMaking, oldDto, operaLogEntity);
+            }
         }
 
-        updateBatchById(list);
-
-        OperaLogEntity operaLogEntity;
-        for (PatternMaking dto : list) {
-            PatternMaking oldDto = oldMap.get(dto.getId());
-            operaLogEntity = new OperaLogEntity();
-            operaLogEntity.setType("绑定");
-            operaLogEntity.setName("打板指令FOB");
-            operaLogEntity.setParentId(dto.getStyleId());
-            operaLogEntity.setDocumentId(dto.getId());
-            operaLogEntity.setDocumentCode(dto.getPatternRoom()+dto.getSupplierStyleNo());
-            operaLogEntity.setDocumentName(dto.getPatternNo());
-
-            saveOrUpdateOperaLog(list, oldList, operaLogEntity);
+        if(CollUtil.isNotEmpty(updateList)){
+            updateBatchById(updateList);
         }
     }
 
@@ -3300,7 +3321,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             operaLogEntity.setDocumentCode(dto.getPatternRoom()+dto.getSupplierStyleNo());
             operaLogEntity.setDocumentName(dto.getPatternNo());
 
-            saveOrUpdateOperaLog(list, oldList, operaLogEntity);
+            saveOrUpdateOperaLog(dto, oldDto, operaLogEntity);
         }
     }
 
