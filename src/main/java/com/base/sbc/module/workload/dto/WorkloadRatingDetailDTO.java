@@ -64,7 +64,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     @Override
     public Map<Object, Object> decorateWebMap(){
         Map<Object, Object> map = super.decorateWebMap();
-        buildCalculateTypeResult(map, it -> it);
+        map.putAll(this.getExtend());
         return map;
     }
 
@@ -76,8 +76,11 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
 
     private <T> void buildCalculateTypeResult(Map<T, Object> map, Function<WorkloadRatingCalculateType, T> func) {
         configList.stream().collect(Collectors.groupingBy(WorkloadRatingDetailSaveDTO::getCalculateType)).forEach((calculateType, sameTypeList) -> {
-            BigDecimal score = CommonUtils.sumBigDecimal(sameTypeList, WorkloadRatingDetailSaveDTO::getScore);
-            map.put(func.apply(calculateType), score);
+            T key = func.apply(calculateType);
+            if (!map.containsKey(key)) {
+                BigDecimal score = CommonUtils.sumBigDecimal(sameTypeList, WorkloadRatingDetailSaveDTO::getScore);
+                map.put(key, score);
+            }
         });
     }
 
