@@ -134,9 +134,12 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                     }
                     BigDecimal score = BigDecimal.ZERO;
                     for (WorkloadRatingItem ratingItem : ratingItemList) {
-                        Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
-                        score = score.add(calculatePair.getValue());
-                        workloadRatingDetail.setResult(calculatePair.getKey());
+                        if (config.getEnableFlag() != YesOrNoEnum.NO) {
+                            Pair<BigDecimal, BigDecimal> calculatePair = calculateType.calculate(workloadRatingDetail.getResult(), ratingItem.getScore());
+                            score = score.add(calculatePair.getValue());
+                            workloadRatingDetail.setResult(calculatePair.getKey());
+                            config.setEnableFlag(YesOrNoEnum.YES);
+                        }
                     }
                     config.setScore(score);
                     config.setItemId(ratingItemList.stream().map(WorkloadRatingItem::getId).collect(Collectors.joining(COMMA)));
