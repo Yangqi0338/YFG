@@ -651,8 +651,8 @@ public class PatternMakingController {
     }
 
     @ApiOperation(value = "绑定")
-    @GetMapping("/bindFOB")
-    public ApiResult bindFOB(PatternMakingBindDto dto) {
+    @PostMapping("/bindFOB")
+    public ApiResult bindFOB(@RequestBody PatternMakingBindDto dto) {
         patternMakingService.bindFOB(dto);
         return ApiResult.success("绑定成功");
     }
