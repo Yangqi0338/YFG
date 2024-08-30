@@ -358,8 +358,9 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             styleColorPic = stylePicUtils.getStyleUrl(style.getStylePic());
         }
 
-        baseMap.put("styleColorPic", HttpUtil.downloadBytes(styleColorPic));
-
+        if (StrUtil.isNotBlank(styleColorPic)) {
+            baseMap.put("styleColorPic", HttpUtil.downloadBytes(styleColorPic));
+        }
 
         dto.reset2QueryList();
         List<PackPricingOtherCostsVo> list = otherCostsGstService.pageInfo(dto).getList();
@@ -367,6 +368,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
 
         dto.setCostsItem(PackPricingOtherCostsItemType.OUTSOURCE_PROCESS);
         list.addAll(pageInfo(dto).getList());
+        list.removeIf(it -> StrUtil.isBlank(it.getCostsTypeId()));
         List<String> roleSize = list.stream().map(PackPricingOtherCostsVo::getRole).distinct().collect(Collectors.toList());
         int sheetIndex = (roleSize.size() > 2 ? roleSize.size()-2 : 0);
 
@@ -405,7 +407,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                         MapUtil.entry("factoryName", baseOtherCosts.getFactoryName()),
                         MapUtil.entry("name", ArrayUtil.get(name.split("-"), 0))
                 );
-                String picUrl = minioUtils.getObjectUrl(baseOtherCosts.getPicUrl());
+                String picUrl = stylePicUtils.getStyleUrl(baseOtherCosts.getPicId());
                 if (StrUtil.isNotBlank(picUrl)) {
                     otherCostsMap.put("pic", HttpUtil.downloadBytes(picUrl));
                 }
@@ -452,7 +454,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                     foreignId, null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             throw new OtherException("生成外辅工艺文件失败，失败原因：" + e.getMessage());
         }
     }
