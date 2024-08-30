@@ -749,11 +749,18 @@ public class OpenSmpController extends BaseController {
         }
         BasicsdatumSupplier basicsdatumSupplier = BeanUtil.copyProperties(tempSupplierDto, BasicsdatumSupplier.class);
 
+        //处理临时供应商 物料供应商和成衣供应商
+        String supplierType = basicsdatumSupplier.getSupplierType();
+        if ("1".equals(supplierType)) {
+            basicsdatumSupplier.setSupplierType("LSWL");
+        }else{
+            basicsdatumSupplier.setSupplierType("LSCY");
+        }
+
         QueryWrapper<BasicsdatumSupplier> basicsdatumSupplierQueryWrapper = new QueryWrapper<>();
         basicsdatumSupplierQueryWrapper.eq("supplier_code",supplierCode);
         BasicsdatumSupplier supplier = supplierService.getOne(basicsdatumSupplierQueryWrapper);
         if (supplier == null) {
-            basicsdatumSupplier.setDelFlag("1");
             supplierService.save(basicsdatumSupplier);
         }else{
             //将数据copy已存在实体
