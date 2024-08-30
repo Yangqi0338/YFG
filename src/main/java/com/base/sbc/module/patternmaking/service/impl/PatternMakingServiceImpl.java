@@ -450,6 +450,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         workloadRatingDetailService.decorateWorkloadRating(CollUtil.newArrayList(sampleBoardVo), (vo) -> style, SampleBoardVo::getWorkloadRatingId,
                 SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        sampleBoardVo.getRatingDetailDTO().setIngredient(patternMaking.getIngredient());
         return sampleBoardVo;
     }
 
