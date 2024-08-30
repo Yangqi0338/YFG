@@ -43,10 +43,6 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     @ExtendField
     private String otherName;
 
-    @ApiModelProperty(value = "基础分代理")
-    @ExtendField
-    private BigDecimal baseProxy;
-
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
@@ -62,6 +58,9 @@ public class WorkloadRatingDetail extends BaseDataExtendEntity {
     /** 评分项值集合, 逗号拼接 */
     @ApiModelProperty(value = "评分项值集合, 逗号拼接")
     private String itemValue;
+    /** 代理分数的外键id,现改为必定代理,可理解为必有值 */
+    @ApiModelProperty(value = "代理分数的关联表外键id")
+    private String proxyKey;
     /** 结果 */
     @ApiModelProperty(value = "结果")
     private BigDecimal result;
