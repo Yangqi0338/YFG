@@ -1,14 +1,9 @@
 package com.base.sbc.module.patternmaking.vo;
 
 
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
-import com.base.sbc.module.workload.vo.WorkloadRatingConfigVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,8 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -177,21 +170,22 @@ public class PatternMakingTaskListVo extends PatternMaking {
 
     private String name;
 
-    private List<WorkloadRatingConfigVO> ratingConfigList;
+//    private List<WorkloadRatingConfigVO> ratingConfigList;
+//
+//    private WorkloadRatingDetailDTO ratingDetailDTO;
 
-    private WorkloadRatingDetailDTO ratingDetailDTO;
+//    @JsonIgnore
+//    private Style style;
+//
+//    private String ratingProdCategory;
 
-    @JsonIgnore
-    private Style style;
-
-    private String ratingProdCategory;
-
-    public boolean getNotFoundProdCategory() {
-        String regex = "(?<=未找到当前品类下)(.*?)(?=的评分数据)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(Opt.ofBlankAble(ratingProdCategory).orElse(""));
-        return matcher.find();
-    }
+//    public boolean getNotFoundProdCategory() {
+//        String regex = "(?<=未找到当前品类下)(.*?)(?=的评分数据)";
+//        Pattern pattern = Pattern.compile(regex);
+//        Matcher matcher = pattern.matcher(Opt.ofBlankAble(ratingProdCategory).orElse(""));
+//        return matcher.find();
+//        return true;
+//    }
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

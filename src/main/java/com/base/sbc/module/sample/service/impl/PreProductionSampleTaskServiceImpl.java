@@ -27,10 +27,8 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -66,9 +64,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
-import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
-import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -84,7 +80,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -268,14 +263,14 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
 
-        if (false && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
-            Map<String, Style> styleMap = styleService.listByIds(
-                    list.stream().map(PreProductionSampleTaskVo::getStyleId).collect(Collectors.toList())
-            ).stream().collect(CommonUtils.toMap(Style::getId));
-            list.forEach(it -> it.setStyleEntity(styleMap.getOrDefault(it.getStyleId(), null)));
-            workloadRatingDetailService.decorateWorkloadRating(list, PreProductionSampleTaskVo::getStyleEntity, PreProductionSampleTaskVo::getWorkloadRatingId,
-                    PreProductionSampleTaskVo::setProdCategory, PreProductionSampleTaskVo::setRatingDetailDTO, PreProductionSampleTaskVo::setRatingConfigList);
-        }
+//        if (false && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+//            Map<String, Style> styleMap = styleService.listByIds(
+//                    list.stream().map(PreProductionSampleTaskVo::getStyleId).collect(Collectors.toList())
+//            ).stream().collect(CommonUtils.toMap(Style::getId));
+//            list.forEach(it -> it.setStyleEntity(styleMap.getOrDefault(it.getStyleId(), null)));
+//            workloadRatingDetailService.decorateWorkloadRating(list, PreProductionSampleTaskVo::getStyleEntity, PreProductionSampleTaskVo::getWorkloadRatingId,
+//                    PreProductionSampleTaskVo::setProdCategory, PreProductionSampleTaskVo::setRatingDetailDTO, PreProductionSampleTaskVo::setRatingConfigList);
+//        }
         return objects.toPageInfo();
     }
 
