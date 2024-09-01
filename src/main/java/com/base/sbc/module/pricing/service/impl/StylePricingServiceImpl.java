@@ -172,7 +172,38 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         CountDownLatch countDownLatch = new CountDownLatch(split.size());
         for (List<StylePricingVO> stylePricingVOS : split) {
             threadPoolExecutor.submit(() -> {
-                this.dataProcessingExcelImport(stylePricingVOS, dto.getCompanyCode());
+                    // 未关联大货BOM阶段的数据
+                    List<StylePricingVO> styleColorList = stylePricingVOS
+                            .stream()
+                            .filter(item -> ObjectUtil.isEmpty(item.getPackType()))
+                            .collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(styleColorList)) {
+                        for (StylePricingVO stylePricingVO : styleColorList) {
+                            stylePricingVO.setPackagingFee(BigDecimal.ZERO);
+                            stylePricingVO.setTestingFee(BigDecimal.ZERO);
+                            stylePricingVO.setSewingProcessingFee(BigDecimal.ZERO);
+                            stylePricingVO.setWoolenYarnProcessingFee(BigDecimal.ZERO);
+                            stylePricingVO.setCoordinationProcessingFee(BigDecimal.ZERO);
+                            stylePricingVO.setTotalCost(BigDecimal.ZERO);
+                            stylePricingVO.setMaterialCost(BigDecimal.ZERO);
+                        }
+                    }
+                    // 设计阶段的数据
+                    List<StylePricingVO> packDesignList = stylePricingVOS
+                            .stream()
+                            .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packDesign"))
+                            .collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(packDesignList)) {
+                        this.dataProcessingByPackType(packDesignList, dto.getCompanyCode(), "packDesign");
+                    }
+
+                    // 大货阶段的数据
+                    List<StylePricingVO> packBigGoodsList = stylePricingVOS.stream()
+                            .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packBigGoods"))
+                            .collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
+                        this.dataProcessingByPackType(packBigGoodsList, dto.getCompanyCode(), "packBigGoods");
+                    }
                 countDownLatch.countDown();
             });
         }
@@ -264,9 +295,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
                 }
             }else {
-                if(stylePricingList.size() >2000){
-                    throw new OtherException("不带图片最多只能导出2000条");
-                }
+                // if(stylePricingList.size() >2000){
+                //     throw new OtherException("不带图片最多只能导出2000条");
+                // }
             }
         } else {
             stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
@@ -275,43 +306,14 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             return new PageInfo<>(stylePricingList);
         }
 
-        PageInfo<StylePricingVO> packInfo = new PageInfo<>(stylePricingList);
-        List<StylePricingVO> stylePricingVOList = packInfo.getList();
-        if (ObjectUtil.isNotEmpty(stylePricingVOList)) {
-            // 未关联大货BOM阶段的数据
-            List<StylePricingVO> styleColorList = stylePricingVOList
-                    .stream()
-                    .filter(item -> ObjectUtil.isEmpty(item.getPackType()))
-                    .collect(Collectors.toList());
-            if (ObjectUtil.isNotEmpty(styleColorList)) {
-                for (StylePricingVO stylePricingVO : styleColorList) {
-                    stylePricingVO.setPackagingFee(BigDecimal.ZERO);
-                    stylePricingVO.setTestingFee(BigDecimal.ZERO);
-                    stylePricingVO.setSewingProcessingFee(BigDecimal.ZERO);
-                    stylePricingVO.setWoolenYarnProcessingFee(BigDecimal.ZERO);
-                    stylePricingVO.setCoordinationProcessingFee(BigDecimal.ZERO);
-                    stylePricingVO.setTotalCost(BigDecimal.ZERO);
-                    stylePricingVO.setMaterialCost(BigDecimal.ZERO);
-                }
-            }
-            // 设计阶段的数据
-            List<StylePricingVO> packDesignList = stylePricingVOList
-                    .stream()
-                    .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packDesign"))
-                    .collect(Collectors.toList());
-            if (ObjectUtil.isNotEmpty(packDesignList)) {
-                this.dataProcessingByPackType(packDesignList, dto.getCompanyCode(), "packDesign");
-            }
-
-            // 大货阶段的数据
-            List<StylePricingVO> packBigGoodsList = stylePricingVOList.stream()
-                    .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packBigGoods"))
-                    .collect(Collectors.toList());
-            if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
-                this.dataProcessingByPackType(packBigGoodsList, dto.getCompanyCode(), "packBigGoods");
-            }
+        try {
+            List<List<StylePricingVO>> split = CollUtil.split(stylePricingList, 2000);
+            CountDownLatch countDownLatch = getCountDownLatch(dto, split);
+            countDownLatch.await();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return packInfo;
+        return new PageInfo<>(stylePricingList);
     }
 
     /**
