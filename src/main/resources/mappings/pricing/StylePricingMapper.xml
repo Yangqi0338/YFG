@@ -185,8 +185,8 @@
                 LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
 		(SSC.bom_status = '1',
 			'packBigGoods',
-			'packDesign' 
-		) 
+			'packDesign'
+		)
 	)
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
@@ -263,17 +263,17 @@
             sd.id AS styleId,
             ht.product_name AS productName,
             ht.ingredient,
-            ssc.tag_price AS tagPrice,
-            ssc.supplier AS supplierName,
-            ssc.supplier_abbreviation AS supplierAbbreviation,
-            ssc.style_color_pic AS styleColorPic,
-            ssc.order_flag AS meetFlag,
-            sp.id AS stylePricingId,
-            sp.planning_rate AS planningRatio,
-            sp.wages_confirm AS wagesConfirm,
-            sp.control_confirm AS planCostConfirm,
-            sp.product_hangtag_confirm AS productTagPriceConfirm,
-            sp.control_hangtag_confirm AS planTagPriceConfirm,
+            ssc.tag_price as tagPrice,
+            ssc.supplier as supplierName,
+            ssc.supplier_abbreviation as supplierAbbreviation,
+            ssc.style_color_pic as styleColorPic,
+            ssc.meet_flag as meetFlag,
+            sp.id as stylePricingId,
+            sp.planning_rate as planningRatio,
+            sp.wages_confirm as wagesConfirm,
+            sp.control_confirm as planCostConfirm,
+            sp.product_hangtag_confirm as productTagPriceConfirm,
+            sp.control_hangtag_confirm as planTagPriceConfirm,
             sp.series,
             sp.series_name,
             sp.product_style,
@@ -361,8 +361,8 @@
                 LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
 		(SSC.bom_status = '1',
 			'packBigGoods',
-			'packDesign' 
-		) 
+			'packDesign'
+		)
 	)
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
@@ -429,8 +429,8 @@
                 LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
 		(SSC.bom_status = '1',
 			'packBigGoods',
-			'packDesign' 
-		) 
+			'packDesign'
+		)
 	)
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
