@@ -310,11 +310,6 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
                 this.dataProcessingByPackType(packBigGoodsList, dto.getCompanyCode(), "packBigGoods");
             }
-            List<StylePricingVO> list = new ArrayList<>();
-            list.addAll(packDesignList);
-            list.addAll(packBigGoodsList);
-            list.addAll(styleColorList);
-            packInfo.setList(list);
         }
         return packInfo;
     }
