@@ -123,7 +123,24 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.in("p.id", packId);
         List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
-        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true, true);
+
+        // 设计阶段的数据
+        List<StylePricingVO> packDesignList = stylePricingList
+                .stream()
+                .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packDesign"))
+                .collect(Collectors.toList());
+        if (ObjectUtil.isNotEmpty(packDesignList)) {
+            stylePricingService.dataProcessingByPackType(packDesignList, getCompanyCode(), "packDesign");
+        }
+
+        // 大货阶段的数据
+        List<StylePricingVO> packBigGoodsList = stylePricingList.stream()
+                .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packBigGoods"))
+                .collect(Collectors.toList());
+        if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
+            stylePricingService.dataProcessingByPackType(packBigGoodsList, getCompanyCode(), "packBigGoods");
+        }
+
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getPackId())) {
@@ -131,12 +148,12 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                 String calcItemVal = stylePricingVO.getCalcItemVal();
                 if(StrUtil.isNotBlank(calcItemVal)){
                     JSONObject jsonObject = JSONObject.parseObject(calcItemVal);
-                    esOrderBookItemVo.setWoolenYarnProcessingFee(jsonObject.getBigDecimal("毛纱加工费"));
-                    esOrderBookItemVo.setSewingProcessingFee(jsonObject.getBigDecimal("车缝加工费"));
-                    esOrderBookItemVo.setCoordinationProcessingFee(jsonObject.getBigDecimal("外协加工费"));
-                    esOrderBookItemVo.setPackagingFee(jsonObject.getBigDecimal("包装费"));
-                    esOrderBookItemVo.setTestingFee(jsonObject.getBigDecimal("检测费"));
-                    esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
+                    esOrderBookItemVo.setWoolenYarnProcessingFee(stylePricingVO.getWoolenYarnProcessingFee());
+                    esOrderBookItemVo.setSewingProcessingFee(stylePricingVO.getSewingProcessingFee());
+                    esOrderBookItemVo.setCoordinationProcessingFee(stylePricingVO.getCoordinationProcessingFee());
+                    esOrderBookItemVo.setPackagingFee(stylePricingVO.getPackagingFee());
+                    esOrderBookItemVo.setTestingFee(stylePricingVO.getTestingFee());
+                    esOrderBookItemVo.setMaterialPrice(stylePricingVO.getMaterialCost());
                     esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
                     esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(4)));
