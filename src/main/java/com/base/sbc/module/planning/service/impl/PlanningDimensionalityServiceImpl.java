@@ -267,6 +267,27 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         baseMapper.updateById(fieldManagement1);
         return true;
     }
+    @Override
+    public List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto) {
+        String planningSeasonId = dimensionLabelsSearchDto.getPlanningSeasonId();
+        DimensionalityListVo dimensionalityList = this.getDimensionalityList(dimensionLabelsSearchDto);
+        List<PlanningDimensionality> planningDimensionalities = dimensionalityList.getPlanningDimensionalities();
+        if (!planningDimensionalities.isEmpty()) {
+            List<String> ids = planningDimensionalities.stream().map(PlanningDimensionality::getId).collect(Collectors.toList());
+            this.removeByIds(ids);
+        }
+
+        dimensionLabelsSearchDto.setPlanningSeasonId(dimensionLabelsSearchDto.getRefPlanningSeasonId());
+
+        DimensionalityListVo dimensionalityList1 = this.getDimensionalityList(dimensionLabelsSearchDto);
+        for (PlanningDimensionality planningDimensionality : dimensionalityList1.getPlanningDimensionalities()) {
+            planningDimensionality.setId(null);
+            planningDimensionality.setPlanningSeasonId(planningSeasonId);
+        }
+        List<UpdateDimensionalityDto> updateDimensionalityDtos = BeanUtil.copyToList(dimensionalityList1.getPlanningDimensionalities(), UpdateDimensionalityDto.class);
+        return  this.batchSaveDimensionality(updateDimensionalityDtos);
+    }
+
 
     /**
      * 设置构造器
@@ -428,25 +449,99 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         return true;
     }
 
+    /**
+     * 批量保存修改
+     *
+     * @param dimensionalityDtoList
+     * @return
+     */
     @Override
-    public List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto) {
-        String planningSeasonId = dimensionLabelsSearchDto.getPlanningSeasonId();
-        DimensionalityListVo dimensionalityList = this.getDimensionalityList(dimensionLabelsSearchDto);
-        List<PlanningDimensionality> planningDimensionalities = dimensionalityList.getPlanningDimensionalities();
-        if (!planningDimensionalities.isEmpty()) {
-            List<String> ids = planningDimensionalities.stream().map(PlanningDimensionality::getId).collect(Collectors.toList());
-            this.removeByIds(ids);
+    @Transactional(rollbackFor = {Exception.class})
+    public ApiResult batchSaveDimensionalityNoCheck(List<UpdateDimensionalityDto> dimensionalityDtoList) {
+        StringBuilder msg = new StringBuilder();
+        //校验对应产品季+渠道+品类/中类 是否存在维度数据
+        Map<String, List<UpdateDimensionalityDto>> map = dimensionalityDtoList.stream().collect(Collectors.groupingBy(o -> o.getChannel() + "_" + o.getPlanningSeasonId() + "_" + o.getProdCategory() + "_" + o.getProdCategory2nd()));
+        List<UpdateDimensionalityDto> saveDimensionalityDtoList = new ArrayList<>();
+        for (String key : map.keySet()) {
+            List<UpdateDimensionalityDto> updateDimensionalityDtos = map.get(key);
+            UpdateDimensionalityDto updateDimensionalityDto = updateDimensionalityDtos.get(0);
+
+            BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+            queryWrapper.eq("planning_season_id", updateDimensionalityDto.getPlanningSeasonId());
+            queryWrapper.eq("channel", updateDimensionalityDto.getChannel());
+            queryWrapper.eq("prod_category", updateDimensionalityDto.getProdCategory());
+            queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
+            queryWrapper.select("field_id");
+            if (StrUtil.isNotBlank(updateDimensionalityDto.getProdCategory2nd())) {
+                queryWrapper.isNullStr("prod_category2nd");
+            } else {
+                queryWrapper.isNotNullStr("prod_category2nd");
+            }
+            queryWrapper.exists("select 1 from t_field_management tfm where tfm.id = field_id and del_flag='0' and group_name != '' and group_name is not null");
+            List<PlanningDimensionality> list = list(queryWrapper);
+            if(CollUtil.isNotEmpty(list)){
+                if (StrUtil.isNotBlank(updateDimensionalityDto.getProdCategory2nd())) {
+                    msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                            .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
+                            .append(",中类：").append(updateDimensionalityDto.getProdCategory2ndName()).append(",已存在品类维度;");
+                }else{
+                    msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                            .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
+                            .append(",已存在中类维度;");
+                }
+            }else{
+                queryWrapper = new BaseQueryWrapper<>();
+                queryWrapper.eq("planning_season_id", updateDimensionalityDto.getPlanningSeasonId());
+                queryWrapper.eq("channel", updateDimensionalityDto.getChannel());
+                queryWrapper.eq("prod_category", updateDimensionalityDto.getProdCategory());
+                queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
+                queryWrapper.select("field_id");
+                if (StrUtil.isNotBlank(updateDimensionalityDto.getProdCategory2nd())) {
+                    queryWrapper.eq("prod_category2nd",updateDimensionalityDto.getProdCategory2nd());
+                } else {
+                    queryWrapper.isNullStr("prod_category2nd");
+                }
+                List<PlanningDimensionality> list1 = list(queryWrapper);
+                if (CollUtil.isNotEmpty(list1)) {
+                    List<String> collect = list1.stream().map(PlanningDimensionality::getFieldId).distinct().collect(Collectors.toList());
+
+                    List<String> errFiled = new ArrayList<>();
+                    List<UpdateDimensionalityDto> collect1 = updateDimensionalityDtos.stream().filter(o ->{
+                        if(collect.contains(o.getFieldId())){
+                            errFiled.add(o.getDimensionalityName());
+                            return false;
+                        }
+                        return true;
+                    }).collect(Collectors.toList());
+                    if(CollUtil.isNotEmpty(errFiled)){
+                        if (StrUtil.isNotBlank(updateDimensionalityDto.getProdCategory2nd())) {
+                            msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                                    .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
+                                    .append(",中类：").append(updateDimensionalityDto.getProdCategory2ndName()).append(",已存字段：").append(String.join(",", errFiled)).append(";");
+                        }else{
+                            msg.append("产品季：").append(updateDimensionalityDto.getPlanningSeasonName()).append(",渠道：").append(updateDimensionalityDto.getChannelName())
+                                    .append(",大类：").append(updateDimensionalityDto.getProdCategory1stName()).append(",品类：").append(updateDimensionalityDto.getProdCategoryName())
+                                    .append(",已存字段：").append(String.join(",", errFiled)).append(";");
+                        }
+                    }
+                    saveDimensionalityDtoList.addAll(collect1);
+                }else{
+                    saveDimensionalityDtoList.addAll(updateDimensionalityDtos);
+                }
+            }
         }
 
-        dimensionLabelsSearchDto.setPlanningSeasonId(dimensionLabelsSearchDto.getRefPlanningSeasonId());
-
-        DimensionalityListVo dimensionalityList1 = this.getDimensionalityList(dimensionLabelsSearchDto);
-        for (PlanningDimensionality planningDimensionality : dimensionalityList1.getPlanningDimensionalities()) {
-            planningDimensionality.setId(null);
-            planningDimensionality.setPlanningSeasonId(planningSeasonId);
+        if(CollUtil.isNotEmpty(saveDimensionalityDtoList)){
+            List<PlanningDimensionality> list = BeanUtil.copyToList(saveDimensionalityDtoList, PlanningDimensionality.class);
+            list.forEach(p -> {
+                if (CommonUtils.isInitId(p.getId())) {
+                    p.setId(null);
+                }
+            });
+            saveOrUpdateBatch(list);
         }
-        List<UpdateDimensionalityDto> updateDimensionalityDtos = BeanUtil.copyToList(dimensionalityList1.getPlanningDimensionalities(), UpdateDimensionalityDto.class);
-        return  this.batchSaveDimensionality(updateDimensionalityDtos);
+
+        return ApiResult.success(msg.toString());
     }
 
     @Override

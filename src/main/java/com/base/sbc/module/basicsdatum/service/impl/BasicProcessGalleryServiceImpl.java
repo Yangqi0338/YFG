@@ -1,6 +1,8 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -13,6 +15,7 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +29,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BasicProcessGalleryServiceImpl extends BaseServiceImpl<BasicProcessGalleryMapper,BasicProcessGallery> implements BasicProcessGalleryService {
     private final MinioUtils minioUtils;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
+
     @Override
     public PageInfo<BasicProcessGalleryVo> queryPage(BasicProcessGalleryDto basicProcessGalleryDto) {
         PageHelper.startPage(basicProcessGalleryDto);
@@ -44,8 +51,8 @@ public class BasicProcessGalleryServiceImpl extends BaseServiceImpl<BasicProcess
     @Override
     public QueryWrapper<BasicProcessGallery> buildQueryWrapper(BasicProcessGalleryDto basicProcessGalleryDto) {
         BaseQueryWrapper<BasicProcessGallery> queryWrapper =new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("code", basicProcessGalleryDto.getCode());
-        queryWrapper.notEmptyEq("name", basicProcessGalleryDto.getName());
+        queryWrapper.notEmptyLike("code", basicProcessGalleryDto.getCode());
+        queryWrapper.notEmptyLike("name", basicProcessGalleryDto.getName());
         queryWrapper.notEmptyEq("type_name", basicProcessGalleryDto.getTypeName());
         queryWrapper.notEmptyEq("type_code", basicProcessGalleryDto.getTypeCode());
         queryWrapper.notEmptyLike("remarks", basicProcessGalleryDto.getRemarks());
@@ -55,6 +62,8 @@ public class BasicProcessGalleryServiceImpl extends BaseServiceImpl<BasicProcess
 
         queryWrapper.notEmptyEq("status", basicProcessGalleryDto.getStatus());
         queryWrapper.notEmptyEq("id", basicProcessGalleryDto.getId());
+
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.processGallery.getK());
         return queryWrapper;
     }
 

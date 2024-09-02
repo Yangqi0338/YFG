@@ -2,11 +2,14 @@ package com.base.sbc.client.amc.service;
 
 import com.base.sbc.client.amc.entity.Job;
 import com.base.sbc.client.amc.entity.Team;
+import com.base.sbc.client.amc.entity.User;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.dto.VirtualDept;
+import com.base.sbc.module.common.entity.UserInfo;
+import com.base.sbc.module.common.vo.UserInfoVo;
 import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
@@ -276,5 +279,11 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/user/getByMenuUrlUser")
     List<UserCompany> getByMenuUrlUser(@RequestParam("url") String url);
+
+    /**
+     * 查询用户列表
+     */
+    @GetMapping("/amc/api/token/manageGroupUser/allUsers")
+    List<User> allUsers();
 
 }

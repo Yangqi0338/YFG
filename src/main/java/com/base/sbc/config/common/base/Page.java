@@ -1,6 +1,7 @@
 package com.base.sbc.config.common.base;
 
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -93,6 +94,10 @@ public class Page implements Serializable {
     }
 
     public <E> com.github.pagehelper.Page<E> startPage(boolean countCal) {
-        return PageHelper.startPage(this.getPageNum(), this.getPageSize(), countCal);
+        com.github.pagehelper.Page<E> page = PageHelper.startPage(this.getPageNum(), this.getPageSize(), countCal);
+        if (StrUtil.isNotBlank(this.getOrderBy())) {
+            page.setOrderBy(this.getOrderBy());
+        }
+        return page;
     }
 }

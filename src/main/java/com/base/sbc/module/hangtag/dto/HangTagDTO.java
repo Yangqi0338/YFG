@@ -6,19 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.dto;
 
-import java.util.Date;
-import java.util.List;
-
+import cn.hutool.core.collection.CollUtil;
+import com.base.sbc.config.constant.BusinessProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：吊牌表 实体类
@@ -310,6 +311,7 @@ public class HangTagDTO {
     private String attachment;
     private String repIngredient;
     private String historicalData;
+    private String isDefective;
 
     /**
      * 外发工厂
@@ -322,6 +324,14 @@ public class HangTagDTO {
      */
     @ApiModelProperty(value = "检测报告")
     private List<HangTagInspectCompany>  hangTagInspectCompanyList;
+
+    public List<String> getCheckFieldList() {
+        List<String> checkFieldList = CollUtil.newArrayList("packagingFormCode", "packagingBagStandardCode", "fabricDetails");
+        if (YesOrNoEnum.YES.getValueStr().equals(isDefective)) {
+            checkFieldList.removeIf(it -> !BusinessProperties.needCheckByDefective(bulkStyleNo, it));
+        }
+        return checkFieldList;
+    }
 
 }
 

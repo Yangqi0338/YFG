@@ -287,6 +287,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
+    boolean savePatternMaking(AssignmentUserDto dto);
+
     List<PatternDesignVo> pdTaskDetail(String companyCode);
 
     PageInfo queryPageInfo(PatternMakingCommonPageSearchDto dto);
@@ -419,6 +421,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     Boolean updateReferSample(PatternMakingReferSampleDto dto);
+
+    /**
+     * 修改设计收到时间
+     * @param dto
+     */
+    void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

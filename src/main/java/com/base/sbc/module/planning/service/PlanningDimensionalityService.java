@@ -14,6 +14,7 @@ import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -75,6 +76,8 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
    boolean templateReference(DimensionLabelsSearchDto dto);
     List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto);
 
+    @Transactional(rollbackFor = {Exception.class})
+    ApiResult batchSaveDimensionalityNoCheck(List<UpdateDimensionalityDto> dimensionalityDtoList);
     List<PlanningDimensionalityVo> getMaterialCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto);
 
     List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList);

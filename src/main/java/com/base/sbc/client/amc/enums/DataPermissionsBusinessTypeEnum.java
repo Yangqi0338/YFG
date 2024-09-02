@@ -23,6 +23,7 @@ public enum DataPermissionsBusinessTypeEnum {
     StyleBoard("StyleBoard", "款式看板"),
     technologyCenter("technologyCenter", "技术中心看板"),
     componentLibrary("componentLibrary", "部件库"),
+    processGallery("processGallery", "基础工艺图库"),
     FabricInformation("FabricInformation", "调样管理"),
     //款式分析
     styleMarking("styleMarking","款式打标"),
@@ -74,6 +75,7 @@ public enum DataPermissionsBusinessTypeEnum {
     work_log("work_log","工作小账"),
     PATTERN_LIBRARY("t_pattern_library","版型库"),
     fabricSummaryList("fabricSummaryList", "面料详单"),
+    hrTrafficLight("t_hr_traffic_light", "人事红绿灯"),
     ;
     private final String k;
     private final String v;

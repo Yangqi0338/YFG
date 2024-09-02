@@ -477,7 +477,7 @@ public class CommonUtils {
         return sizeNameSort(Function.identity());
     }
 
-    public static <T> BigDecimal sumBigDecimal(List<T> list, Function<T, BigDecimal> func) {
+    public static <T> BigDecimal sumBigDecimal(Collection<T> list, Function<T, BigDecimal> func) {
         return BigDecimal.valueOf(list.stream().map(func).filter(Objects::nonNull).mapToDouble(BigDecimal::doubleValue).sum()).setScale(2, RoundingMode.HALF_UP);
     }
 

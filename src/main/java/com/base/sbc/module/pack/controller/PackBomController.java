@@ -328,4 +328,11 @@ public class PackBomController extends BaseController{
         return packBomVersionService.reverseApproval(ids.getId());
     }
 
+    @ApiOperation(value = "保存新版本")
+    @PostMapping("/updateVersion")
+    public ApiResult updateVersion(@RequestBody @Valid PackBomPageSearchDto dto) {
+        String version = packBomService.updateVersion(dto);
+        return ApiResult.success("更新成功",version);
+    }
+
 }

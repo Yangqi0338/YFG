@@ -43,4 +43,6 @@ public class CheckMutexDto {
     @ApiModelProperty(value = "系数模板id")
     private String coefficientTemplateId;
 
+    private String type;
+
 }

@@ -6,17 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.replay.vo;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.ReplayRatingProperties;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.replay.ReplayRatingType;
+import com.base.sbc.module.replay.dto.ProductionSaleDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-复盘评分QueryDto 实体类
@@ -148,5 +154,26 @@ public class ReplayRatingQO extends QueryFieldDto {
     @Override
     public boolean countCal() {
         return findTotalFlag != YesOrNoEnum.NO;
+    }
+
+    public boolean isStyleReverse() {
+        return findOrderComparator(this.getFieldOrderMap()) != null;
+    }
+
+    public Comparator<ProductionSaleDTO> findOrderComparator(Map<String, String> map) {
+        if (MapUtil.isEmpty(map)) return null;
+        ProductionSaleDTO productionSaleDTO = BeanUtil.toBean(MapUtil.edit(map,
+                (entry) -> MapUtil.entry(entry.getKey(), Arrays.asList("desc", "DESC").contains(entry.getValue()) ? "1" : "0")), ProductionSaleDTO.class);
+        return productionSaleDTO.findOrderComparator();
+    }
+
+    @Override
+    public String getDefaultOrderBy() {
+        switch (type) {
+            case STYLE:
+                return "tsc.design_no";
+            default:
+                return super.getDefaultOrderBy();
+        }
     }
 }

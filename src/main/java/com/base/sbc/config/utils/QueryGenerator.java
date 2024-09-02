@@ -40,11 +40,12 @@ public class QueryGenerator {
             DataPermissionsService dataPermissionsService = SpringContextHolder.getBean(DataPermissionsService.class);
             dataPermissionsService.getDataPermissionsForQw(qw, dto.getTableCode());
         }
-        if (StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())) {
+        if (StrUtil.isEmpty(dto.getTableCode()) || (MapUtil.isEmpty(dto.getFieldQueryMap()) && MapUtil.isEmpty(dto.getFieldOrderMap()))) {
             return false;
         }
         String columnHeard = dto.getColumnHeard();
         Map<String, String> fieldQueryMap = dto.getFieldQueryMap();
+        Map<String, String> fieldOrderMap = dto.getFieldOrderMap();
         boolean isColumnHeard = false;
 
         ColumnDefineService columnDefineService = SpringContextHolder.getBean(ColumnDefineService.class);
@@ -53,8 +54,8 @@ public class QueryGenerator {
         for (ColumnDefine columnDefine : list) {
             String columnCode = columnDefine.getColumnCode();
             String sqlCode = columnDefine.getSqlCode();
-            if (fieldQueryMap.containsKey(columnCode) && StrUtil.isNotEmpty(fieldQueryMap.get(columnCode))) {
-                String fieldValue = fieldQueryMap.get(columnCode);
+            String fieldValue = MapUtil.getStr(fieldQueryMap, columnCode);
+            if (StrUtil.isNotBlank(fieldValue)) {
                 String property = columnDefine.getProperty();
                 if (StrUtil.isEmpty(property) && StrUtil.isNotEmpty(columnDefine.getColumnType()) && "date".equals(columnDefine.getColumnType())) {
                     property = "date";
@@ -141,6 +142,11 @@ public class QueryGenerator {
                         qw.in(sqlCode, collect);
                     }
                 }
+            }
+            String fieldOrder = MapUtil.getStr(fieldOrderMap, columnCode);
+            if (StrUtil.isNotBlank(fieldOrder)) {
+                if (StrUtil.isBlank(sqlCode)) MapUtil.removeAny(fieldOrderMap, columnCode);
+                else MapUtil.renameKey(fieldOrderMap, columnCode, sqlCode);
             }
             //记得排序
             if (StrUtil.isNotEmpty(dto.getOrderBy()) && dto.getOrderBy().equals(columnCode)) {

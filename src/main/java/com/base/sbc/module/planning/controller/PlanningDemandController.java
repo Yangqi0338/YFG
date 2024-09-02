@@ -6,23 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.controller;
 
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
-import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
-import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
-import com.base.sbc.module.planning.service.PlanningDemandService;
-import com.base.sbc.module.planning.service.PlanningDimensionalityService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：企划-需求管理相关接口
@@ -54,6 +57,11 @@ public class PlanningDemandController {
 
 	@Resource
 	private PlanningDimensionalityService planningDimensionalityService;
+
+	@Autowired
+	private CcmFeignService ccmFeignService;
+	@Autowired
+	private PlanningChannelService planningChannelService;
 
 
 	@Resource
@@ -207,6 +215,96 @@ public class PlanningDemandController {
 		return planningDimensionalityService.templateReference(dto);
 	}
 
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/batchSaveDimensionalityNoCheck")
+	public ApiResult batchSaveDimensionalityNoCheck(@RequestBody BatchSaveDimensionalityDto batchSaveDimensionalityDto) {
+		//前端选择产品季
+		List<UpdateDimensionalityDto> tree = batchSaveDimensionalityDto.getTree();
+		//选择的字段
+		List<UpdateDimensionalityDto> field = batchSaveDimensionalityDto.getField();
+		//根据前端选择查询品类 或 中类
+		String type = batchSaveDimensionalityDto.getType();
+		/*查品类*/
+		List<BasicStructureTreeVo> basicStructureTreeVoList = ccmFeignService.basicStructureTreeByCode("品类",null,"0,1,2");
+		/*获取产品季渠道*/
+		List<PlanningChannel> channelList = planningChannelService.list();
+		Map<String, List<PlanningChannel>> channelMap = channelList.stream().collect(Collectors.groupingBy(PlanningChannel::getPlanningSeasonId));
+
+		//取笛卡尔积
+		List<UpdateDimensionalityDto> dimensionalityDtoList = new ArrayList<>();
+		//遍历产品季
+		for (UpdateDimensionalityDto treeDto : tree) {
+			//这里调整了前端策略，需要后端查询渠道 和 品类 中类填充数据
+			if(!channelMap.containsKey(treeDto.getPlanningSeasonId())){
+				continue;
+			}
+			List<PlanningChannel> planningChannels = channelMap.get(treeDto.getPlanningSeasonId());
+			//遍历渠道
+			for (PlanningChannel planningChannel : planningChannels) {
+				//遍历大类
+				for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVoList) {
+					//遍历品类
+					List<BasicStructureTreeVo> children = basicStructureTreeVo.getChildren();
+					for (BasicStructureTreeVo child : children) {
+						if("1".equals(type)){
+							for (UpdateDimensionalityDto fieldDto : field) {
+								UpdateDimensionalityDto dto = getUpdateDimensionalityDto(treeDto, planningChannel, basicStructureTreeVo, child, null, fieldDto);
+								dimensionalityDtoList.add(dto);
+							}
+						}else{
+							//遍历中类
+							List<BasicStructureTreeVo> children1 = child.getChildren();
+							for (BasicStructureTreeVo child1 : children1) {
+								for (UpdateDimensionalityDto fieldDto : field) {
+									UpdateDimensionalityDto dto = getUpdateDimensionalityDto(treeDto, planningChannel, basicStructureTreeVo, child, child1, fieldDto);
+									dimensionalityDtoList.add(dto);
+								}
+							}
+						}
+
+					}
+				}
+			}
+		}
+		return planningDimensionalityService.batchSaveDimensionalityNoCheck(dimensionalityDtoList);
+	}
+
+	private static UpdateDimensionalityDto getUpdateDimensionalityDto(UpdateDimensionalityDto treeDto, PlanningChannel planningChannel, BasicStructureTreeVo basicStructureTreeVo, BasicStructureTreeVo child, BasicStructureTreeVo child1, UpdateDimensionalityDto fieldDto) {
+		UpdateDimensionalityDto dto = new UpdateDimensionalityDto();
+		//产品季
+		dto.setPlanningSeasonId(treeDto.getPlanningSeasonId());
+		dto.setPlanningSeasonName(treeDto.getPlanningSeasonName());
+		//渠道
+		dto.setPlanningChannelId(planningChannel.getId());
+		dto.setChannel(planningChannel.getChannel());
+		dto.setChannelName(planningChannel.getChannelName());
+		//大类
+		dto.setProdCategory1st(basicStructureTreeVo.getValue());
+		dto.setProdCategory1stName(basicStructureTreeVo.getName());
+		//品类
+		dto.setProdCategory(child.getValue());
+		dto.setProdCategoryName(child.getName());
+		//中类
+		if(child1 != null){
+			dto.setProdCategory2nd(child1.getValue());
+			dto.setProdCategory2ndName(child1.getName());
+		}
+
+		//字段
+		dto.setFieldId(fieldDto.getFieldId());
+		dto.setDimensionalityName(fieldDto.getDimensionalityName());
+		dto.setDesignShowFlag(fieldDto.getDesignShowFlag());
+		dto.setDesignExamineFlag(fieldDto.getDesignExamineFlag());
+		dto.setResearchShowFlag(fieldDto.getResearchShowFlag());
+		dto.setResearchExamineFlag(fieldDto.getResearchExamineFlag());
+		dto.setReplayShowFlag(fieldDto.getReplayShowFlag());
+		dto.setReplayExamineFlag(fieldDto.getReplayExamineFlag());
+		dto.setCoefficientFlag("1");
+		dto.setSort(fieldDto.getSort());
+		dto.setGroupSort(fieldDto.getGroupSort());
+		dto.setStatus(fieldDto.getStatus());
+		return dto;
+	}
 
 	@ApiOperation(value = "获取物料库字段数据")
 	@GetMapping("/getMaterialCoefficient")

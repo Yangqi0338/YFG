@@ -112,7 +112,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
         * @param addRevampStyleColorDto 部件Dto类
         * @return boolean
         */
-        Boolean addRevampSampleStyleColor(AddRevampStyleColorDto addRevampStyleColorDto);
+        Boolean addRevampSampleStyleColor(Principal user,AddRevampStyleColorDto addRevampStyleColorDto);
 
 
 

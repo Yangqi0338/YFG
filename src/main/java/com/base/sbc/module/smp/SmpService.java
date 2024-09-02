@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -37,22 +38,8 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumIngredient;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumIngredientService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
@@ -82,23 +69,8 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackPricing;
-import com.base.sbc.module.pack.entity.PackSize;
-import com.base.sbc.module.pack.entity.PackTechSpec;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingService;
-import com.base.sbc.module.pack.service.PackSizeService;
-import com.base.sbc.module.pack.service.PackTechPackagingService;
-import com.base.sbc.module.pack.service.PackTechSpecService;
+import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -111,44 +83,11 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.smp.dto.BomSizeAndProcessDto;
-import com.base.sbc.module.smp.dto.FabricCompositionDto;
-import com.base.sbc.module.smp.dto.HttpResp;
-import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
-import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
-import com.base.sbc.module.smp.dto.SaleProductIntoDto;
-import com.base.sbc.module.smp.dto.SampleBean;
-import com.base.sbc.module.smp.dto.Scm1SpareMaterialDTO;
-import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
-import com.base.sbc.module.smp.dto.ScmProductionBudgetQueryDto;
-import com.base.sbc.module.smp.dto.ScmProductionDto;
-import com.base.sbc.module.smp.dto.SmpBomDto;
-import com.base.sbc.module.smp.dto.SmpColorDto;
-import com.base.sbc.module.smp.dto.SmpGoodsDto;
-import com.base.sbc.module.smp.dto.SmpMaterialDto;
-import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
-import com.base.sbc.module.smp.dto.SmpSampleDto;
-import com.base.sbc.module.smp.dto.TagCompositionDto;
-import com.base.sbc.module.smp.dto.TagConfirmDateDto;
-import com.base.sbc.module.smp.entity.CheckMaterial;
-import com.base.sbc.module.smp.entity.SalesData;
-import com.base.sbc.module.smp.entity.SmpColor;
-import com.base.sbc.module.smp.entity.SmpModuleSize;
-import com.base.sbc.module.smp.entity.SmpQuot;
-import com.base.sbc.module.smp.entity.SmpSize;
-import com.base.sbc.module.smp.entity.SmpSizeQty;
+import com.base.sbc.module.smp.dto.*;
+import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.smp.impl.SaleProductIntoService;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.entity.StyleColorAgent;
-import com.base.sbc.module.style.entity.StyleMainAccessories;
-import com.base.sbc.module.style.entity.StyleSpecFabric;
-import com.base.sbc.module.style.service.StyleColorAgentService;
-import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleMainAccessoriesService;
-import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.service.StyleSpecFabricService;
+import com.base.sbc.module.style.entity.*;
+import com.base.sbc.module.style.service.*;
 import com.base.sbc.module.tasklist.dto.TaskListDTO;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
@@ -173,14 +112,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -844,8 +776,12 @@ public class SmpService {
                         smpHangTagIngredientDTOList.add(hangTagIngredientDTO);
                     }
                 }
+                //吊牌打印过才下发温馨提示及执行标准
+                if (hangTag.getPrintOrNot().equals("1")) {
+                    smpGoodsDto.setExecuteStandard(hangTag.getExecuteStandard());
+                    smpGoodsDto.setWarmTips(hangTag.getWarmTips());
+                }
                 smpGoodsDto.setHangTagIngredientList(smpHangTagIngredientDTOList);
-
             }
             // endregion
 
@@ -958,6 +894,12 @@ public class SmpService {
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.listByIds(Arrays.asList(ids));
         int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : list) {
+            Assert.notBlank(basicsdatumMaterial.getYear(), "年份不能为空");
+            Assert.notBlank(basicsdatumMaterial.getSeason(), "季节不能为空");
+            Assert.notBlank(basicsdatumMaterial.getWidthGroup(), "门幅/规格不能为空");
+            Assert.notBlank(basicsdatumMaterial.getProcMode(), "采购模式不能为空");
+            Assert.notBlank(basicsdatumMaterial.getPickingMethod(), "领料方式不能为空");
+            Assert.notBlank(basicsdatumMaterial.getStockUnitCode(), "库存单位不能为空");
             if (this.sendMaterials(basicsdatumMaterial)) {
                 i++;
             }
@@ -1107,8 +1049,12 @@ public class SmpService {
             // 获取事务
             transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
 
-            // 下发并记录推送日志
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "物料主数据下发"));
+            //下发并记录推送日志
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", jsonString,
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","物料主数据下发"),
+                    Pair.of("code",basicsdatumMaterial.getMaterialCode())
+            );
 
             // 修改状态为已下发
             basicsdatumMaterial.setDistribute("1");
@@ -1196,20 +1142,6 @@ public class SmpService {
                 }
             }
 
-            // 校验规格是否存在
-            BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
-            queryDto1.setMaterialCode(packBom.getMaterialCode());
-            PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
-            if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
-                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
-            } else {
-                long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
-                if (count == 0) {
-                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
-                }
-            }
-
-
             /*判断供应商报价是否停用
              * 1.报次款无需校验供应商停用
              * 2.停用状态下的BOM物料无需要校验供应商停用
@@ -1219,6 +1151,23 @@ public class SmpService {
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
+
+            //如果是报次款，不校验门幅
+            if("0".equals(styleColor.getIsDefective())){
+                // 校验规格是否存在
+                BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
+                queryDto1.setMaterialCode(packBom.getMaterialCode());
+                PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
+                if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
+                } else {
+                    long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
+                    if (count == 0) {
+                        throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
+                    }
+                }
+            }
+
             String category2Code = "";
             if (materialMap.containsKey(packBom.getMaterialCode())) {
                 BasicsdatumMaterial basicsdatumMaterial = materialMap.get(packBom.getMaterialCode());
@@ -1284,10 +1233,26 @@ public class SmpService {
             // bomMaterials.add(bomMaterial);
             // smpBomDto.setBomMaterials(bomMaterials);
 
-
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()).eq("bom_version_id", packBom.getBomVersionId()))) {
-                packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
+                String msg = "";
+                if(StrUtil.isBlank(packBomSize.getSize())){
+                    msg+="未填写尺码;";
+                }
+                if(packBomSize.getQuantity() == null){
+                    msg+="未填写数量;";
+                    throw new OtherException("未填写数量");
+                }
+                //如果是报次款，不校验门幅
+                if("0".equals(styleColor.getIsDefective())){
+                    if(StrUtil.isBlank(packBomSize.getWidth())){
+                        msg+="未填写门幅/规格;";
+                    }
+                }
+                if(StrUtil.isNotBlank(msg)){
+                    throw new OtherException(msg);
+                }
+
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 // 根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
@@ -1296,9 +1261,12 @@ public class SmpService {
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
                     sizeQtyList.add(smpSizeQty);
                 }
-                // 校验物料规格 是否存在于t_basicsdatum_material_width表中
-                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
-                    throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                //如果是报次款，不校验门幅
+                if("0".equals(styleColor.getIsDefective())){
+                    // 校验物料规格 是否存在于t_basicsdatum_material_width表中
+                    if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
+                        throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                    }
                 }
             }
             if (sizeQtyList.isEmpty()) {
@@ -1322,7 +1290,11 @@ public class SmpService {
             }
 
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "bom下发"));
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString,
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","bom下发"),
+                    Pair.of("code",smpBomDto.getBulkNumber()+"-"+smpBomDto.getMaterialCode())
+            );
 
             if (httpResp.isSuccess()) {
                 packBom.setScmSendFlag("1");
@@ -1388,7 +1360,13 @@ public class SmpService {
             if (issuedToExternalSmpSystemSwitch) {
                 SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
                 String jsonString = JsonStringUtils.toJSONString(smpColorDto);
-                HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "颜色主数据下发"));
+                HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", jsonString,
+                        Pair.of("moduleName","smp"),
+                        Pair.of("functionName","颜色主数据下发"),
+                        Pair.of("code",smpColorDto.getColorCode()),
+                        Pair.of("name",smpColorDto.getColorName())
+
+                );
 
                 if (httpResp.isSuccess()) {
                     i++;
@@ -1419,7 +1397,11 @@ public class SmpService {
             CommonUtils.removeQuery(smpProcessSheetDto, "pdfUrl");
             smpProcessSheetDto.setId(id);
             String jsonString = JsonStringUtils.toJSONString(smpProcessSheetDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "工艺单下发"));
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", jsonString,
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","工艺单下发"),
+                    Pair.of("code",smpProcessSheetDto.getBulkNumber())
+            );
             if (httpResp.isSuccess()) {
                 i++;
                 packInfoStatus.setTechScmSendFlag("1");
@@ -1524,7 +1506,11 @@ public class SmpService {
             sampleBean.setC8_ProductSample_ProofingDesigner(patternMaking.getPatternDesignerName());
             sampleBean.setC8_ProductSample_ProofingDesignerID(patternMaking.getPatternDesignerId());
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
-            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString, Pair.of("moduleName", "oa"), Pair.of("functionName", "样衣下发"));
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString,
+                    Pair.of("moduleName","oa"),
+                    Pair.of("functionName","样衣下发"),
+                    Pair.of("code",patternMaking.getSampleBarCode())
+                    );
 
             if (httpResp.isSuccess()) {
                 i++;
@@ -1567,7 +1553,11 @@ public class SmpService {
     public Boolean checkStyleSize(PlmStyleSizeParam param) {
         param.setCode(param.getStyleNo());
         String jsonString = JsonStringUtils.toJSONString(param);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "修改尺码的时候验证"));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", jsonString,
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","修改尺码的时候验证"),
+                Pair.of("code",param.getStyleNo())
+        );
         return httpResp.isSuccess();
     }
 
@@ -1576,7 +1566,11 @@ public class SmpService {
      */
     public Boolean checkColorSize(PdmStyleCheckParam param) {
         String jsonString = JsonStringUtils.toJSONString(param);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "修改商品颜色的时候验证"));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", jsonString,
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","修改商品颜色的时候验证"),
+                Pair.of("code",param.getStyleNo()+"-"+param.getCode())
+        );
         return httpResp.isSuccess();
     }
 
@@ -1609,7 +1603,12 @@ public class SmpService {
             checkMaterial.setCheckSkuList(checkSkuList);
         }
         String jsonString = JsonStringUtils.toJSONString(checkMaterial);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "停用物料尺码和颜色的时候验证"));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", jsonString,
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","停用物料尺码和颜色的时候验证"),
+                Pair.of("code",checkMaterial.getMaterialCode()+"-"+checkMaterial.getCode())
+
+        );
         if (!httpResp.isSuccess()) {
             throw new OtherException(httpResp.getMessage());
         }
@@ -1623,7 +1622,11 @@ public class SmpService {
      */
     public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto) {
         String jsonString = JsonStringUtils.toJSONString(updatePriceDto);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "修改吊牌价的时候验证"));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", jsonString,
+                Pair.of("moduleName","smp"),
+                Pair.of("functionName","修改吊牌价的时候验证"),
+                Pair.of("code",updatePriceDto.getBulkStyleNo())
+        );
         return httpResp.isSuccess();
     }
 
@@ -1767,7 +1770,11 @@ public class SmpService {
             SampleBean sampleBean = smpSampleDto.toSampleBean();
             sampleBean.setColorway(colorway);
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
-            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString, Pair.of("moduleName", "oa"), Pair.of("functionName", "样衣下发"));
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask",jsonString,
+                    Pair.of("moduleName","oa"),
+                    Pair.of("functionName","样衣下发"),
+                    Pair.of("code",preProductionSampleTask.getSampleBarCode())
+            );
             if (httpResp.isSuccess()) {
                 i++;
                 preProductionSampleTask.setScmSendFlag("1");
@@ -1789,7 +1796,11 @@ public class SmpService {
             tagCompositionDto.setComposition(hangTag.getIngredient());
             tagCompositionDto.setStyleNo(hangTag.getBulkStyleNo());
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌成分"));
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition",jsonString,
+                    Pair.of("moduleName","scm"),
+                    Pair.of("functionName","下发吊牌成分"),
+                    Pair.of("code",hangTag.getBulkStyleNo())
+            );
             if (httpResp.isSuccess()) {
                 i++;
             }
@@ -1851,7 +1862,11 @@ public class SmpService {
 
             }
             String jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发尺寸和外辅工艺明细数据"));
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString,
+                    Pair.of("moduleName","scm"),
+                    Pair.of("functionName","下发尺寸和外辅工艺明细数据"),
+                    Pair.of("code",bomSizeAndProcessDto.getStyleNo())
+            );
             if (httpResp.isSuccess()) {
                 i++;
             }
@@ -2200,7 +2215,11 @@ public class SmpService {
             smpGoodsDto.setItemList(smpSizes);
 
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "商品主数据下发-MANGO"));
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","商品主数据下发-MANGO"),
+                    Pair.of("code",smpGoodsDto.getBulkNumber())
+            );
             if (httpResp.isSuccess()) {
                 i++;
                 styleColor.setScmSendFlag("1");
@@ -2314,8 +2333,8 @@ public class SmpService {
 
         HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
                 Pair.of("moduleName", "scm1"),
-                Pair.of("functionName", "剩余备料"),
-                Pair.of("code", materialNo)
+//                Pair.of("code", materialNo),
+                Pair.of("functionName", "剩余备料")
         );
 
         ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
