@@ -1815,6 +1815,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
         }
 
+        uploadFileService.setObjectUrlToList(objects.toPageInfo().getList(),"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl", "sampleUrl");
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
 
