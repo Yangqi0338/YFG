@@ -32,6 +32,7 @@ import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -85,6 +86,7 @@ import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.utils.TriggerMessageConvert;
 import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -480,7 +482,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
-    public boolean toBigGoods(PackCommonSearchDto dto) {
+    public ApiResult toBigGoods(PackCommonSearchDto dto) {
 
         TransactionStatus transactionStatus = platformTransactionManager.getTransaction(transactionDefinition);
 
@@ -604,7 +606,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             dataUpdateScmService.updateStyleColorSend(packInfo.getStyleNo());
             messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(), packInfo.getDesignNo(), baseController.getUser());
             /*xiao消息*/
-            return true;
+            return ApiResult.successMessage(true, TriggerMessageConvert.stylePricingConvert(styleColor,styleService.getById(styleColor.getStyleId()),""));
         } catch (Exception e) {
             platformTransactionManager.rollback(transactionStatus);
             throw e;

@@ -8,12 +8,15 @@ import com.alibaba.fastjson.JSON;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.DateUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.google.common.collect.Maps;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -74,5 +77,19 @@ public class TriggerMessageConvert {
             System.out.println(idGen.nextIdStr());
         }
 
+    }
+
+    public static Map<String, String> stylePricingConvert(StyleColor styleColor,Style style, String triggerActionCode) {
+        Map<String,String> messageObjects = Maps.newHashMap();
+        if (StringUtils.isNotBlank(triggerActionCode)){
+            messageObjects.put("triggerActionCode",triggerActionCode);
+        }
+        messageObjects.put("brand",style.getBrand());
+        messageObjects.put("design_no",style.getStyleNo());
+        messageObjects.put("product_name",styleColor.getProductName());
+        messageObjects.put("style_no",styleColor.getStyleNo());
+        messageObjects.put("devt_type_name",styleColor.getDevtTypeName());
+        messageObjects.put("defective_no",styleColor.getDefectiveNo());
+        return messageObjects;
     }
 }
