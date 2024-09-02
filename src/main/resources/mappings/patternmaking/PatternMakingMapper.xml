@@ -1159,6 +1159,7 @@
     <select id="listFobSum" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
         select
             tpm.pattern_room_id,
+            tpm.pattern_room,
             tpm.supplier_style_no,
             count(tpm.id) patternMakingSum
         from t_pattern_making tpm
