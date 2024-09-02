@@ -420,4 +420,5 @@ public class SampleBoardVo extends Style {
     private String suggestionImg3;
     private String suggestionImg4;
     private String barCodeUpdateDate;
+    private String barCodeId;
 }

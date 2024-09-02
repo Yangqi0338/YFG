@@ -161,4 +161,6 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date processDepartmentDate;
 
+    private String barCodeId;
+
 }

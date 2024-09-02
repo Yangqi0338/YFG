@@ -446,6 +446,7 @@
             tpmbc.suggestion_img3,
             tpmbc.suggestion_img4,
             tpmbc.update_date as barCodeUpdateDate,
+            tpmbc.id as barCodeId,
             p.del_flag,
             p.code
         </if>

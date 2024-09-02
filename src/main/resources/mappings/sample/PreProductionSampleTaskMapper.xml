@@ -118,7 +118,8 @@
             tpmbc.suggestion,
             tpmbc.suggestion_img,
             tpmbc.suggestion_video,
-            tpmbc.update_date as confrimDate
+            tpmbc.update_date as confrimDate,
+            tpmbc.id as barCodeId
         </if>
         FROM
         t_pre_production_sample_task_fob t

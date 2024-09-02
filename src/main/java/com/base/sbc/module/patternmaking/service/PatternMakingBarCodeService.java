@@ -7,6 +7,7 @@
 package com.base.sbc.module.patternmaking.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeUpdateDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto;
 import com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo;
@@ -46,4 +47,6 @@ public interface PatternMakingBarCodeService extends BaseService<PatternMakingBa
     PageInfo<PatternMakingBarCodeVo> pageAudit(PatternMakingBarCodeQueryDto dto);
 
     PageInfo<PatternMakingBarCodeVo> auditList(PatternMakingBarCodeQueryDto dto);
+
+    void statusByPc(PatternMakingBarCodeUpdateDto dto);
 }

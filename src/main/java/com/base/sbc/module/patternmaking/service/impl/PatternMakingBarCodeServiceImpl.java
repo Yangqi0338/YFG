@@ -17,6 +17,7 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.nodestatus.service.impl.NodeStatusServiceImpl;
 import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeUpdateDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingBarCodeMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
@@ -271,6 +272,32 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public void statusByPc(PatternMakingBarCodeUpdateDto dto) {
+        PatternMakingBarCode old = getById(dto.getBarCodeId());
+        old.updateInit();
+        old.setStatus(dto.getStatus());
+        old.setSuggestion(dto.getSuggestion());
+        old.setSuggestionImg(dto.getSuggestionImg());
+        old.setSuggestionImg1(dto.getSuggestionImg1());
+        old.setSuggestionImg2(dto.getSuggestionImg2());
+        old.setSuggestionImg3(dto.getSuggestionImg3());
+        old.setSuggestionImg4(dto.getSuggestionImg4());
+        old.setSuggestionVideo(dto.getSuggestionVideo());
+        updateById(old);
+
+        //推送外部系统
+        try {
+            List<String> list = Arrays.asList("11", "12");
+            if(list.contains(old.getStatus())){
+                PreProductionSampleTaskFob taskFob = preProductionSampleTaskFobService.getById(old.getHeadId());
+                smpService.pushPreProduction(old,taskFob);
+            }
+        }catch (Exception e){
+            log.error("产前样确认推送外部系统失败："+e.getMessage(),e);
+        }
     }
 
 
