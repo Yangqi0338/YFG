@@ -146,6 +146,10 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private String barCodeStatus;
     private String suggestion;
     private String suggestionImg;
+    private String suggestionImg1;
+    private String suggestionImg2;
+    private String suggestionImg3;
+    private String suggestionImg4;
     private String suggestionVideo;
     private Date confrimDate;
     private String patternMakingDevtType;

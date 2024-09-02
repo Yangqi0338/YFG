@@ -117,6 +117,10 @@
             tpmbc.status as barCodeStatus,
             tpmbc.suggestion,
             tpmbc.suggestion_img,
+            tpmbc.suggestion_img1,
+            tpmbc.suggestion_img2,
+            tpmbc.suggestion_img3,
+            tpmbc.suggestion_img4,
             tpmbc.suggestion_video,
             tpmbc.update_date as confrimDate,
             tpmbc.id as barCodeId
