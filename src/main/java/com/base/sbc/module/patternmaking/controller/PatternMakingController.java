@@ -422,13 +422,13 @@ public class PatternMakingController {
 
     @ApiOperation(value = "前往下一个节点", notes = "")
     @GetMapping("/next")
-    public boolean next(Principal user, @Validated IdDto idDto) {
+    public ApiResult next(Principal user, @Validated IdDto idDto) {
         return patternMakingService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.NEXT);
     }
 
     @ApiOperation(value = "前往上一个节点", notes = "")
     @GetMapping("/prev")
-    public boolean prev(Principal user, @Validated IdDto idDto) {
+    public ApiResult prev(Principal user, @Validated IdDto idDto) {
         return patternMakingService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.PREV);
     }
 

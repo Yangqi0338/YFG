@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import static com.base.sbc.config.utils.DateUtils.FORMAT_SECOND;
+
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
@@ -40,6 +42,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -78,6 +81,9 @@ import com.base.sbc.module.style.vo.ChartBarVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -586,7 +592,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
-    public boolean send(List<SeatSendDto> categoryItemList) {
+    public ApiResult send(List<SeatSendDto> categoryItemList) {
         // 1、保存
         List<AllocationDesignDto> allocationDesignDtoList = new ArrayList<>(16);
         List<SetTaskLevelDto> setTaskLevelDtoList = new ArrayList<>(16);
@@ -659,7 +665,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         Map<String, String> fileUrlId = uploadFileService.findMapByUrls(fileUrls);
 
         List<Style> styleList = new ArrayList<>(16);
-
+        List<Map<String, String>> messageObjectList = Lists.newArrayList();
         /**
          * 任务下发新建款的数据
          */
@@ -677,6 +683,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 style.setDesignNo(null);
             }
             styleList.add(style);
+            Map<String,String> messageObjects = getPlanningCategoryItemSendMessageObjects(style,item);
+            messageObjectList.add(messageObjects);
+
         }
         // 保存款式设计
         if (CollUtil.isNotEmpty(styleList)) {
@@ -722,7 +731,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         /*产品季下发提醒*/
         messageUtils.seasonSendMessage(BeanUtil.copyToList(categoryItemList,PlanningCategoryItem.class),baseController.getUser());
-        return true;
+        return ApiResult.successMessageList(true, messageObjectList);
     }
 
     /**
@@ -1251,6 +1260,25 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         PlanningCategoryItem byId = getById(style.getPlanningCategoryItemId());
         BeanUtil.copyProperties(style, byId, "createId", "createName", "id", "status", "stylePic");
         updateById(byId);
+    }
+
+
+    private Map<String, String> getPlanningCategoryItemSendMessageObjects(Style style, PlanningCategoryItem item) {
+        Map<String,String> messageObjects = Maps.newHashMap();
+        messageObjects.put("brand_name",style.getBrandName());
+        messageObjects.put("brand",style.getBrand());
+        messageObjects.put("designer",item.getDesigner());
+        messageObjects.put("design_no",style.getDesignNo());
+        messageObjects.put("prod_category1st_name",item.getProdCategory1stName());
+        messageObjects.put("prod_category_name",item.getProdCategoryName());
+        messageObjects.put("prod_category2nd_name",item.getProdCategory2ndName());
+        messageObjects.put("prod_category3rd_name",item.getProdCategory3rdName());
+        messageObjects.put("planning_finish_date", DateUtils.formatDate(item.getPlanningFinishDate(),FORMAT_SECOND));
+        messageObjects.put("demand_finish_date",DateUtils.formatDate(item.getPlanningFinishDate(),FORMAT_SECOND));
+        messageObjects.put("task_level_name",item.getTaskLevelName());
+        return messageObjects;
+
+
     }
 
 }

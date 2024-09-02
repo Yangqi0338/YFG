@@ -124,7 +124,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      * @param categoryItemList
      * @return
      */
-    boolean send(List<SeatSendDto> categoryItemList);
+    ApiResult send(List<SeatSendDto> categoryItemList);
 
     /**
      * 查询坑位信息的维度数据

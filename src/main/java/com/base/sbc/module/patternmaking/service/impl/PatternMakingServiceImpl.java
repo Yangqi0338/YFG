@@ -1855,8 +1855,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean nextOrPrev(Principal user, String id, String np) {
+    public ApiResult nextOrPrev(Principal user, String id, String np) {
         PatternMaking pm = getById(id);
+        String status = pm.getStatus();
         checkBreak(pm);
         sort(pm, true);
         GroupUser groupUser = userUtils.getUserBy(user);
@@ -1870,7 +1871,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 重置排序
         update(new UpdateWrapper<PatternMaking>().lambda().eq(PatternMaking::getId, id).set(PatternMaking::getSort, null));
         sort(pm, false);
-        return flg;
+        return ApiResult.successMessage(flg,fullMessage(status,pm,flg,np));
     }
 
     @Override
@@ -2728,7 +2729,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     private Map<String, String> getSampleDesignSendMessageObjects(Style style, PatternMaking patternMaking) {
         Map<String,String> messageObjects = Maps.newHashMap();
-        messageObjects.put("brand_name",style.getBandName());
+        messageObjects.put("brand_name",style.getBrandName());
         messageObjects.put("brand",style.getBrand());
         messageObjects.put("prod_category_name",style.getProdCategoryName());
         messageObjects.put("prod_category",style.getProdCategory());
@@ -2738,7 +2739,32 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         messageObjects.put("pattern_technician_name",patternMaking.getPatternTechnicianName());
         messageObjects.put("pattern_technician_id",patternMaking.getPatternTechnicianId());
         messageObjects.put("sample_type",patternMaking.getSampleType());
+        messageObjects.put("style_pic",stylePicUtils.getStyleUrl(style.getStylePic()));
         return messageObjects;
+    }
+
+
+    private Map<String, String> fullMessage(String status, PatternMaking pm, boolean flg, String np) {
+        if (!flg){
+            return null;
+        }
+        if (!NodeStatusConfigService.NEXT.equals(np)){
+            return null;
+        }
+        String triggerActionCode = "";
+
+        if ("打版完成".equals(status)){
+            triggerActionCode = "plateMakingFinish";
+        }
+        if ("样衣完成".equals(status)){
+            triggerActionCode = "sampleFinish";
+        }
+        if (StringUtils.isEmpty(triggerActionCode)){
+            return null;
+        }
+        Map<String, String> map = getSampleDesignSendMessageObjects(styleService.getById(pm.getStyleId()),pm);
+        map.put("triggerActionCode",triggerActionCode);
+        return map;
     }
 }
 
