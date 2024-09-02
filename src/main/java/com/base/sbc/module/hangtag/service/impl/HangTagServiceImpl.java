@@ -1001,7 +1001,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 											|| (!("次品".equals(devClassName) && split.length > 1 && reportingAll.contains(split[2])) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWarmTips()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWashingLabel()))
-											|| (e.getProductCode().contains("羽绒") && StrUtil.isBlank(e.getDownContent()))
+											|| (e.getProductName().contains("羽绒") && StrUtil.isBlank(e.getDownContent()))
 											|| ("配饰".equals(prodCategory1stName) && StrUtil.isNotBlank(e.getExecuteStandardCode()) && StrUtil.isBlank(e.getSpecialSpec()))
 							) {
 								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
