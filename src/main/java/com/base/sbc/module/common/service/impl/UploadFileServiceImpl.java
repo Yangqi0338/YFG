@@ -160,11 +160,6 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    @Autowired
-    private RedisUtils redisUtils;
-
-    private final ReentrantLock lock = new ReentrantLock();
-
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
         return uploadToMinio(file, null);

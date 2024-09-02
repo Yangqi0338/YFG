@@ -6,7 +6,6 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.base.sbc.config.enums.business.BomStatusEnum;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.Expression;

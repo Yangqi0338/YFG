@@ -30,6 +30,7 @@ import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingDesignReceiptDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
