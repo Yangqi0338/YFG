@@ -53,24 +53,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -211,7 +199,7 @@ public class ExcelUtils {
         exportParams.setStyle(ExcelExportTitleStyle.class);
         Workbook workbook;
         if(list.size() < 10000){
-            workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
+            workbook = PdmExcelExportUtil.exportExcel(exportParams, entityList, list);
         }else{
             IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(exportParams, entityList);
             List<? extends List<?>> partition = Lists.partition(list, 10000);
