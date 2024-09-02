@@ -989,16 +989,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							List<String> reportingOne = CollUtil.newArrayList("-9");
 							List<String> reportingTwo = CollUtil.newArrayList("-10", "-11", "-ZC");
 
+							String isDefective = styleColor.getIsDefective();
 							if (
 									StrUtil.isBlank(e.getProductCode())
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getExecuteStandardCode()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getQualityGradeCode()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTitleCode()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTypeCode()))
-											|| (!"配饰".equals(prodCategory1stName) && !("次品".equals(devClassName) && split.length > 1 && reportingTwo.contains(split[2])) && StrUtil.isBlank(e.getPackagingFormCode()))
-											|| (!"配饰".equals(prodCategory1stName) && !("次品".equals(devClassName) && split.length > 1 && reportingAll.contains(split[2])) && StrUtil.isBlank(e.getPackagingBagStandardCode()))
+											|| (!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && split.length > 1 && reportingTwo.contains(split[2])) && StrUtil.isBlank(e.getPackagingFormCode()))
+											|| (!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && split.length > 1 && reportingAll.contains(split[2])) && StrUtil.isBlank(e.getPackagingBagStandardCode()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getIngredient()))
-											|| (!("次品".equals(devClassName) && split.length > 1 && reportingAll.contains(split[2])) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails()))
+											|| (!("1".equals(isDefective) && split.length > 1 && reportingAll.contains(split[2])) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWarmTips()))
 											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWashingLabel()))
 											|| (e.getProductName().contains("羽绒") && StrUtil.isBlank(e.getDownContent()))
