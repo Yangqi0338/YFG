@@ -3336,6 +3336,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.notEmptyEq("tpm.pattern_room_id", dto.getPatternRoomId());
         qw.notEmptyEq("tpm.supplier_style_no", dto.getSupplierStyleNo());
         qw.notEmptyEq("tpm.prm_send_status", dto.getPrmSendStatus());
+        qw.notEmptyEq("tpm.bind_design", dto.getBindDesign());
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.patternMakingFOBMune.getK());
         Page<PatternMakingListVo> page = null;
         if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {

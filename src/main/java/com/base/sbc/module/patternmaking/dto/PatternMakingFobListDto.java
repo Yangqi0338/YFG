@@ -21,4 +21,6 @@ public class PatternMakingFobListDto extends QueryFieldDto {
     @ApiModelProperty(value = "下发状态"  )
     private String prmSendStatus;
 
+    private String bindDesign;
+
 }
