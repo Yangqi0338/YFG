@@ -155,19 +155,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -1016,19 +1004,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
 						if (TECH_CHECK == updateStatus) {
-							// downContent：充绒量                     (devClassName != '次品')
-							// executeStandardCode：执行标准           ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// saftyTypeCode：安全类别                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// productCode：品名                       任何情况都校验
-							// qualityGradeCode：质量等级              ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// saftyTitleCode：安全标题                ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// specialSpec：特殊规格                   (prodCategory1stName == '配饰' && produceTypeName=='CMT' && devClassName != '次品')
-							// fabricDetails：面料详情                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && produceTypeName == 'CMT' && devClassName != '次品')
-							// ingredient：成分                        ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// packagingFormCode：包装形式             ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// packagingBagStandardCode：包装袋标准     ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// washingLabel：洗标                      ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// warmTips：温馨提示                       ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')							boolean flag = true;
 							if (StrUtil.isBlank(e.getId())) throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 
 							// 查询大类信息
@@ -1044,45 +1019,30 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							String devClassName = style.getDevClassName();
 							// 获取是否开启配饰校验
 							boolean value1 = ccmFeignService.getSwitchByCode("dppsjyzd");
-							boolean value2 = ccmFeignService.getSwitchByCode("TAG_BY_STYLE_DIMENSION_SWITCH");
 							// 获取生产类型
 							String devtTypeName = styleColor.getDevtTypeName();
+							String[] split = bulkStyleNo.split("-");
 
-							if (StrUtil.isBlank(e.getProductCode())) {
+							List<String> reportingAll = CollUtil.newArrayList("-9", "-10", "-11", "-ZC");
+							List<String> reportingOne = CollUtil.newArrayList("-9");
+							List<String> reportingTwo = CollUtil.newArrayList("-10", "-11", "-ZC");
+
+							if (
+									StrUtil.isBlank(e.getProductCode())
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getExecuteStandardCode()))
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getQualityGradeCode()))
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTitleCode()))
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTypeCode()))
+											|| (!"配饰".equals(prodCategory1stName) && !("次品".equals(devClassName) && split.length > 1 && reportingTwo.contains(split[2])) && StrUtil.isBlank(e.getPackagingFormCode()))
+											|| (!"配饰".equals(prodCategory1stName) && !("次品".equals(devClassName) && split.length > 1 && reportingAll.contains(split[2])) && StrUtil.isBlank(e.getPackagingBagStandardCode()))
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getIngredient()))
+											|| (!("次品".equals(devClassName) && split.length > 1 && reportingAll.contains(split[2])) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails()))
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWarmTips()))
+											|| (!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWashingLabel()))
+											|| (e.getProductCode().contains("羽绒") && StrUtil.isBlank(e.getDownContent()))
+											|| ("配饰".equals(prodCategory1stName) && StrUtil.isNotBlank(e.getExecuteStandardCode()) && StrUtil.isBlank(e.getSpecialSpec()))
+							) {
 								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-							}
-
-							if (!devClassName.equals("次品")) {
-								if (e.getProductCode().contains("羽绒") && StrUtil.isBlank(e.getDownContent())) {
-									throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-								}
-								if (!Objects.equals(prodCategory1stName, "配饰") || !value1) {
-									if (
-											StrUtil.isBlank(e.getExecuteStandardCode())
-													|| StrUtil.isBlank(e.getSaftyTypeCode())
-													|| StrUtil.isBlank(e.getQualityGradeCode())
-													|| StrUtil.isBlank(e.getSaftyTitleCode())
-													|| StrUtil.isBlank(e.getIngredient())
-													|| StrUtil.isBlank(e.getPackagingFormCode())
-													|| StrUtil.isBlank(e.getPackagingBagStandardCode())
-													|| StrUtil.isBlank(e.getWashingLabel())
-													|| StrUtil.isBlank(e.getWarmTips())
-									) {
-										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-									}
-									if (Objects.equals(devtTypeName, "CMT")) {
-										if (StrUtil.isBlank(e.getFabricDetails())) {
-											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-										}
-									}
-								}
-								if (StrUtil.isNotBlank(e.getExecuteStandardCode())) {
-									if (Objects.equals(prodCategory1stName, "配饰")) {
-										if (StrUtil.isBlank(e.getSpecialSpec())) {
-											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-										}
-									}
-								}
 							}
 
 						} else {
