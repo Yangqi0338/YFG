@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.UUID;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
@@ -50,9 +51,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 //        multipart/form-data
 //        httpLog.setUserCode(userCompany.getUserCode());
         httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
-        httpLog.setThreadId(Thread.currentThread().getId() + "");
-        userCompany.setMainThreadId(httpLog.getThreadId());
-        userCompany.setStartTime(httpLog.getStartTime());
+        httpLog.setThreadId(Thread.currentThread().getId() + UUID.randomUUID().toString());
 //        httpLog.setUserCode(userCompany.getUserCode());
 
         //获取swagger注解value值
@@ -64,8 +63,7 @@ public class RequestInterceptor implements HandlerInterceptor {
                 httpLog.setReqName(value);
             }
         }
-        httpLogService.save(httpLog);
-        userCompany.setHttpLogId(httpLog.getId());
+        companyUserInfo.get().setHttpLog(httpLog);
         return true;
     }
 

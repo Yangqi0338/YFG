@@ -1,5 +1,6 @@
 package com.base.sbc.config.adviceadapter;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -25,7 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.Date;
+import java.util.UUID;
 
 import static com.base.sbc.client.amc.service.AmcFeignService.userPlanningSeasonId;
 
@@ -115,10 +116,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
         //记录请求信息
-        UserCompany userCompany = companyUserInfo.get();
-        String httpLogId = userCompany.getHttpLogId();
-        HttpLog httpLog = new HttpLog();
-        httpLog.setId(httpLogId);
+        HttpLog httpLog = BeanUtil.copyProperties(companyUserInfo.get().getHttpLog(), HttpLog.class);
         try {
             URI uri = request.getURI();
 
@@ -126,14 +124,20 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             httpLog.setUrl(StrUtil.subBefore(uri.toString(), "?", false));
             httpLog.setIp(uri.getHost());
             httpLog.setAddress(Ip2regionAnalysis.getStringAddressByIp(uri.getHost()));
+            // TODO 不合理,若程序中修改了header,这不就记录在代表前端传参的RequestHeader里了?
             httpLog.setReqHeaders(JSON.toJSONString(request.getHeaders()));
 
             //记录响应信息
             HttpServletResponse httpServletResponse = ((ServletServerHttpResponse)response).getServletResponse();
             String jsonString = JSON.toJSONString(body);
-//            if (jsonString.length()<20000){
+            if (jsonString.length() < 60000) {
                 httpLog.setRespBody(jsonString);
-//            }
+            } else {
+                // 长度超了，采用日志记录
+                String requestBody = String.format("----------------!!超出长度的RequestBody,请去warn日志直接查询这段 [%s]!!----------------", UUID.randomUUID().toString());
+                httpLog.setRespBody(requestBody);
+                log.warn(requestBody);
+            }
 //            JSONObject headers=new JSONObject();
 //            Collection<String> headerNames = httpServletResponse.getHeaderNames();
 //            for (String headerName : headerNames) {
@@ -142,13 +146,8 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
 //            httpLog.setRespHeaders(headers.toJSONString());
             httpLog.setStatusCode(httpServletResponse.getStatus());
-            Date startTime = userCompany.getStartTime();
-            long intervalNum = 0;
-            if (startTime != null) {
-                intervalNum = (Math.min(Short.MAX_VALUE, (System.currentTimeMillis() - startTime.getTime())));
-            }
-            httpLog.setIntervalNum((short) intervalNum);
 
+            httpLog.setIntervalNum((short) Math.min(Short.MAX_VALUE, (System.currentTimeMillis() - httpLog.getStartTime().getTime())));
             httpLog.setExceptionFlag(0);
 
             if (!JSONUtil.parseObj(jsonString).getBool("success")){
@@ -159,7 +158,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         }catch (Exception e){
          e.printStackTrace();
         }finally {
-            httpLogService.saveOrUpdate(httpLog);
+            httpLogService.updateById(httpLog);
             companyUserInfo.remove();
             userPlanningSeasonId.remove();
         }
