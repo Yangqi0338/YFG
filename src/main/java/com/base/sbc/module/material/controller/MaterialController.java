@@ -36,6 +36,7 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.storageSpace.service.StorageSpacePersonService;
+import com.base.sbc.module.utils.TriggerMessageConvert;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 
@@ -189,7 +190,7 @@ public class MaterialController extends BaseController {
                     redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
                 }
                 flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
+                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, TriggerMessageConvert.materialApproveConvert(materialSaveDto,userUtils.getUser(userUtils.getUserId())));
 
             }
         }
@@ -546,7 +547,7 @@ public class MaterialController extends BaseController {
         if ("1".equals(type)){
             item.setStatus("1");
             flowableService.start(FlowableService.MATERIAL + item.getMaterialCategoryName(), FlowableService.MATERIAL, item.getId(), "/pdm/api/saas/material/toExamine",
-                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, BeanUtil.beanToMap(item));
+                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + item.getId(), null, TriggerMessageConvert.materialApproveConvert(item,userUtils.getUser(userUtils.getUserId())));
 
         }
 

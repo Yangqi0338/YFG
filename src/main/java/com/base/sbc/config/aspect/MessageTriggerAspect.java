@@ -6,6 +6,7 @@ import com.base.sbc.config.annotation.MessageTrigger;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.exception.RestExceptionHandler;
 import com.base.sbc.config.utils.StringUtils;
+import com.google.common.collect.Maps;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -41,17 +42,24 @@ public class MessageTriggerAspect {
         MessageTrigger annotation = signature.getMethod().getAnnotation(MessageTrigger.class);
 
         // 根据方法的返回值和注解中的配置进行处理
-        processResult(result, annotation.value());
+        processResult(result, annotation.value(),annotation.code());
     }
 
-    private void processResult(Object result, String value) {
+    private void processResult(Object result, String value, String code) {
         if (Objects.isNull(result) || StringUtils.isEmpty(value)){
             return;
         }
         ApiResult apiResult = (ApiResult) result;
         ModelMessage modelMessage = new ModelMessage();
         modelMessage.setModelCode(value);
-        modelMessage.setParams(apiResult.getMessageObjects());
+        Map messageObjects = apiResult.getMessageObjects();
+        if (Objects.isNull(messageObjects)){
+            messageObjects = Maps.newHashMap();
+        }
+        if (StringUtils.isNotEmpty(code)){
+            messageObjects.put("triggerActionCode",code);
+        }
+        modelMessage.setParams(messageObjects);
         String s = messagesService.tokenNoticeOrMessageByModel(modelMessage);
         log.info("MessageTriggerAspect processResult result = {}",s);
     }
