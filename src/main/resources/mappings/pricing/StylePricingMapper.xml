@@ -204,29 +204,26 @@
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                    sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
@@ -310,29 +307,26 @@
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                            sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
@@ -380,29 +374,26 @@
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                            p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                            sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
@@ -448,29 +439,26 @@
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                            p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                            sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
