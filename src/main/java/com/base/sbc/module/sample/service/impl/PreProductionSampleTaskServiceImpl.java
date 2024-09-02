@@ -311,7 +311,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 设置图
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
-        uploadFileService.setObjectUrlToList(objects.toPageInfo().getList(),"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl", "sampleUrl");
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
 
 //        if (false && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
 //            Map<String, Style> styleMap = styleService.listByIds(
