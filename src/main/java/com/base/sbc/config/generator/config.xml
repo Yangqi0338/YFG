@@ -3,19 +3,19 @@
 
 	<params>
 		<!-- Java总路径  生成java文件包的目录 -->
-		<osdir       value="E:\code\shangjie\sjs_yfg_pdm\src\main\java\com\base\sbc\module"></osdir>
+		<osdir       value="D:\java\ideas\pdm\pord\sjs_yfg_pdm\src\main\java\com\base\sbc\module"></osdir>
 		<!-- xml总路径 -->
-		<xmlosdir    value="E:\code\shangjie\sjs_yfg_pdm\src\main\resources"></xmlosdir>
+		<xmlosdir    value="D:\java\ideas\pdm\pord\sjs_yfg_pdm\src\main\resources"></xmlosdir>
 		<!-- 总包名 -->
 		<javapackage value="com.base.sbc.module"></javapackage>
 		<!-- 模块名称 -->
-		<project     value="planningproject"></project>
+		<project     value="pokaYoke"></project>
 <!--		<project     value="common"></project>-->
 <!--		<project     value="planning"></project>&lt;!&ndash; 模块名称 &ndash;&gt;-->
 	</params>
 	<tables>
 		<!--<table  project="basicsdatum"     value="t_basicsdatum_material"   genType="2" ></table>-->
-		<table  project="planningproject"     value="t_planning_project_max_category"   genType="1,2,3,4" ></table>
+		<table  project="pokaYoke"     value="t_poka_yoke_config"   genType="1,2,3,4" ></table>
 <!--		<table       value="t_field_val"   genType="2" ></table>-->
 <!--		<table       value="t_upload_file"   genType="2" ></table>-->
 <!--		<table       value="t_attachment"   genType="2" ></table>-->

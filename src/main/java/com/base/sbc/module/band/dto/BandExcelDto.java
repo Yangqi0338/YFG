@@ -1,6 +1,7 @@
 package com.base.sbc.module.band.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.hutool.json.JSONObject;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -35,4 +36,11 @@ public class BandExcelDto {
     /** 排序 */
     @Excel(name = "排序")
     private Integer sort;
+
+    public static void main(String[] args) {
+        JSONObject entries = new JSONObject();
+        for (String s : entries.keySet()) {
+
+        }
+    }
 }

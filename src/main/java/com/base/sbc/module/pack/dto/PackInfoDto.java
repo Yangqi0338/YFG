@@ -57,6 +57,18 @@ public class PackInfoDto {
     @ApiModelProperty(value = "源资料包类型")
     private String  sourcePackType;
 
+    /**
+     * 名称
+     */
+    @ApiModelProperty(value = "名称")
+    private String name;
+
+    /**
+     * 样板号
+     */
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
+
 
 
 }

@@ -40,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.xml.transform.Result;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -68,6 +67,20 @@ public class StyleColorController {
     @GetMapping("/getSampleStyleColorList")
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
         return styleColorService.getSampleStyleColorList(user, querySampleStyleColorDto);
+    }
+
+    @ApiOperation(value = "更改上会状态为未上会")
+    @PostMapping("/updateNoMeetFlag")
+    public ApiResult<String> updateNoMeetFlag(@RequestBody List<String> styleColorIdList) {
+        styleColorService.updateNoMeetFlag(styleColorIdList);
+        return ApiResult.success();
+    }
+
+    @ApiOperation(value = "更改上会状态为已上会")
+    @PostMapping("/updateYesMeetFlag")
+    public ApiResult<String> updateYesMeetFlag(@RequestBody List<String> styleColorIdList) {
+        styleColorService.updateYesMeetFlag(styleColorIdList);
+        return ApiResult.success();
     }
 
     @ApiOperation(value = "大货款列表")
@@ -129,8 +142,8 @@ public class StyleColorController {
     @ApiOperation(value = "新增修改款式配色-款式配色")
     @PostMapping("/addRevampSampleStyleColor")
     @DuplicationCheck
-    public Boolean addRevampSampleStyleColor(@Valid @RequestBody AddRevampStyleColorDto addRevampStyleColorDto) {
-        return styleColorService.addRevampSampleStyleColor(addRevampStyleColorDto);
+    public Boolean addRevampSampleStyleColor(Principal user,@Valid @RequestBody AddRevampStyleColorDto addRevampStyleColorDto) {
+        return styleColorService.addRevampSampleStyleColor(user,addRevampStyleColorDto);
     }
 
     @ApiOperation(value = "删除款式配色-款式配色")
@@ -437,6 +450,12 @@ public class StyleColorController {
         List<Map<String, Object>> readAll = reader.readAll();
 
         return styleColorService.importMarkingOrder(readAll);
+    }
+
+    @ApiOperation(value = "物料清单引用查询使用")
+    @GetMapping("/materialListQuote")
+    public PageInfo<StyleColorVo> materialListQuote(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
+        return styleColorService.materialListQuote(user, querySampleStyleColorDto);
     }
 
 }

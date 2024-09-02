@@ -6,6 +6,7 @@ import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public interface ReportService {
 
@@ -66,4 +67,8 @@ public interface ReportService {
     PageInfo<SeasonPlanPercentageVo> seasonPlanPercentage(SeasonPlanPercentageQueryDto dto);
 
     void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException;
+
+    List<PatternMakingReportVo> patternMaking(PatternMakingQueryDto dto);
+
+    void patternMakingExport(HttpServletResponse response, PatternMakingQueryDto dto) throws IOException;
 }

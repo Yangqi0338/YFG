@@ -393,10 +393,6 @@ public class StyleColorCorrectInfoVo {
     @ApiModelProperty(value = "跟款设计师"  )
     private String merchDesignName;
 
-    /** 版式名称 */
-    @ApiModelProperty(value = "版式名称"  )
-    private String patternDesignName;
-
     /** 是否报次款0否 1是 */
     @ApiModelProperty(value = "是否报次款0否 1是"  )
     private String isDefective;
@@ -436,6 +432,12 @@ public class StyleColorCorrectInfoVo {
 
     @ApiModelProperty(value = "资料包名称")
     private String infoName;
+
+    @ApiModelProperty(value = "版师ID")
+    private String patternDesignId;
+
+    @ApiModelProperty(value = "版师名称")
+    private String patternDesignName;
 
     /**
      * 款式来源
@@ -494,6 +496,10 @@ public class StyleColorCorrectInfoVo {
     @ApiModelProperty(value = "辅仓接收日期-明细单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date auxiliaryDate;
+    /** 设计回收正确样时间 */
+    @ApiModelProperty(value = "设计回收正确样时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designCorrectRecoveryDate;
 
     private String styleColorId;
 

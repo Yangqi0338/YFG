@@ -6,9 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -38,30 +45,17 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletResponse;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：ES订货本 service类
@@ -87,6 +81,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     private UploadFileService uploadFileService;
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto) {
@@ -113,7 +109,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         qw.orderByAsc("(SUBSTRING_INDEX(item.group_name,\"-\",-1))");
         qw.orderByAsc("item.sort_index");
 
-
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.esOrderBook.getK(), "ts.");
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
         if(CollUtil.isEmpty(list)){
             return new PageInfo<>(list);
@@ -125,30 +121,66 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         stylePricingSearchDTO.setCompanyCode(getCompanyCode());
         BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.in("p.id", packId);
-        List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
-        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true, true);
-        Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
-        for (EsOrderBookItemVo esOrderBookItemVo : list) {
-            if (collect.containsKey(esOrderBookItemVo.getPackId())) {
-                StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getPackId());
-                String calcItemVal = stylePricingVO.getCalcItemVal();
-                if(StrUtil.isNotBlank(calcItemVal)){
-                    JSONObject jsonObject = JSONObject.parseObject(calcItemVal);
-                    esOrderBookItemVo.setWoolenYarnProcessingFee(jsonObject.getBigDecimal("毛纱加工费"));
-                    esOrderBookItemVo.setSewingProcessingFee(jsonObject.getBigDecimal("车缝加工费"));
-                    esOrderBookItemVo.setCoordinationProcessingFee(jsonObject.getBigDecimal("外协加工费"));
-                    esOrderBookItemVo.setPackagingFee(jsonObject.getBigDecimal("包装费"));
-                    esOrderBookItemVo.setTestingFee(jsonObject.getBigDecimal("检测费"));
-                    esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
+        List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingByLine(stylePricingSearchDTO, queryWrapper);
+
+
+        if(CollUtil.isNotEmpty(stylePricingList)){
+            // 设计阶段的数据
+            List<StylePricingVO> packDesignList = stylePricingList
+                    .stream()
+                    .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packDesign"))
+                    .collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(packDesignList)) {
+                stylePricingService.dataProcessingByPackType(packDesignList, getCompanyCode(), "packDesign");
+            }
+
+            // 大货阶段的数据
+            List<StylePricingVO> packBigGoodsList = stylePricingList.stream()
+                    .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packBigGoods"))
+                    .collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
+                stylePricingService.dataProcessingByPackType(packBigGoodsList, getCompanyCode(), "packBigGoods");
+            }
+
+            Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
+            for (EsOrderBookItemVo esOrderBookItemVo : list) {
+                if (collect.containsKey(esOrderBookItemVo.getPackId())) {
+                    StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getPackId());
+                    esOrderBookItemVo.setWoolenYarnProcessingFee(stylePricingVO.getWoolenYarnProcessingFee());
+                    esOrderBookItemVo.setSewingProcessingFee(stylePricingVO.getSewingProcessingFee());
+                    esOrderBookItemVo.setCoordinationProcessingFee(stylePricingVO.getCoordinationProcessingFee());
+                    esOrderBookItemVo.setPackagingFee(stylePricingVO.getPackagingFee());
+                    esOrderBookItemVo.setTestingFee(stylePricingVO.getTestingFee());
+                    esOrderBookItemVo.setMaterialPrice(stylePricingVO.getMaterialCost());
                     esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
-                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(4)));
+                }else{
+                    setDefultValue(esOrderBookItemVo);
                 }
             }
+        }else{
+            for (EsOrderBookItemVo esOrderBookItemVo : list) {
+                setDefultValue(esOrderBookItemVo);
+            }
         }
+
+
         minioUtils.setObjectUrlToList(list, "groupImg");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    private void setDefultValue(EsOrderBookItemVo esOrderBookItemVo) {
+        esOrderBookItemVo.setWoolenYarnProcessingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setSewingProcessingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setCoordinationProcessingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setPackagingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setTestingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setMaterialPrice(BigDecimal.ZERO);
+        esOrderBookItemVo.setActualMagnification(BigDecimal.ZERO);
+        esOrderBookItemVo.setTotalCost(BigDecimal.ZERO);
+        esOrderBookItemVo.setMultiplePrice(BigDecimal.ZERO);
     }
 
     @Override

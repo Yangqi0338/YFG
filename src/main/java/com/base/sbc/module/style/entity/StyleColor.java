@@ -354,6 +354,17 @@ public class StyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "接收部门"  )
     private String receiveDeptId;
 
+    @ApiModelProperty("款式难度 ")
+    private String styleDifficulty;
+
+
+    @ApiModelProperty("面料难度 ")
+    private String fabricDifficulty;
+
+
+    @ApiModelProperty("工艺难度 ")
+    private String processDifficulty;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

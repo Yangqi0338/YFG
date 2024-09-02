@@ -13,35 +13,9 @@ import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
-import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
-import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
-import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
-import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
-import com.base.sbc.module.patternmaking.dto.SetKittingDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
-import com.base.sbc.module.patternmaking.dto.SetSortDto;
-import com.base.sbc.module.patternmaking.dto.StyleSendDto;
-import com.base.sbc.module.patternmaking.dto.SuspendDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
-import com.base.sbc.module.patternmaking.vo.NodeListVo;
-import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingCommonPageSearchVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
-import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
-import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
-import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
-import com.base.sbc.module.patternmaking.vo.StyleResearchNodeVo;
-import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
-import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
+import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
@@ -313,6 +287,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
+    boolean savePatternMaking(AssignmentUserDto dto);
+
     List<PatternDesignVo> pdTaskDetail(String companyCode);
 
     PageInfo queryPageInfo(PatternMakingCommonPageSearchDto dto);
@@ -445,6 +421,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     Boolean updateReferSample(PatternMakingReferSampleDto dto);
+
+    /**
+     * 修改设计收到时间
+     * @param dto
+     */
+    void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto);
 
     SampleBoardVo getWorkloadById(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/

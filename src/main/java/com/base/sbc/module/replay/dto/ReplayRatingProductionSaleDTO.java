@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.enums.UnitConverterEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,7 +37,7 @@ public class ReplayRatingProductionSaleDTO implements Serializable {
 
     /** 投产 */
     @ApiModelProperty(value = "投产")
-    private BigDecimal production = BigDecimal.ZERO;
+    private BigDecimal production;
 
     /** 单位 */
     @ApiModelProperty(value = "投产单位")
@@ -49,7 +50,7 @@ public class ReplayRatingProductionSaleDTO implements Serializable {
 
     /** 销售 */
     @ApiModelProperty(value = "销售")
-    private BigDecimal sale = BigDecimal.ZERO;
+    private BigDecimal sale;
 
     /** 销售单位 */
     @ApiModelProperty(value = "销售单位")
@@ -78,10 +79,22 @@ public class ReplayRatingProductionSaleDTO implements Serializable {
         return decimal;
     }
 
+    /** 销售单位转化 */
+    @ApiModelProperty(value = "销售单位转化")
+    @JsonIgnore
+    protected BigDecimal productionSaleRate;
+
     /** 产销比 */
     @ApiModelProperty(value = "产销比")
-    public String getProductionSaleRate() {
-        return BigDecimalUtil.dividePercentage(getRealSale(), getRealProduction()) + "%";
+    protected BigDecimal getProductionSaleRate() {
+        return BigDecimalUtil.dividePercentage(getRealSale(), getRealProduction());
+    }
+
+    /** 产销比 */
+    @ApiModelProperty(value = "产销比")
+    @JsonProperty("productionSaleRate")
+    public String getProductionSaleRateStr() {
+        return getProductionSaleRate() + "%";
     }
 
     public Map<String, Object> findMap() {

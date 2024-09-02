@@ -210,32 +210,32 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         if (type == null) {
             throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
         }
-        LambdaQueryWrapper<ProcessDatabase> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ProcessDatabase::getType, type);
-
+        ProcessDatabasePageDto pageDto = new ProcessDatabasePageDto();
+        pageDto.setType(type);
+        List<ProcessDatabase> dataList = list(pageDto);
         switch (type) {
             case bjk: {
                 /*部件库*/
-                List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
+                List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(dataList, ComponentLibraryExcelDto.class);
                 ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
             case jcgy:
             case ztbz: {
                 /*基础工艺*/
-                List<BasicsCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsCraftExcelDto.class);
+                List<BasicsCraftExcelDto> list = BeanUtil.copyToList(dataList, BasicsCraftExcelDto.class);
                 ExcelUtils.exportExcel(list, BasicsCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
             case wfgy: {
                 /*外辅工艺*/
-                List<ExternalCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ExternalCraftExcelDto.class);
+                List<ExternalCraftExcelDto> list = BeanUtil.copyToList(dataList, ExternalCraftExcelDto.class);
                 ExcelUtils.exportExcel(list, ExternalCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
             case mbbj: {
                 /*模板部件*/
-                List<FormworkComponentExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FormworkComponentExcelDto.class);
+                List<FormworkComponentExcelDto> list = BeanUtil.copyToList(dataList, FormworkComponentExcelDto.class);
                 minioUtils.setObjectUrlToList(list, "picture");
 
                 ExecutorService executor = ExecutorBuilder.create()
@@ -272,13 +272,11 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 break;
             }
             default: {
-                List<CraftMaterialExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), CraftMaterialExcelDto.class);
+                List<CraftMaterialExcelDto> list = BeanUtil.copyToList(dataList, CraftMaterialExcelDto.class);
                 ExcelUtils.exportExcel(list, CraftMaterialExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
                 break;
             }
         }
-
-
     }
 
     /**
@@ -335,6 +333,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.notEmptyLike("process_name", pageDto.getProcessName());
         queryWrapper.likeList("process_name", pageDto.getProcessNameList());
         queryWrapper.notEmptyLike("code", pageDto.getCode());
+        queryWrapper.notEmptyLike("brand_id", pageDto.getBrandCode());
         queryWrapper.notEmptyLike("component", pageDto.getComponent());
         queryWrapper.notEmptyLike("category_id", pageDto.getCategoryCode());
         queryWrapper.notEmptyLike("category_id", pageDto.getCategoryId());
@@ -345,7 +344,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.between("create_date", pageDto.getCreateDate());
         queryWrapper.orderByDesc(Opt.ofBlankAble(pageDto.getOrderBy()).orElse("create_date"));
 
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.componentLibrary.getK());
+        if (pageDto.getType() == ProcessDatabaseType.bjk) {
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.componentLibrary.getK());
+        }
         return queryWrapper;
     }
 

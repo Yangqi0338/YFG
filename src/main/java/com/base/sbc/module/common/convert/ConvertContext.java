@@ -19,6 +19,7 @@ public class ConvertContext {
     public static OrderBookConvert ORDER_BOOK_CV = OrderBookConvert.INSTANCE;
     public static ReplayConvert REPLAY_CV = ReplayConvert.INSTANCE;
     public static BIConvert BI_CV = BIConvert.INSTANCE;
+    public static PackConvert PACK_CV = PackConvert.INSTANCE;
     public static WorkloadRatingConvert WORKLOAD_CV = WorkloadRatingConvert.INSTANCE;
 
     @Autowired(required = false)
@@ -54,6 +55,11 @@ public class ConvertContext {
     @Autowired(required = false)
     public void setBiCv(BIConvert biCv) {
         BI_CV = biCv;
+    }
+
+    @Autowired(required = false)
+    public void setPackCv(PackConvert packCv) {
+        PACK_CV = packCv;
     }
 
     @Autowired(required = false)

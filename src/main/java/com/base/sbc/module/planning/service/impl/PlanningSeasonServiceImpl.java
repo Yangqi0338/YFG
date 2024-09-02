@@ -603,7 +603,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     public List<YearSeasonBandVo> queryYearBrandTree(YearSeasonBandVo vo) {
         // 查询波段
         if (vo.getLevel() == 1) {
-            Map<String, Long> sckCountMap = planningCategoryItemService.totalBandSkcByPlanningSeason(vo.getPlanningSeasonId());
+            Map<String, Long> sckCountMap = planningCategoryItemService.totalBandSkcByPlanningSeason(vo);
             return sckCountMap.entrySet().stream().map(b -> {
                 YearSeasonBandVo bv = BeanUtil.copyProperties(vo, YearSeasonBandVo.class);
                 bv.setLevel(2);
@@ -616,7 +616,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             qw.eq(COMPANY_CODE, getCompanyCode());
             qw.lambda().isNotNull(PlanningSeason::getYearName).isNotNull(PlanningSeason::getBrandName);
             qw.orderByDesc("year_name");
-            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType(), "", new String[]{"brand"}, true);
             //查询所有产品季
             List<PlanningSeason> seasonList = getBaseMapper().list(qw);
             if (CollUtil.isEmpty(seasonList)) {

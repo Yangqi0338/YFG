@@ -4,6 +4,7 @@
     <select id="queryPage" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo">
         select
         tsc.style_color_pic as pic,
+        tppp.pic as selfPic,
         tppp.*,
         tppd.prod_category1st_code,
         tppd.prod_category1st_name,

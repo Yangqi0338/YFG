@@ -61,6 +61,10 @@ public class PlanningProjectDimension {
     /** 波段编码 */
     @ApiModelProperty(value = "波段编码"  )
     private String bandCode;
+    @ApiModelProperty(value = "款式类别")
+    private String styleCategory;
+    @ApiModelProperty(value = "款式类别编码")
+    private String styleCategoryCode;
     /** 数量 */
     @ApiModelProperty(value = "数量"  )
     private String number;

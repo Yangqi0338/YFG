@@ -709,6 +709,8 @@ public class ExcelUtils {
                 jacksonObject.forEach(jsonObject::putIfAbsent);
             }
         }
+        jsonArray = JSONArray.parseArray(JSONObject.toJSONString(jsonArray));
+
         //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
         if (!mapColumns.isEmpty()) {
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -748,16 +750,18 @@ public class ExcelUtils {
                                 String type = entry.getValue();
 
                                 byte[] bytes;
-                                if(picMap.containsKey(imgColumn)){
+                                if (picMap.containsKey(imgColumn)) {
                                     bytes = picMap.get(imgColumn);
-                                }else{
+                                } else {
                                     String imgUrl;
-                                    if(StrUtil.isEmpty(type) || "stylePic".equals(type)){
+                                    if (StrUtil.isEmpty(type) || "stylePic".equals(type)) {
                                         //stylePic
                                         imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
-                                    }else {
+                                    } else if ("minio".equals(type)) {
                                         //minio
                                         imgUrl = minioUtils.getObjectUrl(jsonObject.getString(imgColumn));
+                                    } else {
+                                        imgUrl = jsonObject.getString(imgColumn);
                                     }
                                     bytes = HttpUtil.downloadBytes(imgUrl);
                                 }

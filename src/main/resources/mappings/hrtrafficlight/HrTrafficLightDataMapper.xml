@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.sbc.module.hrtrafficlight.mapper.HrTrafficLightDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.base.sbc.module.hrtrafficlight.entity.HrTrafficLightData">
+        <id column="id" property="id" />
+        <result column="hr_traffic_light_version_id" property="hrTrafficLightVersionId" />
+        <result column="column_name_one" property="columnNameOne" />
+        <result column="column_name_two" property="columnNameTwo" />
+        <result column="column_value" property="columnValue" />
+        <result column="row_idx" property="rowIdx" />
+        <result column="create_date" property="createDate" />
+        <result column="create_id" property="createId" />
+        <result column="create_name" property="createName" />
+        <result column="update_date" property="updateDate" />
+        <result column="update_id" property="updateId" />
+        <result column="update_name" property="updateName" />
+        <result column="del_flag" property="delFlag" />
+        <result column="company_code" property="companyCode" />
+    </resultMap>
+
+</mapper>

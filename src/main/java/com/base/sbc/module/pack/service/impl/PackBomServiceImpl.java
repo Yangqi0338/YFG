@@ -26,6 +26,7 @@ import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -42,27 +43,14 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.EasyExcelUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.TemplateExcelUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -79,56 +67,18 @@ import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
-import com.base.sbc.module.pack.dto.BomTemplateSaveDto;
-import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
-import com.base.sbc.module.pack.dto.PackBomColorDto;
-import com.base.sbc.module.pack.dto.PackBomDto;
-import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
-import com.base.sbc.module.pack.dto.PackBomSizeDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomColor;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
-import com.base.sbc.module.pack.service.PackBomColorService;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.BomSelMaterialVo;
-import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
-import com.base.sbc.module.pack.vo.PackBomColorVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
-import com.base.sbc.module.sample.dto.BomFabricDto;
-import com.base.sbc.module.sample.dto.FabricStyleDto;
-import com.base.sbc.module.sample.dto.FabricSummaryDTO;
-import com.base.sbc.module.sample.dto.FabricSummaryExportExcel;
-import com.base.sbc.module.sample.dto.FabricSummaryGroupDto;
-import com.base.sbc.module.sample.dto.FabricSummarySaveDTO;
-import com.base.sbc.module.sample.dto.FabricSummaryStyleDto;
-import com.base.sbc.module.sample.dto.FabricSummaryStyleSaveDto;
-import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
-import com.base.sbc.module.sample.vo.BomFabricVo;
-import com.base.sbc.module.sample.vo.FabricStyleGroupVo;
-import com.base.sbc.module.sample.vo.FabricStyleUpdateResultVo;
-import com.base.sbc.module.sample.vo.FabricStyleVo;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoExcel;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
-import com.base.sbc.module.sample.vo.FabricSummaryVO;
-import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
-import com.base.sbc.module.sample.vo.NeedUpdateVo;
+import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.vo.*;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
@@ -155,14 +105,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -274,6 +217,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Autowired
     private BasicsdatumMaterialColorService materialColorService;
+
+    @Autowired
+    @Lazy
+    private BasicsdatumBomTemplateService basicsdatumBomTemplateService;
 
     private final ReentrantLock saveLock = new ReentrantLock();
 
@@ -398,6 +345,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setDesignUnitUse(dto.getDesignUnitUse());
             BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
             updateById(db);
+            //特殊 判断这几个字段是否修改为空 为空时，设置置空
+            if (dto.getLossRate() == null || dto.getDesignUnitUse() == null || dto.getBulkUnitUse() == null) {
+                LambdaUpdateWrapper<PackBom> up = new LambdaUpdateWrapper<>();
+                up.set(PackBom::getLossRate, dto.getLossRate());
+                up.set(PackBom::getDesignUnitUse, dto.getDesignUnitUse());
+                up.set(PackBom::getBulkUnitUse, dto.getBulkUnitUse());
+                up.eq(PackBom::getId, db.getId());
+                update(up);
+            }
             packBom = db;
 
             /*替换物料时 当变更物料后（对应类型参照嘉威的业务配置字典），对用户进行提示
@@ -626,7 +582,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         long l1 = System.currentTimeMillis();
         Page<String> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper<Object> qw = new QueryWrapper();
-        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", bomFabricDto.getMaterialCodeName());
+        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", StrUtil.replace(bomFabricDto.getMaterialCodeName(), "_","\\_"));
         qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "pb.supplier_material_code", bomFabricDto.getMaterialCodeName());
         baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
         long l2 = System.currentTimeMillis();
@@ -1079,6 +1035,36 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return update(uw);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String updateVersion(PackBomPageSearchDto dto) {
+        PackBomVersion bomVersion = packBomVersionService.getById(dto.getBomVersionId());
+        if (null == bomVersion){
+            throw new OtherException("没有此版本号");
+        }
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        qw.lambda().eq(PackBom::getBomVersionId,bomVersion.getId());
+        qw.lambda().eq(PackBom::getPackType,dto.getPackType());
+        qw.lambda().eq(PackBom::getForeignId,dto.getForeignId());
+
+        List<PackBom> list = list(qw);
+        if (CollUtil.isEmpty(list)){
+            throw new OtherException("物料清单无数据，不需要更新版本");
+        }
+        bomVersion.setId(null);
+        PackBomVersionDto packBomVersionDto = BeanUtil.copyProperties(bomVersion, PackBomVersionDto.class);
+        packBomVersionDto.setId(null);
+        PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(packBomVersionDto);
+        packBomVersionService.enable(packBomVersionVo);
+        IdGen idGen = new IdGen();
+        for (PackBom packBom : list) {
+            packBom.setId(idGen.nextIdStr());
+            packBom.setBomVersionId(packBomVersionVo.getId());
+        }
+        saveBatch(list);
+        return packBomVersionVo.getId();
+    }
+
     /**
      * 物料bom是否还在使用
      * @param materialCode
@@ -1446,6 +1432,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
         }
         saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
+        BasicsdatumBomTemplate basicsdatumBomTemplate = basicsdatumBomTemplateService.getById(bomTemplateSaveDto.getBomTemplateId());
+        PackBomVersion version = packBomVersionService.checkVersion(bomTemplateSaveDto.getBomVersionId());
+        if (ObjectUtil.isNotEmpty(basicsdatumBomTemplate) && ObjectUtil.isNotEmpty(version)) {
+            Map<String, String> map = new HashMap<>();
+            map.put("引用BOM模板", "->模板名称：" + basicsdatumBomTemplate.getName());
+            this.saveOperaLog("引用BOM模板", version.getForeignId(), version.getPackType(), "物料清单", style.getDesignNo(), style.getDesignNo(), map);
+        }
         return true;
     }
 
@@ -1694,6 +1687,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, foreignId, packType, null);
         qw.eq("bom_version_id", bomVersionId);
+        qw.orderByAsc("sort").orderByAsc("id");
         List<PackBom> list = list(qw);
         return BeanUtil.copyToList(list, PackBomVo.class);
     }

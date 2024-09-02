@@ -8,9 +8,11 @@ package com.base.sbc.module.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
@@ -46,7 +48,13 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
@@ -60,6 +68,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +87,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -117,8 +127,10 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 
     @Autowired
     private StyleMapper styleMapper;
+    @Lazy
     @Autowired
     private StyleService styleService;
+    @Lazy
     @Autowired
     private StylePicService stylePicService;
     @Autowired
@@ -136,6 +148,17 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     private CustomStylePicUpload customStylePicUpload;
     @Autowired
     private StylePicUtils stylePicUtils;
+    @Autowired
+    private PlanningProjectPlankService planningProjectPlankService;
+    @Lazy
+    @Autowired
+    private PlanningProjectService planningProjectService;
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
+    @Autowired
+    private RedisUtils redisUtils;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Autowired
     private RedisUtils redisUtils;
@@ -151,14 +174,15 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     public AttachmentVo uploadToMinio(MultipartFile file, UploadFileType type, String code) {
         try {
             String md5Hex = DigestUtils.md5DigestAsHex(file.getInputStream());
-            String objectName = "";
-            String extName = FileUtil.extName(file.getOriginalFilename());
+            String objectName;
+            String filename = file.getOriginalFilename();
+            String extName = FileUtil.extName(filename);
             if (StrUtil.isBlank(extName)) {
                 throw new OtherException("文件无后缀名");
             }
             if (type != null) {
                 List<String> accessSuffix = type.getAccessSuffix();
-                String suffix = FileUtil.extName(file.getOriginalFilename()).toLowerCase();
+                String suffix = FileUtil.extName(filename).toLowerCase();
                 if (CollUtil.isNotEmpty(accessSuffix)) {
                     if (accessSuffix.stream().noneMatch(it -> it.toLowerCase().equals(suffix))) {
                         throw new OtherException(" 文件格式只支持:" + String.join(COMMA, accessSuffix));
@@ -175,7 +199,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 //                                sourceMaterialPath.append(s).append("/");
 //                            }
 //                        }
-//                        objectName =   sourceMaterialPath.toString()  + System.currentTimeMillis() + "." + extName;
+
                         objectName = getSourceMaterialFileName(code) + "." + extName;
                         break;
                     /*商品企划图 t_planning_category_item.style_pic */
@@ -245,22 +269,49 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         break;
                     case ingredientsAtactiform:
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
-                    case account:
-                        objectName = "Account/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    case replayRating:
-                    case replayRatingFile:
-                        objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
-                                .append(type)
-                                .append(StrUtil.split(code, COMMA))
-                                .append(System.currentTimeMillis())
-                                .toString();
+                    case Account:
+                        objectName = "Account/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     case markingOrderUpload:
                         objectName = "ErrorMsg/markingOrder/" + code + "." + extName;
                         break;
+                    // /企划看板模块名/品牌/年份/季节/坑位id.文件后缀
+                    case planningProjectPlank:
+                        if (StrUtil.isBlank(code)) {
+                            throw new OtherException("code 不能空");
+                        }
+                        PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(code);
+                        if (ObjectUtil.isEmpty(planningProjectPlank)) {
+                            throw new OtherException("坑位不存在！");
+                        }
+                        PlanningProject planningProject = planningProjectService.getById(planningProjectPlank.getPlanningProjectId());
+                        if (ObjectUtil.isEmpty(planningProject)) {
+                            throw new OtherException("企划看板信息不存在！");
+                        }
+                        PlanningSeason planningSeason = planningSeasonService.getById(planningProject.getSeasonId());
+                        if (ObjectUtil.isEmpty(planningSeason)) {
+                            throw new OtherException("对应的产品季不存在！");
+                        }
+
+                        objectName = "PlanningProjectPlank"
+                                + "/" + planningSeason.getBrandName()
+                                + "/" + planningSeason.getYearName()
+                                + "/" + planningSeason.getSeasonName()
+                                + "/" + code + "." + extName;
+                        break;
+                    case materialUpload:
+                        objectName = "ErrorMsg/material/" + code + "." + extName;
+                        break;
+                    case replayRating:
+                    case replayRatingFile:
+                    case fittingReport:
                     default:
-                        objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName = StrJoiner.of("/").setNullMode(StrJoiner.NullMode.IGNORE)
+                                .append(type)
+                                .append(StrUtil.split(code, COMMA))
+                                .append(String.format("%s-%s.%s", FileUtil.mainName(filename), LocalDateTimeUtil.format(LocalDateTime.now(), "yyyyMMddHHmmss"), extName))
+                                .toString();
                 }
             } else {
                 objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
@@ -271,7 +322,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             UploadFile newFile = new UploadFile();
             newFile.setMd5(md5Hex);
             newFile.setUrl(url);
-            newFile.setName(file.getOriginalFilename());
+            newFile.setName(filename);
             newFile.setType(contentType);
             newFile.setStorage("minio");
             newFile.setStatus(BaseGlobal.STATUS_NORMAL);
@@ -722,6 +773,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
      * @return
      */
     private String getSourceMaterialFileName(String code) {
+
         String prefix = "DesignMaterial";
         //工号
         String username = userUtils.getUserCompany().getUsername();

@@ -657,6 +657,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     CategoryPlanningDetails::getProdCategory2ndName,
                     CategoryPlanningDetails::getDimensionName,
                     CategoryPlanningDetails::getDimensionCode,
+                    CategoryPlanningDetails::getStyleCategory,
                     CategoryPlanningDetails::getSkcCount,
                     CategoryPlanningDetails::getTotal
             );
@@ -669,6 +670,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     + "-" + item.getProdCategory2ndName()
                                     + "-" + item.getDimensionName()
                                     + "-" + item.getBandName()
+                                    + "-" + item.getStyleCategory()
                             , LinkedHashMap::new, Collectors.toList()
                     ));
 
@@ -678,6 +680,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                 CategoryPlanningDetails totalCategoryPlanningDetails = new CategoryPlanningDetails();
                 totalCategoryPlanningDetails.setSkcCount(categoryPlanningDetails.getSkcCount());
                 totalCategoryPlanningDetails.setBandName(categoryPlanningDetails.getBandName());
+                totalCategoryPlanningDetails.setStyleCategory(categoryPlanningDetails.getStyleCategory());
+                totalCategoryPlanningDetails.setStyleCategoryCode(categoryPlanningDetails.getStyleCategoryCode());
                 totalCategoryPlanningDetails.setProdCategory1stName(categoryPlanningDetails.getProdCategory1stName());
                 totalCategoryPlanningDetails.setProdCategoryName(categoryPlanningDetails.getProdCategoryName());
                 totalCategoryPlanningDetails.setProdCategory2ndName(categoryPlanningDetails.getProdCategory2ndName());
@@ -785,8 +789,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         // 初始化 数据
         {
             assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, queryList);
-            queryWrapper.select(CategoryPlanningDetails::getBandName);
-            queryWrapper.groupBy(CategoryPlanningDetails::getBandName);
+            queryWrapper.select(CategoryPlanningDetails::getBandName,CategoryPlanningDetails::getStyleCategory);
+            queryWrapper.groupBy(CategoryPlanningDetails::getBandName, CategoryPlanningDetails::getStyleCategory);
             List<CategoryPlanningDetails> groupByBandList = list(queryWrapper);
             if (ObjectUtil.isNotEmpty(groupByBandList)) {
                 // 增加合计的数据
@@ -956,6 +960,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     planningProjectPlank.setMatchingStyleStatus("0");
                     planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                     planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                    planningProjectPlank.setStyleCategory(planningProjectDimension.getStyleCategory());
+                    planningProjectPlank.setStyleCategoryCode(planningProjectDimension.getStyleCategoryCode());
                     planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
                     planningProjectPlanks.add(planningProjectPlank);
                 }
@@ -1331,6 +1337,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         planningProjectDimension.setPlanningProjectId(planningProject.getId());
         planningProjectDimension.setBandName(planningDetails.getBandName());
         planningProjectDimension.setBandCode(planningDetails.getBandCode());
+        planningProjectDimension.setStyleCategory(planningDetails.getStyleCategory());
+        planningProjectDimension.setStyleCategoryCode(planningDetails.getStyleCategoryCode());
         planningProjectDimension.setNumber(planningDetails.getNumber());
         planningProjectDimension.setProdCategory1stCode(planningDetails.getProdCategory1stCode());
         planningProjectDimension.setProdCategory1stName(planningDetails.getProdCategory1stName());

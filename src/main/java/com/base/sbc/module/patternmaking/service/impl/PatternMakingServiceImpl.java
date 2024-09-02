@@ -397,6 +397,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getReceiveSampleDate, dto.getDesignReceiptDate());
+        this.update(updateWrapper);
+    }
+
+    @Override
     public SampleBoardVo getWorkloadById(String id) {
         PatternMaking patternMaking = this.findRequiredFieldById(id,
                 PatternMaking::getWorkloadRatingId, PatternMaking::getStyleId, PatternMaking::getSecondProcessing,
@@ -1846,6 +1854,35 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);
         sort(byId, false);
+        return true;
+    }
+
+    @Override
+    public boolean savePatternMaking(AssignmentUserDto dto) {
+        PatternMaking byId = getById(dto.getId());
+        if (byId == null) {
+            throw new OtherException("任务不存在");
+        }
+        if (!StrUtil.equals(byId.getNode(), EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT.getNode()) ||
+                !StrUtil.equals(byId.getStatus(), EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT.getStatus())
+        ) {
+            throw new OtherException("节点不匹配");
+        }
+        if (StrUtil.isNotEmpty(dto.getSampleBarCode())) {
+            /*查询样衣码是否重复*/
+            checkSampleBarcodeRepeat(new SetSampleBarCodeDto(dto.getId(),dto.getSampleBarCode()));
+        }
+        byId.setStitcher(dto.getStitcher());
+        byId.setStitcherId(dto.getStitcherId());
+        byId.setSglKitting(dto.getSglKitting());
+        byId.setSampleBarCode(dto.getSampleBarCode());
+        byId.setSglKittingDate(new Date());
+        byId.setStitcherRemark(dto.getStitcherRemark());
+        byId.setKittingReason(dto.getKittingReason());
+        byId.setKittingReasonName(dto.getKittingReasonName());
+        if (!updateById(byId)) {
+            throw new OtherException("暂存失败");
+        }
         return true;
     }
 

@@ -78,6 +78,7 @@
 
             </otherwise>
         </choose>
+        LEFT JOIN t_style_color tsc ON tpi.style_color_id = tsc.id
         LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
         <where>
@@ -692,6 +693,20 @@
                     tssc.del_flag = 0
                     AND tssc.company_code = #{dto.companyCode}
                 </if>
+                <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
+                    AND
+                    (
+                    <foreach collection="dto.bulkStyleNos" item="item" index="index" separator="or">
+                        tssc.style_no like concat('%',#{item},'%')
+                    </foreach>
+                    )
+                </if>
+                <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                    and tsd.devt_type_name = #{dto.produceTypeName}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    AND tsd.planning_season_id = #{dto.planningSeasonId}
+                </if>
                 <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                     and pack_type = 'packBigGoods'
                 </if>
@@ -705,11 +720,8 @@
         CONCAT( tsd.design_no, tsd.style_name ) AS style,
         tsd.id as styleId,
         tpi.id as packInfoId,
-        tsd.devt_type AS produceType,
-        tsd.devt_type AS devtType,
         tsd.receive_dept_id AS receiveDeptId,
         tsd.style_type AS styleType,
-        tsd.devt_type_name AS produceTypeName,
         tsd.style_type_name AS styleTypeName,
         tsd.size_range AS modelType,
         tsd.size_range_name AS modelTypeName,
@@ -718,6 +730,9 @@
         tsd.year AS year,
         tsd.season AS season,
         tsd.brand_name AS brandName,
+        tssc.devt_type AS produceType,
+        tssc.devt_type AS devtType,
+        tssc.devt_type_name AS produceTypeName,
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -746,6 +761,7 @@
                 LEFT JOIN t_pack_info_status ps ON ( tpi.id = ps.foreign_id AND ps.del_flag = '0' )
                 LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id )
                 LEFT JOIN t_hang_tag ht ON tpi.design_no = ht.bulk_style_no
+                LEFT JOIN t_style_color tssc ON tssc.id = tpi.style_color_id
             </when>
             <otherwise>
                 t_style_color tssc
@@ -891,6 +907,20 @@
                 <if test="dto.selectType == null or dto.selectType == ''">
                     tssc.del_flag = 0
                     AND tssc.company_code = #{dto.companyCode}
+                </if>
+                <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
+                    AND
+                    (
+                    <foreach collection="dto.bulkStyleNos" item="item" index="index" separator="or">
+                        tssc.style_no like concat('%',#{item},'%')
+                    </foreach>
+                    )
+                </if>
+                <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                    and tsd.devt_type_name = #{dto.produceTypeName}
+                </if>
+                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                    AND tsd.planning_season_id = #{dto.planningSeasonId}
                 </if>
                 <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                     and pack_type = 'packBigGoods'
@@ -1124,7 +1154,6 @@
         tsd.designer as designer,
         tsd.pattern_design_name as patternDesign,
         tsd.planning_season_id as planningSeasonId,
-        tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
         tsd.prod_category1st as prodCategory1st,
         tsd.dev_class as devClass,
@@ -1133,6 +1162,7 @@
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
+                tsd.devt_type_name as produceTypeName,
             </when>
             <otherwise>
                 tssc.style_no AS bulkStyleNo,
@@ -1140,8 +1170,10 @@
                 tssc.color_code AS colorCode,
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
+                tssc.is_defective,
                 tssc.style_color_pic ,
                 tssc.bom_status ,
+                tssc.devt_type_name as produceTypeName,
             </otherwise>
         </choose>
 

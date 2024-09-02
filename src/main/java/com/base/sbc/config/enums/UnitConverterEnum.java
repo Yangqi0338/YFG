@@ -13,8 +13,9 @@ import java.util.HashMap;
 public enum UnitConverterEnum {
     /**/
     KILOMETER("km(千米)", "a / 1000"),
-    METER("米"),
-    PIECE("件"),
+    METER("米", "a"),
+    PIECE("件", "a * 1"),
+    HECTOMETER("百米", "a / 100"),
     PERCENT("百分比", "a / 100"),
     SOURCE("原值"),
     ;

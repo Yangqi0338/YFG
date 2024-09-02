@@ -2,9 +2,9 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -89,7 +89,6 @@ import com.base.sbc.module.smp.impl.SaleProductIntoService;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
 import com.base.sbc.module.tasklist.dto.TaskListDTO;
-import com.base.sbc.module.tasklist.entity.TaskList;
 import com.base.sbc.module.tasklist.entity.TaskListDetail;
 import com.base.sbc.module.tasklist.enums.TaskListDetailSyncResultEnum;
 import com.base.sbc.module.tasklist.enums.TaskListTaskStatusEnum;
@@ -119,6 +118,7 @@ import java.util.stream.Collectors;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
+import static com.base.sbc.module.common.utils.AttachmentTypeConstant.MATERIAL_FITTING_REPORT;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -512,9 +512,7 @@ public class SmpService {
 
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
-                    if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName())
-                            || "StylePursuit".equals(m.getFieldName()) || "StyleRegion".equals(m.getFieldName())
-                            || "StyleFashion".equals(m.getFieldName()) || "styleScene".equals(m.getFieldName()) || "distributionChannel".equals(m.getFieldName())) {
+                    if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName()) || "StylePursuit".equals(m.getFieldName()) || "StyleRegion".equals(m.getFieldName()) || "StyleFashion".equals(m.getFieldName()) || "styleScene".equals(m.getFieldName()) || "distributionChannel".equals(m.getFieldName())) {
                         GoodsDynamicFieldDto goodsDynamicFieldDto = BeanUtil.copyProperties(m, GoodsDynamicFieldDto.class);
                         goodsDynamicFieldDtos.add(goodsDynamicFieldDto);
                     }
@@ -585,9 +583,9 @@ public class SmpService {
                 smpGoodsDto.setGarmentWash(oldFvMap.get("GarmentWash"));
             }
 
-            // 生产类型
-            smpGoodsDto.setProductionType(style.getDevtType());
-            smpGoodsDto.setProductionTypeName(style.getDevtTypeName());
+            //生产类型
+            smpGoodsDto.setProductionType(styleColor.getDevtType().getCode());
+            smpGoodsDto.setProductionTypeName(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
@@ -778,8 +776,12 @@ public class SmpService {
                         smpHangTagIngredientDTOList.add(hangTagIngredientDTO);
                     }
                 }
+                //吊牌打印过才下发温馨提示及执行标准
+                if (hangTag.getPrintOrNot().equals("1")) {
+                    smpGoodsDto.setExecuteStandard(hangTag.getExecuteStandard());
+                    smpGoodsDto.setWarmTips(hangTag.getWarmTips());
+                }
                 smpGoodsDto.setHangTagIngredientList(smpHangTagIngredientDTOList);
-
             }
             // endregion
 
@@ -787,14 +789,7 @@ public class SmpService {
             //     return null;
             // }
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "商品主数据下发"),
-                    Pair.of("code", smpGoodsDto.getCode()),
-                    Pair.of("name", smpGoodsDto.getColorName()),
-                    Pair.of("businessId", smpGoodsDto.getId()),
-                    Pair.of("businessCode", smpGoodsDto.getTargetBusinessSystem())
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString, Pair.of("moduleName", "smp"), Pair.of("functionName", "商品主数据下发"), Pair.of("code", smpGoodsDto.getCode()), Pair.of("name", smpGoodsDto.getColorName()), Pair.of("businessId", smpGoodsDto.getId()), Pair.of("businessCode", smpGoodsDto.getTargetBusinessSystem()));
             if (httpResp.isSuccess()) {
                 i++;
                 styleColor.setScmSendFlag("1");
@@ -858,10 +853,7 @@ public class SmpService {
                 Set<String> goodsMsgSet = goodsMsgMap.keySet();
                 // 将一部分不需要下发的数据 存在任务列表详情中 状态时成功
                 List<String> styleNoList = styleColors.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
-                List<StyleColor> styleColorList = styleColorService.list(
-                        new LambdaQueryWrapper<StyleColor>()
-                                .in(StyleColor::getStyleNo, goodsMsgSet)
-                );
+                List<StyleColor> styleColorList = styleColorService.list(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleNo, goodsMsgSet));
                 for (StyleColor styleColor : styleColorList) {
                     if (!styleNoList.contains(styleColor.getStyleNo())) {
                         TaskListDetail taskListDetail = new TaskListDetail();
@@ -873,12 +865,10 @@ public class SmpService {
                     }
                 }
                 taskList.setTaskListDetailList(taskListDetailList);
-                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
-                        numberByKeyDay, taskListDetailList.size(), taskListDetailList.size() - (ids.length - i), ids.length - i);
+                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条", numberByKeyDay, taskListDetailList.size(), taskListDetailList.size() - (ids.length - i), ids.length - i);
                 taskList.setTaskContent(taskContent);
             } else {
-                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条",
-                        numberByKeyDay, ids.length, i, ids.length - i);
+                String taskContent = StrUtil.format("{}\r\n总共下发 {} 条\r\n成功下发 {} 条\r\n失败下发 {} 条", numberByKeyDay, ids.length, i, ids.length - i);
                 taskList.setTaskContent(taskContent);
                 taskList.setTaskListDetailList(taskListDetailList);
             }
@@ -887,6 +877,11 @@ public class SmpService {
             taskListService.saveTaskList(taskList);
         }
         return i;
+    }
+
+    @Async
+    public void materialsAsync(String[] ids) {
+        materials(ids);
     }
 
     /**
@@ -899,6 +894,12 @@ public class SmpService {
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.listByIds(Arrays.asList(ids));
         int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : list) {
+            Assert.notBlank(basicsdatumMaterial.getYear(), "年份不能为空");
+            Assert.notBlank(basicsdatumMaterial.getSeason(), "季节不能为空");
+            Assert.notBlank(basicsdatumMaterial.getWidthGroup(), "门幅/规格不能为空");
+            Assert.notBlank(basicsdatumMaterial.getProcMode(), "采购模式不能为空");
+            Assert.notBlank(basicsdatumMaterial.getPickingMethod(), "领料方式不能为空");
+            Assert.notBlank(basicsdatumMaterial.getStockUnitCode(), "库存单位不能为空");
             if (this.sendMaterials(basicsdatumMaterial)) {
                 i++;
             }
@@ -1038,14 +1039,21 @@ public class SmpService {
             }
             smpMaterialDto.setQuotList(quotList);
 
+            // 封装下发的接口
+            List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(smpMaterialDto.getId(), MATERIAL_FITTING_REPORT);
+            if (CollUtil.isNotEmpty(attachmentVoList)) {
+                smpMaterialDto.setFabricTestFileUrl(attachmentVoList.stream().map(AttachmentVo::getSourceUrl).collect(Collectors.toList()));
+            }
+
             String jsonString = JsonStringUtils.toJSONString(smpMaterialDto);
             // 获取事务
             transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
 
-            // 下发并记录推送日志
+            //下发并记录推送日志
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "物料主数据下发")
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","物料主数据下发"),
+                    Pair.of("code",basicsdatumMaterial.getMaterialCode())
             );
 
             // 修改状态为已下发
@@ -1134,20 +1142,6 @@ public class SmpService {
                 }
             }
 
-            // 校验规格是否存在
-            BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
-            queryDto1.setMaterialCode(packBom.getMaterialCode());
-            PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
-            if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
-                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
-            } else {
-                long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
-                if (count == 0) {
-                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
-                }
-            }
-
-
             /*判断供应商报价是否停用
              * 1.报次款无需校验供应商停用
              * 2.停用状态下的BOM物料无需要校验供应商停用
@@ -1157,6 +1151,23 @@ public class SmpService {
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
+
+            //如果是报次款，不校验门幅
+            if("0".equals(styleColor.getIsDefective())){
+                // 校验规格是否存在
+                BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
+                queryDto1.setMaterialCode(packBom.getMaterialCode());
+                PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
+                if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
+                } else {
+                    long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
+                    if (count == 0) {
+                        throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
+                    }
+                }
+            }
+
             String category2Code = "";
             if (materialMap.containsKey(packBom.getMaterialCode())) {
                 BasicsdatumMaterial basicsdatumMaterial = materialMap.get(packBom.getMaterialCode());
@@ -1222,10 +1233,26 @@ public class SmpService {
             // bomMaterials.add(bomMaterial);
             // smpBomDto.setBomMaterials(bomMaterials);
 
-
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()).eq("bom_version_id", packBom.getBomVersionId()))) {
-                packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
+                String msg = "";
+                if(StrUtil.isBlank(packBomSize.getSize())){
+                    msg+="未填写尺码;";
+                }
+                if(packBomSize.getQuantity() == null){
+                    msg+="未填写数量;";
+                    throw new OtherException("未填写数量");
+                }
+                //如果是报次款，不校验门幅
+                if("0".equals(styleColor.getIsDefective())){
+                    if(StrUtil.isBlank(packBomSize.getWidth())){
+                        msg+="未填写门幅/规格;";
+                    }
+                }
+                if(StrUtil.isNotBlank(msg)){
+                    throw new OtherException(msg);
+                }
+
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 // 根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
@@ -1234,9 +1261,12 @@ public class SmpService {
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
                     sizeQtyList.add(smpSizeQty);
                 }
-                // 校验物料规格 是否存在于t_basicsdatum_material_width表中
-                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
-                    throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                //如果是报次款，不校验门幅
+                if("0".equals(styleColor.getIsDefective())){
+                    // 校验物料规格 是否存在于t_basicsdatum_material_width表中
+                    if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
+                        throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                    }
                 }
             }
             if (sizeQtyList.isEmpty()) {
@@ -1247,8 +1277,7 @@ public class SmpService {
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
             smpBomDto.setRfidFlag(styleColor.getRfidFlag());
-            String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
-                    .eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
+            String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>().eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
             RFIDProperties.categoryRfidMapping.forEach((categoryCode, RFIDType) -> {
                 if (categoryCode.equals(category3Code)) {
                     smpBomDto.setRfidType(RFIDType.ordinal() + "");
@@ -1262,8 +1291,9 @@ public class SmpService {
 
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "bom下发")
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","bom下发"),
+                    Pair.of("code",smpBomDto.getBulkNumber()+"-"+smpBomDto.getMaterialCode())
             );
 
             if (httpResp.isSuccess()) {
@@ -1331,8 +1361,11 @@ public class SmpService {
                 SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
                 String jsonString = JsonStringUtils.toJSONString(smpColorDto);
                 HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", jsonString,
-                        Pair.of("moduleName", "smp"),
-                        Pair.of("functionName", "颜色主数据下发")
+                        Pair.of("moduleName","smp"),
+                        Pair.of("functionName","颜色主数据下发"),
+                        Pair.of("code",smpColorDto.getColorCode()),
+                        Pair.of("name",smpColorDto.getColorName())
+
                 );
 
                 if (httpResp.isSuccess()) {
@@ -1365,8 +1398,9 @@ public class SmpService {
             smpProcessSheetDto.setId(id);
             String jsonString = JsonStringUtils.toJSONString(smpProcessSheetDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "工艺单下发")
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","工艺单下发"),
+                    Pair.of("code",smpProcessSheetDto.getBulkNumber())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1473,9 +1507,10 @@ public class SmpService {
             sampleBean.setC8_ProductSample_ProofingDesignerID(patternMaking.getPatternDesignerId());
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
             HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString,
-                    Pair.of("moduleName", "oa"),
-                    Pair.of("functionName", "样衣下发")
-            );
+                    Pair.of("moduleName","oa"),
+                    Pair.of("functionName","样衣下发"),
+                    Pair.of("code",patternMaking.getSampleBarCode())
+                    );
 
             if (httpResp.isSuccess()) {
                 i++;
@@ -1501,10 +1536,7 @@ public class SmpService {
             fabricCompositionDto.setIngredient(basicsdatumIngredient.getIngredient());
             fabricCompositionDto.setStatus(basicsdatumIngredient.getStatus());
             String jsonString = JsonStringUtils.toJSONString(fabricCompositionDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", jsonString,
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "面料成分名称码表下发")
-            );
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "面料成分名称码表下发"));
             if (!httpResp.isSuccess()) {
                 throw new OtherException(httpResp.getMessage());
             }
@@ -1522,8 +1554,9 @@ public class SmpService {
         param.setCode(param.getStyleNo());
         String jsonString = JsonStringUtils.toJSONString(param);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "修改尺码的时候验证")
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","修改尺码的时候验证"),
+                Pair.of("code",param.getStyleNo())
         );
         return httpResp.isSuccess();
     }
@@ -1534,8 +1567,9 @@ public class SmpService {
     public Boolean checkColorSize(PdmStyleCheckParam param) {
         String jsonString = JsonStringUtils.toJSONString(param);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "修改商品颜色的时候验证")
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","修改商品颜色的时候验证"),
+                Pair.of("code",param.getStyleNo()+"-"+param.getCode())
         );
         return httpResp.isSuccess();
     }
@@ -1570,8 +1604,10 @@ public class SmpService {
         }
         String jsonString = JsonStringUtils.toJSONString(checkMaterial);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "停用物料尺码和颜色的时候验证")
+                Pair.of("moduleName","scm"),
+                Pair.of("functionName","停用物料尺码和颜色的时候验证"),
+                Pair.of("code",checkMaterial.getMaterialCode()+"-"+checkMaterial.getCode())
+
         );
         if (!httpResp.isSuccess()) {
             throw new OtherException(httpResp.getMessage());
@@ -1587,8 +1623,9 @@ public class SmpService {
     public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto) {
         String jsonString = JsonStringUtils.toJSONString(updatePriceDto);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", jsonString,
-                Pair.of("moduleName", "smp"),
-                Pair.of("functionName", "修改吊牌价的时候验证")
+                Pair.of("moduleName","smp"),
+                Pair.of("functionName","修改吊牌价的时候验证"),
+                Pair.of("code",updatePriceDto.getBulkStyleNo())
         );
         return httpResp.isSuccess();
     }
@@ -1733,9 +1770,10 @@ public class SmpService {
             SampleBean sampleBean = smpSampleDto.toSampleBean();
             sampleBean.setColorway(colorway);
             String jsonString = JsonStringUtils.toJSONString(sampleBean);
-            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString,
-                    Pair.of("moduleName", "oa"),
-                    Pair.of("functionName", "样衣下发")
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask",jsonString,
+                    Pair.of("moduleName","oa"),
+                    Pair.of("functionName","样衣下发"),
+                    Pair.of("code",preProductionSampleTask.getSampleBarCode())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1758,9 +1796,10 @@ public class SmpService {
             tagCompositionDto.setComposition(hangTag.getIngredient());
             tagCompositionDto.setStyleNo(hangTag.getBulkStyleNo());
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition", jsonString,
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "下发吊牌成分")
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition",jsonString,
+                    Pair.of("moduleName","scm"),
+                    Pair.of("functionName","下发吊牌成分"),
+                    Pair.of("code",hangTag.getBulkStyleNo())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1824,8 +1863,9 @@ public class SmpService {
             }
             String jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString,
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "下发尺寸和外辅工艺明细数据")
+                    Pair.of("moduleName","scm"),
+                    Pair.of("functionName","下发尺寸和外辅工艺明细数据"),
+                    Pair.of("code",bomSizeAndProcessDto.getStyleNo())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1968,10 +2008,7 @@ public class SmpService {
         }
         String params = JSONArray.toJSONString(list);
 
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "下发吊牌和款式定价确认状态和时间数据")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌和款式定价确认状态和时间数据"));
 
         for (TagConfirmDateDto tagConfirmDateDto1 : list) {
             pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1));
@@ -1981,10 +2018,13 @@ public class SmpService {
     /**
      * 正确样下发
      */
+    @Async
     public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
         String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
         restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
                 Pair.of("moduleName", "scm"),
+                Pair.of("code", tagConfirmDateDto.getStyleNo()),
+                Pair.of("name", tagConfirmDateDto.getStyleNo()),
                 Pair.of("functionName", "下发吊牌和款式定价确认信息")
         );
     }
@@ -1994,10 +2034,7 @@ public class SmpService {
      */
     public void secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDtoList) {
         String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDtoList);
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString,
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "下发吊牌和款式定价确认信息")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌和款式定价确认信息"));
         if (!httpResp.isSuccess()) {
             throw new OtherException("同步失败");
         }
@@ -2179,8 +2216,9 @@ public class SmpService {
 
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
-                    Pair.of("moduleName", "smp"),
-                    Pair.of("functionName", "商品主数据下发-MANGO")
+                    Pair.of("moduleName","smp"),
+                    Pair.of("functionName","商品主数据下发-MANGO"),
+                    Pair.of("code",smpGoodsDto.getBulkNumber())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -2225,6 +2263,18 @@ public class SmpService {
         return saleProductIntoService.querySaleIntoPage(qw, total);
     }
 
+    public List<SalesData> queryMergeGoodsNoByGoodsNo(List<String> goodsNoList) {
+        return saleProductIntoService.queryMergeGoodsNoByGoodsNo(goodsNoList);
+    }
+
+    public List<SalesData> queryGoodsNoByMergeGoodsNo(List<String> mergeGoodsNoList) {
+        return saleProductIntoService.queryGoodsNoByMergeGoodsNo(mergeGoodsNoList);
+    }
+
+    public List<SalesData> querySalesNumAndProductionNumByGoodsNos(List<String> goodsNoList) {
+        return saleProductIntoService.querySalesNumAndProductionNumByGoodsNos(goodsNoList);
+    }
+
     /**
      * 查询相似款
      */
@@ -2248,10 +2298,7 @@ public class SmpService {
     public ApiResult<List<ScmProductionBudgetDto>> productionBudgetList(ScmProductionBudgetQueryDto productionBudgetQueryDto) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data", productionBudgetQueryDto);
-        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL.toString(), jsonObject.toJSONString(),
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "预算号查询")
-        );
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_APP_BILL_PRODUCTION_BUDGET_LIST_URL.toString(), jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "预算号查询"));
         ApiResult<List<ScmProductionBudgetDto>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(ScmProductionBudgetDto.class));
         result.setSuccess(httpResp.isSuccess());
         return result;
@@ -2263,12 +2310,7 @@ public class SmpService {
     public HttpResp saveFacPrdOrder(ScmProductionDto scmProductionDto) {
         JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(scmProductionDto));
         jsonObject.put("code", scmProductionDto.getOrderBookDetailId());
-        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(),
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "订货本一键投产"),
-                Pair.of("code", scmProductionDto.getOrderBookDetailId()),
-                Pair.of("name", scmProductionDto.getName())
-        );
+        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "订货本一键投产"), Pair.of("code", scmProductionDto.getOrderBookDetailId()), Pair.of("name", scmProductionDto.getName()));
     }
 
     /**
@@ -2278,12 +2320,26 @@ public class SmpService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNo", orderNo);
         jsonObject.put("loginName", loginName);
-        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(),
-                Pair.of("moduleName", "scm"),
-                Pair.of("functionName", "反审核投产单"),
-                Pair.of("code", orderNo),
-                Pair.of("name", loginName)
+        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(), Pair.of("moduleName", "scm"), Pair.of("functionName", "反审核投产单"), Pair.of("code", orderNo), Pair.of("name", loginName));
+    }
+
+    /**
+     * 剩余备料
+     */
+    public ApiResult<List<Scm1SpareMaterialDTO>> spareList(String materialNo, Integer spareType) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("materialNoList", Arrays.asList(materialNo.split(COMMA)));
+        jsonObject.put("spareType", Collections.singletonList(spareType));
+
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM1_SPARE_URL, jsonObject.toJSONString(),
+                Pair.of("moduleName", "scm1"),
+//                Pair.of("code", materialNo),
+                Pair.of("functionName", "剩余备料")
         );
+
+        ApiResult<List<Scm1SpareMaterialDTO>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(Scm1SpareMaterialDTO.class));
+        result.setSuccess(httpResp.isSuccess());
+        return result;
     }
 }
 

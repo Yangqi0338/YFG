@@ -9,6 +9,8 @@ package com.base.sbc.module.basicsdatum.controller;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
@@ -40,7 +42,6 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
-import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
 import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -48,7 +49,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -204,7 +204,7 @@ public class BasicsdatumMaterialController extends BaseController {
             @RequestParam(value = "status", required = false) String status) {
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>()
                 .select("id,material_name,material_code").eq("company_code", baseController.getUserCompany())
-                .like(StringUtils.isNotBlank(search), "material_code_name", search)
+                .like(StringUtils.isNotBlank(search), "material_code_name", StrUtil.replace(search, "_","\\_"))
                 .eq(StringUtils.isNotBlank(status), "status", status)
                 .eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK())
                 .eq("confirm_status", "2")
@@ -574,4 +574,14 @@ public class BasicsdatumMaterialController extends BaseController {
         escmMaterialCompnentInspectCompanyService.saveBatch(escmMaterialCompnentInspectCompanyDtoList,100);
         return null;
     }
+
+    @ApiOperation(value = "导入Excel批量")
+    @PostMapping("/importMaterial")
+    public ApiResult importMaterial(@RequestParam("file") MultipartFile file) throws Exception {
+        ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
+        List<Map<String, Object>> readAll = reader.readAll();
+
+        return basicsdatumMaterialService.importMaterial(readAll);
+    }
+
 }

@@ -17,8 +17,11 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.util.*;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -31,6 +34,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -43,7 +47,11 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -64,13 +72,65 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.dto.BomPrintVo;
+import com.base.sbc.module.pack.dto.CopyBomDto;
+import com.base.sbc.module.pack.dto.CreatePackInfoByStyleDto;
+import com.base.sbc.module.pack.dto.PackBomVersionDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackCopyDto;
+import com.base.sbc.module.pack.dto.PackInfoAssociationDto;
+import com.base.sbc.module.pack.dto.PackInfoDto;
+import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.dto.PackInfoSetPatternNoDto;
+import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
+import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomColor;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomColorService;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackBusinessOpinionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.PackProcessPriceService;
+import com.base.sbc.module.pack.service.PackSampleReviewService;
+import com.base.sbc.module.pack.service.PackSizeConfigService;
+import com.base.sbc.module.pack.service.PackSizeDetailService;
+import com.base.sbc.module.pack.service.PackSizeService;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
+import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoExcel;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
+import com.base.sbc.module.pack.vo.CopyItemsVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.vo.PackInfoStatusVo;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
+import com.base.sbc.module.pack.vo.PackSizeVo;
+import com.base.sbc.module.pack.vo.PricingSelectListVO;
+import com.base.sbc.module.pack.vo.StylePackInfoListVo;
+import com.base.sbc.module.pricing.entity.PricingTemplate;
+import com.base.sbc.module.pricing.entity.PricingTemplateItem;
+import com.base.sbc.module.pricing.service.PricingTemplateItemService;
+import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
@@ -89,6 +149,10 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -105,26 +169,26 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.MATERIAL_CREATE_PURCHASEDEMAND;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS_PRE;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：资料包 service类
@@ -141,6 +205,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
 // 自定义方法区 不替换的区域【other_start】
 
+    @Resource
+    @Lazy
+    private PricingTemplateItemService pricingTemplateItemService;
+    @Resource
+    @Lazy
+    private PricingTemplateService pricingTemplateService;
     @Resource
     private StyleService styleService;
 
@@ -246,6 +316,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Resource
     private FieldValService fieldValService;
+
+    @Autowired
+    @Lazy
+    private PackSizeDetailService packSizeDetailService;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -480,6 +554,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         //查看资料包信息是否存在
         PackInfo packInfo = this.getById(dto.getForeignId());
+        StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+        //检查ESCM难度
+        checkESCM(styleColor);
         try {
 
             if (packInfo == null) {
@@ -507,7 +584,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             if (issuedToExternalSmpSystemSwitch) {
                 /*查询物料*/
                 List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PACK_TYPE_DESIGN, version.getId());
-                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+//                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
                 /*判断是否使用rfid*/
                 if (StrUtil.equals(styleColor.getRfidFlag(), YesOrNoEnum.YES.getValueStr())) {
                     /*查询有没有RFID*/
@@ -551,9 +628,21 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packDesignStatus.setToBigGoodsDate(nowDate);
             packInfoStatusService.updateById(packDesignStatus);
-
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
-            //设置为已转大货
+//            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+            //只有不是反审并且不是报此款才触发
+            if (null == packDesignStatus.getToDesignDate() && !StrUtil.equals(BaseGlobal.YES,styleColor.getIsDefective())){
+                copyPackPre(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE, dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
+                PackInfoStatus packInfoStatusPre = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS_PRE);
+                if (!Objects.isNull(packInfoStatusPre)){
+                    packInfoStatusPre.setBomStatus(BasicNumber.ONE.getNumber());
+                    packInfoStatusPre.setToBigGoodsDate(nowDate);
+                    packInfoStatusPre.setDelFlag("1");
+                    packInfoStatus.setTechSpecVideoFileId(packInfoStatusPre.getTechSpecVideoFileId());
+                    packInfoStatusService.updateById(packInfoStatusPre);
+                }
+            }
+  //设置为已转大货
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
             packInfoStatus.setToBigGoodsDate(nowDate);
@@ -563,7 +652,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
 
             /*配饰款会下发大货阶段的物料*/
-            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+
             if (StrUtil.equals(styleColor.getIsDefective(), BaseGlobal.YES)) {
                 List<PackBom> packBomList = packBomService.list(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
                 if(CollUtil.isNotEmpty(packBomList)){
@@ -968,6 +1057,18 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 }
                 // 版本有几个物料信息
                 Long versionBomCount = packBomService.countByVersion(packBomVersion1.getId());
+                // 查询版本最后一个数据的排序值
+                int targetSort = 0;
+                PackBom packBom = packBomService.getOne(new LambdaQueryWrapper<PackBom>()
+                        .eq(PackBom::getForeignId, dto.getTargetForeignId())
+                        .eq(PackBom::getPackType, dto.getTargetPackType())
+                        .eq(PackBom::getBomVersionId, packBomVersion1.getId())
+                        .orderByDesc(PackBom::getSort)
+                        .last("limit 1")
+                );
+                if (ObjectUtil.isNotEmpty(packBom)) {
+                    targetSort = packBom.getSort();
+                }
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
                 if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
                     /*覆盖先删除再新增*/
@@ -1025,7 +1126,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
                         bom.setCode(null);
-                        bom.setSort(Math.toIntExact(versionBomCount+(i+1)));
+                        bom.setSort(Math.toIntExact(targetSort+(i+1)));
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
@@ -1187,6 +1288,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public boolean updatePackInfo(PackInfoDto packInfo) {
+        PackInfo oldPackInfo = getById(packInfo.getId());
+        oldPackInfo.setName(packInfo.getName());
+        oldPackInfo.setPatternNo(packInfo.getPatternNo());
+        return updateById(oldPackInfo);
+    }
+
+    @Override
     public AttachmentVo saveVideoFile(String foreignId, String packType, String fileId) {
         PackInfoStatus packInfoStatus = packInfoStatusService.get(foreignId, packType);
         UpdateWrapper<PackInfoStatus> uw = new UpdateWrapper<>();
@@ -1287,6 +1398,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
+    public String getByIdBrandName(String id) {
+        PackInfo byId = getById(id);
+        if (null == byId){
+            return null;
+        }
+        Style style = styleService.getById(byId.getForeignId());
+        return Objects.isNull(style) ? null : style.getBrandName();
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);
@@ -1339,6 +1460,39 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         this.saveOperaLog("关联大货款号", dto.getName(), packInfo.getName(), packInfo.getCode(), map);
         color.setBom(packInfo.getCode());
         styleColorMapper.updateById(color);
+
+        // 修改核价模板 使用款式配色信息中的生产类型
+        // 查询核价模板
+        QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("devt_type", color.getDevtType());
+        queryWrapper.eq("default_flag", BaseGlobal.YES);
+        List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
+        if (!CollUtil.isEmpty(list)) {
+            PricingTemplate pricingTemplate = list.get(0);
+            Map<String, Object> hashMap = new HashMap<>();
+            /*获取核价的字段*/
+            List<PricingTemplateItem> itemServiceByList = pricingTemplateItemService.list(new QueryWrapper<PricingTemplateItem>().eq("pricing_template_id", pricingTemplate.getId()));
+            itemServiceByList.forEach(f ->{
+                hashMap.put(f.getName(),StrUtil.isNotBlank(f.getDefaultNum())?f.getDefaultNum():0);
+
+            });
+            hashMap.put("currencyCode", "");
+            hashMap.put("pricingTemplateId", pricingTemplate.getId());
+            hashMap.put("pricingTemplateName", pricingTemplate.getTemplateName());
+            hashMap.put("costPrice", 0);
+
+            // 查询核价信息
+            PackPricing packPricing = packPricingService.getOne(
+                    new LambdaQueryWrapper<PackPricing>()
+                            .eq(PackPricing::getForeignId, packInfo.getId())
+            );
+            packPricing.setCalcItemVal(JSON.toJSONString(hashMap));
+            packPricing.setPricingTemplateId(pricingTemplate.getId());
+            packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
+            packPricingService.updateById(packPricing);
+        }
+
+
         return true;
     }
 
@@ -1362,7 +1516,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.in("scm_send_flag", StringUtils.convertList("1,3"));
         List<PackBom> packBomList = packBomService.list(qw);
         if (CollUtil.isNotEmpty(packBomList)) {
-            throw new OtherException("物料清单存在已下发数据无法取消");
+            throw new OtherException("物料清单中存在已下发的物料，则不允许换绑");
         }
 
         QueryWrapper queryWrapper = new QueryWrapper();
@@ -1371,9 +1525,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
         /*验证是否下发*/
         if (color != null) {
-            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
-                throw new OtherException("数据存在已下发");
-            }
+//            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
+//                throw new OtherException("数据存在已下发");
+//            }
             color.setBom("");
             styleColorMapper.updateById(color);
         }
@@ -1438,6 +1592,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 designPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
                 designPs.setPostTechConfirm(BaseGlobal.NO);
                 designPs.setDesignTechConfirmDate(null);
+                designPs.setTechSpecVideoFileId(bigGoodsPs.getTechSpecVideoFileId());
 
 
             }
@@ -1479,7 +1634,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"p.style_no",StringUtils.convertList(pageDto.getStyleNo()));
         sdQw.isNotNull("p.style_no");
         sdQw.ne("p.style_no","");
-        sdQw.notEmptyEq("sd.devt_type", pageDto.getDevtType());
+        sdQw.notEmptyEq("sc.devt_type", pageDto.getDevtType());
         sdQw.orderByDesc("p.create_date");
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK(),"sd.");
@@ -1683,6 +1838,57 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         }
         packPricing.setCalcItemVal(JSON.toJSONString(jsonObject));
         packPricingService.updateById(packPricing);
+    }
+
+
+    private void copyPackPre(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg,String flag) {
+
+
+        //图样附件
+        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag,"");
+        //尺寸表
+        packSizeConfigService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        //工艺说明
+        packTechSpecService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        // 工艺说明包装方式
+        packTechPackagingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        packSizeConfigService.del(sourceForeignId,sourcePackType);
+        packSizeService.del(targetForeignId, sourcePackType);
+        packTechSpecService.del(targetForeignId, sourcePackType);
+        packTechPackagingService.del(targetForeignId, sourcePackType);
+    }
+
+    private void checkESCM(StyleColor styleColor) {
+        Style style = styleService.getById(styleColor.getStyleId());
+        String value = ccmFeignService.queryCompanySettingData("NDKK_BRAND");
+
+        if (StringUtils.isEmpty(value)){
+            return;
+        }
+        if (!value.contains(style.getBrand())){
+            return;
+        }
+
+        if (!"cmt".equalsIgnoreCase(styleColor.getDevtType().name())){
+            return;
+        }
+        if ("1".equals(styleColor.getIsDefective())){
+            return;
+        }
+
+
+        //配饰大类的不检查
+        if ("A05".equals(style.getProdCategory1st())){
+            return;
+        }
+
+        if (StringUtils.isEmpty(styleColor.getStyleDifficulty()) ||
+                StringUtils.isEmpty(styleColor.getFabricDifficulty()) ||
+                StringUtils.isEmpty(styleColor.getProcessDifficulty())){
+            throw new OtherException("款式难度、面料难度、工艺难度为必填字段，请前往ESCM风险评估填写！",19001);
+        }
+
     }
 
 // 自定义方法区 不替换的区域【other_end】

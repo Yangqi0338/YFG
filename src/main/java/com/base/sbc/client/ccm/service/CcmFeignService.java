@@ -9,13 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.client.ccm.entity.BasicBaseDict;
-import com.base.sbc.client.ccm.entity.BasicDictDepend;
-import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
-import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
-import com.base.sbc.client.ccm.entity.BasicStructureTree;
-import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
-import com.base.sbc.client.ccm.entity.BasicUnitConfig;
+import com.base.sbc.client.ccm.entity.*;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -23,8 +17,10 @@ import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.Arrays;
