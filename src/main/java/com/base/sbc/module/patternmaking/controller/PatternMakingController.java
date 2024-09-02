@@ -218,7 +218,7 @@ public class PatternMakingController {
 
     @ApiOperation(value = "款式设计下发", notes = "打版指令从款式设计下发到技术中心看板")
     @PostMapping("/sampleDesignSend")
-    @MessageTrigger(value = "sampleDesignSend", code = "send")
+    @MessageTrigger(value = "xxzx-sampleDesignSend", code = "send")
     public ApiResult sampleDesignSend(@Valid @RequestBody StyleSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);
     }
