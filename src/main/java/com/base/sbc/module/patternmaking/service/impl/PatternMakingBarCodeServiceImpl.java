@@ -12,6 +12,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -28,6 +29,7 @@ import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     @Lazy
     @Resource
     private SmpService smpService;
+    @Autowired
+    private UploadFileService uploadFileService;
 
     public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl, StylePicUtils stylePicUtils, PreProductionSampleTaskFobService preProductionSampleTaskFobService) {
         super();
@@ -249,6 +253,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        uploadFileService.setObjectUrlToList(list,"sampleUrl");
+
         return new PageInfo<>(list);
     }
 

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.vo;
 
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -127,4 +128,14 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
     private String prodCategory3rdName;
 
     private String season;
+    private String sampleFile;
+
+    private String sampleUrl;
+
+    public String getSampleUrl() {
+        if (StringUtils.isEmpty(sampleUrl)){
+            this.sampleUrl = getSampleFile();
+        }
+        return sampleUrl;
+    }
 }
