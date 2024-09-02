@@ -15,9 +15,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
@@ -78,6 +81,8 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
     @Lazy
     @Autowired
     private StyleColorService styleColorService;
+    @Autowired
+    private BasicsdatumModelTypeService basicsdatumModelTypeService;
 
     @Override
     public PageInfo<PackSizeVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -317,7 +322,13 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
 
         //获取尺寸表配置
         PackSizeConfigVo oldConfig = packSizeConfigService.getConfig(foreignId, openPackSizeDto.getPackType());
-        String productSizes = oldConfig.getProductSizes();
+
+        //查询号型类型
+        List<BasicsdatumModelType> basicsdatumModelTypes = basicsdatumModelTypeService.queryByCode(BaseConstant.DEF_COMPANY_CODE, oldConfig.getSizeRange());
+        if(CollUtil.isEmpty(basicsdatumModelTypes)) {
+            return ApiResult.error("号型类型没有找到尺码信息",500);
+        }
+        String productSizes = basicsdatumModelTypes.get(0).getSize();
         List<String> productSizeList = Arrays.asList(productSizes.split(","));
 
         //校验对方修改的尺码表信息
@@ -335,6 +346,7 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
 
         //修改尺码表数据
         boolean washSkippingFlag = "1".equals(config.getWashSkippingFlag());
+        oldConfig.setProductSizes(productSizes);
         oldConfig.setWashSkippingFlag(config.getWashSkippingFlag());
         oldConfig.setSizeRange(config.getSizeRange());
         oldConfig.setSizeRangeName(config.getSizeRangeName());
