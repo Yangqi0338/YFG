@@ -9,7 +9,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -101,6 +105,15 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date updateDate;
+
+//    private List<WorkloadRatingConfigVO> ratingConfigList;
+//
+//    private WorkloadRatingDetailDTO ratingDetailDTO;
+//
+//    @JsonIgnore
+//    private Style styleEntity;
+//
+//    private String prodCategory;
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

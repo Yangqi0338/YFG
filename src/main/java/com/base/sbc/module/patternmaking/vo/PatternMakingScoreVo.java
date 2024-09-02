@@ -30,6 +30,10 @@ public class PatternMakingScoreVo {
     @ApiModelProperty(value = "版师工作量评分")
     private BigDecimal patternMakingScoreSum;
 
+    private BigDecimal workloadRatingBaseSum;
+    private BigDecimal workloadRatingRateSum;
+    private BigDecimal workloadRatingAppendSum;
+
     @ApiModelProperty(value = "需求数量")
-    private BigDecimal requirementNum;
+    private BigDecimal requirementNumSum;
 }

@@ -247,11 +247,11 @@ public class BigDecimalUtil {
 	 * @param objValue
 	 * @return BigDecimal
 	 */
-	public static BigDecimal convertBigDecimal(BigDecimal objValue) {
+	public static BigDecimal convertBigDecimal(Object objValue) {
 		if(objValue == null){
 			return BigDecimal.ZERO; 
 		}
-		return objValue;
+		return new BigDecimal(objValue.toString());
 	}
 	/**
 	 * 转换为String

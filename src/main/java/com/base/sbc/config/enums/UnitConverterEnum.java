@@ -16,6 +16,8 @@ public enum UnitConverterEnum {
     METER("米", "a"),
     PIECE("件", "a * 1"),
     HECTOMETER("百米", "a / 100"),
+    PERCENT("百分比", "a / 100"),
+    SOURCE("原值"),
     ;
     /** 编码 */
     @EnumValue
@@ -24,6 +26,10 @@ public enum UnitConverterEnum {
     private final String text;
     /** 可以通过的后缀 */
     private final String formula;
+
+    UnitConverterEnum(String text) {
+        this(text, "a");
+    }
 
     UnitConverterEnum(String text, String formula) {
         String code = this.name().toLowerCase();

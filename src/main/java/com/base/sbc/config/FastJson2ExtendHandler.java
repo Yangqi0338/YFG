@@ -32,6 +32,11 @@ public class FastJson2ExtendHandler extends MybatisPlusExtendHandler {
     }
 
     @Override
+    public Object parse(String json, Class<?> parameterType) {
+        return JSON.parseObject(json, parameterType);
+    }
+
+    @Override
     public Map<String, Object> parse(String json) {
         return JSON.parseObject(json, this.getFieldType());
     }

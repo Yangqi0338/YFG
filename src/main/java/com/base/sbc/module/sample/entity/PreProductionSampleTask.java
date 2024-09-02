@@ -326,6 +326,37 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     /** 创建部门 */
     @ApiModelProperty(value = "创建部门"  )
     private String createDeptId;
+
+    /**
+     * 评分详情id
+     */
+    @ApiModelProperty(value = "评分详情id")
+    private String workloadRatingId;
+
+    /**
+     * 二次加工
+     */
+    @ApiModelProperty(value = "二次加工")
+    private String secondProcessing;
+
+    /**
+     * 工作量基础分
+     */
+    @ApiModelProperty(value = "工作量基础分")
+    private BigDecimal workloadRatingBase;
+
+    /**
+     * 工作量面料分
+     */
+    @ApiModelProperty(value = "工作量面料分")
+    private BigDecimal workloadRatingRate;
+
+    /**
+     * 工作量附加分
+     */
+    @ApiModelProperty(value = "工作量附加分")
+    private BigDecimal workloadRatingAppend;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

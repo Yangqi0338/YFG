@@ -336,7 +336,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean patternMakingScore(Principal user, String id, BigDecimal score);
 
-    boolean sampleMakingScore(Principal user, String id, BigDecimal score);
+    boolean sampleMakingScore(PatternMakingDto dto);
 
     boolean setSampleBarCode(SetSampleBarCodeDto dto);
 
@@ -350,7 +350,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean patternMakingQualityScore(Principal user, String id, BigDecimal score);
 
-    boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score);
+    boolean sampleMakingQualityScore(String id, BigDecimal score);
 
     /**
      * 样衣工编辑
@@ -358,7 +358,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param dto
      * @return
      */
-    boolean sampleMakingEdit(Principal user,PatternMakingDto dto);
+    boolean sampleMakingEdit(PatternMakingDto dto);
 
     /**
      * 获取所有版师列表
@@ -428,6 +428,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     void updateDesignReceiptDate(PatternMakingDesignReceiptDto dto);
 
+    SampleBoardVo getWorkloadById(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

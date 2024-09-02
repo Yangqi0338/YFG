@@ -43,10 +43,19 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.DateUtils;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
@@ -65,18 +74,58 @@ import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
-import com.base.sbc.module.patternmaking.dto.*;
+import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
+import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingDesignReceiptDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
+import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
+import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
+import com.base.sbc.module.patternmaking.dto.ScoreConfigSearchDto;
+import com.base.sbc.module.patternmaking.dto.SetKittingDto;
+import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
+import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
+import com.base.sbc.module.patternmaking.dto.SetSortDto;
+import com.base.sbc.module.patternmaking.dto.StyleSendDto;
+import com.base.sbc.module.patternmaking.dto.SuspendDto;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.service.ScoreConfigService;
-import com.base.sbc.module.patternmaking.vo.*;
+import com.base.sbc.module.patternmaking.vo.NodeListVo;
+import com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo;
+import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingCommonPageSearchVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingScoreVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo;
+import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
+import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
+import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
+import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
+import com.base.sbc.module.patternmaking.vo.StyleResearchNodeVo;
+import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
+import com.base.sbc.module.patternmaking.vo.StyleStepVo;
+import com.base.sbc.module.patternmaking.vo.SuspendDateRecordVo;
+import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
+import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
+import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
+import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -95,7 +144,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -154,6 +212,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Lazy
     private PatternLibraryTemplateService patternLibraryTemplateService;
 
+    @Autowired
+    private WorkloadRatingDetailService workloadRatingDetailService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -344,6 +404,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.eq(PatternMaking::getId, dto.getId());
         updateWrapper.set(PatternMaking::getReceiveSampleDate, dto.getDesignReceiptDate());
         this.update(updateWrapper);
+    }
+
+    @Override
+    public SampleBoardVo getWorkloadById(String id) {
+        PatternMaking patternMaking = this.findRequiredFieldById(id,
+                PatternMaking::getWorkloadRatingId, PatternMaking::getStyleId, PatternMaking::getSecondProcessing,
+                PatternMaking::getIngredient
+        );
+        SampleBoardVo sampleBoardVo = BeanUtil.copyProperties(patternMaking, SampleBoardVo.class);
+        sampleBoardVo.setPatternMakingId(id);
+
+        styleService.warnMsg("未找到款式信息");
+        Style style = styleService.findOne(sampleBoardVo.getStyleId());
+
+        workloadRatingDetailService.decorateWorkloadRating(CollUtil.newArrayList(sampleBoardVo), (vo) -> style, SampleBoardVo::getWorkloadRatingId,
+                SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        sampleBoardVo.getRatingDetailDTO().setIngredient(patternMaking.getIngredient());
+        return sampleBoardVo;
     }
 
 
@@ -866,6 +944,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
+        // 查询样衣评分状态
+//        if ("sampleTask".equals(dto.getBusinessType()) && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+//            Map<String, Style> styleMap = styleService.listByIds(
+//                    list.stream().map(PatternMakingTaskListVo::getStyleId).collect(Collectors.toList())
+//            ).stream().collect(CommonUtils.toMap(Style::getId));
+//            list.forEach(it -> it.setStyle(styleMap.getOrDefault(it.getStyleId(), null)));
+//            workloadRatingDetailService.decorateWorkloadRating(list, PatternMakingTaskListVo::getStyle, PatternMakingTaskListVo::getWorkloadRatingId,
+//                    PatternMakingTaskListVo::setRatingProdCategory, PatternMakingTaskListVo::setRatingDetailDTO, PatternMakingTaskListVo::setRatingConfigList);
+//        }
         return objects.toPageInfo();
     }
 
@@ -1524,8 +1611,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
+
+        if (!StrUtil.equals(dto.getDeriveflag(), BaseGlobal.YES)) {
+            workloadRatingDetailService.decorateWorkloadRating(list, (vo) -> vo, SampleBoardVo::getWorkloadRatingId,
+                    SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
+        }
+
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+
         return pageVo;
     }
 
@@ -1540,6 +1634,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+
+        // 获取评分
+        Collection<SampleBoardExcel> ratingExcelList = CommonUtils.filterNotEmpty(excelList, SampleBoardExcel::getWorkloadRatingId);
+        List<String> workloadRatingIdList = ratingExcelList.stream().map(SampleBoardExcel::getWorkloadRatingId).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(workloadRatingIdList)) {
+            List<WorkloadRatingDetail> list = workloadRatingDetailService.listByIds(workloadRatingIdList);
+            ratingExcelList.forEach(excel -> {
+                list.stream().filter(it -> it.getId().equals(excel.getWorkloadRatingId())).findFirst().ifPresent(detail -> {
+                    excel.setAppend(new BigDecimal(detail.getExtend().getOrDefault("append", BigDecimal.ZERO).toString()));
+                    excel.setBase(new BigDecimal(detail.getExtend().getOrDefault("base", "0").toString()));
+                    excel.setRate(new BigDecimal(detail.getExtend().getOrDefault("rate", "0").toString()));
+                    excel.setRatingFabricName(detail.getFabricName());
+                    excel.setRatingOtherName(detail.getOtherName());
+                });
+            });
+        }
+
 
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
@@ -1988,16 +2099,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean patternMakingScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-        //校验是否是样衣组长
-//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-//        if (!sampleTeamLeader) {
-//            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
-//        }
+        checkUser(id, false);
         PatternMaking updateBean = new PatternMaking();
         updateBean.setPatternMakingScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -2007,16 +2109,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public boolean patternMakingQualityScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = this.getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-        // 校验是否是样衣组长
-        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-        if (!sampleTeamLeader) {
-            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
-        }
+        checkUser(id);
         PatternMaking updateBean = new PatternMaking();
         updateBean.setPatternMakingQualityScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -2025,22 +2118,33 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = this.getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-        // 校验是否是样衣组长
-        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-        if (!sampleTeamLeader) {
-            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
-        }
+    public boolean sampleMakingQualityScore(String id, BigDecimal score) {
+        checkUser(id);
         PatternMaking updateBean = new PatternMaking();
         updateBean.setSampleMakingQualityScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.lambda().eq(PatternMaking::getId, id);
         return update(updateBean, uw);
+    }
+
+    private PatternMaking checkUser(String id) {
+        return checkUser(id, true);
+    }
+
+    private PatternMaking checkUser(String id, boolean isCheckUser) {
+        PatternMaking bean = this.getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        if (isCheckUser) {
+            GroupUser groupUser = userUtils.getUserBy(null);
+            // 校验是否是样衣组长
+            boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+            if (!sampleTeamLeader) {
+                throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+            }
+        }
+        return bean;
     }
 
     /**
@@ -2052,38 +2156,38 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean sampleMakingEdit(Principal user, PatternMakingDto dto) {
+    public boolean sampleMakingEdit(PatternMakingDto dto) {
         /*样衣工的质量打分*/
-        sampleMakingQualityScore(user, dto.getId(), dto.getSampleMakingQualityScore());
+        sampleMakingQualityScore(dto.getId(), dto.getSampleMakingQualityScore());
         /*样衣制作评分*/
-        sampleMakingScore(user, dto.getId(), dto.getSampleMakingScore());
-        /*二次*/
-        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.lambda().set(PatternMaking::getSecondProcessing, dto.getSecondProcessing())
-                .eq(PatternMaking::getId, dto.getId());
-        update(uw);
-
+        sampleMakingScore(dto);
         return true;
     }
 
 
     @Override
-    public boolean sampleMakingScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-        // 校验是否是样衣组长
-        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-        if (!sampleTeamLeader) {
-            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
-        }
+    public boolean sampleMakingScore(PatternMakingDto dto) {
+        if (dto.getSampleMakingScore() == null || StrUtil.isBlank(dto.getWorkloadRatingId()))
+            throw new OtherException("样衣工作量评分必传参数异常");
+
+        String id = dto.getId();
+        checkUser(id);
+
         PatternMaking updateBean = new PatternMaking();
-        updateBean.setSampleMakingScore(score);
-        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.lambda().eq(PatternMaking::getId, id);
-        return update(updateBean, uw);
+        updateBean.setSampleMakingScore(dto.getSampleMakingScore());
+        updateBean.setSecondProcessing(dto.getSecondProcessing());
+        updateBean.setWorkloadRatingId(dto.getWorkloadRatingId());
+
+        WorkloadRatingDetailQO qo = new WorkloadRatingDetailQO();
+        qo.reset2QueryFirst();
+        qo.setIds(Collections.singletonList(dto.getWorkloadRatingId()));
+        WorkloadRatingDetailDTO detailDTO = workloadRatingDetailService.queryList(qo).stream().findFirst().orElseThrow(() -> new OtherException("未找到对应的评分详情"));
+
+        updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
+        updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
+        updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
+
+        return update(updateBean, new LambdaUpdateWrapper<PatternMaking>().eq(PatternMaking::getId, id));
     }
 
     @Override

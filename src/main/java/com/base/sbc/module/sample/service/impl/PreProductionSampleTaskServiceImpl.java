@@ -29,7 +29,12 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -57,6 +62,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -117,6 +123,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private SmpService smpService;
     @Autowired
     private AmcService amcService;
+
+    @Autowired
+    private WorkloadRatingDetailService workloadRatingDetailService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -252,6 +261,15 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 设置图
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
+
+//        if (false && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
+//            Map<String, Style> styleMap = styleService.listByIds(
+//                    list.stream().map(PreProductionSampleTaskVo::getStyleId).collect(Collectors.toList())
+//            ).stream().collect(CommonUtils.toMap(Style::getId));
+//            list.forEach(it -> it.setStyleEntity(styleMap.getOrDefault(it.getStyleId(), null)));
+//            workloadRatingDetailService.decorateWorkloadRating(list, PreProductionSampleTaskVo::getStyleEntity, PreProductionSampleTaskVo::getWorkloadRatingId,
+//                    PreProductionSampleTaskVo::setProdCategory, PreProductionSampleTaskVo::setRatingDetailDTO, PreProductionSampleTaskVo::setRatingConfigList);
+//        }
         PreProductionSampleTaskPageVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PreProductionSampleTaskPageVo.class);
         pageVo.setSumVo(taskListSum(qw));
         return pageVo;
@@ -603,37 +621,33 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     }
 
     @Override
-    public boolean sampleMakingScore(Principal user, String id, BigDecimal score) {
+    public boolean sampleMakingScore(PreProductionSampleTaskDto dto) {
+//        if (dto.getSampleMakingScore() == null || StrUtil.isBlank(dto.getWorkloadRatingId()))
+        if (dto.getSampleMakingScore() == null)
+            throw new OtherException("样衣工作量评分必传参数异常");
 
-        PreProductionSampleTask bean = getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-//        //校验是否是样衣组长
-//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-//        if(!sampleTeamLeader){
-//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
-//        }
+        String id = dto.getId();
+        checkUser(id);
         PreProductionSampleTask updateBean = new PreProductionSampleTask();
-        updateBean.setSampleMakingScore(score);
-        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
-        uw.lambda().eq(PreProductionSampleTask::getId, id);
-        return update(updateBean, uw);
+        updateBean.setSampleMakingScore(dto.getSampleMakingScore());
+        updateBean.setSecondProcessing(dto.getSecondProcessing());
+        updateBean.setWorkloadRatingId(dto.getWorkloadRatingId());
+
+//        WorkloadRatingDetailQO qo = new WorkloadRatingDetailQO();
+//        qo.reset2QueryFirst();
+//        qo.setIds(Collections.singletonList(dto.getWorkloadRatingId()));
+//        WorkloadRatingDetailDTO detailDTO = workloadRatingDetailService.queryList(qo).stream().findFirst().orElseThrow(() -> new OtherException("未找到对应的评分详情"));
+//
+//        updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
+//        updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
+//        updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
+
+        return update(updateBean, new LambdaUpdateWrapper<PreProductionSampleTask>().eq(PreProductionSampleTask::getId, id));
     }
 
     @Override
-    public boolean sampleQualityScore(Principal user, String id, BigDecimal score) {
-        PreProductionSampleTask bean = getById(id);
-        if (bean == null) {
-            throw new OtherException("打版信息为空");
-        }
-        GroupUser groupUser = userUtils.getUserBy(user);
-//        //校验是否是样衣组长
-//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-//        if(!sampleTeamLeader){
-//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
-//        }
+    public boolean sampleQualityScore(String id, BigDecimal score) {
+        checkUser(id, false);
         PreProductionSampleTask updateBean = new PreProductionSampleTask();
         updateBean.setSampleQualityScore(score);
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
@@ -687,6 +701,35 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
 
         return getBaseMapper().stitcherList(qw);
+    }
+
+    @Override
+    public boolean sampleMakingEdit(PreProductionSampleTaskDto dto) {
+        /*样衣工的质量打分*/
+        sampleQualityScore(dto.getId(), dto.getSampleQualityScore());
+        /*样衣制作评分*/
+        sampleMakingScore(dto);
+        return true;
+    }
+
+    private PreProductionSampleTask checkUser(String id) {
+        return checkUser(id, true);
+    }
+
+    private PreProductionSampleTask checkUser(String id, boolean isCheckUser) {
+        PreProductionSampleTask bean = this.getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        if (isCheckUser) {
+            GroupUser groupUser = userUtils.getUserBy(null);
+            // 校验是否是样衣组长
+            boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+            if (!sampleTeamLeader) {
+                throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+            }
+        }
+        return bean;
     }
 
 // 自定义方法区 不替换的区域【other_end】

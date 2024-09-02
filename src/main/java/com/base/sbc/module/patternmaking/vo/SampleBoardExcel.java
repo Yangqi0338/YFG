@@ -284,6 +284,21 @@ public class SampleBoardExcel {
     @Excel(name = "样衣工作量评分",type = 10)
     private BigDecimal sampleMakingScore;
 
+    @Excel(name = "样衣工作量面料名称")
+    private String ratingFabricName;
+
+    @Excel(name = "样衣工作量基础分", type = 10)
+    private BigDecimal base;
+
+    @Excel(name = "样衣工作量浮动分", type = 10)
+    private BigDecimal rate;
+
+    @Excel(name = "样衣工作量追加分", type = 10)
+    private BigDecimal append;
+
+    @Excel(name = "样衣工作量其它特种设备")
+    private String ratingOtherName;
+
     @Excel(name = "样衣工质量评分",type = 10)
     private BigDecimal sampleMakingQualityScore;
 
@@ -334,6 +349,7 @@ public class SampleBoardExcel {
     private String  breakOffPattern;
 
     private String  breakOffSample;
+    private String workloadRatingId;
 
     public String getProductSeason() {
         return getSeason();

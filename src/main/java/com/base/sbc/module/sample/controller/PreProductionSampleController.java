@@ -41,7 +41,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -175,16 +180,25 @@ public class PreProductionSampleController extends BaseController{
         return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, node, status);
     }
 
+    @ApiOperation(value = "样衣工编辑", notes = "")
+    @PostMapping("/task/sampleMakingEdit")
+    public boolean sampleMakingEdit(@Validated @RequestBody PreProductionSampleTaskDto dto) {
+        return preProductionSampleTaskService.sampleMakingEdit(dto);
+    }
+
     @ApiOperation(value = "样衣制作评分", notes = "")
     @PostMapping("/task/sampleMakingScore")
-    public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
-        return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
+    public boolean sampleMakingScore(@Validated @RequestBody ScoreDto dto) {
+        PreProductionSampleTaskDto taskDto = new PreProductionSampleTaskDto();
+        taskDto.setId(dto.getId());
+        taskDto.setSampleMakingScore(dto.getScore());
+        return preProductionSampleTaskService.sampleMakingScore(taskDto);
     }
 
     @ApiOperation(value = "样衣工的质量打分", notes = "")
     @PostMapping("/task/sampleQualityScore")
-    public boolean sampleQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
-        return preProductionSampleTaskService.sampleQualityScore(user, dto.getId(), dto.getScore());
+    public boolean sampleQualityScore(@Validated @RequestBody ScoreDto dto) {
+        return preProductionSampleTaskService.sampleQualityScore(dto.getId(), dto.getScore());
     }
 
     @ApiOperation(value = "后技术备注说明", notes = "")

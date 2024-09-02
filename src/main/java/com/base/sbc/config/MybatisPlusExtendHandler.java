@@ -41,7 +41,7 @@ import java.util.Map;
 @MappedJdbcTypes(JdbcType.VARCHAR)
 @Component
 public abstract class MybatisPlusExtendHandler extends AbstractJsonTypeHandler<Map<String, Object>> {
-    protected static final TypeReference<Map<String, Object>> TYPE = new TypeReference<Map<String, Object>>() {
+    public static final TypeReference<Map<String, Object>> TYPE = new TypeReference<Map<String, Object>>() {
     };
 
     private MappedStatement statement;
@@ -87,4 +87,6 @@ public abstract class MybatisPlusExtendHandler extends AbstractJsonTypeHandler<M
 //        });
         return extendMap;
     }
+
+    public abstract Object parse(String json, Class<?> parameterType);
 }
