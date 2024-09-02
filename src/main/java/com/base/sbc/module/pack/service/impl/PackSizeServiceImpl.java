@@ -26,10 +26,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeConfigReferencesDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackSize;
-import com.base.sbc.module.pack.entity.PackSizeConfig;
-import com.base.sbc.module.pack.entity.PackSizeDetail;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackSizeMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -313,7 +310,14 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
             //没有查询到大货款号
             return ApiResult.error("没有找到大货款号："+openPackSizeDto.getStyleNo()+",对应的标准资料包",500);
         }
-        String foreignId = packInfoList.get(0).getId();
+        //判断一下状态，如果是以下发SCM 不允许接收，需要解锁后
+        PackInfo packInfo = packInfoList.get(0);
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), "packBigGoods");
+        if(StrUtil.isNotBlank(packInfoStatus.getTechScmSendFlag()) && "1".equals(packInfoStatus.getTechScmSendFlag())){
+            return ApiResult.error("工艺资料包已下发SCM，不允许接收尺寸信息",500);
+        }
+
+        String foreignId = packInfo.getId();
 
         //删除历史数据，先查询
         List<PackSize> oldList = list(foreignId, openPackSizeDto.getPackType());
