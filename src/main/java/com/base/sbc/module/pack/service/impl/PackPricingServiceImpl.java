@@ -295,9 +295,15 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         if (ObjectUtil.isEmpty(style)) {
             throw new OtherException("没有款式信息");
         }
+
+        String devtType = style.getDevtType();
+        if (StrUtil.isBlank(devtType)) {
+            throw new OtherException("设计款未配置生产类型，请配置后重新操作！");
+        }
 //        查询核价模板
         QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("devt_type", style.getDevtType());
+        queryWrapper.eq("devt_type", devtType);
+        queryWrapper.eq("brand", style.getBrand());
         queryWrapper.eq("default_flag", BaseGlobal.YES);
         List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
         if (!CollUtil.isEmpty(list)) {
@@ -320,6 +326,8 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             packPricing.setPricingTemplateId(pricingTemplate.getId());
             packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
             baseMapper.insert(packPricing);
+        }else {
+            throw new OtherException("品牌："+style.getBrandName()+"下无"+style.getDevtTypeName()+"生产类型模板");
         }
 
         return false;

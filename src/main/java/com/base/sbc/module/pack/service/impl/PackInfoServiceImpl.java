@@ -1378,6 +1378,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (color == null) {
             throw new OtherException("配色数据为空");
         }
+        Style style = styleService.getById(color.getStyleId());
+        if (style == null) {
+            throw new OtherException("款式数据为空");
+        }
         packInfo.setName(color.getStyleNo());
         packInfo.setColor(color.getColorName());
         packInfo.setColorCode(color.getColorCode());
@@ -1390,10 +1394,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         color.setBom(packInfo.getCode());
         styleColorMapper.updateById(color);
 
+        String devtType = color.getDevtType().getCode();
+        if (StrUtil.isBlank(devtType)) {
+            throw new OtherException("款式配色未配置生产类型，请配置后重新操作！");
+        }
+
         // 修改核价模板 使用款式配色信息中的生产类型
         // 查询核价模板
         QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("devt_type", color.getDevtType());
+        queryWrapper.eq("devt_type", devtType);
+        queryWrapper.eq("brand", style.getBrand());
         queryWrapper.eq("default_flag", BaseGlobal.YES);
         List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
         if (!CollUtil.isEmpty(list)) {
@@ -1420,6 +1430,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packPricing.setPricingTemplateId(pricingTemplate.getId());
             packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
             packPricingService.updateById(packPricing);
+        }else {
+            throw new OtherException("品牌："+style.getBrandName()+"下无"+color.getDevtTypeName()+"生产类型模板");
         }
         return true;
     }
