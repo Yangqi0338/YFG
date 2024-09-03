@@ -321,9 +321,14 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         if (ObjectUtil.isEmpty(style)) {
             throw new OtherException("没有款式信息");
         }
+
+        String devtType = style.getDevtType();
+        if (StrUtil.isBlank(devtType)) {
+            throw new OtherException("设计款未配置生产类型，请配置后重新操作！");
+        }
 //        查询核价模板
         QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("devt_type", style.getDevtType());
+        queryWrapper.eq("devt_type", devtType);
         queryWrapper.eq("brand", style.getBrand());
         queryWrapper.eq("default_flag", BaseGlobal.YES);
         List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
