@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.module.pack.entity.PackSizeConfig;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,6 +18,8 @@ public class BomSizeAndProcessDto {
     private List<BomSize> bomSizeList;
 
     private List<BomProcess> bomProcessList;
+
+    private PackSizeConfig config;
 
     /**
      * 外辅工艺数据
@@ -57,5 +60,7 @@ public class BomSizeAndProcessDto {
         private String minus;
         /**排序-*/
         private int sort;
+        /** 档差设置，多档差 */
+        private String codeErrorSetting;
     }
 }

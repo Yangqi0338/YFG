@@ -74,6 +74,7 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
@@ -241,6 +242,10 @@ public class SmpService {
 
     @Resource
     public OperaLogService operaLogService;
+
+    @Lazy
+    @Autowired
+    private PackSizeConfigService packSizeConfigService;
 
     public Integer goods(String[] ids) {
         return goods(ids, null, null, null);
@@ -1839,6 +1844,7 @@ public class SmpService {
                         bomSize.setPartCode(packSize.getPartCode());
                         bomSize.setStandard(packSize.getStandard());
                         bomSize.setSize(packSize.getSize());
+                        bomSize.setCodeErrorSetting(packSize.getCodeErrorSetting());
                         bomSizeList.add(bomSize);
                     }
                     bomSizeAndProcessDto.setBomSizeList(bomSizeList);
@@ -1867,6 +1873,15 @@ public class SmpService {
                     Pair.of("functionName","下发尺寸和外辅工艺明细数据"),
                     Pair.of("code",bomSizeAndProcessDto.getStyleNo())
             );
+
+            //这里说是加个接口同时推送 朱丽燕 系统
+            //这个字段说是 可以不下发
+            bomSizeAndProcessDto.setBomProcessList(null);
+            PackSizeConfigVo config = packSizeConfigService.getConfig(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+            bomSizeAndProcessDto.setConfig(config);
+            jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
+            //TODO 这里等待提供接口
+
             if (httpResp.isSuccess()) {
                 i++;
             }
