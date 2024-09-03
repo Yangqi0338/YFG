@@ -226,7 +226,7 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     public PageInfo<PatternMakingBarCodeVo> pageAudit(PatternMakingBarCodeQueryDto dto) {
         Page<Object> objects = PageHelper.startPage(dto);
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
-        qw.eq("ts.design_no",dto.getDesignNo());
+        qw.notEmptyEq("ts.design_no",dto.getDesignNo());
         qw.notEmptyEq("tpm.pattern_no",dto.getPatternNo());
         qw.notEmptyEq("tpmbc.bar_code",dto.getBarCode());
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
