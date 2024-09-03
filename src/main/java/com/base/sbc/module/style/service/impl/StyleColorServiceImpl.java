@@ -378,15 +378,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         // 查询产品季的名称
         if (ObjectUtil.isNotEmpty(sampleStyleColorList)) {
             List<String> planningSeasonIdList = sampleStyleColorList
-                    .stream().map(StyleColorVo::getPlanningSeasonId).distinct().collect(Collectors.toList());
-            List<PlanningSeason> planningSeasonList = planningSeasonService.listByIds(planningSeasonIdList);
-            Map<String, String> planningSeasonNameMap = new HashMap<>();
-            if (ObjectUtil.isNotEmpty(planningSeasonList)) {
-                planningSeasonNameMap = planningSeasonList
-                        .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
-            }
-            for (StyleColorVo styleColorVo : sampleStyleColorList) {
-                styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
+                    .stream().map(StyleColorVo::getPlanningSeasonId).distinct().filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(planningSeasonIdList)){
+                List<PlanningSeason> planningSeasonList = planningSeasonService.listByIds(planningSeasonIdList);
+                Map<String, String> planningSeasonNameMap = new HashMap<>();
+                if (ObjectUtil.isNotEmpty(planningSeasonList)) {
+                    planningSeasonNameMap = planningSeasonList
+                            .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
+                }
+                for (StyleColorVo styleColorVo : sampleStyleColorList) {
+                    styleColorVo.setPlanningSeason(planningSeasonNameMap.get(styleColorVo.getPlanningSeasonId()));
+                }
             }
         }
         for (StyleColorVo styleColorVo : sampleStyleColorList) {
