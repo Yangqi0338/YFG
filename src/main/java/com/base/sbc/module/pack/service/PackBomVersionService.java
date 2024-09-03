@@ -73,7 +73,7 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @param lockFlag 0正常 1锁定
      * @return
      */
-    boolean lockChange(String userCompany,String id, String lockFlag);
+    boolean lockChange(String userCompany, String id, String lockFlag);
 
 
     /**
@@ -126,6 +126,15 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     PackBomVersion checkVersion(String id);
 
+    /**
+     * 检查版本是否锁定
+     *
+     * @param id
+     * @param type 0-不校验锁定 1或者空-校验锁定
+     * @return
+     */
+    PackBomVersion checkVersion(String id, Integer type);
+
 
     /**
      * 复制
@@ -138,7 +147,7 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @param flag
      * @return
      */
-    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg,String flag);
+    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg, String flag);
 
     void checkBomDataEmptyThrowException(Collection<? extends PackBom> bomList, Collection<? extends PackBomSize> bomSizeList);
 
