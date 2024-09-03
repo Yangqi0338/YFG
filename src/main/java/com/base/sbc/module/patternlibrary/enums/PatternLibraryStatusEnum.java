@@ -5,6 +5,9 @@ import lombok.Getter;
 @Getter
 public enum PatternLibraryStatusEnum {
 
+    /**
+     * 待补齐废弃
+     */
     NO_PADDED(1, "待补齐"),
     NO_SUBMIT(2, "待提交"),
     NO_REVIEWED(3, "待审核"),

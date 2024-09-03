@@ -271,7 +271,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     @Override
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
-    public Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO) {
+    public synchronized Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO) {
         if (ObjectUtil.isEmpty(patternLibraryDTO)) {
             throw new OtherException(ResultConstant.OPERATION_DATA_NOT_EMPTY);
         }
@@ -281,8 +281,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         if (ObjectUtil.isNotEmpty(patternLibraryId)) {
             oldPatternLibrary = getById(patternLibraryId);
             if (!(oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
-                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode())
-                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))) {
+                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
                 throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
             }
 
@@ -484,7 +483,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     @Override
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
-    public Boolean updateDetails(List<PatternLibraryDTO> patternLibraryDTOList) {
+    public synchronized Boolean updateDetails(List<PatternLibraryDTO> patternLibraryDTOList) {
         if (ObjectUtil.isEmpty(patternLibraryDTOList)) {
             throw new OtherException(ResultConstant.OPERATION_DATA_NOT_EMPTY);
         }
@@ -496,14 +495,14 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
         if (oldPatternLibraryList
                 .stream()
-                .anyMatch(item -> !item.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))) {
+                .anyMatch(item -> !item.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode()))) {
             throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
         }
         // 批量编辑
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
         {
-            List<String> styleIdList = oldPatternLibraryList.
-                    stream().map(PatternLibrary::getStyleId).collect(Collectors.toList());
+            List<String> styleIdList = patternLibraryDTOList.
+                    stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
             if (!isBelong(patternLibraryDTOList.get(0).getProdCategory1st(), styleList)) {
                 throw new OtherException(ResultConstant.CATEGORY_PUT_BOTTOMS_MISMATCH);
@@ -857,8 +856,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             PatternLibrary patternLibrary = new PatternLibrary();
             Style style = styleMap.get(excelImportDTO.getCode());
             setValue(patternLibrary, style);
-            // 默认状态是待补齐
-            patternLibrary.setStatus(PatternLibraryStatusEnum.NO_PADDED.getCode());
+            // 默认状态是待提交
+            patternLibrary.setStatus(PatternLibraryStatusEnum.NO_SUBMIT.getCode());
 
             String[] brandNameList = excelImportDTO.getBrandName().split("/");
             List<PatternLibraryBrand> patternLibraryBrandList = new ArrayList<>();
