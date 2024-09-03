@@ -62,6 +62,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.beust.jcommander.internal.Maps;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -407,7 +408,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                         MapUtil.entry("factoryName", baseOtherCosts.getFactoryName()),
                         MapUtil.entry("name", ArrayUtil.get(name.split("-"), 0))
                 );
-                String picUrl = stylePicUtils.getStyleUrl(baseOtherCosts.getPicId());
+                String picUrl = stylePicUtils.getPicUrl(baseOtherCosts.getPicId());
                 if (StrUtil.isNotBlank(picUrl)) {
                     otherCostsMap.put("pic", HttpUtil.downloadBytes(picUrl));
                 }
@@ -425,16 +426,21 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                 if (CollUtil.isNotEmpty(costsPackBomList)) {
                     Map<String, List<PackBom>> packBomMap = costsPackBomList.stream().sorted(Comparator.comparing(PackBom::getSort))
                             .collect(CommonUtils.groupingBy(PackBom::getMaterialName));
-
-                    List<List<String>> packBomParam = new ArrayList<>();
+                    Map<String, Object> packBomParamMap = Maps.newHashMap();
+//                    List<List<String>> packBomParam = new ArrayList<>();
                     packBomMap.forEach((key,value)-> {
-                        packBomParam.add(Arrays.asList(key,
-                                CommonUtils.get(value,0,PackBom::getColor),
-                                CommonUtils.get(value,1,PackBom::getColor),
-                                CommonUtils.get(value,0,PackBom::getAuxiliaryMaterial),
-                                CommonUtils.get(value,1,PackBom::getAuxiliaryMaterial)));
+                        packBomParamMap.put("fabric0",CommonUtils.get(value,0,PackBom::getMaterialCode));
+                        packBomParamMap.put("color00",CommonUtils.get(value,0,PackBom::getColor));
+                        packBomParamMap.put("color01",CommonUtils.get(value,1,PackBom::getColor));
+                        packBomParamMap.put("accessory00",CommonUtils.get(value,0,PackBom::getAuxiliaryMaterial));
+                        packBomParamMap.put("accessory02",CommonUtils.get(value,1,PackBom::getAuxiliaryMaterial));
+//                        packBomParam.add(Arrays.asList(key,
+//                                CommonUtils.get(value,0,PackBom::getColor),
+//                                CommonUtils.get(value,1,PackBom::getColor),
+//                                CommonUtils.get(value,0,PackBom::getAuxiliaryMaterial),
+//                                CommonUtils.get(value,1,PackBom::getAuxiliaryMaterial)));
                     });
-                    excelWriter.write(packBomParam,writeSheet);
+                    excelWriter.fill(packBomParamMap,writeSheet);
                 }
             });
             excelWriter.finish();
