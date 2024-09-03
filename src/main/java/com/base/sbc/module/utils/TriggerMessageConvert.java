@@ -43,6 +43,7 @@ public class TriggerMessageConvert {
         triggerParams.put("materialCode",material.getMaterialCode());
         triggerParams.put("material_category_name",material.getMaterialCategoryName());
         triggerParams.put("update_date", DateUtils.getDate(FORMAT_SECOND));
+        triggerParams.put("pic_url",material.getPicUrl());
         if (null != groupUser){
             triggerParams.put(groupUserKey, JSON.toJSONString(groupUser));
         }
