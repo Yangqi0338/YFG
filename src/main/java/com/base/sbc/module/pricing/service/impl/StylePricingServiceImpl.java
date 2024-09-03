@@ -44,8 +44,12 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingBomService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -94,8 +98,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private static final Logger logger = LoggerFactory.getLogger(StylePricingService.class);
 
     @Autowired
+    @Lazy
     private PackPricingOtherCostsService packPricingOtherCostsService;
     @Autowired
+    @Lazy
     private PackBomService packBomService;
     @Autowired
     private AttachmentService attachmentService;
@@ -245,6 +251,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         dto.setColumnMap(columnMap);
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
 
         if (StrUtil.isNotBlank(qw.getCustomSqlSegment()) && qw.getCustomSqlSegment().contains("sd.") ) {
             columnMap.put("sd", "design_no");
@@ -572,7 +579,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
                 // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
-                /*优先展示手数的数据*/
+                *//*优先展示手数的数据*//*
                 if (stylePricingVO.getControlPlanCost() != null) {
                     stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
                 } else {
@@ -586,7 +593,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
             stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
         }
-    }
+    }*/
 
     /**
      * 根据阶段计算核价信息
@@ -598,7 +605,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             List<String> foreignIdList = stylePricingList.stream()
                     .map(StylePricingVO::getId)
                     .collect(Collectors.toList());
-            Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, companyCode, packType);
+            Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(foreignIdList, packType);
             List<String> foreignIdInCmtList = stylePricingList.stream()
                     .filter(item -> "CMT".equals(item.getProductionType()))
                     .map(StylePricingVO::getId).distinct().collect(Collectors.toList());
@@ -690,7 +697,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
                 // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
-                *//*优先展示手数的数据*//*
+                /*优先展示手数的数据*/
                 if (stylePricingVO.getControlPlanCost() != null) {
                     stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
                 } else {
@@ -704,7 +711,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
             stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
         }
-    }*/
+    }
 
     @Override
     public StylePricingVO getByPackId(String packId) {
