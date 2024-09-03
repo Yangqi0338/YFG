@@ -226,6 +226,9 @@ public class SmpService {
     @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/information/pdm}")
     private String SCM_URL;
 
+    @Value("${interface.zlyScmUrl:http://10.98.250.71:9733}")
+    private String ZLY_SCM_URL1;
+
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
 
@@ -1880,7 +1883,11 @@ public class SmpService {
             PackSizeConfigVo config = packSizeConfigService.getConfig(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
             bomSizeAndProcessDto.setConfig(config);
             jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
-            //TODO 这里等待提供接口
+            HttpResp httpResp1 = restTemplateService.spmPost(ZLY_SCM_URL1 + "/goodsSizeTable/receivePDMSizeData", jsonString,
+                    Pair.of("moduleName","scm"),
+                    Pair.of("functionName","下发尺寸到ZLY"),
+                    Pair.of("code",bomSizeAndProcessDto.getStyleNo())
+            );
 
             if (httpResp.isSuccess()) {
                 i++;
