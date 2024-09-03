@@ -16,6 +16,10 @@ import java.util.Date;
 public class StylePricingVO {
     private String stylePricingId;
     /**
+     * 款式配色 ID
+     */
+    private String styleColorId;
+    /**
      * 资料包id
      */
     private String id;

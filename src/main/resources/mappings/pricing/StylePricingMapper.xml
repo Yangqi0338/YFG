@@ -50,8 +50,6 @@
         ht.down_content as downContent,
         ht.print_or_not as tagPrintFlag,
         tpp.calc_item_val as calcItemVal,
-        tpp1.calc_item_val as calcItemVal1,
-        tpp2.calc_item_val as calcItemVal2,
         sd.prod_category1st,
         sd.prod_category1st_name,
         sd.prod_category,
@@ -63,11 +61,9 @@
         from t_pack_info p
         LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0' and ps.pack_type = 'packBigGoods')
         left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
-        left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
+        left join t_style_color ssc on (ssc.id = p.style_color_id and ssc.del_flag = '0')
         left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
         left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
-        left join t_pack_pricing as tpp1 on (tpp1.foreign_id = p.id and tpp1.del_flag = '0' and tpp1.pack_type = 'packDesign')
-        left join t_pack_pricing as tpp2 on (tpp2.foreign_id = p.id and tpp2.del_flag = '0' and tpp2.pack_type = 'packBigGoods')
         left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
         <!--        left join t_style_order_book_color ssobc on (ssobc.style_no = p.style_no and ssobc.del_flag = '0')-->
         <!--      LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id-->
@@ -182,14 +178,15 @@
             SELECT
             ${ew.sqlSelect}
             from t_style_color ssc
-            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and
+            left join t_pack_info p on (ssc.id = p.style_color_id and p.del_flag = '0' and p.style_no is not null and
             p.style_no !='')
             <if test="dto.getColumnMap().containsKey('ps')">
-                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
-		SELECT
-			count(0)
-		FROM
-		t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
+                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
+		(SSC.bom_status = '1',
+			'packBigGoods',
+			'packDesign'
+		)
+	)
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
                 LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
@@ -201,35 +198,31 @@
                 left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
             </if>
             <if test="dto.getColumnMap().containsKey('ht')">
-                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
                 left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
             </if>
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                    sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
@@ -247,6 +240,7 @@
         </if>
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             SELECT 	p.id AS id,
+            ssc.id AS styleColorId,
             ps.pack_type AS packType,
             p.CODE AS CODE,
             p.prod_category AS middleClassif,
@@ -259,6 +253,7 @@
             ssc.devt_type_name as productionType,
             sd.style_pic AS sampleDesignPic,
             sd.style_name AS styleName,
+
             sd.designer AS designer,
             sd.style_type_name AS styleType,
             sd.id AS styleId,
@@ -299,12 +294,13 @@
             sd.technician_id,
             sd.technician_name
             from t_style_color ssc
-            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
-            LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
-            SELECT
-            count(0)
-            FROM
-            t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
+            left join t_pack_info p on (ssc.id = p.style_color_id and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
+            LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
+            (SSC.bom_status = '1',
+            'packBigGoods',
+            'packDesign'
+            )
+            )
             LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
             left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
             left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
@@ -312,29 +308,26 @@
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                    p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                            sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
@@ -358,13 +351,14 @@
             SELECT
             ${ew.sqlSelect}
             from t_style_color ssc
-            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
+            left join t_pack_info p on (ssc.id = p.style_color_id and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
             <if test="dto.getColumnMap().containsKey('ps')">
-                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
-		SELECT
-			count(0)
-		FROM
-		t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
+                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
+		(SSC.bom_status = '1',
+			'packBigGoods',
+			'packDesign'
+		)
+	)
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
                 LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
@@ -376,35 +370,31 @@
                 left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
             </if>
             <if test="dto.getColumnMap().containsKey('ht')">
-                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
                 left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
             </if>
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                            p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                            sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}
@@ -426,13 +416,14 @@
             select
             ssc.id
             from t_style_color ssc
-            left join t_pack_info p on (ssc.style_no = p.style_no and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
+            left join t_pack_info p on (ssc.id = p.style_color_id and p.del_flag = '0' and p.style_no is not null and p.style_no !='')
             <if test="dto.getColumnMap().containsKey('ps')">
-                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = if ((
-		SELECT
-			count(0)
-		FROM
-		t_pack_info_status tpis where tpis.foreign_id = p.foreign_id AND tpis.del_flag = '0') > 1,"packBigGoods" , "packDesign") )
+                LEFT JOIN t_pack_info_status ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' 	AND ps.pack_type = IF
+		(SSC.bom_status = '1',
+			'packBigGoods',
+			'packDesign'
+		)
+	)
             </if>
             <if test="dto.getColumnMap().containsKey('sd')">
                 LEFT JOIN t_style sd ON ( sd.id = ssc.style_id AND sd.del_flag = '0' )
@@ -444,35 +435,31 @@
                 left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type = ps.pack_type)
             </if>
             <if test="dto.getColumnMap().containsKey('ht')">
-                left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
                 left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
             </if>
             <where>
                 ssc.del_flag = '0'
                 <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
-                    and p.prod_category1st = #{dto.prodCategory1st}
+                    and sd.prod_category1st = #{dto.prodCategory1st}
                 </if>
                 <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                    and p.prod_category = #{dto.prodCategory}
+                    and sd.prod_category = #{dto.prodCategory}
                 </if>
                 <if test="dto.prodCategory2nd != null and dto.prodCategory2nd != ''">
-                    and p.prod_category2nd = #{dto.prodCategory2nd}
+                    and sd.prod_category2nd = #{dto.prodCategory2nd}
                 </if>
                 <if test="dto.prodCategory3rd != null and dto.prodCategory3rd != ''">
-                    and p.prod_category3rd = #{dto.prodCategory3rd}
-                </if>
-                <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                    and p.planning_season_id = #{dto.planningSeasonId}
+                    and sd.prod_category3rd = #{dto.prodCategory3rd}
                 </if>
                 <if test="dto.devtType != null and dto.devtType != ''">
-                    and p.devt_type = #{dto.devtType}
+                    and ssc.devt_type = #{dto.devtType}
                 </if>
                 <if test="dto.style != null and dto.style != ''">
-                    and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+                    and sd.design_no like CONCAT('%',#{dto.style},'%') or sd.style_name like CONCAT('%',#{dto.style},'%')
                 </if>
                 <if test="dto.search != null and dto.search != ''">
-                    and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                            p.style_name like CONCAT('%',#{dto.search},'%') )
+                    and (sd.design_no like CONCAT('%',#{dto.search},'%') or ssc.style_no like CONCAT('%',#{dto.search},'%') or
+                            sd.style_name like CONCAT('%',#{dto.search},'%') )
                 </if>
                 <if test="dto.productName != null and dto.productName != ''">
                     and ht.product_name = #{dto.productName}

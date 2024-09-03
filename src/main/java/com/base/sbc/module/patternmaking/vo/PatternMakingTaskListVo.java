@@ -176,17 +176,17 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private String styleOriginName;
 
     private String pitSite;
-
     private String barCodeStatus;
-
 //    private List<WorkloadRatingConfigVO> ratingConfigList;
 //
 //    private WorkloadRatingDetailDTO ratingDetailDTO;
+
 
 //    @JsonIgnore
 //    private Style style;
 //
 //    private String ratingProdCategory;
+
 
 //    public boolean getNotFoundProdCategory() {
 //        String regex = "(?<=未找到当前品类下)(.*?)(?=的评分数据)";

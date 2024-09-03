@@ -12,7 +12,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -112,24 +111,71 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         }
 
         //组装费用信息
-        for (EsOrderBookItemVo esOrderBookItemVo : list) {
-            String calcItemVal = esOrderBookItemVo.getCalcItemVal();
-            if(StrUtil.isNotBlank(calcItemVal)){
-                JSONObject jsonObject = JSONObject.parseObject(calcItemVal);
-                esOrderBookItemVo.setWoolenYarnProcessingFee(jsonObject.getBigDecimal("毛纱加工费"));
-                esOrderBookItemVo.setSewingProcessingFee(jsonObject.getBigDecimal("车缝加工费"));
-                esOrderBookItemVo.setCoordinationProcessingFee(jsonObject.getBigDecimal("外协加工费"));
-                esOrderBookItemVo.setPackagingFee(jsonObject.getBigDecimal("包装费"));
-                esOrderBookItemVo.setTestingFee(jsonObject.getBigDecimal("检测费"));
-                esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
-                esOrderBookItemVo.setTotalCost(jsonObject.getBigDecimal("成本价"));
-                esOrderBookItemVo.setActualMagnification(BigDecimalUtil.div(esOrderBookItemVo.getTagPrice(), esOrderBookItemVo.getTotalCost(), 2));
-                esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(6.5)));
+        List<String> packId = list.stream().map(EsOrderBookItemVo::getPackId).distinct().collect(Collectors.toList());
+        StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
+        stylePricingSearchDTO.setCompanyCode(getCompanyCode());
+        BaseQueryWrapper<Object> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.in("p.id", packId);
+        List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingByLine(stylePricingSearchDTO, queryWrapper);
+
+
+        if(CollUtil.isNotEmpty(stylePricingList)){
+            // 设计阶段的数据
+            List<StylePricingVO> packDesignList = stylePricingList
+                    .stream()
+                    .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packDesign"))
+                    .collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(packDesignList)) {
+                stylePricingService.dataProcessingByPackType(packDesignList, getCompanyCode(), "packDesign");
+            }
+
+            // 大货阶段的数据
+            List<StylePricingVO> packBigGoodsList = stylePricingList.stream()
+                    .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packBigGoods"))
+                    .collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
+                stylePricingService.dataProcessingByPackType(packBigGoodsList, getCompanyCode(), "packBigGoods");
+            }
+
+            Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
+            for (EsOrderBookItemVo esOrderBookItemVo : list) {
+                if (collect.containsKey(esOrderBookItemVo.getPackId())) {
+                    StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getPackId());
+                    esOrderBookItemVo.setWoolenYarnProcessingFee(stylePricingVO.getWoolenYarnProcessingFee());
+                    esOrderBookItemVo.setSewingProcessingFee(stylePricingVO.getSewingProcessingFee());
+                    esOrderBookItemVo.setCoordinationProcessingFee(stylePricingVO.getCoordinationProcessingFee());
+                    esOrderBookItemVo.setPackagingFee(stylePricingVO.getPackagingFee());
+                    esOrderBookItemVo.setTestingFee(stylePricingVO.getTestingFee());
+                    esOrderBookItemVo.setMaterialPrice(stylePricingVO.getMaterialCost());
+                    esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
+                    esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(4)));
+                }else{
+                    setDefultValue(esOrderBookItemVo);
+                }
+            }
+        }else{
+            for (EsOrderBookItemVo esOrderBookItemVo : list) {
+                setDefultValue(esOrderBookItemVo);
             }
         }
+
+
         minioUtils.setObjectUrlToList(list, "groupImg");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    private void setDefultValue(EsOrderBookItemVo esOrderBookItemVo) {
+        esOrderBookItemVo.setWoolenYarnProcessingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setSewingProcessingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setCoordinationProcessingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setPackagingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setTestingFee(BigDecimal.ZERO);
+        esOrderBookItemVo.setMaterialPrice(BigDecimal.ZERO);
+        esOrderBookItemVo.setActualMagnification(BigDecimal.ZERO);
+        esOrderBookItemVo.setTotalCost(BigDecimal.ZERO);
+        esOrderBookItemVo.setMultiplePrice(BigDecimal.ZERO);
     }
 
     @Override
