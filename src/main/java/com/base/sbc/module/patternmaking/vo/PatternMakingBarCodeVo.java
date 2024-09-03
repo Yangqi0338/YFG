@@ -132,6 +132,8 @@ public class PatternMakingBarCodeVo extends PatternMakingBarCode {
 
     private String sampleUrl;
 
+    private String supplierStyleNo;
+
     public String getSampleUrl() {
         if (StringUtils.isEmpty(sampleUrl)){
             this.sampleUrl = getSampleFile();
