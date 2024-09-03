@@ -502,8 +502,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 批量编辑
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
         {
-            List<String> styleIdList = patternLibraryDTOList.
-                    stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
+            List<String> styleIdList = oldPatternLibraryList.
+                    stream().map(PatternLibrary::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
             if (!isBelong(patternLibraryDTOList.get(0).getProdCategory1st(), styleList)) {
                 throw new OtherException(ResultConstant.CATEGORY_PUT_BOTTOMS_MISMATCH);
