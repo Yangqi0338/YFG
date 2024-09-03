@@ -79,10 +79,33 @@
                ts.year_name,
                ts.season_name,
                ts.brand_name,
-               tpm.requirement_num
+               concat(ts.year_name," ",ts.season_name," ",ts.brand_name) season,
+               tpm.requirement_num,
+               tsc.style_no,
+               tsc.color_name,
+               tsc.style_color_pic,
+               ts.style_pic,
+               fob.pattern_room,
+               fob.tech_receive_time,
+               fob.status as fobStatus,
+               fob.tech_remarks,
+               fob.process_department_date,
+               tbs.supplier as supplierName,
+               tbs.supplier_abbreviation as supplierAbbreviation,
+               tpm.pattern_designer_id,
+               tpm.pattern_designer_name,
+               tpm.pattern_technician_id,
+               tpm.pattern_technician_name,
+               tpm.supplier_id,
+               tpm.code,
+               tpm.sample_file,
+               tpm.supplier_style_no
         FROM t_pattern_making_bar_code_log tpmbc
                  LEFT JOIN t_pattern_making tpm on tpmbc.head_id = tpm.id and tpm.del_flag = '0'
-                 LEFT JOIN t_style ts on tpm.style_id = ts.id and ts.del_flag = '0'
+                 LEFT JOIN t_basicsdatum_supplier tbs on (tpm.supplier_id = tbs.supplier_code and tbs.del_flag = '0')
+                 LEFT JOIN t_pre_production_sample_task_fob fob on tpmbc.head_id = fob.id and fob.del_flag = '0'
+                 LEFT JOIN t_style_color tsc on fob.style_id = tsc.id and tsc.del_flag = '0'
+                 LEFT JOIN t_style ts on (tpm.style_id = ts.id or tsc.style_id = ts.id) and ts.del_flag = '0'
         where tpmbc.del_flag = '0'
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
     </select>
