@@ -681,7 +681,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             throw new OtherException("样衣工作量评分必传参数异常");
 
         String id = dto.getId();
-        checkUser(id);
+        checkUser(id, false);
         PreProductionSampleTask updateBean = new PreProductionSampleTask();
         updateBean.setSampleMakingScore(dto.getSampleMakingScore());
         updateBean.setSecondProcessing(dto.getSecondProcessing());

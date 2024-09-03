@@ -347,24 +347,28 @@ public class StylePricingVO {
     private String prodCategory1st;
     /** 大类名称 */
     @ApiModelProperty(value = "大类名称"  )
+    @Excel(name = "大类名称",orderNum = "33")
     private String prodCategory1stName;
     /** 品类code */
     @ApiModelProperty(value = "品类code"  )
     private String prodCategory;
     /** 品类名称 */
     @ApiModelProperty(value = "品类名称"  )
+    @Excel(name = "品类名称",orderNum = "34")
     private String prodCategoryName;
     /** 中类code */
     @ApiModelProperty(value = "中类code"  )
     private String prodCategory2nd;
     /** 中类名称 */
     @ApiModelProperty(value = "中类名称"  )
+    @Excel(name = "中类名称",orderNum = "35")
     private String prodCategory2ndName;
     /** 小类code */
     @ApiModelProperty(value = "小类code"  )
     private String prodCategory3rd;
     /** 小类名称 */
     @ApiModelProperty(value = "小类名称"  )
+    @Excel(name = "小类名称",orderNum = "36")
     private String prodCategory3rdName;
 
     public boolean isCmt(){
