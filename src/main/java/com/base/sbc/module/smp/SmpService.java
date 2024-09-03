@@ -78,6 +78,7 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.ReceiveDesignDTO;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -305,6 +306,9 @@ public class SmpService {
     @Value("${interface.zlyScmUrl:http://10.98.250.71:9900}")
     private String ZLY_SCM_URL;
 
+    @Value("${interface.zlyScmUrl:http://10.98.250.71:9733}")
+    private String ZLY_SCM_URL1;
+
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
 
@@ -322,6 +326,10 @@ public class SmpService {
 
     @Resource
     public OperaLogService operaLogService;
+
+    @Lazy
+    @Autowired
+    private PackSizeConfigService packSizeConfigService;
 
     @DuplicationCheck
     public List<PackPricingBom> getMaterialPurchasePrice(List<String> packBomIdList) {
@@ -2068,6 +2076,7 @@ public class SmpService {
                         bomSize.setPartCode(packSize.getPartCode());
                         bomSize.setStandard(packSize.getStandard());
                         bomSize.setSize(packSize.getSize());
+                        bomSize.setCodeErrorSetting(packSize.getCodeErrorSetting());
                         bomSizeList.add(bomSize);
                     }
                     bomSizeAndProcessDto.setBomSizeList(bomSizeList);
@@ -2096,6 +2105,19 @@ public class SmpService {
                     Pair.of("functionName","下发尺寸和外辅工艺明细数据"),
                     Pair.of("code",bomSizeAndProcessDto.getStyleNo())
             );
+
+            //这里说是加个接口同时推送 朱丽燕 系统
+            //这个字段说是 可以不下发
+            bomSizeAndProcessDto.setBomProcessList(null);
+            PackSizeConfigVo config = packSizeConfigService.getConfig(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+            bomSizeAndProcessDto.setConfig(config);
+            jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
+            HttpResp httpResp1 = restTemplateService.spmPost(ZLY_SCM_URL1 + "/goodsSizeTable/receivePDMSizeData", jsonString,
+                    Pair.of("moduleName","scm"),
+                    Pair.of("functionName","下发尺寸到ZLY"),
+                    Pair.of("code",bomSizeAndProcessDto.getStyleNo())
+            );
+
             if (httpResp.isSuccess()) {
                 i++;
             }
