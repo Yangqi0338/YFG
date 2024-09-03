@@ -81,7 +81,7 @@ public class MessageTriggerAspect {
                     continue;
                 }
                 modelMessage1.setParams(messageObject);
-                messagesService.tokenNoticeOrMessageByModel(modelMessage);
+                messagesService.tokenNoticeOrMessageByModel(modelMessage1);
             }
         }
     }
