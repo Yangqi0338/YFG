@@ -255,11 +255,6 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
             return otherCostsGst;
         }).collect(Collectors.toList());
         otherCostsGstService.saveOrUpdateBatch(otherCostsGstList);
-
-        /*重新计算*/
-        if (needCalculatePricing) {
-            packPricingService.calculatePricingJson(dtoList.get(0).getForeignId(), dtoList.get(0).getPackType());
-        }
     }
 
     @Override
