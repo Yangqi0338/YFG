@@ -113,6 +113,7 @@ import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.*;
 import com.base.sbc.module.style.vo.*;
+import com.base.sbc.module.utils.TriggerMessageConvert;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -927,7 +928,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // if (CollUtil.isNotEmpty(attachmentVoList1)) {
         //     url = attachmentVoList1.get(0).getId();
         // }
-        return flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+        return flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id,
+                TriggerMessageConvert.styleDesignApproveConvert(variables,style,userUtils.getUser(userUtils.getUserId()),stylePicUtils));
     }
 
     @Override

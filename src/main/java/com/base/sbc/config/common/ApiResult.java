@@ -1,11 +1,13 @@
 package com.base.sbc.config.common;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +37,7 @@ public class ApiResult<T>  implements Serializable{
 	/** 返回其他参数(导入数据重复或在数据中未查询到提醒对象，如不为空，则提醒) */
 	private Map<String, Object> attributes;
 
-	private Map<String, String> messageObjects;
+	private List<Map<String, String>> messageObjects;
 
 
 	public Map<String, Object> setAttribute(String key, Object value) {
@@ -213,7 +215,22 @@ public class ApiResult<T>  implements Serializable{
 		result.setSuccess(Boolean.TRUE);
 		result.setStatus(ApiResult.SUCCESS);
 		result.setData(data);
-		result.setMessageObjects(messageObjects);
+		result.setMessageObjects(Lists.newArrayList(messageObjects));
+		return result;
+	}
+
+	/**
+	 * 请求成功
+	 * @param data 提示信息
+	 * @param messageObjectList 附加键值
+	 * @return
+	 */
+	public static <T> ApiResult<T> successMessageList(T data,  List<Map<String, String>> messageObjectList) {
+		ApiResult<T> result = new ApiResult<>();
+		result.setSuccess(Boolean.TRUE);
+		result.setStatus(ApiResult.SUCCESS);
+		result.setData(data);
+		result.setMessageObjects(messageObjectList);
 		return result;
 	}
 }

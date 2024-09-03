@@ -14,6 +14,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.annotation.MessageTrigger;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -42,8 +43,13 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.utils.TriggerMessageConvert;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
@@ -67,6 +73,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -111,6 +119,9 @@ public class StylePricingController extends BaseController {
     private PackPricingService packPricingService;
     @Autowired
     private StyleService styleService;
+    @Autowired
+    @Lazy
+    private StyleColorService styleColorService;
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
@@ -191,6 +202,7 @@ public class StylePricingController extends BaseController {
     @PostMapping("/updateStatus")
     @DuplicationCheck
     @Transactional(rollbackFor = {Exception.class})
+    @MessageTrigger(value = "xxzx-stylepricing",code = "")
     public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
         if(StringUtils.isEmpty(dto.getIds())){
             throw new OtherException("请选择款式定价");
@@ -361,8 +373,10 @@ public class StylePricingController extends BaseController {
             }
 
         }
-        return updateSuccess("提交成功");
+        return ApiResult.successMessageList("提交成功",fullMessage(dto));
     }
+
+
 
     @ApiOperation(value = "反审核")
     @PostMapping("/unAuditStatus")
@@ -383,6 +397,40 @@ public class StylePricingController extends BaseController {
         return operaLogEntity;
     }
 
+    private List<Map<String, String>> fullMessage(StylePricingStatusDTO dto) {
+
+        String triggerActionCode = "";
+        if ("1".equals(dto.getControlConfirm())){
+            triggerActionCode = "controlConfirm";
+        }
+        if ("1".equals(dto.getProductHangtagConfirm())){
+            triggerActionCode = "productHangtagConfirm";
+        }
+        if (StringUtils.isEmpty(triggerActionCode)){
+            return null;
+        }
+        List<String> list = com.base.sbc.config.utils.StringUtils.convertList(dto.getIds());
+        if (CollUtil.isEmpty(list)){
+            return null;
+        }
+        List<Map<String, String>> list1 = Lists.newArrayList();
+        for (String s : list) {
+            StylePricing byId = stylePricingService.getById(s);
+            if (Objects.isNull(byId)){
+                continue;
+            }
+            PackInfo packInfo = packInfoService.getById(byId.getPackId());
+            if (Objects.isNull(packInfo)){
+                continue;
+            }
+            StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+            if (Objects.isNull(styleColor)){
+                continue;
+            }
+            list1.add(TriggerMessageConvert.stylePricingConvert(styleColor,styleService.getById(styleColor.getStyleId()),triggerActionCode));
+        }
+        return list1;
+    }
 
 }
 

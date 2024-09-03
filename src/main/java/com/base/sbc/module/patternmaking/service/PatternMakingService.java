@@ -360,7 +360,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     void sort(PatternMaking pm, boolean excludeSelf);
 
-    boolean nextOrPrev(Principal user, String id, String np);
+    ApiResult nextOrPrev(Principal user, String id, String np);
 
     void checkBreak(PatternMaking pm);
 

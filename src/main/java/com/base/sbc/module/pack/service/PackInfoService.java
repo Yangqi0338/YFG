@@ -11,6 +11,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -78,7 +79,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      *
      * @param dto@return
      */
-    boolean toBigGoods(PackCommonSearchDto dto);
+    ApiResult toBigGoods(PackCommonSearchDto dto);
 
     /**
      * 资料包拷贝

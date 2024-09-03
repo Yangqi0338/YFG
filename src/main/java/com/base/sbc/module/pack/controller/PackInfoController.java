@@ -11,6 +11,8 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.annotation.MessageTrigger;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
@@ -157,7 +159,8 @@ public class PackInfoController {
 
 	@ApiOperation(value = "转大货")
 	@GetMapping("/toBigGoods")
-	public boolean toBigGoods(@Valid PackCommonSearchDto dto) {
+	@MessageTrigger(value = "xxzx-stylepricing",code = "toBigGoods")
+	public ApiResult toBigGoods(@Valid PackCommonSearchDto dto) {
 		return packInfoService.toBigGoods(dto);
 	}
 

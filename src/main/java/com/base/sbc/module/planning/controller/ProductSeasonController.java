@@ -3,6 +3,7 @@ package com.base.sbc.module.planning.controller;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.annotation.MessageTrigger;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -108,7 +109,8 @@ public class ProductSeasonController extends BaseController {
 
     @ApiOperation(value = "坑位信息下发(产品季总览-下发到款式设计)")
     @PostMapping("/send")
-    public boolean send(@RequestBody List<SeatSendDto> categoryItemList){
+    @MessageTrigger(value = "xxzx-planningCategoryItem",code = "issueTask")
+    public ApiResult send(@RequestBody List<SeatSendDto> categoryItemList){
         if(CollUtil.isEmpty(categoryItemList)){
             throw  new OtherException("数据为空");
         }
