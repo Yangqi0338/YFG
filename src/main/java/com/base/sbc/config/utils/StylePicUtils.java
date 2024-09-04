@@ -194,4 +194,12 @@ public class StylePicUtils {
 				+ "&md5=" + allStrP+"&lossnum="+lossnum;
         return customStylePicUpload.getViewUrl() + fileName + param;
     }
+
+    public String getPicUrl(String fileId) {
+        if (StringUtils.isEmpty(fileId)){
+            return null;
+        }
+        AttachmentVo attachmentVo = attachmentService.getAttachmentByFileId(fileId);
+        return Optional.ofNullable(attachmentVo).map(v -> v.getUrl()).orElse(null);
+    }
 }
