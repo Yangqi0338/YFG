@@ -337,6 +337,14 @@
             p.workload_rating_base,
             p.workload_rating_rate,
             p.workload_rating_append,
+            p.workload_rating_fabric_name,
+            p.special_equipment_name,
+            p.special_equipment_value,
+            p.have_single,
+            p.workload_rating_value,
+            p.accessory_value,
+            p.other_value,
+            p.workload_rating_remark,
             s.brand
         </if>
         FROM
