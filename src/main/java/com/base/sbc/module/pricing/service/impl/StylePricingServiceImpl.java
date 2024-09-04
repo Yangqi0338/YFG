@@ -50,6 +50,11 @@ import com.base.sbc.module.pack.service.PackPricingBomService;
 import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
 import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
 import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
+import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -79,8 +84,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -186,7 +200,38 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         CountDownLatch countDownLatch = new CountDownLatch(split.size());
         for (List<StylePricingVO> stylePricingVOS : split) {
             threadPoolExecutor.submit(() -> {
-                this.dataProcessingExcelImport(stylePricingVOS);
+                    // 未关联大货BOM阶段的数据
+                    List<StylePricingVO> styleColorList = stylePricingVOS
+                            .stream()
+                            .filter(item -> ObjectUtil.isEmpty(item.getPackType()))
+                            .collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(styleColorList)) {
+                        for (StylePricingVO stylePricingVO : styleColorList) {
+                            stylePricingVO.setPackagingFee(BigDecimal.ZERO);
+                            stylePricingVO.setTestingFee(BigDecimal.ZERO);
+                            stylePricingVO.setSewingProcessingFee(BigDecimal.ZERO);
+                            stylePricingVO.setWoolenYarnProcessingFee(BigDecimal.ZERO);
+                            stylePricingVO.setCoordinationProcessingFee(BigDecimal.ZERO);
+                            stylePricingVO.setTotalCost(BigDecimal.ZERO);
+                            stylePricingVO.setMaterialCost(BigDecimal.ZERO);
+                        }
+                    }
+                    // 设计阶段的数据
+                    List<StylePricingVO> packDesignList = stylePricingVOS
+                            .stream()
+                            .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packDesign"))
+                            .collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(packDesignList)) {
+                        this.dataProcessingByPackType(packDesignList, dto.getCompanyCode(), "packDesign");
+                    }
+
+                    // 大货阶段的数据
+                    List<StylePricingVO> packBigGoodsList = stylePricingVOS.stream()
+                            .filter(item -> ObjectUtil.isNotEmpty(item.getPackType()) && item.getPackType().equals("packBigGoods"))
+                            .collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(packBigGoodsList)) {
+                        this.dataProcessingByPackType(packBigGoodsList, dto.getCompanyCode(), "packBigGoods");
+                    }
                 countDownLatch.countDown();
             });
         }
@@ -289,6 +334,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (isColumnHeard) {
             return new PageInfo<>(stylePricingList);
         }
+
         try {
             List<List<StylePricingVO>> split = CollUtil.split(stylePricingList, 2000);
             CountDownLatch countDownLatch = getCountDownLatch(dto, split);
