@@ -1817,8 +1817,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
-        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
-
+        if (StrUtil.isBlank(dto.getDevtType()) || !"FOB".equals(dto.getDevtType())) {
+            pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+        }
         return pageVo;
     }
 
