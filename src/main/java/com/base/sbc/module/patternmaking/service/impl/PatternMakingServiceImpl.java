@@ -2187,6 +2187,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
         updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
 
+        //面料名称
+        updateBean.setWorkloadRatingFabricName(dto.getWorkloadRatingFabricName());
+        //特种设备名称
+        updateBean.setSpecialEquipmentName(dto.getSpecialEquipmentName());
+        //特种设备分值
+        updateBean.setSpecialEquipmentValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("利用特种设备",BigDecimal.ZERO)));
+        //有无里布
+        updateBean.setHaveSingle(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("有无里布",BigDecimal.ZERO)));
+        //对格对条分值
+        updateBean.setWorkloadRatingValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("对条对格",BigDecimal.ZERO)));
+        //配饰分值
+        updateBean.setAccessoryValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("配饰分",BigDecimal.ZERO)));
+        //其他分值
+        updateBean.setOtherValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("其他分",BigDecimal.ZERO)));
+        //备注
+        updateBean.setWorkloadRatingRemark(dto.getWorkloadRatingRemark());
+
         return update(updateBean, new LambdaUpdateWrapper<PatternMaking>().eq(PatternMaking::getId, id));
     }
 
