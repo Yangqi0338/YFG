@@ -539,7 +539,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         List<String> patternLibraryIdList = patternLibraryList.stream().map(PatternLibrary::getId).collect(Collectors.toList());
         patternLibraryBrandService.remove(
                 new LambdaUpdateWrapper<PatternLibraryBrand>()
-                        .eq(PatternLibraryBrand::getPatternLibraryId, patternLibraryIdList)
+                        .in(PatternLibraryBrand::getPatternLibraryId, patternLibraryIdList)
         );
         // 保存新的品牌数据
         patternLibraryBrandService.saveBatch(patternLibraryBrandList);
@@ -547,7 +547,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 先删除之前的子表
         patternLibraryItemService.remove(
                 new LambdaUpdateWrapper<PatternLibraryItem>()
-                        .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryIdList)
+                        .in(PatternLibraryItem::getPatternLibraryId, patternLibraryIdList)
         );
         patternLibraryItemService.saveBatch(patternLibraryItemList);
 
