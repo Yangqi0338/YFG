@@ -12,6 +12,7 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -516,23 +517,39 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             patternLibraryList.add(patternLibrary);
         }
         updateBatchById(patternLibraryList);
-        // 修改子表数据
+
+        // 获取品牌和子表数据
+        List<PatternLibraryBrand> patternLibraryBrandList = new ArrayList<>();
         List<PatternLibraryItem> patternLibraryItemList = new ArrayList<>();
-        patternLibraryDTOList.forEach(
-                outItem ->
-                {
-                    List<PatternLibraryItem> list = outItem.getPatternLibraryItemList();
-                    if (ObjectUtil.isNotEmpty(list)) {
-                        // 给子表数据设置主表 ID
-                        list.forEach(inItem -> inItem.setPatternLibraryId(outItem.getId()));
-                        // 将子表数据聚合到一个集合中
-                        patternLibraryItemList.addAll(list);
-                    }
-                }
-        );
-        if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
-            patternLibraryItemService.saveBatch(patternLibraryItemList);
+        for (PatternLibrary patternLibrary : patternLibraryList) {
+            List<PatternLibraryBrand> brandList = patternLibrary.getPatternLibraryBrandList();
+            List<PatternLibraryItem> itemList = patternLibrary.getPatternLibraryItemList();
+            for (PatternLibraryBrand patternLibraryBrand : brandList) {
+                patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
+            }
+            for (PatternLibraryItem patternLibraryItem : itemList) {
+                patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
+            }
+            patternLibraryBrandList.addAll(brandList);
+            patternLibraryItemList.addAll(itemList);
         }
+
+        // 修改品牌数据
+        // 先删除之前的品牌数据
+        List<String> patternLibraryIdList = patternLibraryList.stream().map(PatternLibrary::getId).collect(Collectors.toList());
+        patternLibraryBrandService.remove(
+                new LambdaUpdateWrapper<PatternLibraryBrand>()
+                        .in(PatternLibraryBrand::getPatternLibraryId, patternLibraryIdList)
+        );
+        // 保存新的品牌数据
+        patternLibraryBrandService.saveBatch(patternLibraryBrandList);
+
+        // 先删除之前的子表
+        patternLibraryItemService.remove(
+                new LambdaUpdateWrapper<PatternLibraryItem>()
+                        .in(PatternLibraryItem::getPatternLibraryId, patternLibraryIdList)
+        );
+        patternLibraryItemService.saveBatch(patternLibraryItemList);
 
         if (patternLibraryDTOList.get(0).getStatus().equals(PatternLibraryStatusEnum.NO_REVIEWED.getCode())) {
             for (PatternLibrary patternLibrary : patternLibraryList) {
