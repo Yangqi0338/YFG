@@ -484,6 +484,23 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工作量附加分")
     private BigDecimal workloadRatingAppend;
 
+    //面料名称
+    private String workloadRatingFabricName;
+    //特种设备名称
+    private String specialEquipmentName;
+    //特种设备分值
+    private BigDecimal specialEquipmentValue;
+    //有无里布
+    private BigDecimal haveSingle;
+    //对格对条分值
+    private BigDecimal workloadRatingValue;
+    //配饰分值
+    private BigDecimal accessoryValue;
+    //其他分值
+    private BigDecimal otherValue;
+    //备注
+    private String workloadRatingRemark;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
