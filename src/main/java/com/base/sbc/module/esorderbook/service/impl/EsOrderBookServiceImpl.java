@@ -139,7 +139,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                     esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
                     esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
-                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(6.5)));
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(BigDecimal.valueOf("1".equals(stylePricingVO.getBrand()) ? 6.5 : 4)));
                 }
             }
         }
