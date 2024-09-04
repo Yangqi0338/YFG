@@ -584,7 +584,7 @@ public class SmpService {
             }
 
             //生产类型
-            smpGoodsDto.setProductionType(styleColor.getDevtType().getCode());
+            smpGoodsDto.setProductionType(ObjectUtil.isNotEmpty(styleColor.getDevtType()) ? styleColor.getDevtType().getCode():"");
             smpGoodsDto.setProductionTypeName(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
