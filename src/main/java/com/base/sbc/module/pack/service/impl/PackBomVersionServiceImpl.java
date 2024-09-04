@@ -409,6 +409,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                     for (PackBomVo packBomVo : bomList) {
                         bomIds.add(packBomVo.getId());
                         packBomVo.setScmSendFlag(BaseGlobal.NO);
+
                         if(!StrUtil.equals(flag,BaseGlobal.YES)){
                             packBomVo.setStageFlag(targetPackType);
                         }else {
@@ -490,6 +491,10 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 if(packBomVo.getBulkUnitUse()==null ||packBomVo.getBulkUnitUse().compareTo(BigDecimal.ZERO) == 0 ){
                     //转大货 大货单件用量=设计单件用量
                     packBomVo.setBulkUnitUse(packBomVo.getDesignUnitUse());
+                }
+                // 转大货的时候将设计损耗设置到计控损耗上面
+                if (ObjectUtil.isEmpty(packBomVo.getPlanningLoossRate())) {
+                    packBomVo.setPlanningLoossRate(packBomVo.getLossRate());
                 }
                 /*转大货修改变成可编辑*/
                 packBomVo.setScmSendFlag(BaseGlobal.IN_READY);
