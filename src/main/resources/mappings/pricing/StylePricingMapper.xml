@@ -57,7 +57,8 @@
         sd.prod_category2nd,
         sd.prod_category2nd_name,
         sd.prod_category3rd,
-        sd.prod_category3rd_name
+        sd.prod_category3rd_name,
+        sd.brand
         from t_pack_info p
         LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0' and ps.pack_type = 'packBigGoods')
         left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')

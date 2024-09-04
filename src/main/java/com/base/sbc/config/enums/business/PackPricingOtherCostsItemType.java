@@ -1,17 +1,13 @@
 package com.base.sbc.config.enums.business;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * {@code 描述：全量标准表类型}
@@ -23,7 +19,7 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum PackPricingOtherCostsItemType {
-    OTHER("其他费","costOtherPrice"),
+    OTHER("其它费", "costOtherPrice"),
     OUTSOURCE_PROCESS("外协加工费","{\"CMT\":\"outSource\",\"FOB\":\"outSource1\"}"),
     ;
     /** 编码 */
