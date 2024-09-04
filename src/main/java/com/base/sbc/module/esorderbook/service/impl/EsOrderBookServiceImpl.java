@@ -154,7 +154,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                     esOrderBookItemVo.setMaterialPrice(stylePricingVO.getMaterialCost());
                     esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
-                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(new BigDecimal(4)));
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(BigDecimal.valueOf("1".equals(stylePricingVO.getBrand()) ? 6.5 : 4)));
                 }else{
                     setDefultValue(esOrderBookItemVo);
                 }

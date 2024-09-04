@@ -30,6 +30,8 @@ public class StylePricingVO {
 
     private String styleId;
 
+    private String brand;
+
     /**
      * 计控确认成本时间
      */
