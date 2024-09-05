@@ -45,6 +45,7 @@ public class WorkloadRatingDetailDTO extends WorkloadRatingDetail {
     @NotEmpty
     private List<WorkloadRatingDetailSaveDTO> configList = new ArrayList<>();
 
+    private String workloadRatingRemark;
     private String proxyKey;
     private String secondProcessing;
     @ApiModelProperty(value = "面料成分")
