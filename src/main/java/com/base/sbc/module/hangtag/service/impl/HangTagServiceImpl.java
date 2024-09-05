@@ -992,19 +992,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							String isDefective = styleColor.getIsDefective();
 
-							Assert.isTrue(StrUtil.isBlank(e.getProductCode()), "品名未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getExecuteStandardCode())), "执行标准未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getQualityGradeCode())), "质量等级未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTitleCode())), "安全标题未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTypeCode())), "安全列表未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && split.length > 1 && reportingTwo.contains(split[1])) && StrUtil.isBlank(e.getPackagingFormCode())), "包装形式未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && split.length > 1 && reportingAll.contains(split[1])) && StrUtil.isBlank(e.getPackagingBagStandardCode())), "包装袋标准未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getIngredient())), "成分信息未维护");
-							Assert.isTrue((!("1".equals(isDefective) && split.length > 1 && reportingAll.contains(split[1])) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails())), "面料详情未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWarmTips())), "温馨提示未维护");
-							Assert.isTrue((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWashingLabel())), "洗标未维护");
-							Assert.isTrue((e.getProductName().contains("羽绒") && StrUtil.isBlank(e.getDownContent())), "充绒量未维护");
-							Assert.isTrue(("配饰".equals(prodCategory1stName) && StrUtil.isNotBlank(e.getExecuteStandardCode()) && StrUtil.isBlank(e.getSpecialSpec())), "特殊规格未维护");
+							Assert.isFalse(StrUtil.isBlank(e.getProductCode()), "品名未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getExecuteStandardCode())), "执行标准未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getQualityGradeCode())), "质量等级未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTitleCode())), "安全标题未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTypeCode())), "安全列表未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && split.length > 1 && reportingTwo.contains(split[1])) && StrUtil.isBlank(e.getPackagingFormCode())), "包装形式未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && split.length > 1 && reportingAll.contains(split[1])) && StrUtil.isBlank(e.getPackagingBagStandardCode())), "包装袋标准未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getIngredient())), "成分信息未维护");
+							Assert.isFalse((!("1".equals(isDefective) && split.length > 1 && reportingAll.contains(split[1])) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails())), "面料详情未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWarmTips())), "温馨提示未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWashingLabel())), "洗标未维护");
+							Assert.isFalse((e.getProductName().contains("羽绒") && StrUtil.isBlank(e.getDownContent())), "充绒量未维护");
+							Assert.isFalse(("配饰".equals(prodCategory1stName) && StrUtil.isNotBlank(e.getExecuteStandardCode()) && StrUtil.isBlank(e.getSpecialSpec())), "特殊规格未维护");
 
 						} else {
 							throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
