@@ -1780,52 +1780,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
-        List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
 
-        // 获取评分
-        Collection<SampleBoardExcel> ratingExcelList = CommonUtils.filterNotEmpty(excelList, SampleBoardExcel::getWorkloadRatingId);
-        List<String> workloadRatingIdList = ratingExcelList.stream().map(SampleBoardExcel::getWorkloadRatingId).collect(Collectors.toList());
-        if (CollUtil.isNotEmpty(workloadRatingIdList)) {
-            List<WorkloadRatingDetail> list = workloadRatingDetailService.listByIds(workloadRatingIdList);
-            ratingExcelList.forEach(excel -> {
-                list.stream().filter(it -> it.getId().equals(excel.getWorkloadRatingId())).findFirst().ifPresent(detail -> {
-                    excel.setAppend(new BigDecimal(detail.getExtend().getOrDefault("append", BigDecimal.ZERO).toString()));
-                    excel.setBase(new BigDecimal(detail.getExtend().getOrDefault("base", "0").toString()));
-                    excel.setRate(new BigDecimal(detail.getExtend().getOrDefault("rate", "0").toString()));
-                    excel.setRatingFabricName(detail.getFabricName());
-                    excel.setRatingOtherName(detail.getOtherName());
-                });
-            });
-        }
-
-
-        /*开启一个线程池*/
-        try {
-            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                /*获取图片链接*/
-                stylePicUtils.setStylePic(excelList, "stylePic",30);
-                /*计时器*/
-                CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
-                for (SampleBoardExcel sampleBoardExcel : excelList) {
-                    ExecutorContext.imageExecutor.submit(() -> {
-                        try {
-                            final String stylePic = sampleBoardExcel.getStylePic();
-                            sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
-                        } finally {
-                            //每次减一
-                            countDownLatch.countDown();
-                            log.info(String.valueOf(countDownLatch.getCount()));
-                        }
-                    });
-                }
-                countDownLatch.await();
-            }
-            ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
-        } catch (Exception e) {
-            log.info(e.getMessage());
-        }
+        ExcelUtils.exportExcelByTableCode(sampleBoardVoPageInfo.getList(), "样衣看板", response, dto);
     }
     @Override
     public boolean receiveSample(String id) {
