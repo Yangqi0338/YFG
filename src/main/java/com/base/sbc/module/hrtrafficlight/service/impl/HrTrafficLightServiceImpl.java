@@ -415,17 +415,20 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         for (int i = (contains ? 2 : 1); i < cachedDataList.size(); i++) {
             Map<Integer, Map<String, String>> dataMap = cachedDataList.get(i);
 
+            String username = "";
             // 获取工号
-            Map<String, String> usernameDataMap = dataMap.get(usernameIdx);
-            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && ObjectUtil.isEmpty(usernameDataMap)) {
-                throw new OtherException(sheetNoName + "sheet页工号不能为空");
-            }
-            String username = usernameDataMap.get("value");
-            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && ObjectUtil.isEmpty(username)) {
-                throw new OtherException(sheetNoName + "sheet页工号不能为空");
-            }
-            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && !usernameList.contains(username)) {
-                throw new OtherException(sheetNoName + "sheet页【" + username + "】" + "工号不存在");
+            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue())) {
+                Map<String, String> usernameDataMap = dataMap.get(usernameIdx);
+                if (ObjectUtil.isEmpty(usernameDataMap)) {
+                    throw new OtherException(sheetNoName + "sheet页工号不能为空");
+                }
+                username = usernameDataMap.get("value");
+                if (ObjectUtil.isEmpty(username)) {
+                    throw new OtherException(sheetNoName + "sheet页工号不能为空");
+                }
+                if (!usernameList.contains(username)) {
+                    throw new OtherException(sheetNoName + "sheet页【" + username + "】" + "工号不存在");
+                }
             }
 
             // 获取品牌
@@ -491,9 +494,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                         hrTrafficLightData.setBrandCode(item.getKey());
                     }
                 }
-                if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue())) {
-                    hrTrafficLightData.setUsername(username);
-                }
+                hrTrafficLightData.setUsername(username);
                 hrTrafficLightDataList.add(hrTrafficLightData);
             }
         }
