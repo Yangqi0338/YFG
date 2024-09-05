@@ -75,6 +75,7 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.BomPrintVo;
 import com.base.sbc.module.pack.dto.CopyBomDto;
 import com.base.sbc.module.pack.dto.CreatePackInfoByStyleDto;
+import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;

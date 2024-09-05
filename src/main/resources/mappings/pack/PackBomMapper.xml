@@ -520,10 +520,11 @@
             ELSE '2'
         END AS send_status
     FROM
-        t_pack_bom WHERE foreign_id IN
+        t_pack_bom tpb WHERE foreign_id IN
         <foreach collection="foreignIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach> and pack_type = 'packDesign' and del_flag = '0' and stage_flag = 'packDesign'
+        and bom_version_id =  (select id from t_pack_bom_version  tpbv where tpbv.foreign_id = tpb.foreign_id and status = '1' limit 1)
     GROUP BY
         foreign_id;
 
