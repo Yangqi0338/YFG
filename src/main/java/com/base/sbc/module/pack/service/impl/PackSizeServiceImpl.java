@@ -313,7 +313,7 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
         //判断一下状态，如果是以下发SCM 不允许接收，需要解锁后
         PackInfo packInfo = packInfoList.get(0);
         PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), "packBigGoods");
-        if(StrUtil.isNotBlank(packInfoStatus.getTechScmSendFlag()) && "1".equals(packInfoStatus.getTechScmSendFlag())){
+        if(StrUtil.isNotBlank(packInfoStatus.getTechSpecConfirmStatus()) && "2".equals(packInfoStatus.getTechSpecConfirmStatus())){
             return ApiResult.error("工艺资料包已下发SCM，不允许接收尺寸信息",500);
         }
 
