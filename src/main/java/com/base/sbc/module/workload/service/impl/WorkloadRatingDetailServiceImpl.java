@@ -141,9 +141,8 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                         config.setCalculateType(WorkloadRatingCalculateType.APPEND);
                         workloadRatingDetail.setResult(workloadRatingDetail.getResult().add(score));
                     }
-                    workloadRatingDetail.getExtend().put(config.getConfigName(), config.getScore());
-
                     config.setScore(score);
+                    workloadRatingDetail.getExtend().put(config.getConfigName(), config.getScore());
                     config.setItemId(ratingItemList.stream().map(WorkloadRatingItem::getId).collect(Collectors.joining(COMMA)));
                 });
             });
