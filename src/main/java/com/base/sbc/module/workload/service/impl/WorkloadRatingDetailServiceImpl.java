@@ -148,6 +148,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                 });
             });
         }
+        workloadRatingDetail.getExtend().put("workloadRatingRemark", workloadRatingDetail.getWorkloadRatingRemark());
 
         String itemValue = workloadRatingDetail.getItemValue();
         // type brand itemValue 唯一
