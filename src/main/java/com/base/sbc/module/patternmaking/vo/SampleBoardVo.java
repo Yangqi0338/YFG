@@ -372,6 +372,23 @@ public class SampleBoardVo extends Style {
     private BigDecimal workloadRatingRate;
     private BigDecimal workloadRatingAppend;
 
+    //面料名称
+    private String workloadRatingFabricName;
+    //特种设备名称
+    private String specialEquipmentName;
+    //特种设备分值
+    private BigDecimal specialEquipmentValue;
+    //有无里布
+    private String haveSingle;
+    //对格对条分值
+    private BigDecimal workloadRatingValue;
+    //配饰分值
+    private BigDecimal accessoryValue;
+    //其他分值
+    private BigDecimal otherValue;
+    //备注
+    private String workloadRatingRemark;
+
     /**
      * 工作量品类
      */
