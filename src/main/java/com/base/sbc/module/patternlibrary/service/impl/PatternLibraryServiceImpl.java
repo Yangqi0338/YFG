@@ -420,7 +420,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                     "/pdm/api/saas/patternLibrary/approval",
                     "/pdm/api/saas/patternLibrary/approval",
                     "/pdm/api/saas/patternLibrary/approval",
-                    "/productLibrary/model?patternLibraryId=" + patternLibrary.getId() + "?code=" + patternLibrary.getCode(),
+                    "/productLibrary/model?patternLibraryId=" + patternLibrary.getId() + "&code=" + patternLibrary.getCode(),
                     BeanUtil.beanToMap(patternLibrary)
             );
         }
