@@ -3,10 +3,10 @@ package com.base.sbc.config.datasource;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SqlProperties;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
+import com.base.sbc.module.httplog.entity.HttpLog;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -114,9 +114,9 @@ public class SqlPrintInterceptor implements Interceptor {
 
         long end = System.currentTimeMillis();
         long timing = end - start;
-        UserCompany userCompany = companyUserInfo.get();
+        HttpLog httpLog = companyUserInfo.get().getHttpLog();
         if (logger.isInfoEnabled()) {
-            logger.info(String.format("\n执行sql耗时:%s ms  方法ID: %s  线程ID: %s\nSQL语句:%s", timing, statementId, userCompany.getMainThreadId(), sql1));
+            logger.info(String.format("\n执行sql耗时:%s ms  方法ID: %s  线程ID: %s\nSQL语句:%s", timing, statementId, httpLog.getThreadId(), sql1));
         }
         //记录sql信息
         // 节省位置 不记录 改成 上面打印日志是显示线程id,然后通过日志定位
