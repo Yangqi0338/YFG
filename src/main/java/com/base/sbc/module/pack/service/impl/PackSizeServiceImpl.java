@@ -327,8 +327,10 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
         //获取尺寸表配置
         PackSizeConfigVo oldConfig = packSizeConfigService.getConfig(foreignId, openPackSizeDto.getPackType());
 
+        PackSizeConfig config = openPackSizeDto.getConfig();
+
         //查询号型类型
-        List<BasicsdatumModelType> basicsdatumModelTypes = basicsdatumModelTypeService.queryByCode(BaseConstant.DEF_COMPANY_CODE, oldConfig.getSizeRange());
+        List<BasicsdatumModelType> basicsdatumModelTypes = basicsdatumModelTypeService.queryByCode(BaseConstant.DEF_COMPANY_CODE, openPackSizeDto.getConfig().getSizeRange());
         if(CollUtil.isEmpty(basicsdatumModelTypes)) {
             return ApiResult.error("号型类型没有找到尺码信息",500);
         }
@@ -336,7 +338,6 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
         List<String> productSizeList = Arrays.asList(productSizes.split(","));
 
         //校验对方修改的尺码表信息
-        PackSizeConfig config = openPackSizeDto.getConfig();
         String activeSizes = config.getActiveSizes();
         List<String> activeSizeList = Arrays.asList(activeSizes.split(","));
         if(!activeSizeList.contains(config.getDefaultSize())){
