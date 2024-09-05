@@ -143,6 +143,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 ObjectUtil.isNotEmpty(hrTrafficLightDetailDTO.getUsername()),
                 "username",
                 hrTrafficLightDetailDTO.getUsername());
+        hrTrafficLightDataQueryWrapper.isNull("username");
+        hrTrafficLightDataQueryWrapper.eq("username", "");
 
         dataPermissionsService.getDataPermissionsForQw(hrTrafficLightDataQueryWrapper, DataPermissionsBusinessTypeEnum.hrTrafficLight.getK());
 
@@ -265,23 +267,23 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public synchronized void readExcel(MultipartFile file,
-                          String hrTrafficLightId,
-                          Integer trafficLightVersionType,
-                          String sheetNoName,
-                          Long time,
-                          List<Integer> twoHeadType) {
+                                       String hrTrafficLightId,
+                                       Integer trafficLightVersionType,
+                                       String sheetNoName,
+                                       Long time,
+                                       List<Integer> twoHeadType) {
         // 根据 sheet 名称生成版本号
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         String version = "RSHLD" + simpleDateFormat.format(new Date());
         Object no = redisUtils.get("HrTrafficLight:" + sheetNoName + ":" + version);
 
         if (ObjectUtil.isEmpty(no)) {
-            redisUtils.set("HrTrafficLight:" + sheetNoName + ":" + version, 1, 60*60*25);
+            redisUtils.set("HrTrafficLight:" + sheetNoName + ":" + version, 1, 60 * 60 * 25);
             version = version + "01";
         } else {
             Integer intNo = Integer.valueOf(String.valueOf(no));
             intNo++;
-            redisUtils.set("HrTrafficLight:" + sheetNoName + ":" + version, intNo, 60*60*25);
+            redisUtils.set("HrTrafficLight:" + sheetNoName + ":" + version, intNo, 60 * 60 * 25);
             version = version + String.format("%02d", intNo);
         }
         // 初始化表格数据
@@ -409,7 +411,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         if (ObjectUtil.isEmpty(brandIdx)) {
             throw new OtherException(sheetNoName + "sheet页品牌不能为空");
         }
-        if (ObjectUtil.isEmpty(usernameIdx)) {
+        if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && ObjectUtil.isEmpty(usernameIdx)) {
             throw new OtherException(sheetNoName + "sheet页工号不能为空");
         }
         for (int i = (contains ? 2 : 1); i < cachedDataList.size(); i++) {
@@ -421,10 +423,10 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 throw new OtherException(sheetNoName + "sheet页工号不能为空");
             }
             String username = usernameDataMap.get("value");
-            if (ObjectUtil.isEmpty(username)) {
+            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && ObjectUtil.isEmpty(username)) {
                 throw new OtherException(sheetNoName + "sheet页工号不能为空");
             }
-            if (!usernameList.contains(username)) {
+            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && !usernameList.contains(username)) {
                 throw new OtherException(sheetNoName + "sheet页【" + username + "】" + "工号不存在");
             }
 
@@ -491,7 +493,9 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                         hrTrafficLightData.setBrandCode(item.getKey());
                     }
                 }
-                hrTrafficLightData.setUsername(username);
+                if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue())) {
+                    hrTrafficLightData.setUsername(username);
+                }
                 hrTrafficLightDataList.add(hrTrafficLightData);
             }
         }
