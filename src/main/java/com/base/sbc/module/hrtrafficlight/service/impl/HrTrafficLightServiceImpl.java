@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.plaf.basic.BasicRadioButtonMenuItemUI;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -374,10 +375,18 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         // 获取所有工号信息
         List<User> users = amcService.allUsers();
         List<String> usernameList = users.stream().map(User::getUsername).collect(Collectors.toList());
-        // 获取所有品牌信息
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
-        Map<String, String> brandMap = dictInfoToMap.get("C8_Brand");
-        Collection<String> brandValueList = brandMap.values();
+        // 获取部门-品牌信息
+        Map<String, Map<String, String>> brandMaps = ccmFeignService.getDictInfoToMap("C8_Brand");
+        Map<String, String> brandMap = brandMaps.get("C8_Brand");
+        if (ObjectUtil.isEmpty(brandMap)) {
+            throw new OtherException("请维护字典【品牌（C8_Brand）】");
+        }
+        Map<String, Map<String, String>> deptBrandMaps = ccmFeignService.getDictInfoToMap("dept_brand");
+        Map<String, String> deptBrandMap = deptBrandMaps.get("dept_brand");
+        if (ObjectUtil.isEmpty(deptBrandMap)) {
+            throw new OtherException("请维护字典【部门-品牌（dept_brand）】");
+        }
+        Collection<String> deptBrandList = deptBrandMap.keySet();
 
         // 再生成人事红红绿灯数据
         List<HrTrafficLightData> hrTrafficLightDataList = new ArrayList<>(cachedDataList.size() - 1);
@@ -387,8 +396,8 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         Map<Integer, Map<String, String>> twoHeadMap = cachedDataList.get(1);
         // 根据一级表头拿列的索引
         Set<Integer> idxSet = oneHeadMap.keySet();
-        // 初始化品牌的索引列位置
-        Integer brandIdx = null;
+        // 初始化部门的索引列位置
+        Integer deptIdx = null;
         // 初始化工号的索引列位置
         Integer usernameIdx = null;
 
@@ -398,16 +407,16 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
         for (int head = 0; head < headList.size(); head++) {
             Map<String, String> headMap = headList.get(head);
             String data = headMap.get("value");
-            if ("品牌".equals(data)) {
-                brandIdx = head;
+            if ("部门".equals(data)) {
+                deptIdx = head;
             }
             if ("工号".equals(data)) {
                 usernameIdx = head;
             }
         }
 
-        if (ObjectUtil.isEmpty(brandIdx)) {
-            throw new OtherException(sheetNoName + "sheet页品牌不能为空");
+        if (ObjectUtil.isEmpty(deptIdx)) {
+            throw new OtherException(sheetNoName + "sheet页部门不能为空");
         }
         if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && ObjectUtil.isEmpty(usernameIdx)) {
             throw new OtherException(sheetNoName + "sheet页工号不能为空");
@@ -431,17 +440,17 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 }
             }
 
-            // 获取品牌
-            Map<String, String> brandDataMap = dataMap.get(brandIdx);
-            if (ObjectUtil.isEmpty(brandDataMap)) {
-                throw new OtherException(sheetNoName + "sheet页品牌不能为空");
+            // 获取部门
+            Map<String, String> deptDataMap = dataMap.get(deptIdx);
+            if (ObjectUtil.isEmpty(deptDataMap)) {
+                throw new OtherException(sheetNoName + "sheet页部门不能为空");
             }
-            String brandName = brandDataMap.get("value");
-            if (ObjectUtil.isEmpty(brandName)) {
-                throw new OtherException(sheetNoName + "sheet页品牌不能为空");
+            String deptName = deptDataMap.get("value");
+            if (ObjectUtil.isEmpty(deptName)) {
+                throw new OtherException(sheetNoName + "sheet页部门不能为空");
             }
-            if (!brandValueList.contains(brandName)) {
-                throw new OtherException(sheetNoName + "sheet页【" + brandName + "】品牌不存在");
+            if (!deptBrandList.contains(deptName)) {
+                throw new OtherException(sheetNoName + "sheet页【" + deptName + "】部门不存在字典【部门-品牌（dept_brand）】中，请维护后重新导入");
             }
             String oneHeadTemp = "";
             String oneHeadFontColorTemp = "";
@@ -488,6 +497,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 hrTrafficLightData.setOneHeadBackColor(oneHeadBackColor);
                 hrTrafficLightData.setColor(fontColor);
                 hrTrafficLightData.setBackColor(backColor);
+                String brandName = deptBrandMap.get(deptName);
                 hrTrafficLightData.setBrandName(brandName);
                 for (Map.Entry<String, String> item : brandMap.entrySet()) {
                     if (brandName.equals(item.getValue())) {
