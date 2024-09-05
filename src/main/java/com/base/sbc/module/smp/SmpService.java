@@ -1918,7 +1918,7 @@ public class SmpService {
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL == type) {
                     // 当status 等于4 待品控确认反审核只取消上一级
-                    if (HangTagStatusEnum.TRANSLATE_CHECK == hangTag.getStatus()) {
+                    if (HangTagStatusEnum.QC_CHECK == hangTag.getStatus()) {
                         // 反审
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
                         tagConfirmDateDto.setTechnicalConfirm(0);
@@ -2033,7 +2033,8 @@ public class SmpService {
         }
         String params = JSONArray.toJSONString(list);
 
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params, Pair.of("moduleName", "scm"), Pair.of("functionName", "下发吊牌和款式定价确认状态和时间数据"));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params, Pair.of("moduleName", "scm"),
+                Pair.of("code", CollUtil.isEmpty(list) ? "" : list.get(0).getStyleNo()), Pair.of("functionName", "下发吊牌和款式定价确认状态和时间数据"));
 
         for (TagConfirmDateDto tagConfirmDateDto1 : list) {
             pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1));
