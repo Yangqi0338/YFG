@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -17,12 +15,10 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -47,15 +43,7 @@ import com.base.sbc.config.enums.business.workload.WorkloadRatingCalculateType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.DateUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.QueryGenerator;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
@@ -74,56 +62,19 @@ import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
-import com.base.sbc.module.patternmaking.dto.AssignmentUserDto;
-import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDesignReceiptDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingReferSampleDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingTaskSearchDto;
-import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
-import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
-import com.base.sbc.module.patternmaking.dto.SaveAttachmentDto;
-import com.base.sbc.module.patternmaking.dto.ScoreConfigSearchDto;
-import com.base.sbc.module.patternmaking.dto.SetKittingDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.SetSampleBarCodeDto;
-import com.base.sbc.module.patternmaking.dto.SetSortDto;
-import com.base.sbc.module.patternmaking.dto.StyleSendDto;
-import com.base.sbc.module.patternmaking.dto.SuspendDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.service.ScoreConfigService;
-import com.base.sbc.module.patternmaking.vo.NodeListVo;
-import com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo;
-import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingCommonPageSearchVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingScoreVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo;
-import com.base.sbc.module.patternmaking.vo.PatternUserSearchVo;
-import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
-import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
-import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
-import com.base.sbc.module.patternmaking.vo.StyleResearchNodeVo;
-import com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo;
-import com.base.sbc.module.patternmaking.vo.StyleStepVo;
-import com.base.sbc.module.patternmaking.vo.SuspendDateRecordVo;
-import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
+import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.base.sbc.module.workload.dto.WorkloadRatingDetailDTO;
-import com.base.sbc.module.workload.entity.WorkloadRatingDetail;
 import com.base.sbc.module.workload.service.WorkloadRatingDetailService;
 import com.base.sbc.module.workload.vo.WorkloadRatingDetailQO;
 import com.github.pagehelper.Page;
@@ -144,19 +95,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -1633,59 +1572,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
-        List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
 
-        // 获取评分
-        Collection<SampleBoardExcel> ratingExcelList = CommonUtils.filterNotEmpty(excelList, SampleBoardExcel::getWorkloadRatingId);
-        List<String> workloadRatingIdList = ratingExcelList.stream().map(SampleBoardExcel::getWorkloadRatingId).collect(Collectors.toList());
-        if (CollUtil.isNotEmpty(workloadRatingIdList)) {
-            List<WorkloadRatingDetail> list = workloadRatingDetailService.listByIds(workloadRatingIdList);
-            ratingExcelList.forEach(excel -> {
-                list.stream().filter(it -> it.getId().equals(excel.getWorkloadRatingId())).findFirst().ifPresent(detail -> {
-                    excel.setAppend(new BigDecimal(detail.getExtend().getOrDefault("append", BigDecimal.ZERO).toString()));
-                    excel.setBase(new BigDecimal(detail.getExtend().getOrDefault("base", "0").toString()));
-                    excel.setRate(new BigDecimal(detail.getExtend().getOrDefault("rate", "0").toString()));
-                    excel.setRatingFabricName(detail.getFabricName());
-                    excel.setRatingOtherName(detail.getOtherName());
-                });
-            });
-        }
-
-
-        /*开启一个线程池*/
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(excelList.size()))
-                .build();
-        try {
-            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                /*获取图片链接*/
-                stylePicUtils.setStylePic(excelList, "stylePic",30);
-                /*计时器*/
-                CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
-                for (SampleBoardExcel sampleBoardExcel : excelList) {
-                    executor.submit(() -> {
-                        try {
-                            final String stylePic = sampleBoardExcel.getStylePic();
-                            sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
-                        } finally {
-                            //每次减一
-                            countDownLatch.countDown();
-                            log.info(String.valueOf(countDownLatch.getCount()));
-                        }
-                    });
-                }
-                countDownLatch.await();
-            }
-            ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
-        } catch (Exception e) {
-            log.info(e.getMessage());
-        } finally {
-            executor.shutdown();
-        }
+        ExcelUtils.exportExcelByTableCode(sampleBoardVoPageInfo.getList(), "样衣看板", response, dto);
     }
     @Override
     public boolean receiveSample(String id) {
@@ -2186,6 +2074,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateBean.setWorkloadRatingBase(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.BASE.getCode(), "0")));
         updateBean.setWorkloadRatingRate(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.RATE.getCode(), "0")));
         updateBean.setWorkloadRatingAppend(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault(WorkloadRatingCalculateType.APPEND.getCode(), "0")));
+
+        //面料名称
+        updateBean.setWorkloadRatingFabricName(dto.getWorkloadRatingFabricName());
+        //特种设备名称
+        updateBean.setSpecialEquipmentName(dto.getSpecialEquipmentName());
+        //特种设备分值
+        updateBean.setSpecialEquipmentValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("利用特种设备",BigDecimal.ZERO)));
+        //有无里布
+        updateBean.setHaveSingle(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("有无里布",BigDecimal.ZERO)));
+        //对格对条分值
+        updateBean.setWorkloadRatingValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("对条对格",BigDecimal.ZERO)));
+        //配饰分值
+        updateBean.setAccessoryValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("配饰分",BigDecimal.ZERO)));
+        //其他分值
+        updateBean.setOtherValue(BigDecimalUtil.convertBigDecimal(detailDTO.getExtend().getOrDefault("其他分",BigDecimal.ZERO)));
+        //备注
+        updateBean.setWorkloadRatingRemark(dto.getWorkloadRatingRemark());
 
         return update(updateBean, new LambdaUpdateWrapper<PatternMaking>().eq(PatternMaking::getId, id));
     }
