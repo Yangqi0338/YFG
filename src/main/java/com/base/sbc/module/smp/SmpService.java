@@ -226,7 +226,7 @@ public class SmpService {
     @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/information/pdm}")
     private String SCM_URL;
 
-    @Value("${interface.zlyScmUrl:http://10.98.250.71:9733}")
+    @Value("${interface.zlyScmUrl1:http://10.98.250.71:9733}")
     private String ZLY_SCM_URL1;
 
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
