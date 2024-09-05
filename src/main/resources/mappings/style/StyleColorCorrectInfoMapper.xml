@@ -50,7 +50,7 @@
             tsc.devt_type      as  devtType,
             tsc.devt_type_name as  devtTypeName,
             ts.designer_id,
-            (SUBSTRING_INDEX(ts.designer, ",", 1)) as designer
+            (SUBSTRING_INDEX(ts.designer, ",", 1)) as designer,
             ts.design_no          designNo,
             ts.technician_name,
             ts.pattern_design_id,
