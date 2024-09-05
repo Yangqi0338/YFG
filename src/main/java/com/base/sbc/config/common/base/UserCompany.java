@@ -6,10 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
+import com.base.sbc.module.httplog.entity.HttpLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,9 +52,8 @@ public class UserCompany extends BaseDataEntity<String> {
 
 	private List<String> virtualDeptIds;
 
-    private String httpLogId;
-    private String mainThreadId;
-	private Date startTime;
+	private HttpLog httpLog;
+
 //    private List<String> threadIdList;
 
 //    private List<Job> jobList;
