@@ -16,7 +16,6 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.difference.entity.Difference;
 import com.base.sbc.module.difference.service.DifferenceService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
@@ -72,9 +71,6 @@ public class PackSizeConfigServiceImpl extends AbstractPackBaseServiceImpl<PackS
 
     @Autowired
     private DifferenceService differenceService;
-
-    @Autowired
-    private BasicsdatumRangeDifferenceService basicsdatumRangeDifferenceService;
 
     @Autowired
     private PackSizeService packSizeService;
@@ -138,7 +134,7 @@ public class PackSizeConfigServiceImpl extends AbstractPackBaseServiceImpl<PackS
             //查询当差下的测量点
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("range_difference_id", config.getDifferenceId());
-            queryWrapper.eq("part_coed",dto.getPartCoed());
+            queryWrapper.eq("part_code",dto.getPartCoed());
             List<Difference> differenceList = differenceService.list(queryWrapper);
             if(CollUtil.isNotEmpty(differenceList)){
                 return differenceList.get(0);
@@ -167,7 +163,7 @@ public class PackSizeConfigServiceImpl extends AbstractPackBaseServiceImpl<PackS
                 List<Difference> differenceList = differenceService.list(queryWrapper);
                 if (CollUtil.isNotEmpty(differenceList)) {
                     /*测量部位下的当差*/
-                    Map<String, List<Difference>> differenceMap = differenceList.stream().collect(Collectors.groupingBy(p -> p.getPartCoed()));
+                    Map<String, List<Difference>> differenceMap = differenceList.stream().collect(Collectors.groupingBy(p -> p.getPartCode()));
                     /*循环匹配测量部位*/
                     for (PackSizeVo packSizeVo : packSizeVoList) {
                         if (StringUtils.isNotBlank(packSizeVo.getPartCode())) {
