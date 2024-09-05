@@ -417,7 +417,7 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
 
             // 获取工号
             Map<String, String> usernameDataMap = dataMap.get(usernameIdx);
-            if (ObjectUtil.isEmpty(usernameDataMap)) {
+            if (!sheetNoName.equals(HrTrafficLightVersionTypeEnum.BM.getValue()) && ObjectUtil.isEmpty(usernameDataMap)) {
                 throw new OtherException(sheetNoName + "sheet页工号不能为空");
             }
             String username = usernameDataMap.get("value");
