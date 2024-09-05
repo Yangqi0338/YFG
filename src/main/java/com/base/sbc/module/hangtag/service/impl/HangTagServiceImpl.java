@@ -986,9 +986,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							String devtTypeName = styleColor.getDevtTypeName();
 							String[] split = bulkStyleNo.split("-");
 
-							List<String> reportingAll = CollUtil.newArrayList("-9", "-10", "-11", "-ZC");
-							List<String> reportingOne = CollUtil.newArrayList("-9");
-							List<String> reportingTwo = CollUtil.newArrayList("-10", "-11", "-ZC");
+							List<String> reportingAll = CollUtil.newArrayList("9", "10", "11", "ZC");
+							List<String> reportingOne = CollUtil.newArrayList("9");
+							List<String> reportingTwo = CollUtil.newArrayList("10", "11", "ZC");
 
 							String isDefective = styleColor.getIsDefective();
 
