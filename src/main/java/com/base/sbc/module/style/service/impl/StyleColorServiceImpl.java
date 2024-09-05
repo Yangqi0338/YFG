@@ -3755,6 +3755,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 //                }
             }
 
+            //当有错误信息时跳过，方便后面逻辑执行
+            if (StrUtil.isNotEmpty(errorInfo)) {
+                continue;
+            }
+
 
             updateHangTag.setId(styleColorAgentVo.getHangTagId());
             updateHangTag.setIngredient(ingredient);
