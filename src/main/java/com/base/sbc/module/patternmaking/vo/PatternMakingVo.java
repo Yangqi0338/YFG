@@ -56,6 +56,8 @@ public class PatternMakingVo extends PatternMaking {
 
     private String samplePicUrl4;
 
+    private String sampleUrl;
+
     /** 打版视频文件url */
     @ApiModelProperty(value = "打版视频文件url"  )
     private String sampleVideoUrl;
@@ -93,6 +95,13 @@ public class PatternMakingVo extends PatternMaking {
             this.samplePicUrl4 = getSamplePicFileId4();
         }
         return samplePicUrl4;
+    }
+
+    public String getSampleUrl() {
+        if (StringUtils.isEmpty(sampleUrl)){
+            this.sampleUrl = getSampleFile();
+        }
+        return sampleUrl;
     }
 
     public String getSampleVideoUrl() {

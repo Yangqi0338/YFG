@@ -39,6 +39,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
@@ -245,7 +246,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         qw.orderBy(true, true , "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
-        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl");
+        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl", "sampleUrl");
         if (ObjectUtil.isNotEmpty(patternMakingListVos)) {
             // 根据款查询对应套版款的可否改版信息并设置
             Style styleInfo = styleService.getById(styleId);
@@ -1219,7 +1220,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置状态
         nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");
         //填充url
-        uploadFileService.setObjectUrlToObject(vo,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl");
+        uploadFileService.setObjectUrlToObject(vo,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl", "sampleUrl");
         // 根据款查询对应套版款的版型库文件信息
         Style styleInfo = styleService.getById(vo.getStyleId());
         if (ObjectUtil.isNotEmpty(styleInfo) && ObjectUtil.isNotEmpty(styleInfo.getRegisteringId())) {
@@ -1814,9 +1815,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     SampleBoardVo::setRatingProdCategory, SampleBoardVo::setRatingDetailDTO, SampleBoardVo::setRatingConfigList);
         }
 
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
-        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
-
+        if (StrUtil.isBlank(dto.getDevtType()) || !"FOB".equals(dto.getDevtType())) {
+            pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
+        }
         return pageVo;
     }
 
@@ -3152,6 +3155,212 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         this.saveLog(operaLogEntity);
         // 修改单据
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public PatternMaking savePatternMakingFOB(PatternMaking patternMaking) {
+        BigDecimal patternMakingScore = BigDecimal.ZERO;
+        // 校验打样顺序重复
+        checkPatSeqRepeatFob(patternMaking.getPatternRoomId(), patternMaking.getSupplierStyleNo(), patternMaking.getSampleType(), patternMaking.getPatSeq(),null);
+
+        //这里根据 供应商+款号查询一下，如果之前的已经绑定设计款了，这里直接也绑定这个设计款 TODO
+
+        if (StrUtil.isNotBlank(patternMaking.getStyleId())) {
+            Style style = styleService.getById(patternMaking.getStyleId());
+            if (style == null) {
+                throw new OtherException("款式设计不存在");
+            }
+            if (StrUtil.equals(style.getEnableStatus(), BaseGlobal.YES)) {
+                throw new OtherException("款式设计已停用");
+            }
+            if (StrUtil.equals("初版样", patternMaking.getSampleType())) {
+                patternMakingScore = Opt.ofNullable(scoreConfigService.findOne(BeanUtil.copyProperties(style, ScoreConfigSearchDto.class))).map(ScoreConfig::getPatternDefaultScore).orElse(BigDecimal.ZERO);
+            }
+
+            patternMaking.setCode(getNextCode(style));
+            patternMaking.setPlanningSeasonId(style.getPlanningSeasonId());
+            //patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
+            //patternMaking.setPatternDesignName(style.getPatternDesignName());
+            //patternMaking.setPatternDesignId(style.getPatternDesignId());
+            patternMaking.setBindDesign("1");
+        }else{
+            //新建打版指令，没有绑定设计款， 绑定设计款时，补充这些字段
+            patternMaking.setStyleId("");
+            patternMaking.setCode("");
+            patternMaking.setPlanningSeasonId("");
+            patternMaking.setBindDesign("0");
+        }
+
+        if (StrUtil.equals(patternMaking.getTechnicianKitting(), BaseGlobal.YES)) {
+            patternMaking.setTechnicianKittingDate(new Date());
+        }
+        //设置版师工作量评分
+        patternMaking.setPatternMakingScore(patternMakingScore);
+        patternMaking.setSglKitting(BaseGlobal.NO);
+        patternMaking.setBreakOffPattern(BaseGlobal.NO);
+        patternMaking.setBreakOffSample(BaseGlobal.NO);
+        patternMaking.setPrmSendStatus(BaseGlobal.NO);
+        patternMaking.setDesignSendStatus(BaseGlobal.NO);
+        // patternMaking.setSecondProcessing(BaseGlobal.NO);
+        patternMaking.setSuspend(BaseGlobal.NO);
+        patternMaking.setReceiveSample(BaseGlobal.NO);
+        patternMaking.setExtAuxiliary(BaseGlobal.NO);
+        patternMaking.setSampleFinishNum(patternMaking.getRequirementNum());
+        patternMaking.setCutterFinishNum(patternMaking.getRequirementNum());
+        //添加创建人部门字段
+        patternMaking.setCreateDeptId(getVirtualDeptIds());
+        save(patternMaking);
+
+        return patternMaking;
+    }
+
+    @Override
+    public void checkPatSeqRepeatFob(String patternRoomId, String supplierStyleNo, String sampleType, String patSeq, String id) {
+        //校验打样顺序重复  patSeq
+        LambdaQueryWrapper<PatternMaking> patSeqQw = new LambdaQueryWrapper<>();
+        patSeqQw.eq(PatternMaking::getPatternRoomId, patternRoomId);
+        patSeqQw.eq(PatternMaking::getSupplierStyleNo, supplierStyleNo);
+        patSeqQw.eq(PatternMaking::getSampleType, sampleType);
+        patSeqQw.eq(PatternMaking::getPatSeq, patSeq);
+        patSeqQw.ne(PatternMaking::getId, id);
+        long patSeqCount = count(patSeqQw);
+        if (patSeqCount > 0) {
+            throw new OtherException("供应商+厂家款号+打版类型+打版顺序 重复");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public void bindFOB(PatternMakingBindDto dto) {
+        String styleId = dto.getStyleId();
+
+        List<PatternMakingBindDto.PMBindDetailDto> bindList = dto.getList();
+
+        List<String> patternRoomIdList = new ArrayList<>();
+        List<String> supplierStyleNoList= new ArrayList<>();
+        bindList.forEach(o->{
+            patternRoomIdList.add(o.getPatternRoomId());
+            supplierStyleNoList.add(o.getSupplierStyleNo());
+        });
+
+        //根据供应商+款号查询所有数据
+        LambdaQueryWrapper<PatternMaking> patSeqQw = new LambdaQueryWrapper<>();
+        patSeqQw.in(PatternMaking::getPatternRoomId, patternRoomIdList);
+        patSeqQw.in(PatternMaking::getSupplierStyleNo, supplierStyleNoList);
+        List<PatternMaking> list = list(patSeqQw);
+        Map<String, List<PatternMaking>> dbMap = list.stream().collect(Collectors.groupingBy(o -> o.getPatternRoomId() + o.getSupplierStyleNo()));
+
+        //copy保存日志使用
+        List<PatternMaking> oldList = BeanUtil.copyToList(list, PatternMaking.class);
+        Map<String, PatternMaking> oldMap = oldList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+
+        //查询设计款，绑定时补充字段
+        Style style = styleService.getById(styleId);
+
+        List<PatternMaking> updateList = new ArrayList<>();
+        OperaLogEntity operaLogEntity;
+
+        for (PatternMakingBindDto.PMBindDetailDto dto1 : bindList) {
+            List<PatternMaking> patternMakings = dbMap.get(dto1.getPatternRoomId() + dto1.getSupplierStyleNo());
+            for (PatternMaking patternMaking : patternMakings) {
+                patternMaking.setStyleId(styleId);
+                patternMaking.setCode(getNextCode(style));
+                patternMaking.setPlanningSeasonId(style.getPlanningSeasonId());
+                //patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
+                //patternMaking.setPatternDesignName(style.getPatternDesignName());
+                //patternMaking.setPatternDesignId(style.getPatternDesignId());
+                patternMaking.setBindDesign("1");
+
+                updateList.add(patternMaking);
+
+                PatternMaking oldDto = oldMap.get(patternMaking.getId());
+                operaLogEntity = new OperaLogEntity();
+                operaLogEntity.setType("绑定");
+                operaLogEntity.setName("打板指令FOB");
+                operaLogEntity.setParentId(patternMaking.getStyleId());
+                operaLogEntity.setDocumentId(patternMaking.getId());
+                operaLogEntity.setDocumentCode(patternMaking.getPatternRoom()+patternMaking.getSupplierStyleNo());
+                operaLogEntity.setDocumentName(patternMaking.getPatternNo());
+
+                saveOrUpdateOperaLog(patternMaking, oldDto, operaLogEntity);
+            }
+        }
+
+        if(CollUtil.isNotEmpty(updateList)){
+            updateBatchById(updateList);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public void unBindFOB(String ids) {
+        List<PatternMaking> list = listByIds(Arrays.asList(ids.split(",")));
+        //copy保存日志使用
+        List<PatternMaking> oldList = BeanUtil.copyToList(list, PatternMaking.class);
+        Map<String, PatternMaking> oldMap = oldList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+
+        for (PatternMaking patternMaking : list) {
+            patternMaking.setStyleId("");
+            patternMaking.setCode("");
+            patternMaking.setPlanningSeasonId("");
+            //patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
+            //patternMaking.setPatternDesignName(style.getPatternDesignName());
+            //patternMaking.setPatternDesignId(style.getPatternDesignId());
+            patternMaking.setBindDesign("0");
+        }
+
+        updateBatchById(list);
+
+        OperaLogEntity operaLogEntity;
+        for (PatternMaking dto : list) {
+            PatternMaking oldDto = oldMap.get(dto.getId());
+            operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setType("绑定");
+            operaLogEntity.setName("打板指令FOB");
+            operaLogEntity.setParentId(dto.getStyleId());
+            operaLogEntity.setDocumentId(dto.getId());
+            operaLogEntity.setDocumentCode(dto.getPatternRoom()+dto.getSupplierStyleNo());
+            operaLogEntity.setDocumentName(dto.getPatternNo());
+
+            saveOrUpdateOperaLog(dto, oldDto, operaLogEntity);
+        }
+    }
+
+    @Override
+    public PageInfo listFob(PatternMakingFobListDto dto) {
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,dto);
+
+        qw.notEmptyEq("ts.design_no", dto.getDesignNo());
+        qw.notEmptyEq("tpm.pattern_room_id", dto.getPatternRoomId());
+        qw.notEmptyEq("tpm.supplier_style_no", dto.getSupplierStyleNo());
+        qw.notEmptyEq("tpm.prm_send_status", dto.getPrmSendStatus());
+        qw.notEmptyEq("tpm.bind_design", dto.getBindDesign());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.patternMakingFOBMune.getK());
+        Page<PatternMakingListVo> page = null;
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            page = PageHelper.startPage(dto);
+        }
+        List<PatternMakingListVo> list = getBaseMapper().listFob(qw);
+        // 设置图片
+        uploadFileService.setObjectUrlToList(list,"samplePicUrl","samplePicUrl1","samplePicUrl2","samplePicUrl3","samplePicUrl4", "sampleVideoUrl", "sampleUrl");
+        return page != null ? page.toPageInfo() : new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo listFobSum(PatternMakingFobListDto dto) {
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+        qw.notEmptyEq("tpm.pattern_room_id", dto.getPatternRoomId());
+        qw.notEmptyEq("tpm.supplier_style_no", dto.getSupplierStyleNo());
+        qw.groupBy("tpm.pattern_room_id,tpm.supplier_style_no");
+        Page<PatternMakingListVo> page = null;
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            page = PageHelper.startPage(dto);
+        }
+        List<PatternMakingListVo> list = getBaseMapper().listFobSum(qw);
+        return page != null ? page.toPageInfo() : new PageInfo<>(list);
     }
 
     // 自定义方法区 不替换的区域【other_end】

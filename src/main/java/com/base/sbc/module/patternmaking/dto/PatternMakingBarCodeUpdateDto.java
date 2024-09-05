@@ -6,10 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.dto;
 
-import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * 类描述：QueryDto 实体类
@@ -20,20 +18,8 @@ import java.util.List;
  * @version 1.0
  */
 @Data
-public class PatternMakingBarCodeQueryDto extends QueryFieldDto {
+public class PatternMakingBarCodeUpdateDto extends PatternMakingBarCode {
 
-	private static final long serialVersionUID = 1L;
-
-	private String designNo;
-	private String patternNo;
-	private String sampleTypeName;
-	private String yearName;
-	private String seasonName;
-	private String brandName;
-	private String barCode;
-	private List<String> statusList;
-	private String supplierId;
-	private String patternRoomId;
-	private String supplierStyleNo;
+	private String barCodeId;
 
 }

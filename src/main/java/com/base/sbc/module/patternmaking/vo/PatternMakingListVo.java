@@ -53,6 +53,8 @@ public class PatternMakingListVo extends PatternMaking {
 
     private String samplePicUrl4;
 
+    private String sampleUrl;
+
     /** 打版视频文件url */
     @ApiModelProperty(value = "打版视频文件url"  )
     private String sampleVideoUrl;
@@ -92,6 +94,13 @@ public class PatternMakingListVo extends PatternMaking {
         return samplePicUrl4;
     }
 
+    public String getSampleUrl() {
+        if (StringUtils.isEmpty(sampleUrl)){
+            this.sampleUrl = getSampleFile();
+        }
+        return sampleUrl;
+    }
+
     public String getSampleVideoUrl() {
         if (StringUtils.isEmpty(sampleVideoUrl)){
             this.sampleVideoUrl =  getSampleVideoFileId();
@@ -106,5 +115,14 @@ public class PatternMakingListVo extends PatternMaking {
     public String getPatDiff() {
         return Optional.ofNullable(patDiff).orElse(sdPatDiff);
     }
+
+    private String designNo;
+    private Integer patternMakingSum;
+    private String season;
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 
 }

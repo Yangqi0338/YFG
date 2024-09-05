@@ -37,6 +37,7 @@ import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.VirtualDept;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -130,6 +131,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private SmpService smpService;
     @Autowired
     private AmcService amcService;
+    @Lazy
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Autowired
     private WorkloadRatingDetailService workloadRatingDetailService;
@@ -307,6 +311,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 设置图
         stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
 
 //        if (false && "车缝进行中".equals(dto.getStatus()) && CollUtil.isNotEmpty(list)) {
 //            Map<String, Style> styleMap = styleService.listByIds(

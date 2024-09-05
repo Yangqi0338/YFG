@@ -604,4 +604,78 @@ public class PatternMakingController {
 
 
 
+
+
+    @ApiOperation(value = "保存")
+    @PostMapping("/saveFOB")
+    public PatternMaking saveFOB(@RequestBody PatternMaking dto) {
+        PatternMaking patternMaking = patternMakingService.savePatternMakingFOB(dto);
+        OperaLogEntity operaLogEntity =new OperaLogEntity();
+        operaLogEntity.setType("新增");
+        operaLogEntity.setName("打板指令FOB");
+        operaLogEntity.setParentId(dto.getStyleId());
+        operaLogEntity.setDocumentId(dto.getId());
+        operaLogEntity.setDocumentCode(dto.getPatternRoom()+dto.getSupplierStyleNo());
+        operaLogEntity.setDocumentName(dto.getPatternNo());
+        patternMakingService.saveOrUpdateOperaLog(patternMaking, null, operaLogEntity);
+        return patternMaking;
+    }
+
+    @ApiOperation(value = "修改")
+    @PutMapping("/updateFOB")
+    public PatternMaking updateFOB(@RequestBody PatternMaking dto) {
+        patternMakingService.checkPatSeqRepeatFob(dto.getPatternRoomId(), dto.getSupplierStyleNo(), dto.getSampleType(), dto.getPatSeq(),dto.getId());
+        PatternMaking old = patternMakingService.getById(dto.getId());
+
+        if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {
+            patternMakingService.sort(old, true);
+        }
+        if (!ObjectUtil.equal(old.getRequirementNum(), dto.getRequirementNum())) {
+            BigDecimal sampleFinishNum = Optional.ofNullable(dto.getSampleFinishNum()).orElse(old.getSampleFinishNum());
+            dto.setSampleFinishNum(Optional.ofNullable(sampleFinishNum).orElse(dto.getRequirementNum()));
+            dto.setCutterFinishNum(Optional.ofNullable(old.getCutterFinishNum()).orElse(dto.getRequirementNum()));
+        }
+        patternMakingService.updateById(dto);
+        if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {
+            patternMakingService.sort(dto, false);
+        }
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setType("修改");
+        operaLogEntity.setName("打板指令FOB");
+        operaLogEntity.setParentId(dto.getStyleId());
+        operaLogEntity.setDocumentId(dto.getId());
+        operaLogEntity.setDocumentCode(dto.getPatternRoom()+dto.getSupplierStyleNo());
+        operaLogEntity.setDocumentName(dto.getPatternNo());
+        patternMakingService.saveOrUpdateOperaLog(dto, old, operaLogEntity);
+        return dto;
+    }
+
+    @ApiOperation(value = "绑定")
+    @PostMapping("/bindFOB")
+    public ApiResult bindFOB(@RequestBody PatternMakingBindDto dto) {
+        patternMakingService.bindFOB(dto);
+        return ApiResult.success("绑定成功");
+    }
+
+    @ApiOperation(value = "解除绑定")
+    @GetMapping("/unBindFOB")
+    public ApiResult unBindFOB(String ids) {
+        patternMakingService.unBindFOB(ids);
+        return ApiResult.success("解除绑定成功");
+    }
+
+    @ApiOperation(value = "打版指令界面查询接口")
+    @GetMapping("/listFob")
+    public PageInfo listFob(PatternMakingFobListDto dto) {
+        return patternMakingService.listFob(dto);
+    }
+
+    @ApiOperation(value = "打版指令界面查询汇总接口")
+    @GetMapping("/listFobSum")
+    public PageInfo listFobSum(PatternMakingFobListDto dto) {
+        return patternMakingService.listFobSum(dto);
+    }
+
+
+
 }

@@ -441,6 +441,18 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     SampleBoardVo getWorkloadById(String id);
 
+    PatternMaking savePatternMakingFOB(PatternMaking dto);
+
+    void checkPatSeqRepeatFob(String patternRoomId, String supplierStyleNo, String sampleType, String patSeq, String id);
+
+    void bindFOB(PatternMakingBindDto dto);
+
+    void unBindFOB(String ids);
+
+    PageInfo listFob(PatternMakingFobListDto dto);
+
+    PageInfo listFobSum(PatternMakingFobListDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

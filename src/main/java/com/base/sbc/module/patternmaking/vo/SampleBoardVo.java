@@ -411,4 +411,14 @@ public class SampleBoardVo extends Style {
 //        return matcher.find();
         return true;
     }
+    private String status;
+    private String suggestion;
+    private String suggestionVideo;
+    private String suggestionImg;
+    private String suggestionImg1;
+    private String suggestionImg2;
+    private String suggestionImg3;
+    private String suggestionImg4;
+    private String barCodeUpdateDate;
+    private String barCodeId;
 }

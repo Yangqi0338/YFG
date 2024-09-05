@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeUpdateDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
 import com.base.sbc.module.patternmaking.vo.PatternMakingBarCodeVo;
@@ -93,6 +94,13 @@ public class PatternMakingBarCodeController {
     @PostMapping("/status")
     public ApiResult status(@RequestBody PatternMakingBarCode patternMakingBarCode) {
         patternMakingBarCodeService.status(patternMakingBarCode);
+        return ApiResult.success("保存成功");
+    }
+
+    @ApiOperation(value = "状态")
+    @PostMapping("/statusByPc")
+    public ApiResult statusByPc(@RequestBody PatternMakingBarCodeUpdateDto dto) {
+        patternMakingBarCodeService.statusByPc(dto);
         return ApiResult.success("保存成功");
     }
 

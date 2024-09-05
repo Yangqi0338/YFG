@@ -12,11 +12,13 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.nodestatus.service.impl.NodeStatusServiceImpl;
 import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeQueryDto;
+import com.base.sbc.module.patternmaking.dto.PatternMakingBarCodeUpdateDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingBarCode;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingBarCodeMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingBarCodeService;
@@ -27,6 +29,7 @@ import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +60,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     @Lazy
     @Resource
     private SmpService smpService;
+    @Autowired
+    private UploadFileService uploadFileService;
 
     public PatternMakingBarCodeServiceImpl(MinioUtils minioUtils, NodeStatusServiceImpl nodeStatusServiceImpl, StylePicUtils stylePicUtils, PreProductionSampleTaskFobService preProductionSampleTaskFobService) {
         super();
@@ -221,13 +226,15 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
     public PageInfo<PatternMakingBarCodeVo> pageAudit(PatternMakingBarCodeQueryDto dto) {
         Page<Object> objects = PageHelper.startPage(dto);
         BaseQueryWrapper<PatternMakingBarCode> qw = new BaseQueryWrapper<>();
-        qw.eq("ts.design_no",dto.getDesignNo());
+        qw.notEmptyEq("ts.design_no",dto.getDesignNo());
         qw.notEmptyEq("tpm.pattern_no",dto.getPatternNo());
         qw.notEmptyEq("tpmbc.bar_code",dto.getBarCode());
         qw.notEmptyEq("tpm.sample_type_name", dto.getSampleTypeName());
         qw.notEmptyEq("tpmbc.status", dto.getStatus());
         qw.notEmptyIn("tpmbc.status", Arrays.asList("1","2"));
         qw.notEmptyLike("tbs.supplier", dto.getSupplierId());
+        qw.notEmptyEq("tpm.pattern_room_id", dto.getPatternRoomId());
+        qw.notEmptyEq("tpm.supplier_style_no", dto.getSupplierStyleNo());
 
         qw.orderByDesc("tpmbc.create_date");
 
@@ -246,6 +253,8 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         minioUtils.setObjectUrlToList(list, "img", "suggestionImg", "suggestionVideo", "suggestionImg1", "suggestionImg2", "suggestionImg3", "suggestionImg4");
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        uploadFileService.setObjectUrlToList(list,"sampleUrl");
+
         return new PageInfo<>(list);
     }
 
@@ -269,6 +278,32 @@ public class PatternMakingBarCodeServiceImpl extends BaseServiceImpl<PatternMaki
         stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public void statusByPc(PatternMakingBarCodeUpdateDto dto) {
+        PatternMakingBarCode old = getById(dto.getBarCodeId());
+        old.updateInit();
+        old.setStatus(dto.getStatus());
+        old.setSuggestion(dto.getSuggestion());
+        old.setSuggestionImg(dto.getSuggestionImg());
+        old.setSuggestionImg1(dto.getSuggestionImg1());
+        old.setSuggestionImg2(dto.getSuggestionImg2());
+        old.setSuggestionImg3(dto.getSuggestionImg3());
+        old.setSuggestionImg4(dto.getSuggestionImg4());
+        old.setSuggestionVideo(dto.getSuggestionVideo());
+        updateById(old);
+
+        //推送外部系统
+        try {
+            List<String> list = Arrays.asList("11", "12");
+            if(list.contains(old.getStatus())){
+                PreProductionSampleTaskFob taskFob = preProductionSampleTaskFobService.getById(old.getHeadId());
+                smpService.pushPreProduction(old,taskFob);
+            }
+        }catch (Exception e){
+            log.error("产前样确认推送外部系统失败："+e.getMessage(),e);
+        }
     }
 
 
