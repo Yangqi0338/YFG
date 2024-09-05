@@ -143,8 +143,6 @@ public class HrTrafficLightServiceImpl extends ServiceImpl<HrTrafficLightMapper,
                 ObjectUtil.isNotEmpty(hrTrafficLightDetailDTO.getUsername()),
                 "username",
                 hrTrafficLightDetailDTO.getUsername());
-        hrTrafficLightDataQueryWrapper.isNull("username");
-        hrTrafficLightDataQueryWrapper.eq("username", "");
 
         dataPermissionsService.getDataPermissionsForQw(hrTrafficLightDataQueryWrapper, DataPermissionsBusinessTypeEnum.hrTrafficLight.getK());
 
