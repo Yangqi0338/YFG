@@ -1,6 +1,8 @@
 package com.base.sbc.config.utils;
 
 import com.aspose.cells.License;
+import com.aspose.cells.PageSetup;
+import com.aspose.cells.PaperSizeType;
 import com.aspose.cells.PdfSaveOptions;
 import com.aspose.cells.Workbook;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +77,8 @@ public class PdfUtil {
     /**
      * excel 转 pdf
      *excel文件路径
-     * @param pdfFilePath   pdf文件路径
+     * @param inputStream   输入
+     * @param outputStream   输出
      * @param convertSheets 需要转换的sheet
      */
     public static void excel2pdf(InputStream inputStream, OutputStream outputStream, List<Integer> convertSheets) {
@@ -83,6 +86,18 @@ public class PdfUtil {
             // 验证 License
             getLicense();
             Workbook wb = new Workbook(inputStream);
+
+            for (int i = 0; i < wb.getWorksheets().getCount(); i++) {
+                PageSetup pageSetup = wb.getWorksheets().get(i).getPageSetup();
+                pageSetup.setPaperSize(PaperSizeType.PAPER_A_4);
+                pageSetup.setTopMargin(0.5);
+                pageSetup.setBottomMargin(0.5);
+                pageSetup.setLeftMargin(0.5);
+                pageSetup.setRightMargin(0.5);
+                pageSetup.setFitToPagesWide(1);
+                pageSetup.setFitToPagesTall(0);
+            }
+
             PdfSaveOptions pdfSaveOptions = new PdfSaveOptions();
             pdfSaveOptions.setOnePagePerSheet(true);
             if (null != convertSheets) {
