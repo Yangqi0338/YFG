@@ -130,7 +130,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             //记录响应信息
             HttpServletResponse httpServletResponse = ((ServletServerHttpResponse)response).getServletResponse();
             String jsonString = JSON.toJSONString(body);
-            if (jsonString.length() < 60000) {
+            if (jsonString.length() < 20000) {
                 httpLog.setRespBody(jsonString);
             } else {
                 // 长度超了，采用日志记录
