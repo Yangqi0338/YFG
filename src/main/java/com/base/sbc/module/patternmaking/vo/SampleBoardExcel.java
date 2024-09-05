@@ -299,6 +299,10 @@ public class SampleBoardExcel {
     @Excel(name = "样衣工作量其它特种设备")
     private String ratingOtherName;
 
+    private BigDecimal workloadRatingBase;
+    private BigDecimal workloadRatingRate;
+    private BigDecimal workloadRatingAppend;
+
     @Excel(name = "面料名称")
     private String workloadRatingFabricName;
     @Excel(name = "特种设备名称")
