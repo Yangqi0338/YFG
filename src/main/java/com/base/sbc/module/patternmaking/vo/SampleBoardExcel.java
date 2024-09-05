@@ -299,6 +299,23 @@ public class SampleBoardExcel {
     @Excel(name = "样衣工作量其它特种设备")
     private String ratingOtherName;
 
+    @Excel(name = "面料名称")
+    private String workloadRatingFabricName;
+    @Excel(name = "特种设备名称")
+    private String specialEquipmentName;
+    @Excel(name = "特种设备分值")
+    private BigDecimal specialEquipmentValue;
+    @Excel(name = "有无里布")
+    private String haveSingle;
+    @Excel(name = "对格对条分值")
+    private BigDecimal workloadRatingValue;
+    @Excel(name = "配饰分值")
+    private BigDecimal accessoryValue;
+    @Excel(name = "其他分值")
+    private BigDecimal otherValue;
+    @Excel(name = "备注")
+    private String workloadRatingRemark;
+
     @Excel(name = "样衣工质量评分",type = 10)
     private BigDecimal sampleMakingQualityScore;
 
