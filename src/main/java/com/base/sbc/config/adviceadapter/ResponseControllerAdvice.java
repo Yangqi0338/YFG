@@ -137,6 +137,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
                 String requestBody = String.format("----------------!!超出长度的RequestBody,请去warn日志直接查询这段 [%s]!!----------------", UUID.randomUUID().toString());
                 httpLog.setRespBody(requestBody);
                 log.warn(requestBody);
+                log.warn(jsonString);
             }
 //            JSONObject headers=new JSONObject();
 //            Collection<String> headerNames = httpServletResponse.getHeaderNames();
