@@ -5,8 +5,6 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.difference.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -39,7 +37,7 @@ public class Difference extends BaseDataEntity<String> {
     private String rangeDifferenceId;
     /** 部位编码 */
     @ApiModelProperty(value = "部位编码"  )
-    private String  partCoed;
+    private String partCode;
     /** 部位名称 */
     @ApiModelProperty(value = "部位名称"  )
     private String partName;
