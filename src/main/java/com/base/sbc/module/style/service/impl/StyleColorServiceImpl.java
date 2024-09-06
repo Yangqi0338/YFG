@@ -2446,6 +2446,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
             }
             PageHelper.startPage(dto);
+            dataPermissionsService.getDataPermissionsForQw(styleQueryWrapper, DataPermissionsBusinessTypeEnum.planningProject.getK(), "tsc.");
             List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper, dto);
             return new PageInfo<>(styleList);
         } else {
@@ -2486,6 +2487,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
             }
             PageHelper.startPage(dto);
+            dataPermissionsService.getDataPermissionsForQw(styleQueryWrapper, DataPermissionsBusinessTypeEnum.planningProject.getK(), "tsc.");
             List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper, null);
 
 
