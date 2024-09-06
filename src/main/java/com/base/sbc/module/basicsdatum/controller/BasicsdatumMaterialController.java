@@ -347,6 +347,7 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "物料颜色:批量保存颜色")
     @PostMapping("/saveBasicsdatumMaterialColorList")
+    @DuplicationCheck()
     public Boolean saveBasicsdatumMaterialColorList(@Valid @RequestBody List<BasicsdatumMaterialColorSaveDto> dtos) {
         return basicsdatumMaterialService.saveBasicsdatumMaterialColorList(dtos);
     }
