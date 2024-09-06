@@ -40,11 +40,11 @@ public class RestTemplateService {
         HttpHeaders requestHeaders = new HttpHeaders();
         HttpResp httpResp = new HttpResp();
         try {
-            Boolean b = ccmFeignService.getSwitchByCode(SEND_FLAG.getKeyCode());
-            if (!b){
-                httpResp.setSuccess(true);
-                return httpResp;
-            }
+            // Boolean b = ccmFeignService.getSwitchByCode(SEND_FLAG.getKeyCode());
+            // if (!b){
+            //     httpResp.setSuccess(true);
+            //     return httpResp;
+            // }
             requestHeaders.add("Content-Type", "application/json");
             for (Pair<String, String> header : headers) {
                 requestHeaders.add(header.getKey(), header.getValue());
