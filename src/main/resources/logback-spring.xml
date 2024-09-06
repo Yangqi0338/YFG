@@ -81,7 +81,7 @@
 			<fileNamePattern>${log.path}/warn/log-warn-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>200MB</maxFileSize>
+				<maxFileSize>3GB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
 			<!--日志文件保留天数 -->
 			<maxHistory>15</maxHistory>

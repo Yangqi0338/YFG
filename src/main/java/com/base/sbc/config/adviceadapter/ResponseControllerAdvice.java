@@ -26,7 +26,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.UUID;
 
 import static com.base.sbc.client.amc.service.AmcFeignService.userPlanningSeasonId;
 
@@ -130,15 +129,14 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             //记录响应信息
             HttpServletResponse httpServletResponse = ((ServletServerHttpResponse)response).getServletResponse();
             String jsonString = JSON.toJSONString(body);
-            if (jsonString.length() < 20000) {
-                httpLog.setRespBody(jsonString);
-            } else {
-                // 长度超了，采用日志记录
-                String requestBody = String.format("----------------!!超出长度的返回结果,请去warn日志直接查询这段 [%s]!!----------------", UUID.randomUUID().toString());
-                httpLog.setRespBody(requestBody);
-                log.warn(requestBody);
-                log.warn(jsonString);
-            }
+            httpLog.setRespBody(jsonString);
+//            if (jsonString.length() >= 20000) {
+//                // 长度超了，采用日志记录
+//                String requestBody = String.format("----------------!!超出长度的返回结果,请去warn日志直接查询这段 [%s]!!----------------", UUID.randomUUID().toString());
+//                httpLog.setRespBody(requestBody);
+//                log.warn(requestBody);
+//                log.warn(jsonString);
+//            }
 //            JSONObject headers=new JSONObject();
 //            Collection<String> headerNames = httpServletResponse.getHeaderNames();
 //            for (String headerName : headerNames) {
@@ -159,7 +157,8 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         }catch (Exception e){
          e.printStackTrace();
         }finally {
-            httpLogService.saveOrUpdate(httpLog);
+            log.warn(httpLog.toString());
+//            httpLogService.saveOrUpdate(httpLog);
             companyUserInfo.remove();
             userPlanningSeasonId.remove();
         }

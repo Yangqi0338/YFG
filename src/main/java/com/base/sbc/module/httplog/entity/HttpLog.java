@@ -1,13 +1,15 @@
 package com.base.sbc.module.httplog.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.base.sbc.config.SqlDataInfo;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author 卞康
@@ -149,6 +151,15 @@ public class HttpLog implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private String companyCode;
 
+    @Override
+    public String toString() {
+        return "--------------------------!!HTTPLOG!!--------------------------\n" +
+                "开始时间: %s | 地址: %s | 请求名: %s | 方法类型:%s | 线程id: %s | 状态码: %s | 请求人: %s\n" +
+                "请求头: %s\n" +
+                "请求Body: %s\n" +
+                "返回Body: %s\n" +
+                "其他扩展信息: [ip:%s | 物理地址:%s | 请求类型:%s | 持续时间:%s | 是否异常:%s | 状态码:%s | 创建人id: %s]\n";
+    }
 }
 
 
