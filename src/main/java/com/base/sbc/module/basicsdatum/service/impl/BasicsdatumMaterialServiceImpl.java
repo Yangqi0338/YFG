@@ -1263,6 +1263,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (StrUtil.isEmpty(id)) {
             throw new OtherException("当前id为空，找不到对应的物料信息！");
         }
+        String materialCodeParam = basicsdatumMaterialUpdateDto.getMaterialCode();
+        String materialNameParam = basicsdatumMaterialUpdateDto.getMaterialName();
+
+        //验证物料编码是否存在
+        if (StrUtil.isNotBlank(materialCodeParam)) {
+            checkMaterialCodeExist(id, materialCodeParam);
+        }
+
         BasicsdatumMaterial basicsdatumMaterial = this.getById(id);
 
         BasicsdatumMaterialUpdateVo basicsdatumMaterialUpdateVo = null;
@@ -1276,8 +1284,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             String category3Code = basicsdatumMaterial.getCategory3Code();
             String category3Name = basicsdatumMaterial.getCategory3Name();
 
-            String materialCodeParam = basicsdatumMaterialUpdateDto.getMaterialCode();
-            String materialNameParam = basicsdatumMaterialUpdateDto.getMaterialName();
             String category3CodeParam = basicsdatumMaterialUpdateDto.getCategory3Code();
 
             if ("1".equals(distribute)) {
@@ -1296,7 +1302,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 basicsdatumMaterial.setMaterialCodeName(materialCodeParam + materilCodeNameNull);
                 basicsdatumMaterial.setMaterialCode(materialCodeParam);
                 basicsdatumMaterialUpdateVo.setMaterialCodeName(materilCodeNameNull);
-            } else if (StrUtil.isNotEmpty(materialNameParam) || !materialNameParam.equals(materialName)) {
+            } else if (StrUtil.isNotBlank(materialNameParam)/* || !materialNameParam.equals(materialName)*/) {
                 if (StrUtil.isNotEmpty(materialCode)) {
                     //修改物料名称
                     String materilCodeNameNullParam = getCodeNameNull(materialNameParam);
@@ -1327,6 +1333,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         //新生成的物料编号，物料库验证是否重复
         String newMaterialCode = basicsdatumMaterialUpdateVo.getMaterialCode();
+        checkMaterialCodeExist(id, newMaterialCode);
+        return basicsdatumMaterialUpdateVo;
+    }
+
+    private void checkMaterialCodeExist(String id, String newMaterialCode) {
         if (StrUtil.isNotEmpty(newMaterialCode)) {
             QueryWrapper<BasicsdatumMaterial> basicsdatumMaterialQueryWrapper = new QueryWrapper<>();
             basicsdatumMaterialQueryWrapper.ne("id", id);
@@ -1337,7 +1348,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 throw new OtherException("该物料编码【" + newMaterialCode + "】数据已存在，不允许修改！");
             }
         }
-        return basicsdatumMaterialUpdateVo;
     }
 
     @NotNull
