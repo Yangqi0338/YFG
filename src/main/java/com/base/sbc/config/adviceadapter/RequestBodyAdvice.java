@@ -1,6 +1,5 @@
 package com.base.sbc.config.adviceadapter;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSON;
 import com.base.sbc.module.httplog.entity.HttpLog;
 import com.base.sbc.module.httplog.service.HttpLogService;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
 import java.lang.reflect.Type;
-import java.util.UUID;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
@@ -36,21 +34,16 @@ public class RequestBodyAdvice extends RequestBodyAdviceAdapter {
                                 Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         HttpLog httpLog = companyUserInfo.get().getHttpLog();
         //如果是文件上传则不写入请求体
-        HttpLog tempHttpLog;
-        String reqBody = JSON.toJSONString(body);
-        if (inputMessage.getHeaders().getContentType().toString().contains("multipart/form-data")) {
-            tempHttpLog = httpLog;
-        } else if (reqBody.length() < 20000) {
-            tempHttpLog = BeanUtil.copyProperties(httpLog, HttpLog.class);
-            tempHttpLog.setReqBody(reqBody);
-        } else {
-            tempHttpLog = httpLog;
-            String requestBody = String.format("----------------!!超出长度的RequestBody,请去warn日志直接查询这段 [%s]!!----------------", UUID.randomUUID().toString());
-            log.warn(requestBody);
-            log.warn(reqBody);
-        }
-        httpLogService.save(tempHttpLog);
-        httpLog.setId(tempHttpLog.getId());
+//        HttpLog tempHttpLog = httpLog;
+//        String reqBody = JSON.toJSONString(body);
+//        if (!inputMessage.getHeaders().getContentType().toString().contains("multipart/form-data")
+//                && reqBody.length() < 20000) {
+//            tempHttpLog = BeanUtil.copyProperties(httpLog, HttpLog.class);
+//            tempHttpLog.setReqBody(reqBody);
+//        }
+//        httpLogService.save(tempHttpLog);
+//        httpLog.setId(tempHttpLog.getId());
+        httpLog.setRespBody(JSON.toJSONString(body));
         return body;
     }
 }
