@@ -24,11 +24,14 @@ import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.PageInfo;
+
+import cn.hutool.core.collection.CollUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -221,6 +224,21 @@ public class PackTechSpecController extends BaseController{
     @ApiOperation(value = "引用")
     public boolean references(PackTechSpecReferencesDto dto) {
         return packTechSpecService.references(dto);
+    }
+
+
+    @ApiOperation(value = "批量更新")
+    @PostMapping("/batchUpdate")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult batchUpdate(@Valid @RequestBody PackTechSpecBatchDto dto) {
+        if (CollUtil.isNotEmpty(dto.getPackTechSpecDtos())){
+            dto.getPackTechSpecDtos().forEach(item ->packTechSpecService.saveByDto(item));
+        }
+        if (null != dto.getPackTechPackaging()){
+            packTechPackagingService.savePackaging(dto.getPackTechPackaging());
+        }
+        return ApiResult.success();
+
     }
 }
 

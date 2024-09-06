@@ -40,7 +40,7 @@
             -- tsp.totalCost,
             -- (tsp.totalCost * tsp.actualMagnification) multiplePrice,
             tsc.tag_price,
-            tsp.product_style_name,
+            tsc.product_style_name,
             -- tsp.actualMagnification,
             (CASE WHEN ts.designer != '' THEN SUBSTRING_INDEX(ts.designer, ',', 1) ELSE '' END) as designer,
             tsc.devt_type_name,

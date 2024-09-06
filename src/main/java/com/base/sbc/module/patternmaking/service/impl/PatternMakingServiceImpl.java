@@ -1571,7 +1571,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
-        PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
+        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
 
         ExcelUtils.exportExcelByTableCode(sampleBoardVoPageInfo.getList(), "样衣看板", response, dto);
     }

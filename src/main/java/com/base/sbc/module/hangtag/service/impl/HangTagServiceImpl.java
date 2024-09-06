@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
@@ -150,19 +151,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -1009,19 +998,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()) {
 						if (TECH_CHECK == updateStatus) {
-							// downContent：充绒量                     (devClassName != '次品')
-							// executeStandardCode：执行标准           ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// saftyTypeCode：安全类别                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// productCode：品名                       任何情况都校验
-							// qualityGradeCode：质量等级              ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// saftyTitleCode：安全标题                ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// specialSpec：特殊规格                   (prodCategory1stName == '配饰' && produceTypeName=='CMT' && devClassName != '次品')
-							// fabricDetails：面料详情                 ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && produceTypeName == 'CMT' && devClassName != '次品')
-							// ingredient：成分                        ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// packagingFormCode：包装形式             ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// packagingBagStandardCode：包装袋标准     ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// washingLabel：洗标                      ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')
-							// warmTips：温馨提示                       ((prodCategory1stName != '配饰' || 配饰校验接口不为0) && devClassName != '次品')							boolean flag = true;
 							if (StrUtil.isBlank(e.getId())) throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
 
 							// 查询大类信息
@@ -1037,46 +1013,29 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							String devClassName = style.getDevClassName();
 							// 获取是否开启配饰校验
 							boolean value1 = ccmFeignService.getSwitchByCode("dppsjyzd");
-							boolean value2 = ccmFeignService.getSwitchByCode("TAG_BY_STYLE_DIMENSION_SWITCH");
 							// 获取生产类型
 							String devtTypeName = styleColor.getDevtTypeName();
+							String[] split = bulkStyleNo.split("-");
 
-							if (StrUtil.isBlank(e.getProductCode())) {
-								throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-							}
+							Boolean reportingTwo = bulkStyleNo.endsWith("-10") || bulkStyleNo.endsWith("-11") || bulkStyleNo.endsWith("-ZC");
+							Boolean reportingAll = bulkStyleNo.endsWith("-9") || bulkStyleNo.endsWith("-10") || bulkStyleNo.endsWith("-11") || bulkStyleNo.endsWith("-ZC");
 
-							if (!devClassName.equals("次品")) {
-								if (e.getProductCode().contains("羽绒") && StrUtil.isBlank(e.getDownContent())) {
-									throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-								}
-								if (!Objects.equals(prodCategory1stName, "配饰") || !value1) {
-									if (
-											StrUtil.isBlank(e.getExecuteStandardCode())
-													|| StrUtil.isBlank(e.getSaftyTypeCode())
-													|| StrUtil.isBlank(e.getQualityGradeCode())
-													|| StrUtil.isBlank(e.getSaftyTitleCode())
-													|| StrUtil.isBlank(e.getIngredient())
-													|| StrUtil.isBlank(e.getPackagingFormCode())
-													|| StrUtil.isBlank(e.getPackagingBagStandardCode())
-													|| StrUtil.isBlank(e.getWashingLabel())
-													|| StrUtil.isBlank(e.getWarmTips())
-									) {
-										throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-									}
-									if (Objects.equals(devtTypeName, "CMT")) {
-										if (StrUtil.isBlank(e.getFabricDetails())) {
-											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-										}
-									}
-								}
-								if (StrUtil.isNotBlank(e.getExecuteStandardCode())) {
-									if (Objects.equals(prodCategory1stName, "配饰")) {
-										if (StrUtil.isBlank(e.getSpecialSpec())) {
-											throw new OtherException("款式信息必填项未填写，请检查吊牌详情页面信息");
-										}
-									}
-								}
-							}
+
+							String isDefective = styleColor.getIsDefective();
+
+							Assert.isFalse(StrUtil.isBlank(e.getProductCode()), "品名未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getExecuteStandardCode())), "执行标准未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getQualityGradeCode())), "质量等级未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTitleCode())), "安全标题未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getSaftyTypeCode())), "安全列表未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && reportingTwo) && StrUtil.isBlank(e.getPackagingFormCode())), "包装形式未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && !("1".equals(isDefective) && reportingAll) && StrUtil.isBlank(e.getPackagingBagStandardCode())), "包装袋标准未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getIngredient())), "成分信息未维护");
+							Assert.isFalse((!("1".equals(isDefective) && reportingAll) && !"配饰".equals(prodCategory1stName) && "CMT".equals(devtTypeName) && StrUtil.isBlank(e.getFabricDetails())), "面料详情未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWarmTips())), "温馨提示未维护");
+							Assert.isFalse((!"配饰".equals(prodCategory1stName) && StrUtil.isBlank(e.getWashingLabel())), "洗标未维护");
+							Assert.isFalse((e.getProductName().contains("羽绒") && StrUtil.isBlank(e.getDownContent())), "充绒量未维护");
+							Assert.isFalse(("配饰".equals(prodCategory1stName) && StrUtil.isNotBlank(e.getExecuteStandardCode()) && StrUtil.isBlank(e.getSpecialSpec())), "特殊规格未维护");
 
 						} else {
 							throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
