@@ -153,7 +153,7 @@ public class HttpLog implements Serializable {
 
     @Override
     public String toString() {
-        return "\n" +
+        return "--------------------------!!HTTPLOG!!--------------------------\n" +
                 "开始时间: %s | 地址: %s | 请求名: %s | 方法类型:%s | 线程id: %s | 状态码: %s | 请求人: %s\n" +
                 "请求头: %s\n" +
                 "请求Body: %s\n" +

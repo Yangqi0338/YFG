@@ -157,7 +157,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         }catch (Exception e){
          e.printStackTrace();
         }finally {
-            log.debug(httpLog.toString());
+            log.warn(httpLog.toString());
 //            httpLogService.saveOrUpdate(httpLog);
             companyUserInfo.remove();
             userPlanningSeasonId.remove();
