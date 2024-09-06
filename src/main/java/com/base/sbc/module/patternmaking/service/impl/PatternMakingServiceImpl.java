@@ -109,6 +109,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import com.base.sbc.client.amc.entity.Dept;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -1779,7 +1780,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
-        PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
+        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
 
         ExcelUtils.exportExcelByTableCode(sampleBoardVoPageInfo.getList(), "样衣看板", response, dto);
     }
