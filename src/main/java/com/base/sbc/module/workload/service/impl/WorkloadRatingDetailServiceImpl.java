@@ -136,7 +136,7 @@ public class WorkloadRatingDetailServiceImpl extends BaseServiceImpl<WorkloadRat
                             workloadRatingDetail.setResult(calculatePair.getKey());
                         }
                     }
-                    if("d72c1022a26a470f7f6d3114a389b4b1".equals(config.getConfigId()) || "d72c1022a26a470f7f6d3114a389b4b2".equals(config.getConfigId())){
+                    if("其他分".equals(config.getConfigName()) || "配饰分".equals(config.getConfigName())){
                         score = config.getScore();
                         config.setCalculateType(WorkloadRatingCalculateType.APPEND);
                         workloadRatingDetail.setResult(workloadRatingDetail.getResult().add(score));
