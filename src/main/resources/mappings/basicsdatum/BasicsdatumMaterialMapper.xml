@@ -397,11 +397,11 @@
 	</select>
 
 	<select id="getCategoryMaxCode" resultType="java.lang.String">
-		SELECT LPAD(t.suffix + 1, 5, '0')
+		SELECT DISTINCT LPAD(t.suffix + 1, 5, '0')
 			FROM
-		    (SELECT REPLACE(material_code, #{category3Code}, '') AS suffix FROM t_basicsdatum_material WHERE material_code LIKE concat(#{category3Code},'%') AND material_code NOT LIKE '%-%' AND length(REPLACE(material_code, #{category3Code}, '')) = 5) t
+		    (SELECT REPLACE(material_code, #{category3Code}, '') AS suffix FROM t_basicsdatum_material WHERE material_code LIKE concat(#{category3Code},'%') ) t
 		LEFT JOIN
-			(SELECT REPLACE(material_code, #{category3Code}, '') AS suffix FROM t_basicsdatum_material WHERE material_code LIKE concat(#{category3Code},'%') AND material_code NOT LIKE '%-%' AND length(REPLACE(material_code, #{category3Code}, '')) = 5) t1
+			(SELECT REPLACE(material_code, #{category3Code}, '') AS suffix FROM t_basicsdatum_material WHERE material_code LIKE concat(#{category3Code},'%') ) t1
 		ON t.suffix + 1 = t1.suffix
 		WHERE t1.suffix is null  and t.suffix >= 0
 		ORDER BY t.suffix
