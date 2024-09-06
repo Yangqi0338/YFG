@@ -401,7 +401,7 @@ public class SmpService {
             //region 根据code和阶段以及款式bom查询出款式定价数据,出现多条用大货款号进行比对
             PackInfoListVo packInfo = null;
             List<PackInfoListVo> packInfoListVos = packInfoService.queryByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
-            if (packInfoListVos.size() > 2) {
+            if (packInfoListVos.size() > 1) {
                 String styleNo = styleColor.getStyleNo();
                 for (PackInfoListVo packInfoListVo : packInfoListVos) {
                     if (packInfoListVo.getStyleNo().equals(styleNo)) {
