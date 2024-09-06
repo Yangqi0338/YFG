@@ -112,4 +112,32 @@ public class EsOrderBookItemVo {
     private BigDecimal materialPrice;
 
     private String calcItemVal;
+
+    public String getProductStyleName() {
+        if(actualMagnification.compareTo(new BigDecimal("6")) >= 0){
+            return "B";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("5.5")) >= 0 && actualMagnification.compareTo(new BigDecimal("6")) < 0) {
+            return "F";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("5")) >= 0 && actualMagnification.compareTo(new BigDecimal("5.5")) < 0) {
+            return "A";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("4.5")) >= 0 && actualMagnification.compareTo(new BigDecimal("5")) < 0) {
+            return "C";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("4")) >= 0 && actualMagnification.compareTo(new BigDecimal("4.5")) < 0) {
+            return "D";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("3")) >= 0 && actualMagnification.compareTo(new BigDecimal("4")) < 0) {
+            return "E";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("2")) >= 0 && actualMagnification.compareTo(new BigDecimal("3")) < 0) {
+            return "G";
+        }
+        if(actualMagnification.compareTo(new BigDecimal("1.5")) >= 0 && actualMagnification.compareTo(new BigDecimal("2")) < 0) {
+            return "H";
+        }
+        return "J";
+    }
 }
