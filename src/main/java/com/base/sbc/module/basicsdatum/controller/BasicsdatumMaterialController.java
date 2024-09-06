@@ -302,6 +302,7 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "物料规格:新增规格/修改")
     @PostMapping("/saveBasicsdatumMaterialWidth")
+    @DuplicationCheck
     public Boolean saveBasicsdatumMaterialWidth(@Valid @RequestBody BasicsdatumMaterialWidthSaveDto dto) {
         return basicsdatumMaterialService.saveBasicsdatumMaterialWidth(dto);
     }
@@ -379,6 +380,7 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "物料报价:保存报价")
     @PostMapping("/saveBasicsdatumMaterialPrice")
+    @DuplicationCheck()
     public Boolean saveBasicsdatumMaterialPrice(@Valid @RequestBody BasicsdatumMaterialPriceSaveDto dto) {
         return basicsdatumMaterialService.saveBasicsdatumMaterialPrice(dto);
     }
