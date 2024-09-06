@@ -1,6 +1,5 @@
 package com.base.sbc.config.adviceadapter;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -115,7 +114,9 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
         //记录请求信息
-        HttpLog httpLog = BeanUtil.copyProperties(companyUserInfo.get().getHttpLog(), HttpLog.class);
+        UserCompany userCompany = companyUserInfo.get();
+//        HttpLog httpLog = BeanUtil.copyProperties(userCompany.getHttpLog(), HttpLog.class);
+        HttpLog httpLog = userCompany.getHttpLog();
         try {
             URI uri = request.getURI();
 
@@ -154,6 +155,8 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
                 httpLog.setStatusCode(JSONUtil.parseObj(jsonString).getInt("status"));
 //                httpLog.setThrowableException(JSON.parseObject(jsonString).getString("message"));
             }
+            httpLog.setCreateName(userCompany.getAliasUserName());
+            httpLog.setCreateId(userCompany.getUserId());
         }catch (Exception e){
          e.printStackTrace();
         }finally {

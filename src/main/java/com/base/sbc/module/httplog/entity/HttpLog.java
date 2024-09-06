@@ -1,5 +1,6 @@
 package com.base.sbc.module.httplog.entity;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -153,13 +154,15 @@ public class HttpLog implements Serializable {
 
     @Override
     public String toString() {
-        return "--------------------------!!HTTPLOG!!--------------------------\n" +
-                String.format("开始时间: %s | 地址: %s | 请求名: %s | 方法类型:%s | 线程id: %s | 状态码: %s | 请求人: %s\n" +
-                "请求头: %s\n" +
-                "请求Body: %s\n" +
-                "返回Body: %s\n" +
-                                "其他扩展信息: [ip:%s | 物理地址:%s | 请求类型:%s | 持续时间:%s | 是否异常:%s | 创建人id: %s]\n",
-                        startTime, url, reqName, method, threadId, statusCode, createName,
+        return "\n--------------------------!!HTTPLOG!!--------------------------\n" +
+                String.format("!!地址: %s\n" +
+                                "!!开始时间: %s | 请求名: %s | 请求人: %s | 方法类型: %s | 线程id: %s | 状态码: %s\n" +
+                                "!!请求头: %s\n" +
+                                "!!请求Body: %s\n" +
+                                "!!返回Body: %s\n" +
+                                "!!其他扩展信息: [ip: %s | 物理地址: %s | 请求类型: %s | 持续时间: %s | 是否异常: %s | 创建人id: %s]\n",
+                        url,
+                        DateUtil.format(startTime, "yyyy-MM-dd HH:mm:ss"), reqName, createName, method, threadId, statusCode,
                         reqHeaders,
                         reqBody,
                         respBody,
